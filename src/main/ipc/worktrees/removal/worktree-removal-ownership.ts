@@ -7,6 +7,7 @@ import type { ExecutionHostId } from '../../../../shared/execution-host'
 import type { Repo } from '../../../../shared/repo-types'
 import { hasWorktreeRemovalRepoOwnerOnOtherHost } from '../../../worktree-removal-repo-owner'
 import { getRepoIdFromWorktreeId } from '../../../../shared/worktree/id'
+import { getLspSessionManager } from '../../../lsp/lsp-session-registry'
 import { advertisedUrlWatcher } from '../../../ports/advertised-url-watcher'
 import { localhostWorktreeLabelProxy } from '../../../localhost-worktree-label-proxy'
 import { deleteWorktreeHistoryDir } from '../../../terminal-history-deletion'
@@ -90,6 +91,7 @@ export function removeWorktreeMetadataAndTransientState(
   }
   if (!preservesSameIdOwner) {
     advertisedUrlWatcher.forgetWorktree(worktreeId)
+    getLspSessionManager()?.disposeForWorktree(worktreeId)
     // Why: drop this worktree's localhost label routes so they don't accumulate in the proxy's route maps all session.
     localhostWorktreeLabelProxy.unregisterWorktree(worktreeId)
     // Why: schedule async history tree removal — never recursive-rmSync on the delete critical path.

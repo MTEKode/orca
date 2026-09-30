@@ -16,6 +16,7 @@ import {
 } from '../../../shared/worktree/visibility-sources'
 import { prepareLocalWorktreeRootForRepo } from '../../worktree-root-preparation'
 import { invalidateAuthorizedRootsCache } from '../registered-worktree-roots-cache'
+import { getLspSessionManager } from '../../lsp/lsp-session-registry'
 import { notifyReposChanged } from './repos-changed-notification'
 
 export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Store): void {
@@ -231,6 +232,9 @@ export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Stor
         if ('worktreeBasePath' in updates) {
           void prepareLocalWorktreeRootForRepo(store, updated)
           invalidateAuthorizedRootsCache()
+        }
+        if ('languageServers' in updates) {
+          getLspSessionManager()?.disposeForRepo(args.repoId)
         }
         notifyReposChanged(mainWindow)
       }

@@ -1,0 +1,69 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+const mocks = vi.hoisted(() => ({
+  handlers: new Map<string, (event: unknown, args: unknown) => unknown>(),
+  ports: [] as {
+    on: ReturnType<typeof vi.fn>
+    start: ReturnType<typeof vi.fn>
+    postMessage: ReturnType<typeof vi.fn>
+    close: ReturnType<typeof vi.fn>
+  }[]
+}))
+vi.mock('electron', () => ({
+  ipcMain: {
+    handle: (name: string, handler: (event: unknown, args: unknown) => unknown) =>
+      mocks.handlers.set(name, handler),
+    removeHandler: vi.fn()
+  },
+  MessageChannelMain: class {
+    port1 = { on: vi.fn(), start: vi.fn(), postMessage: vi.fn(), close: vi.fn() }
+    port2 = { on: vi.fn(), start: vi.fn(), postMessage: vi.fn(), close: vi.fn() }
+    constructor() {
+      mocks.ports.push(this.port1, this.port2)
+    }
+  }
+}))
+
+import { registerLspHandlers } from './lsp'
+
+describe('lsp:open', () => {
+  const attachPort = vi.fn()
+  const acquire = vi.fn()
+  const sender = { postMessage: vi.fn() }
+  beforeEach(() => {
+    mocks.handlers.clear()
+    mocks.ports.length = 0
+    vi.clearAllMocks()
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: registerLspHandlers only calls acquire on the manager.
+    registerLspHandlers({ acquire } as never, { getRepo: () => undefined } as never)
+  })
+
+  it('returns the refusal and sends no port when LSP is off', async () => {
+    acquire.mockResolvedValue({ ok: false, reason: 'disabled' })
+    const result = await mocks.handlers.get('lsp:open')?.(
+      { sender },
+      { requestId: 'q', worktreeId: 'r::/p', languageId: 'ruby' }
+    )
+    expect(result).toEqual({ ok: false, reason: 'disabled' })
+    expect(sender.postMessage).not.toHaveBeenCalled()
+  })
+
+  it('attaches one end and transfers the other to the renderer', async () => {
+    acquire.mockResolvedValue({ ok: true, key: 'k', session: { attachPort } })
+    const result = await mocks.handlers.get('lsp:open')?.(
+      { sender },
+      { requestId: 'q', worktreeId: 'r::/p', languageId: 'ruby' }
+    )
+    expect(result).toEqual({ ok: true, sessionKey: 'k' })
+    expect(attachPort).toHaveBeenCalledTimes(1)
+    expect(sender.postMessage).toHaveBeenCalledWith('lsp:port', { requestId: 'q' }, [
+      mocks.ports[1]
+    ])
+  })
+
+  it('rejects malformed arguments', async () => {
+    const result = await mocks.handlers.get('lsp:open')?.({ sender }, { worktreeId: 1 })
+    expect(result).toEqual({ ok: false, reason: 'invalid-worktree' })
+    expect(acquire).not.toHaveBeenCalled()
+  })
+})
