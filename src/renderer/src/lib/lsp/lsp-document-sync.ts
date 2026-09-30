@@ -71,19 +71,20 @@ export class LspDocumentSync {
         doc.openedOn.notify('textDocument/didClose', { textDocument: { uri: key } })
       }
     })
-    void this.clientFor(model)
+    this.clientFor(model).catch(() => undefined)
   }
 
   async clientFor(model: SyncModel): Promise<SyncClient | null> {
-    const doc = this.documents.get(model.uri.toString())
+    const uri = model.uri.toString()
+    const doc = this.documents.get(uri)
     if (!doc) {
       return null
     }
     const client = await this.deps.getClient(doc.owner.worktreeId, model.getLanguageId())
-    if (!client || !this.documents.has(model.uri.toString())) {
+    // Why: a same-URI model may have replaced this doc while getClient was pending.
+    if (!client || this.documents.get(uri) !== doc) {
       return null
     }
-    const uri = model.uri.toString()
     // Why: no await between this check and the openedOn write, so racing callers send one didOpen.
     if (doc.openedOn !== client) {
       client.notify('textDocument/didOpen', {

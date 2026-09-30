@@ -107,6 +107,64 @@ describe('LspDocumentSync', () => {
       client.notify.mock.calls.filter(([method]) => method === 'textDocument/didChange')
     ).toHaveLength(0)
   })
+
+  it('drops a stale call when a same-URI model replaces the doc while getClient is pending', async () => {
+    const client = fakeClient()
+    let resolve: (c: unknown) => void = () => {}
+    const pending = new Promise((r) => {
+      resolve = r
+    })
+    const sync = new LspDocumentSync({
+      findOwner: () => owner,
+      getClient: () => pending as never
+    })
+    const m1 = model('file:///repo/a.ts')
+    sync.track(m1)
+    const stale = sync.clientFor(m1)
+    m1.dispose()
+    const m2 = model('file:///repo/a.ts')
+    m2.change('const b = 2')
+    sync.track(m2)
+    resolve(client)
+    expect(await stale).toBeNull()
+    await sync.clientFor(m2)
+    const opens = client.notify.mock.calls.filter(([method]) => method === 'textDocument/didOpen')
+    expect(opens).toHaveLength(1)
+    expect(opens[0][1].textDocument.text).toBe('const b = 2')
+  })
+
+  it('does not send didChange after a reconnect replays didOpen', async () => {
+    const first = fakeClient()
+    const second = fakeClient()
+    let current = first
+    const getClient = async () => current as never
+    const sync = new LspDocumentSync({ findOwner: () => owner, getClient })
+    const m = model('file:///repo/a.ts')
+    sync.track(m)
+    await sync.clientFor(m)
+    first.isClosed = true
+    current = second
+    m.change('const a = 3')
+    await sync.clientFor(m)
+    expect(second.notify).toHaveBeenCalledTimes(1)
+    expect(second.notify).toHaveBeenCalledWith('textDocument/didOpen', {
+      textDocument: expect.objectContaining({ version: 2, text: 'const a = 3' })
+    })
+  })
+
+  it('sends no didClose when the client is already closed', async () => {
+    const client = fakeClient()
+    const sync = new LspDocumentSync({
+      findOwner: () => owner,
+      getClient: async () => client as never
+    })
+    const m = model('file:///repo/a.ts')
+    sync.track(m)
+    await sync.clientFor(m)
+    client.isClosed = true
+    m.dispose()
+    expect(client.notify).not.toHaveBeenCalledWith('textDocument/didClose', expect.anything())
+  })
 })
 
 describe('lspLanguageIdForPath', () => {
