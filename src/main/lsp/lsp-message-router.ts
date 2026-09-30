@@ -50,7 +50,7 @@ function documentUri(params: unknown): string | null {
 export class LspMessageRouter {
   private nextServerId = 1
   private readonly pending = new Map<number, Pending>()
-  private readonly openDocuments = new Map<number, Set<string>>()
+  private readonly documentOwners = new Map<string, Set<number>>()
 
   constructor(
     private readonly sendToServer: (message: JsonRpcMessage) => void,
@@ -68,12 +68,19 @@ export class LspMessageRouter {
       }
       const serverId = this.nextServerId++
       this.pending.set(serverId, { kind: 'port', portId, clientId: id })
-      this.sendToServer({ ...message, id: serverId })
+      try {
+        this.sendToServer({ ...message, id: serverId })
+      } catch (error) {
+        this.pending.delete(serverId)
+        return errorReply(
+          id,
+          `Failed to send to server: ${error instanceof Error ? error.message : String(error)}`
+        )
+      }
       return null
     }
     if (CLIENT_NOTIFICATIONS.has(method)) {
       this.trackDocument(portId, method, message.params)
-      this.sendToServer(message)
     }
     return null
   }
@@ -110,7 +117,12 @@ export class LspMessageRouter {
     const id = this.nextServerId++
     return new Promise((resolve, reject) => {
       this.pending.set(id, { kind: 'internal', resolve, reject })
-      this.sendToServer({ jsonrpc: '2.0', id, method, params })
+      try {
+        this.sendToServer({ jsonrpc: '2.0', id, method, params })
+      } catch (error) {
+        this.pending.delete(id)
+        reject(error instanceof Error ? error : new Error(String(error)))
+      }
     })
   }
 
@@ -119,10 +131,15 @@ export class LspMessageRouter {
   }
 
   detachPort(portId: number): void {
-    for (const uri of this.openDocuments.get(portId) ?? []) {
-      this.notify('textDocument/didClose', { textDocument: { uri } })
+    for (const [uri, owners] of this.documentOwners) {
+      if (owners.has(portId)) {
+        owners.delete(portId)
+        if (owners.size === 0) {
+          this.documentOwners.delete(uri)
+          this.notify('textDocument/didClose', { textDocument: { uri } })
+        }
+      }
     }
-    this.openDocuments.delete(portId)
     for (const [id, pending] of this.pending) {
       if (pending.kind === 'port' && pending.portId === portId) {
         this.pending.delete(id)
@@ -144,12 +161,28 @@ export class LspMessageRouter {
     if (!uri) {
       return
     }
-    const docs = this.openDocuments.get(portId) ?? new Set<string>()
-    this.openDocuments.set(portId, docs)
     if (method === 'textDocument/didOpen') {
-      docs.add(uri)
+      const owners = this.documentOwners.get(uri) ?? new Set<number>()
+      const isFirstOpener = owners.size === 0
+      owners.add(portId)
+      this.documentOwners.set(uri, owners)
+      if (isFirstOpener) {
+        this.sendToServer({ jsonrpc: '2.0', method, params })
+      }
+    } else if (method === 'textDocument/didChange') {
+      const owners = this.documentOwners.get(uri)
+      if (owners?.has(portId)) {
+        this.sendToServer({ jsonrpc: '2.0', method, params })
+      }
     } else if (method === 'textDocument/didClose') {
-      docs.delete(uri)
+      const owners = this.documentOwners.get(uri)
+      if (owners?.has(portId)) {
+        owners.delete(portId)
+        if (owners.size === 0) {
+          this.documentOwners.delete(uri)
+          this.sendToServer({ jsonrpc: '2.0', method, params })
+        }
+      }
     }
   }
 

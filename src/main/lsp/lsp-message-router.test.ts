@@ -87,4 +87,86 @@ describe('LspMessageRouter', () => {
     ).toBeNull()
     await expect(pending).resolves.toEqual({ capabilities: {} })
   })
+
+  it('two ports open the same URI: only first didOpen forwarded; detach handles ownership correctly', () => {
+    const { router, toServer } = setup()
+    router.fromClient(1, {
+      jsonrpc: '2.0',
+      method: 'textDocument/didOpen',
+      params: doc('file:///shared.rb')
+    })
+    router.fromClient(2, {
+      jsonrpc: '2.0',
+      method: 'textDocument/didOpen',
+      params: doc('file:///shared.rb')
+    })
+    const didOpenMessages = toServer.filter((m) => m.method === 'textDocument/didOpen')
+    expect(didOpenMessages).toHaveLength(1)
+    expect(didOpenMessages[0].params).toEqual(doc('file:///shared.rb'))
+    toServer.length = 0
+    router.detachPort(1)
+    expect(toServer).toHaveLength(0)
+    toServer.length = 0
+    router.detachPort(2)
+    expect(toServer).toHaveLength(1)
+    expect(toServer[0]).toEqual({
+      jsonrpc: '2.0',
+      method: 'textDocument/didClose',
+      params: { textDocument: { uri: 'file:///shared.rb' } }
+    })
+  })
+
+  it('didChange and didClose only from owner port are forwarded', () => {
+    const { router, toServer } = setup()
+    router.fromClient(1, {
+      jsonrpc: '2.0',
+      method: 'textDocument/didOpen',
+      params: doc('file:///doc.rb')
+    })
+    toServer.length = 0
+    router.fromClient(1, {
+      jsonrpc: '2.0',
+      method: 'textDocument/didChange',
+      params: doc('file:///doc.rb')
+    })
+    expect(toServer).toHaveLength(1)
+    expect(toServer[0].method).toBe('textDocument/didChange')
+    toServer.length = 0
+    router.fromClient(2, {
+      jsonrpc: '2.0',
+      method: 'textDocument/didChange',
+      params: doc('file:///doc.rb')
+    })
+    expect(toServer).toHaveLength(0)
+    toServer.length = 0
+    router.fromClient(2, {
+      jsonrpc: '2.0',
+      method: 'textDocument/didClose',
+      params: doc('file:///doc.rb')
+    })
+    expect(toServer).toHaveLength(0)
+    router.fromClient(1, {
+      jsonrpc: '2.0',
+      method: 'textDocument/didClose',
+      params: doc('file:///doc.rb')
+    })
+    expect(toServer).toHaveLength(1)
+    expect(toServer[0].method).toBe('textDocument/didClose')
+  })
+
+  it('didOpen, didChange, didClose without valid uri are dropped', () => {
+    const { router, toServer } = setup()
+    router.fromClient(1, { jsonrpc: '2.0', method: 'textDocument/didOpen', params: {} })
+    router.fromClient(1, {
+      jsonrpc: '2.0',
+      method: 'textDocument/didChange',
+      params: { textDocument: {} }
+    })
+    router.fromClient(1, {
+      jsonrpc: '2.0',
+      method: 'textDocument/didClose',
+      params: { textDocument: { uri: 123 } }
+    })
+    expect(toServer).toHaveLength(0)
+  })
 })
