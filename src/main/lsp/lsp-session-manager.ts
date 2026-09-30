@@ -49,10 +49,13 @@ export class LspSessionManager {
   private readonly sessions = new Map<string, Entry>()
   private readonly unexpectedExits = new Map<string, number>()
   private useCounter = 0
+  private generation = 0
+  private disposed = false
 
   constructor(private readonly deps: LspSessionManagerDeps) {}
 
   async acquire(request: { worktreeId: string; languageId: string }): Promise<LspAcquireResult> {
+    const gen = this.generation
     const parsed = splitWorktreeIdForFilesystem(request.worktreeId)
     const repo = parsed ? this.deps.getRepo(parsed.repoId) : undefined
     if (!parsed || !repo) {
@@ -66,6 +69,9 @@ export class LspSessionManager {
       return fail('disabled')
     }
     const rootPath = await this.deps.resolveWorktreeRoot(parsed.worktreePath).catch(() => null)
+    if (this.generation !== gen || this.disposed) {
+      return fail('unavailable')
+    }
     if (!rootPath) {
       return fail('invalid-worktree')
     }
@@ -74,7 +80,7 @@ export class LspSessionManager {
       return fail('unavailable')
     }
     const existing =
-      this.sessions.get(key) ?? (await this.createEntry(key, serverId, repo, rootPath))
+      this.sessions.get(key) ?? (await this.createEntry(key, serverId, repo, rootPath, gen))
     if (!existing) {
       return fail('unavailable')
     }
@@ -84,6 +90,7 @@ export class LspSessionManager {
   }
 
   disposeForWorktree(worktreeId: string): void {
+    this.generation++
     const parsed = splitWorktreeIdForFilesystem(worktreeId)
     if (!parsed) {
       return
@@ -93,12 +100,15 @@ export class LspSessionManager {
   }
 
   disposeForRepo(repoId: string): void {
+    this.generation++
     // Why: settings changes reset every crash budget; scope per repo if it ever matters.
     this.unexpectedExits.clear()
     this.disposeWhere((entry) => entry.repoId === repoId)
   }
 
   async disposeAll(options: { force?: boolean } = {}): Promise<void> {
+    this.generation++
+    this.disposed = true
     const entries = [...this.sessions.values()]
     this.sessions.clear()
     await Promise.all(entries.map((entry) => entry.session.dispose(options)))
@@ -108,29 +118,45 @@ export class LspSessionManager {
     key: string,
     serverId: LanguageServerId,
     repo: Repo,
-    rootPath: string
+    rootPath: string,
+    gen: number
   ): Promise<Entry | null> {
-    const resolved = await this.deps.resolveCommand(serverId, rootPath, repo.languageServers)
+    let resolved: ResolvedLspServer | null
+    try {
+      resolved = await this.deps.resolveCommand(serverId, rootPath, repo.languageServers)
+    } catch {
+      return null
+    }
+    if (this.generation !== gen || this.disposed) {
+      return null
+    }
     const raced = this.sessions.get(key)
     if (raced || !resolved) {
       return raced ?? null
     }
-    let session: LspSessionHandle | null = null
-    session = this.deps.createSession({
-      serverId,
-      rootPath,
-      command: resolved.command,
-      initializationOptions: resolved.initializationOptions,
-      idleShutdownMs: this.deps.idleShutdownMs ?? 3 * 60_000,
-      onExit: (unexpected) => {
-        if (this.sessions.get(key)?.session === session) {
-          this.sessions.delete(key)
+    if ((this.unexpectedExits.get(key) ?? 0) >= MAX_UNEXPECTED_EXITS) {
+      return null
+    }
+    let session: LspSessionHandle
+    try {
+      session = this.deps.createSession({
+        serverId,
+        rootPath,
+        command: resolved.command,
+        initializationOptions: resolved.initializationOptions,
+        idleShutdownMs: this.deps.idleShutdownMs ?? 3 * 60_000,
+        onExit: (unexpected) => {
+          if (this.sessions.get(key)?.session === session) {
+            this.sessions.delete(key)
+          }
+          if (unexpected) {
+            this.unexpectedExits.set(key, (this.unexpectedExits.get(key) ?? 0) + 1)
+          }
         }
-        if (unexpected) {
-          this.unexpectedExits.set(key, (this.unexpectedExits.get(key) ?? 0) + 1)
-        }
-      }
-    })
+      })
+    } catch {
+      return null
+    }
     const entry: Entry = {
       session,
       serverId,

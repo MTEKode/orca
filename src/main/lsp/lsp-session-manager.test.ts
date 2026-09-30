@@ -109,4 +109,74 @@ describe('LspSessionManager', () => {
     manager.disposeForWorktree(folderId)
     expect(created[0].handle.dispose).toHaveBeenCalled()
   })
+
+  it('aborts pending acquire when disposeForRepo is called', async () => {
+    let resolve: (v: unknown) => void = () => {}
+    const deferred = new Promise<unknown>((r) => {
+      resolve = r
+    })
+    const { manager, created } = setup({
+      resolveCommand: () =>
+        deferred as Promise<{
+          command: { program: string; args: string[]; env: Record<string, string> }
+          initializationOptions: null
+        } | null>
+    })
+    const acquiring = manager.acquire({ worktreeId: 'r1::/repo', languageId: 'ruby' })
+    manager.disposeForRepo('r1')
+    resolve({ command: { program: 'x', args: [], env: {} }, initializationOptions: null })
+    const result = await acquiring
+    expect(result).toEqual({ ok: false, reason: 'unavailable' })
+    expect(created).toHaveLength(0)
+  })
+
+  it('aborts pending acquire when disposeAll is called', async () => {
+    let resolve: (v: unknown) => void = () => {}
+    const deferred = new Promise<unknown>((r) => {
+      resolve = r
+    })
+    const { manager, created } = setup({
+      resolveCommand: () =>
+        deferred as Promise<{
+          command: { program: string; args: string[]; env: Record<string, string> }
+          initializationOptions: null
+        } | null>
+    })
+    const acquiring = manager.acquire({ worktreeId: 'r1::/repo', languageId: 'ruby' })
+    await manager.disposeAll()
+    resolve({ command: { program: 'x', args: [], env: {} }, initializationOptions: null })
+    const result = await acquiring
+    expect(result).toEqual({ ok: false, reason: 'unavailable' })
+    expect(created).toHaveLength(0)
+  })
+
+  it('creates only one session for concurrent acquires of same key', async () => {
+    let resolve: (v: unknown) => void = () => {}
+    const deferred = new Promise<unknown>((r) => {
+      resolve = r
+    })
+    const { manager, created } = setup({
+      resolveCommand: () =>
+        deferred as Promise<{
+          command: { program: string; args: string[]; env: Record<string, string> }
+          initializationOptions: null
+        } | null>
+    })
+    const promise1 = manager.acquire({ worktreeId: 'r1::/repo', languageId: 'typescript' })
+    const promise2 = manager.acquire({ worktreeId: 'r1::/repo', languageId: 'typescript' })
+    resolve({ command: { program: 'x', args: [], env: {} }, initializationOptions: null })
+    const [a, b] = await Promise.all([promise1, promise2])
+    expect(created).toHaveLength(1)
+    expect(a.ok && b.ok && a.session === b.session).toBe(true)
+  })
+
+  it('returns unavailable when resolveCommand rejects', async () => {
+    const { manager } = setup({
+      resolveCommand: async () => {
+        throw new Error('not installed')
+      }
+    })
+    const result = await manager.acquire({ worktreeId: 'r1::/repo', languageId: 'ruby' })
+    expect(result).toEqual({ ok: false, reason: 'unavailable' })
+  })
 })
