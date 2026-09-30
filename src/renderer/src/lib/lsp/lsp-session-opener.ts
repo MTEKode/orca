@@ -1,0 +1,92 @@
+import { createBrowserUuid } from '@/lib/browser-uuid'
+import { LSP_PORT_WINDOW_MESSAGE } from '../../../../shared/language-server-types'
+import { LspPortClient } from './lsp-port-client'
+
+const PORT_WAIT_MS = 5_000
+const REFUSAL_CACHE_MS = 10_000
+
+type CachedClient = { client: Promise<LspPortClient | null>; refusedAt: number | null }
+const clients = new Map<string, CachedClient>()
+const portWaiters = new Map<string, (port: MessagePort) => void>()
+let listening = false
+
+function ensurePortListener(): void {
+  if (listening) {
+    return
+  }
+  listening = true
+  window.addEventListener('message', (event) => {
+    const data: unknown = event.data
+    if (event.source !== window || typeof data !== 'object' || data === null) {
+      return
+    }
+    const requestId =
+      'type' in data && data.type === LSP_PORT_WINDOW_MESSAGE && 'requestId' in data
+        ? data.requestId
+        : null
+    const port = event.ports[0]
+    if (typeof requestId !== 'string' || !port) {
+      return
+    }
+    const waiter = portWaiters.get(requestId)
+    portWaiters.delete(requestId)
+    if (waiter) {
+      waiter(port)
+    } else {
+      port.close()
+    }
+  })
+}
+
+async function openClient(worktreeId: string, languageId: string): Promise<LspPortClient | null> {
+  ensurePortListener()
+  const requestId = createBrowserUuid()
+  const port = new Promise<MessagePort | null>((resolve) => {
+    portWaiters.set(requestId, resolve)
+    setTimeout(() => {
+      if (portWaiters.delete(requestId)) {
+        resolve(null)
+      }
+    }, PORT_WAIT_MS)
+  })
+  const result = await window.api.lsp.open({ requestId, worktreeId, languageId }).catch(() => null)
+  if (!result?.ok) {
+    portWaiters.delete(requestId)
+    return null
+  }
+  const received = await port
+  return received ? new LspPortClient(received) : null
+}
+
+/** Cached per worktree + Monaco language; a refusal is cached briefly so hovers don't hammer IPC. */
+export async function getLspClient(
+  worktreeId: string,
+  languageId: string
+): Promise<LspPortClient | null> {
+  const key = `${worktreeId}\u0000${languageId}`
+  const cached = clients.get(key)
+  if (cached) {
+    const client = await cached.client
+    if (client && !client.isClosed) {
+      return client
+    }
+    if (!client && cached.refusedAt !== null && Date.now() - cached.refusedAt < REFUSAL_CACHE_MS) {
+      return null
+    }
+  }
+  const entry: CachedClient = { client: Promise.resolve(null), refusedAt: null }
+  // Why: set refusedAt inside the chain so concurrent awaiters never see a half-updated entry.
+  entry.client = openClient(worktreeId, languageId).then((client) => {
+    entry.refusedAt = client ? null : Date.now()
+    return client
+  })
+  clients.set(key, entry)
+  return entry.client
+}
+
+export function resetLspClients(): void {
+  for (const entry of clients.values()) {
+    void entry.client.then((client) => client?.close())
+  }
+  clients.clear()
+}
