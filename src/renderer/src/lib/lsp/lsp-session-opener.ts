@@ -6,8 +6,9 @@ const PORT_WAIT_MS = 5_000
 const REFUSAL_CACHE_MS = 10_000
 
 type CachedClient = { client: Promise<LspPortClient | null>; refusedAt: number | null }
+type PortDeferred = { port: MessagePort | null; resolve: (port: MessagePort) => void }
 const clients = new Map<string, CachedClient>()
-const portWaiters = new Map<string, (port: MessagePort) => void>()
+const portWaiters = new Map<string, PortDeferred>()
 let listening = false
 
 function ensurePortListener(): void {
@@ -28,10 +29,11 @@ function ensurePortListener(): void {
     if (typeof requestId !== 'string' || !port) {
       return
     }
-    const waiter = portWaiters.get(requestId)
+    const deferred = portWaiters.get(requestId)
     portWaiters.delete(requestId)
-    if (waiter) {
-      waiter(port)
+    if (deferred) {
+      deferred.port = port
+      deferred.resolve(port)
     } else {
       port.close()
     }
@@ -41,26 +43,41 @@ function ensurePortListener(): void {
 async function openClient(worktreeId: string, languageId: string): Promise<LspPortClient | null> {
   ensurePortListener()
   const requestId = createBrowserUuid()
+
+  // Why: register waiter before open so ports that arrive synchronously are captured.
+  // Create a placeholder; listener will populate port and call resolve.
+  const deferred: PortDeferred = { port: null, resolve: () => {} }
+  portWaiters.set(requestId, deferred)
+
   const result = await window.api.lsp.open({ requestId, worktreeId, languageId }).catch(() => null)
   if (!result?.ok) {
+    portWaiters.delete(requestId)
     return null
   }
 
+  // If port arrived early (before open resolved), use it immediately
+  if (deferred.port !== null) {
+    return new LspPortClient(deferred.port)
+  }
+
+  // Otherwise wait for port with timeout
   let timerHandle: ReturnType<typeof setTimeout> | null = null
-  const port = new Promise<MessagePort | null>((resolve) => {
-    portWaiters.set(requestId, (p) => {
+  const portWithTimeout = new Promise<MessagePort | null>((resolve) => {
+    // Update the resolve function to include timer cleanup
+    deferred.resolve = (p) => {
       if (timerHandle !== null) {
         clearTimeout(timerHandle)
       }
       resolve(p)
-    })
+    }
     timerHandle = setTimeout(() => {
       if (portWaiters.delete(requestId)) {
         resolve(null)
       }
     }, PORT_WAIT_MS)
   })
-  const received = await port
+
+  const received = await portWithTimeout
   return received ? new LspPortClient(received) : null
 }
 
