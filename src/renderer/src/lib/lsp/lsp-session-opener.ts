@@ -41,19 +41,25 @@ function ensurePortListener(): void {
 async function openClient(worktreeId: string, languageId: string): Promise<LspPortClient | null> {
   ensurePortListener()
   const requestId = createBrowserUuid()
+  const result = await window.api.lsp.open({ requestId, worktreeId, languageId }).catch(() => null)
+  if (!result?.ok) {
+    return null
+  }
+
+  let timerHandle: ReturnType<typeof setTimeout> | null = null
   const port = new Promise<MessagePort | null>((resolve) => {
-    portWaiters.set(requestId, resolve)
-    setTimeout(() => {
+    portWaiters.set(requestId, (p) => {
+      if (timerHandle !== null) {
+        clearTimeout(timerHandle)
+      }
+      resolve(p)
+    })
+    timerHandle = setTimeout(() => {
       if (portWaiters.delete(requestId)) {
         resolve(null)
       }
     }, PORT_WAIT_MS)
   })
-  const result = await window.api.lsp.open({ requestId, worktreeId, languageId }).catch(() => null)
-  if (!result?.ok) {
-    portWaiters.delete(requestId)
-    return null
-  }
   const received = await port
   return received ? new LspPortClient(received) : null
 }
@@ -64,24 +70,36 @@ export async function getLspClient(
   languageId: string
 ): Promise<LspPortClient | null> {
   const key = `${worktreeId}\u0000${languageId}`
-  const cached = clients.get(key)
-  if (cached) {
-    const client = await cached.client
-    if (client && !client.isClosed) {
+
+  while (true) {
+    const cached = clients.get(key)
+    if (cached) {
+      const client = await cached.client
+      // Check if the cache entry was replaced by a concurrent call while we awaited.
+      if (clients.get(key) !== cached) {
+        continue
+      }
+      if (client && !client.isClosed) {
+        return client
+      }
+      if (
+        !client &&
+        cached.refusedAt !== null &&
+        Date.now() - cached.refusedAt < REFUSAL_CACHE_MS
+      ) {
+        return null
+      }
+    }
+
+    const entry: CachedClient = { client: Promise.resolve(null), refusedAt: null }
+    // Why: set refusedAt inside the chain so concurrent awaiters never see a half-updated entry.
+    entry.client = openClient(worktreeId, languageId).then((client) => {
+      entry.refusedAt = client ? null : Date.now()
       return client
-    }
-    if (!client && cached.refusedAt !== null && Date.now() - cached.refusedAt < REFUSAL_CACHE_MS) {
-      return null
-    }
+    })
+    clients.set(key, entry)
+    return entry.client
   }
-  const entry: CachedClient = { client: Promise.resolve(null), refusedAt: null }
-  // Why: set refusedAt inside the chain so concurrent awaiters never see a half-updated entry.
-  entry.client = openClient(worktreeId, languageId).then((client) => {
-    entry.refusedAt = client ? null : Date.now()
-    return client
-  })
-  clients.set(key, entry)
-  return entry.client
 }
 
 export function resetLspClients(): void {
