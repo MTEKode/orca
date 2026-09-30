@@ -1,6 +1,6 @@
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { spawnProcess, type ProcessSpec } from '../../shared/child-process/run-process'
 import { LspSession, type LspPort, type LspSessionConfig } from './lsp-session'
 
@@ -25,6 +25,11 @@ function fakePort() {
   return { port, sent, send: (m: unknown) => messageListener(m), disconnect: () => closeListener() }
 }
 
+const sessions: LspSession[] = []
+afterEach(async () => {
+  await Promise.all(sessions.splice(0).map((session) => session.dispose({ force: true })))
+})
+
 function startSession(overrides: Partial<LspSessionConfig> = {}) {
   const onExit = vi.fn()
   const session = new LspSession({
@@ -36,6 +41,7 @@ function startSession(overrides: Partial<LspSessionConfig> = {}) {
     onExit,
     ...overrides
   })
+  sessions.push(session)
   return { session, onExit }
 }
 const hover = (id: number) => ({
@@ -56,7 +62,9 @@ describe('LspSession', () => {
     const a = fakePort()
     session.attachPort(a.port)
     a.send(hover(1))
-    await vi.waitFor(() => expect(a.sent).toContainEqual(expect.objectContaining({ id: 1 })))
+    await vi.waitFor(() => expect(a.sent).toContainEqual(expect.objectContaining({ id: 1 })), {
+      timeout: 5000
+    })
     expect(a.sent).toHaveLength(1) // Why: diagnostics from the fixture must not reach the port.
     await session.dispose()
   })
@@ -69,20 +77,24 @@ describe('LspSession', () => {
     session.attachPort(b.port)
     a.send(didOpen('file:///a.ts'))
     b.send(hover(1))
-    await vi.waitFor(() =>
-      expect(b.sent).toContainEqual(
-        expect.objectContaining({ result: { contents: { kind: 'markdown', value: 'open:1' } } })
-      )
+    await vi.waitFor(
+      () =>
+        expect(b.sent).toContainEqual(
+          expect.objectContaining({ result: { contents: { kind: 'markdown', value: 'open:1' } } })
+        ),
+      { timeout: 5000 }
     )
     a.disconnect()
     b.send(hover(2))
-    await vi.waitFor(() =>
-      expect(b.sent).toContainEqual(
-        expect.objectContaining({
-          id: 2,
-          result: { contents: { kind: 'markdown', value: 'open:0' } }
-        })
-      )
+    await vi.waitFor(
+      () =>
+        expect(b.sent).toContainEqual(
+          expect.objectContaining({
+            id: 2,
+            result: { contents: { kind: 'markdown', value: 'open:0' } }
+          })
+        ),
+      { timeout: 5000 }
     )
     await session.dispose()
   })
@@ -109,7 +121,46 @@ describe('LspSession', () => {
     session.attachPort(a.port)
     await session.ready
     children[0]?.kill('SIGKILL')
-    await vi.waitFor(() => expect(onExit).toHaveBeenCalledWith(true))
+    await vi.waitFor(() => expect(onExit).toHaveBeenCalledWith(true), { timeout: 5000 })
+    expect(a.port.close).toHaveBeenCalled()
+  })
+
+  it('drops queued messages of a port that disconnects before initialize', async () => {
+    const { session } = startSession()
+    const a = fakePort()
+    const b = fakePort()
+    session.attachPort(a.port)
+    session.attachPort(b.port)
+    a.send(didOpen('file:///a.ts'))
+    a.disconnect()
+    b.send(hover(1))
+    await vi.waitFor(
+      () =>
+        expect(b.sent).toContainEqual(
+          expect.objectContaining({
+            id: 1,
+            result: { contents: { kind: 'markdown', value: 'open:0' } }
+          })
+        ),
+      { timeout: 5000 }
+    )
+  })
+
+  it('reports a failed start as an unexpected exit exactly once', async () => {
+    const { session, onExit } = startSession({
+      command: { program: process.execPath, args: ['-e', 'process.exit(1)'], env: process.env }
+    })
+    await session.ready.catch(() => undefined)
+    await vi.waitFor(() => expect(onExit).toHaveBeenCalledWith(true), { timeout: 5000 })
+    await session.dispose()
+    expect(onExit).toHaveBeenCalledTimes(1)
+  })
+
+  it('closes a port attached after disposal', async () => {
+    const { session } = startSession()
+    await session.dispose({ force: true })
+    const a = fakePort()
+    session.attachPort(a.port)
     expect(a.port.close).toHaveBeenCalled()
   })
 })

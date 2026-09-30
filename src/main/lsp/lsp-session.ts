@@ -2,7 +2,10 @@ import { basename } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { StreamMessageReader, StreamMessageWriter } from 'vscode-jsonrpc/node'
 import { spawnProcess, type ProcessSpec } from '../../shared/child-process/run-process'
-import { forceTerminateProcessTree } from '../../shared/child-process/process-tree-termination'
+import {
+  forceTerminateProcessTree,
+  signalProcessTree
+} from '../../shared/child-process/process-tree-termination'
 import type { LanguageServerId } from '../../shared/language-server-types'
 import { LspMessageRouter, isJsonRpcMessage, type JsonRpcMessage } from './lsp-message-router'
 import type { ResolvedLspCommand } from './lsp-server-command'
@@ -47,6 +50,7 @@ export class LspSession {
   private isReady = false
   private exited = false
   private disposing = false
+  private failed = false
   private idleTimer: ReturnType<typeof setTimeout> | null = null
 
   constructor(private readonly config: LspSessionConfig) {
@@ -73,13 +77,25 @@ export class LspSession {
         resolve()
       }
       this.child.once('exit', onGone)
-      this.child.once('error', onGone)
+      // Why: kill() failures also emit 'error' on a live process; only a failed spawn means it never ran.
+      this.child.once('error', () => {
+        if (this.child.pid === undefined) {
+          onGone()
+        }
+      })
     })
     this.ready = this.initialize(rootUri)
-    this.ready.catch(() => void this.dispose({ force: true }))
+    this.ready.catch(() => {
+      this.failed ||= !this.disposing
+      void this.dispose({ force: true })
+    })
   }
 
   attachPort(port: LspPort): void {
+    if (this.disposing || this.exited) {
+      port.close()
+      return
+    }
     const portId = this.nextPortId++
     this.ports.set(portId, port)
     this.clearIdleTimer()
@@ -114,9 +130,11 @@ export class LspSession {
       )
       if (!exitedInTime) {
         await forceTerminateProcessTree(this.child)
+      } else {
+        this.killLeftoverGroup()
       }
     }
-    this.config.onExit(false)
+    this.config.onExit(this.failed)
   }
 
   private async initialize(rootUri: string): Promise<void> {
@@ -146,6 +164,9 @@ export class LspSession {
   }
 
   private fromPort(portId: number, message: JsonRpcMessage): void {
+    if (!this.ports.has(portId)) {
+      return
+    }
     if (!this.isReady) {
       this.queued.push({ portId, message })
       return
@@ -171,6 +192,8 @@ export class LspSession {
       return
     }
     this.router.detachPort(portId)
+    const kept = this.queued.filter((entry) => entry.portId !== portId)
+    this.queued.splice(0, this.queued.length, ...kept)
     if (this.ports.size === 0 && !this.disposing) {
       this.idleTimer = setTimeout(() => void this.dispose(), this.config.idleShutdownMs)
     }
@@ -182,11 +205,19 @@ export class LspSession {
     }
     this.exited = true
     this.router.rejectInternal(new Error('language server exited'))
+    this.killLeftoverGroup()
     if (!this.disposing) {
       this.disposing = true
       this.clearIdleTimer()
       this.closePorts()
       this.config.onExit(true)
+    }
+  }
+
+  // Why: grandchildren in the detached group can outlive the root and ignore EOF.
+  private killLeftoverGroup(): void {
+    if (process.platform !== 'win32') {
+      void signalProcessTree(this.child, 'SIGKILL').catch(() => undefined)
     }
   }
 
