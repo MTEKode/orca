@@ -99,6 +99,8 @@ export class LspSession {
       }
       void this.dispose({ force: true })
     })
+    // Why: if the port never arrives (sender gone, post failed), the session must still idle out.
+    this.armIdleTimer()
   }
 
   attachPort(port: LspPort): void {
@@ -204,7 +206,14 @@ export class LspSession {
     this.router.detachPort(portId)
     const kept = this.queued.filter((entry) => entry.portId !== portId)
     this.queued.splice(0, this.queued.length, ...kept)
-    if (this.ports.size === 0 && !this.disposing) {
+    if (this.ports.size === 0) {
+      this.armIdleTimer()
+    }
+  }
+
+  private armIdleTimer(): void {
+    if (!this.disposing) {
+      this.clearIdleTimer()
       this.idleTimer = setTimeout(() => void this.dispose(), this.config.idleShutdownMs)
     }
   }

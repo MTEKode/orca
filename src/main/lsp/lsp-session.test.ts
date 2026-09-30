@@ -192,4 +192,16 @@ describe('LspSession', () => {
     expect(warn).not.toHaveBeenCalled()
     warn.mockRestore()
   })
+
+  it('shuts down after the idle timeout when no port is ever attached', async () => {
+    const { onExit } = startSession()
+    await vi.waitFor(() => expect(onExit).toHaveBeenCalledWith(false), { timeout: 5000 })
+  })
+
+  it('keeps a session whose port attaches before the idle timeout', async () => {
+    const { session, onExit } = startSession()
+    session.attachPort(fakePort().port)
+    await new Promise((resolve) => setTimeout(resolve, 150))
+    expect(onExit).not.toHaveBeenCalled()
+  })
 })
