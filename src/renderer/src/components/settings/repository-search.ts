@@ -224,8 +224,8 @@ export function getRepositoryPaneSearchEntries(
       ? []
       : [
           ...getRepositoryGitAuthorSearchEntries(repo),
-          ...getRepositoryGitHooksSearchEntries(repo),
-          ...getRepositoryLanguageServersSearchEntries(repo)
-        ])
+          ...getRepositoryGitHooksSearchEntries(repo)
+        ]),
+    ...getRepositoryLanguageServersSearchEntries(repo)
   ]
 }
