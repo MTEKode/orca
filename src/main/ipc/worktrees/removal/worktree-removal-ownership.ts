@@ -89,9 +89,10 @@ export function removeWorktreeMetadataAndTransientState(
   } else {
     store.removeWorktreeMeta(worktreeId)
   }
+  // Why: sessions are local-only and restart lazily, so disposing even when another host owns the ID is harmless.
+  getLspSessionManager()?.disposeForWorktree(worktreeId)
   if (!preservesSameIdOwner) {
     advertisedUrlWatcher.forgetWorktree(worktreeId)
-    getLspSessionManager()?.disposeForWorktree(worktreeId)
     // Why: drop this worktree's localhost label routes so they don't accumulate in the proxy's route maps all session.
     localhostWorktreeLabelProxy.unregisterWorktree(worktreeId)
     // Why: schedule async history tree removal — never recursive-rmSync on the delete critical path.

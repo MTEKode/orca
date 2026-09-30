@@ -44,10 +44,20 @@ export function registerLspHandlers(manager: LspSessionManager, _store: Store): 
     if (!acquired.ok) {
       return acquired
     }
+    if (event.sender.isDestroyed()) {
+      return { ok: false, reason: 'unavailable' }
+    }
     const { port1, port2 } = new MessageChannelMain()
+    // Why: attach only after delivery so a failed post never leaves a client-less session.
+    try {
+      event.sender.postMessage(LSP_PORT_CHANNEL, { requestId: args.requestId }, [port2])
+    } catch {
+      port1.close()
+      port2.close()
+      return { ok: false, reason: 'unavailable' }
+    }
     acquired.session.attachPort(toLspPort(port1))
     port1.start()
-    event.sender.postMessage(LSP_PORT_CHANNEL, { requestId: args.requestId }, [port2])
     return { ok: true, sessionKey: acquired.key }
   })
 }

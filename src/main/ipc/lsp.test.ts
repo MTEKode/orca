@@ -29,7 +29,7 @@ import { registerLspHandlers } from './lsp'
 describe('lsp:open', () => {
   const attachPort = vi.fn()
   const acquire = vi.fn()
-  const sender = { postMessage: vi.fn() }
+  const sender = { postMessage: vi.fn(), isDestroyed: vi.fn(() => false) }
   beforeEach(() => {
     mocks.handlers.clear()
     mocks.ports.length = 0
@@ -59,6 +59,31 @@ describe('lsp:open', () => {
     expect(sender.postMessage).toHaveBeenCalledWith('lsp:port', { requestId: 'q' }, [
       mocks.ports[1]
     ])
+  })
+
+  it('returns unavailable and attaches nothing when the port post throws', async () => {
+    acquire.mockResolvedValue({ ok: true, key: 'k', session: { attachPort } })
+    sender.postMessage.mockImplementationOnce(() => {
+      throw new Error('gone')
+    })
+    const result = await mocks.handlers.get('lsp:open')?.(
+      { sender },
+      { requestId: 'q', worktreeId: 'r::/p', languageId: 'ruby' }
+    )
+    expect(result).toEqual({ ok: false, reason: 'unavailable' })
+    expect(attachPort).not.toHaveBeenCalled()
+  })
+
+  it('returns unavailable when the sender was destroyed during acquire', async () => {
+    acquire.mockResolvedValue({ ok: true, key: 'k', session: { attachPort } })
+    sender.isDestroyed.mockReturnValueOnce(true)
+    const result = await mocks.handlers.get('lsp:open')?.(
+      { sender },
+      { requestId: 'q', worktreeId: 'r::/p', languageId: 'ruby' }
+    )
+    expect(result).toEqual({ ok: false, reason: 'unavailable' })
+    expect(sender.postMessage).not.toHaveBeenCalled()
+    expect(attachPort).not.toHaveBeenCalled()
   })
 
   it('rejects malformed arguments', async () => {
