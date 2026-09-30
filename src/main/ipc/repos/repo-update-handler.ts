@@ -5,6 +5,7 @@ import type { Repo } from '../../../shared/repo-types'
 import type { ExecutionHostId } from '../../../shared/execution-host'
 import { normalizeExecutionHostId } from '../../../shared/execution-host'
 import { normalizeRepoBadgeColor } from '../../../shared/repo-badge-color'
+import { normalizeRepoLanguageServerSettings } from '../../../shared/repo-language-server-settings'
 import { sanitizeRepoIcon } from '../../../shared/repo-icon'
 import { normalizeGhAccountBinding } from '../../../shared/github/account-binding'
 import type { GhAccountBinding } from '../../../shared/github/account-binding'
@@ -37,6 +38,7 @@ export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Stor
             | 'worktreeBasePath'
             | 'kind'
             | 'symlinkPaths'
+            | 'languageServers'
             | 'issueSourcePreference'
             | 'forkSyncMode'
             | 'externalWorktreeVisibilityPromptDismissedAt'
@@ -213,6 +215,10 @@ export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Stor
         } else {
           updates.sourceControlAi = normalizedSourceControlAi
         }
+      }
+      // Why: settings gate spawning repo-controlled code, so malformed input clears instead of coercing.
+      if ('languageServers' in updates) {
+        updates.languageServers = normalizeRepoLanguageServerSettings(updates.languageServers)
       }
       const hostId = args.hostId ? normalizeExecutionHostId(args.hostId) : null
       if (args.hostId && !hostId) {
