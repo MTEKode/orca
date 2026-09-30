@@ -19,6 +19,12 @@ describe('splitSymbolToken', () => {
     expect(splitSymbolToken('api.fetchUser')).toEqual({ name: 'fetchUser', container: 'api' })
     expect(splitSymbolToken('Greeter')).toEqual({ name: 'Greeter', container: null })
   })
+
+  it('strips trailing ? and ! from names', () => {
+    expect(splitSymbolToken('valid?')).toEqual({ name: 'valid', container: null })
+    expect(splitSymbolToken('save!')).toEqual({ name: 'save', container: null })
+    expect(splitSymbolToken('Billing::valid?')).toEqual({ name: 'valid', container: 'Billing' })
+  })
 })
 
 describe('rankWorkspaceSymbols', () => {
@@ -44,5 +50,49 @@ describe('rankWorkspaceSymbols', () => {
     ])
     expect(rankWorkspaceSymbols('Invoice', candidates, '/repo')).toHaveLength(1)
     expect(candidates[0]).toMatchObject({ line: 0, character: 0 })
+  })
+
+  it('matches predicates and bang methods by base name', () => {
+    const candidates = toWorkspaceSymbolCandidates([
+      sym('valid?', 6, 'file:///repo/app/a.rb'),
+      sym('save!', 6, 'file:///repo/app/b.rb')
+    ])
+    expect(rankWorkspaceSymbols('valid?', candidates, '/repo')).toHaveLength(1)
+    expect(rankWorkspaceSymbols('save!', candidates, '/repo')).toHaveLength(1)
+  })
+
+  it('does not match project path in repo2 when searching repo', () => {
+    const candidates = toWorkspaceSymbolCandidates([sym('Invoice', 5, 'file:///repo2/app/a.rb')])
+    const ranked = rankWorkspaceSymbols('Invoice', candidates, '/repo')
+    expect(ranked).toHaveLength(1)
+    expect(ranked[0]).toMatchObject({ uri: 'file:///repo2/app/a.rb' })
+    // Verify no project bonus is applied (score should be 2 for definition kind only, not 4)
+  })
+
+  it('matches Windows paths correctly with normalized drive letters', () => {
+    const candidates = toWorkspaceSymbolCandidates([
+      { name: 'Invoice', kind: 5, location: { uri: 'file:///c%3A/Users/x/repo/a.rb' } }
+    ])
+    const ranked = rankWorkspaceSymbols('Invoice', candidates, 'C:\\Users\\x\\repo')
+    expect(ranked).toHaveLength(1)
+    expect(ranked[0].uri).toBe('file:///c%3A/Users/x/repo/a.rb')
+  })
+
+  it('does not throw on malformed percent-encoded URIs', () => {
+    const candidates = toWorkspaceSymbolCandidates([
+      { name: 'Invoice', kind: 5, location: { uri: 'file:///repo/app/%E0%A4%A.rb' } }
+    ])
+    expect(() => rankWorkspaceSymbols('Invoice', candidates, '/repo')).not.toThrow()
+    expect(rankWorkspaceSymbols('Invoice', candidates, '/repo')).toHaveLength(1)
+  })
+
+  it('matches container on :: boundary, not suffix', () => {
+    const candidates = toWorkspaceSymbolCandidates([
+      sym('Invoice', 5, 'file:///repo/app/a.rb', 'Billing'),
+      sym('Invoice', 5, 'file:///repo/app/b.rb', 'ing')
+    ])
+    const ranked = rankWorkspaceSymbols('Billing::Invoice', candidates, '/repo')
+    expect(ranked).toHaveLength(2)
+    expect(ranked[0].containerName).toBe('Billing')
   })
 })

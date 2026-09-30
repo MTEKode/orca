@@ -52,8 +52,32 @@ export function toWorkspaceSymbolCandidates(result: unknown): WorkspaceSymbolCan
   return candidates
 }
 
-function shortName(name: string): string {
-  return name.split('::').pop() ?? name
+function baseName(name: string): string {
+  return (name.split('::').pop() ?? name).replace(/[?!]$/, '')
+}
+
+function normalizePath(uri: string): string {
+  let path = uri.replace(/^file:\/\//, '')
+  try {
+    path = decodeURIComponent(path)
+  } catch {
+    // Fall back to raw string on malformed %
+  }
+  path = path.replace(/\\/g, '/').toLowerCase()
+  // Why: strip leading slash before Windows drive letter.
+  if (/^\/[a-z]:\//.test(path)) {
+    path = path.slice(1)
+  }
+  return path
+}
+
+function normalizeRoot(worktreePath: string): string {
+  let root = worktreePath.replace(/\\/g, '/').toLowerCase()
+  // Why: strip leading slash before Windows drive letter.
+  if (/^\/[a-z]:\//.test(root)) {
+    root = root.slice(1)
+  }
+  return root.replace(/\/+$/, '')
 }
 
 export function rankWorkspaceSymbols(
@@ -62,18 +86,18 @@ export function rankWorkspaceSymbols(
   worktreePath: string
 ): WorkspaceSymbolCandidate[] {
   const { name, container } = splitSymbolToken(token)
-  const root = worktreePath.replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase()
+  const root = normalizeRoot(worktreePath)
   const score = (candidate: WorkspaceSymbolCandidate): number => {
-    const path = decodeURIComponent(candidate.uri.replace(/^file:\/\//, ''))
-      .replace(/\\/g, '/')
-      .toLowerCase()
+    const path = normalizePath(candidate.uri)
     const qualified = candidate.containerName
-      ? `${candidate.containerName}::${shortName(candidate.name)}`
+      ? `${candidate.containerName}::${baseName(candidate.name)}`
       : candidate.name
     let total = 0
     if (
       container &&
-      (qualified.endsWith(`${container}::${name}`) || candidate.containerName?.endsWith(container))
+      (qualified.endsWith(`${container}::${name}`) ||
+        candidate.containerName === container ||
+        candidate.containerName?.endsWith(`::${container}`))
     ) {
       total += 4
     }
@@ -81,13 +105,14 @@ export function rankWorkspaceSymbols(
     if (DEFINITION_KINDS.has(candidate.kind) && !DEPENDENCY_PATH.test(path)) {
       total += 2
     }
-    if (path.includes(root) && !DEPENDENCY_PATH.test(path)) {
+    const isInProject = root === '' ? false : path === root || path.startsWith(`${root}/`)
+    if (isInProject && !DEPENDENCY_PATH.test(path)) {
       total += 2
     }
     return total
   }
   return candidates
-    .filter((candidate) => shortName(candidate.name) === name)
+    .filter((candidate) => baseName(candidate.name) === name)
     .map((candidate) => ({ candidate, total: score(candidate) }))
     .sort((a, b) => b.total - a.total)
     .map(({ candidate }) => candidate)
