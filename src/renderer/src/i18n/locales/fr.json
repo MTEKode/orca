@@ -8015,7 +8015,9 @@
           "update": "Mettre à jour",
           "customCommand": "Commande personnalisée",
           "installTitle": "Installer {{server}}",
-          "installAria": "Terminal d'installation du serveur de langage"
+          "installAria": "Terminal d'installation du serveur de langage",
+          "installFailed": "L'installation a échoué. Consultez la sortie ci-dessus.",
+          "dismiss": "Ignorer"
         },
         "RepositoryPane": {
           "15a99d9b9f": "Les chemins relatifs sont résolus depuis la racine de ce projet.",

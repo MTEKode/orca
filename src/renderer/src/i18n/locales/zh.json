@@ -7859,7 +7859,9 @@
           "update": "更新",
           "customCommand": "自定义命令",
           "installTitle": "安装 {{server}}",
-          "installAria": "语言服务器安装终端"
+          "installAria": "语言服务器安装终端",
+          "installFailed": "安装失败。请查看上方输出。",
+          "dismiss": "关闭"
         },
         "RepositoryPane": {
           "15a99d9b9f": "相对路径从该项目根解析。",

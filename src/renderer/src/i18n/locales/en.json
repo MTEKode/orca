@@ -8087,7 +8087,9 @@
           "update": "Update",
           "customCommand": "Custom command",
           "installTitle": "Install {{server}}",
-          "installAria": "Language server install terminal"
+          "installAria": "Language server install terminal",
+          "installFailed": "Install failed. Check the output above.",
+          "dismiss": "Dismiss"
         },
         "RepositoryPane": {
           "15a99d9b9f": "Relative paths resolve from this project root.",

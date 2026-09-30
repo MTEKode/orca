@@ -7896,7 +7896,9 @@
           "update": "更新",
           "customCommand": "カスタムコマンド",
           "installTitle": "{{server}} をインストール",
-          "installAria": "言語サーバーのインストールターミナル"
+          "installAria": "言語サーバーのインストールターミナル",
+          "installFailed": "インストールに失敗しました。上の出力を確認してください。",
+          "dismiss": "閉じる"
         },
         "RepositoryPane": {
           "15a99d9b9f": "相対パスは、このプロジェクトのルートから解決されます。",

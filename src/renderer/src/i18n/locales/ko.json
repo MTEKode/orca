@@ -7859,7 +7859,9 @@
           "update": "업데이트",
           "customCommand": "사용자 지정 명령",
           "installTitle": "{{server}} 설치",
-          "installAria": "언어 서버 설치 터미널"
+          "installAria": "언어 서버 설치 터미널",
+          "installFailed": "설치에 실패했습니다. 위의 출력을 확인하세요.",
+          "dismiss": "닫기"
         },
         "RepositoryPane": {
           "15a99d9b9f": "상대 경로는 이 프로젝트 루트에서 확인됩니다.",

@@ -10,10 +10,15 @@ vi.mock('../onboarding/OnboardingInlineCommandTerminal', () => ({
   OnboardingInlineCommandTerminal: (props: {
     command: string
     prepareCommandForShell: (command: string, shell: string | undefined) => string
+    onCommandFinished: (exitCode: number | null) => void
   }) => (
-    <pre data-testid="install-terminal">
-      {props.prepareCommandForShell(props.command, '/bin/zsh')}
-    </pre>
+    <div>
+      <pre data-testid="install-terminal">
+        {props.prepareCommandForShell(props.command, '/bin/zsh')}
+      </pre>
+      <button onClick={() => props.onCommandFinished(1)}>finish-fail</button>
+      <button onClick={() => props.onCommandFinished(0)}>finish-ok</button>
+    </div>
   )
 }))
 
@@ -137,5 +142,48 @@ describe('RepositoryLanguageServersSection', () => {
       }
     })
     await waitFor(() => expect(resetLspClients).toHaveBeenCalled())
+  })
+
+  const missingRepo: Repo = { ...repo, languageServers: { enabled: { 'ruby-lsp': true } } }
+  const startInstall = async (): Promise<void> => {
+    window.api.lsp.probe = vi.fn(async () => ({ 'ruby-lsp': { status: 'missing' as const } }))
+    render(
+      <RepositoryLanguageServersSection repo={missingRepo} updateRepo={vi.fn()} forceVisible />
+    )
+    fireEvent.click(await screen.findByRole('button', { name: /^install$/i }))
+  }
+
+  it('keeps the terminal and shows a failure note when the install fails', async () => {
+    await startInstall()
+    const before = vi.mocked(window.api.lsp.probe).mock.calls.length
+    fireEvent.click(screen.getByText('finish-fail'))
+    expect(screen.getByTestId('install-terminal')).toBeTruthy()
+    expect(screen.getByText('Install failed. Check the output above.')).toBeTruthy()
+    await waitFor(() =>
+      expect(vi.mocked(window.api.lsp.probe).mock.calls.length).toBeGreaterThan(before)
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
+    expect(screen.queryByTestId('install-terminal')).toBeNull()
+  })
+
+  it('closes the terminal and re-probes when the install succeeds', async () => {
+    await startInstall()
+    const before = vi.mocked(window.api.lsp.probe).mock.calls.length
+    fireEvent.click(screen.getByText('finish-ok'))
+    expect(screen.queryByTestId('install-terminal')).toBeNull()
+    await waitFor(() =>
+      expect(vi.mocked(window.api.lsp.probe).mock.calls.length).toBeGreaterThan(before)
+    )
+  })
+
+  it('does not save when the custom command is unchanged', () => {
+    const updateRepo = vi.fn(async () => true)
+    render(
+      <RepositoryLanguageServersSection repo={missingRepo} updateRepo={updateRepo} forceVisible />
+    )
+    const input = screen.getByLabelText(/custom command/i)
+    fireEvent.focus(input)
+    fireEvent.blur(input)
+    expect(updateRepo).not.toHaveBeenCalled()
   })
 })

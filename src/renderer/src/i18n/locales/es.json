@@ -6826,7 +6826,9 @@
           "update": "Actualizar",
           "customCommand": "Comando personalizado",
           "installTitle": "Instalar {{server}}",
-          "installAria": "Terminal de instalación del servidor de lenguaje"
+          "installAria": "Terminal de instalación del servidor de lenguaje",
+          "installFailed": "La instalación falló. Revisa la salida de arriba.",
+          "dismiss": "Descartar"
         },
         "RepositoryPane": {
           "15a99d9b9f": "Las rutas relativas se resuelven desde la raíz de este proyecto.",

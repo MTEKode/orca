@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { translate } from '@/i18n/i18n'
 import { resetLspClients } from '@/lib/lsp/lsp-session-opener'
 import { Button } from '../ui/button'
@@ -59,6 +59,25 @@ export function RepositoryLanguageServersSection({
     mode: 'install' | 'update'
   } | null>(null)
   const [probeNonce, setProbeNonce] = useState(0)
+  // Why: null means the exit code was unknown; the fresh probe decides whether it worked.
+  const [finishedCode, setFinishedCode] = useState<number | null | undefined>(undefined)
+  const closeInstall = useCallback((): void => {
+    setInstalling(null)
+    setFinishedCode(undefined)
+  }, [])
+  const handleInstallFinished = useCallback((exitCode: number | null): void => {
+    setProbeNonce((n) => n + 1)
+    if (exitCode === 0) {
+      setInstalling(null)
+      setFinishedCode(undefined)
+    } else {
+      setFinishedCode(exitCode)
+    }
+  }, [])
+  const handleInstallExit = useCallback((): void => {
+    setProbeNonce((n) => n + 1)
+    closeInstall()
+  }, [closeInstall])
   const isLocal = getRepoExecutionHostId(repo) === LOCAL_EXECUTION_HOST_ID
   const settings = repo.languageServers
   useEffect(() => {
@@ -95,6 +114,9 @@ export function RepositoryLanguageServersSection({
   const saveCommand = (serverId: LanguageServerId, text: string): void => {
     // Why: plain whitespace split; quoted paths with spaces are not supported.
     const argv = text.trim().split(/\s+/).filter(Boolean)
+    if (argv.join(' ') === (settings?.command?.[serverId]?.join(' ') ?? '')) {
+      return
+    }
     const command = { ...settings?.command, [serverId]: argv.length > 0 ? argv : undefined }
     void Promise.resolve(updateRepo(repo.id, { languageServers: { ...settings, command } })).then(
       (ok) => {
@@ -111,6 +133,12 @@ export function RepositoryLanguageServersSection({
       : 'off'
 
   const rubyProbe = rubyChoice === 'off' ? undefined : probe?.[rubyChoice]
+  const showInstall =
+    installing !== null && !(finishedCode === null && rubyProbe?.status === 'installed')
+  const startInstall = (serverId: LanguageServerId, mode: 'install' | 'update'): void => {
+    setFinishedCode(undefined)
+    setInstalling({ serverId, mode })
+  }
   const rubyCommand = rubyChoice === 'off' ? '' : (settings?.command?.[rubyChoice]?.join(' ') ?? '')
   const rubyEntry = rubyChoice === 'off' ? null : LANGUAGE_SERVER_CATALOG[rubyChoice]
 
@@ -177,17 +205,14 @@ export function RepositoryLanguageServersSection({
               label={translate(`${KEY}.manage`, 'Install or update')}
               control={
                 rubyProbe.status === 'missing' ? (
-                  <Button
-                    size="sm"
-                    onClick={() => setInstalling({ serverId: rubyChoice, mode: 'install' })}
-                  >
+                  <Button size="sm" onClick={() => startInstall(rubyChoice, 'install')}>
                     {translate(`${KEY}.install`, 'Install')}
                   </Button>
                 ) : (
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => setInstalling({ serverId: rubyChoice, mode: 'update' })}
+                    onClick={() => startInstall(rubyChoice, 'update')}
                   >
                     {translate(`${KEY}.update`, 'Update')}
                   </Button>
@@ -209,15 +234,23 @@ export function RepositoryLanguageServersSection({
               />
             }
           />
-          {installing && (
+          {installing && showInstall && (
             <LanguageServerInstallPanel
               repoPath={repo.path}
               serverId={installing.serverId}
               mode={installing.mode}
-              onFinished={() => {
-                setInstalling(null)
-                setProbeNonce((n) => n + 1)
-              }}
+              onFinished={handleInstallFinished}
+              onExit={handleInstallExit}
+            />
+          )}
+          {showInstall && finishedCode !== undefined && finishedCode !== null && (
+            <SettingsRow
+              label={translate(`${KEY}.installFailed`, 'Install failed. Check the output above.')}
+              control={
+                <Button size="sm" variant="outline" onClick={closeInstall}>
+                  {translate(`${KEY}.dismiss`, 'Dismiss')}
+                </Button>
+              }
             />
           )}
         </>
