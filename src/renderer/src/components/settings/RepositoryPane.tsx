@@ -29,6 +29,7 @@ import { RepositoryGitHubAccountSection } from './RepositoryGitHubAccountSection
 import { translate } from '@/i18n/i18n'
 import { RepositoryWindowsRuntimeSection } from './RepositoryWindowsRuntimeSection'
 import { matchesRepositoryIdentitySearch } from './repository-identity-search'
+import { RepositoryLanguageServersSection } from './RepositoryLanguageServersSection'
 import { RepositoryWorktreeDefaultsSection } from './RepositoryWorktreeDefaultsSection'
 import { getProjectRuntimeSessionSummary } from './repository-runtime-session-summary'
 import { getRepoOwnerWorktreeVisibilityDefaults } from '../../store/worktree-visibility-defaults-by-host'
@@ -389,6 +390,12 @@ export function RepositoryPane({
             />
           </>
         ) : null}
+
+        <RepositoryLanguageServersSection
+          repo={repo}
+          updateRepo={updateSelectedRepo}
+          forceVisible={forceFullPaneForRepoMatch}
+        />
       </section>
     ) : null,
     hooksSection,

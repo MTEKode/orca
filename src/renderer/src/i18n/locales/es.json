@@ -6812,6 +6812,16 @@
           "currentEmojiSelection": "Actual: {{value0}}",
           "searchEmojiPlaceholder": "Buscar emoji"
         },
+        "RepositoryLanguageServersSection": {
+          "title": "Servidores de lenguaje",
+          "description": "Ir a la definición, buscar referencias y mostrar información al pasar el ratón en este proyecto. Activar un servidor ejecuta código de este repositorio.",
+          "localOnly": "Los servidores de lenguaje solo están disponibles para proyectos locales.",
+          "typescript": "TypeScript / JavaScript",
+          "ruby": "Ruby",
+          "off": "Desactivado",
+          "bundled": "Incluido",
+          "notInstalled": "No instalado"
+        },
         "RepositoryPane": {
           "15a99d9b9f": "Las rutas relativas se resuelven desde la raíz de este proyecto.",
           "8ccacbeb5a": "Usar global",

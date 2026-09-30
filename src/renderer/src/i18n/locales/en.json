@@ -8073,6 +8073,16 @@
           "currentEmojiSelection": "Current: {{value0}}",
           "searchEmojiPlaceholder": "Search emoji"
         },
+        "RepositoryLanguageServersSection": {
+          "title": "Language Servers",
+          "description": "Go to definition, find references and hover for this project. Enabling a server runs code from this repository.",
+          "localOnly": "Language servers are available for local projects only.",
+          "typescript": "TypeScript / JavaScript",
+          "ruby": "Ruby",
+          "off": "Off",
+          "bundled": "Bundled",
+          "notInstalled": "Not installed"
+        },
         "RepositoryPane": {
           "15a99d9b9f": "Relative paths resolve from this project root.",
           "8ccacbeb5a": "Use Global",

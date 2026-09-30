@@ -1415,6 +1415,16 @@
         "RepositoryIconPicker": {
           "2b7d27b93c": "Use {{value0}} repo color"
         },
+        "RepositoryLanguageServersSection": {
+          "bundled": "Bundled",
+          "description": "Go to definition, find references and hover for this project. Enabling a server runs code from this repository.",
+          "localOnly": "Language servers are available for local projects only.",
+          "notInstalled": "Not installed",
+          "off": "Off",
+          "ruby": "Ruby",
+          "title": "Language Servers",
+          "typescript": "TypeScript / JavaScript"
+        },
         "RepositoryPane": {
           "createPendingSetup": "Track setup",
           "creatingPendingSetup": "Creating...",
@@ -2742,9 +2752,6 @@
         "toggleDetails": "Toggle turn details",
         "workedFor": "Worked for {{value0}}",
         "workingFor": "Working for {{value0}}"
-      },
-      "subagents": {
-        "unnamed": "Subagent"
       },
       "tool": {
         "countN": "{{value0}} tool calls",

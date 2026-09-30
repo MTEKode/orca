@@ -7882,6 +7882,16 @@
           "currentEmojiSelection": "現在: {{value0}}",
           "searchEmojiPlaceholder": "絵文字を検索"
         },
+        "RepositoryLanguageServersSection": {
+          "title": "言語サーバー",
+          "description": "このプロジェクトで定義へ移動、参照の検索、ホバー表示を使えます。サーバーを有効にすると、このリポジトリのコードが実行されます。",
+          "localOnly": "言語サーバーはローカルプロジェクトでのみ利用できます。",
+          "typescript": "TypeScript / JavaScript",
+          "ruby": "Ruby",
+          "off": "オフ",
+          "bundled": "同梱",
+          "notInstalled": "未インストール"
+        },
         "RepositoryPane": {
           "15a99d9b9f": "相対パスは、このプロジェクトのルートから解決されます。",
           "8ccacbeb5a": "グローバルを使用する",

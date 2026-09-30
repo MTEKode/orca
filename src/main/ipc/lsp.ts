@@ -8,6 +8,7 @@ import {
 import type { Store } from '../persistence'
 import type { LspPort } from '../lsp/lsp-session'
 import type { LspSessionManager } from '../lsp/lsp-session-manager'
+import { probeRepoLanguageServers } from '../lsp/lsp-probe'
 
 function isLspOpenArgs(value: unknown): value is LspOpenArgs {
   return (
@@ -31,7 +32,7 @@ function toLspPort(port: MessagePortMain): LspPort {
   }
 }
 
-export function registerLspHandlers(manager: LspSessionManager, _store: Store): void {
+export function registerLspHandlers(manager: LspSessionManager, store: Store): void {
   ipcMain.removeHandler('lsp:open')
   ipcMain.handle('lsp:open', async (event, args: unknown): Promise<LspOpenResult> => {
     if (!isLspOpenArgs(args)) {
@@ -59,5 +60,12 @@ export function registerLspHandlers(manager: LspSessionManager, _store: Store): 
     acquired.session.attachPort(toLspPort(port1))
     port1.start()
     return { ok: true, sessionKey: acquired.key }
+  })
+
+  ipcMain.removeHandler('lsp:probe')
+  ipcMain.handle('lsp:probe', async (_event, args: unknown) => {
+    const repoId = isRecord(args) && typeof args.repoId === 'string' ? args.repoId : null
+    const repo = repoId ? store.getRepo(repoId) : undefined
+    return repo ? probeRepoLanguageServers(repo) : {}
   })
 }

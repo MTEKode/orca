@@ -8001,6 +8001,16 @@
           "currentEmojiSelection": "Actuel : {{value0}}",
           "searchEmojiPlaceholder": "Rechercher un émoji"
         },
+        "RepositoryLanguageServersSection": {
+          "title": "Serveurs de langage",
+          "description": "Aller à la définition, trouver les références et survoler pour ce projet. Activer un serveur exécute du code de ce dépôt.",
+          "localOnly": "Les serveurs de langage ne sont disponibles que pour les projets locaux.",
+          "typescript": "TypeScript / JavaScript",
+          "ruby": "Ruby",
+          "off": "Désactivé",
+          "bundled": "Inclus",
+          "notInstalled": "Non installé"
+        },
         "RepositoryPane": {
           "15a99d9b9f": "Les chemins relatifs sont résolus depuis la racine de ce projet.",
           "8ccacbeb5a": "Utiliser le réglage global",
