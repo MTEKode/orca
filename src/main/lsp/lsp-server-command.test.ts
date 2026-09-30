@@ -1,3 +1,4 @@
+import { join } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import { resolveLspServerCommand, type LspServerCommandDeps } from './lsp-server-command'
 
@@ -29,7 +30,7 @@ describe('resolveLspServerCommand', () => {
       deps({ fileExists: async (p) => p.endsWith('tsserver.js') })
     )
     expect(resolved?.initializationOptions).toEqual({
-      tsserver: { path: expect.stringContaining('node_modules') }
+      tsserver: { path: join('/repo', 'node_modules', 'typescript', 'lib', 'tsserver.js') }
     })
   })
 
