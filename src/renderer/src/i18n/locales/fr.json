@@ -8009,7 +8009,13 @@
           "ruby": "Ruby",
           "off": "Désactivé",
           "bundled": "Inclus",
-          "notInstalled": "Non installé"
+          "notInstalled": "Non installé",
+          "manage": "Installer ou mettre à jour",
+          "install": "Installer",
+          "update": "Mettre à jour",
+          "customCommand": "Commande personnalisée",
+          "installTitle": "Installer {{server}}",
+          "installAria": "Terminal d'installation du serveur de langage"
         },
         "RepositoryPane": {
           "15a99d9b9f": "Les chemins relatifs sont résolus depuis la racine de ce projet.",

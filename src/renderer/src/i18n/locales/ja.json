@@ -7890,7 +7890,13 @@
           "ruby": "Ruby",
           "off": "オフ",
           "bundled": "同梱",
-          "notInstalled": "未インストール"
+          "notInstalled": "未インストール",
+          "manage": "インストールまたは更新",
+          "install": "インストール",
+          "update": "更新",
+          "customCommand": "カスタムコマンド",
+          "installTitle": "{{server}} をインストール",
+          "installAria": "言語サーバーのインストールターミナル"
         },
         "RepositoryPane": {
           "15a99d9b9f": "相対パスは、このプロジェクトのルートから解決されます。",

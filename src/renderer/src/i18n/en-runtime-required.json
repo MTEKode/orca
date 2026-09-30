@@ -1417,13 +1417,19 @@
         },
         "RepositoryLanguageServersSection": {
           "bundled": "Bundled",
+          "customCommand": "Custom command",
           "description": "Go to definition, find references and hover for this project. Enabling a server runs code from this repository.",
+          "install": "Install",
+          "installAria": "Language server install terminal",
+          "installTitle": "Install {{server}}",
           "localOnly": "Language servers are available for local projects only.",
+          "manage": "Install or update",
           "notInstalled": "Not installed",
           "off": "Off",
           "ruby": "Ruby",
           "title": "Language Servers",
-          "typescript": "TypeScript / JavaScript"
+          "typescript": "TypeScript / JavaScript",
+          "update": "Update"
         },
         "RepositoryPane": {
           "createPendingSetup": "Track setup",

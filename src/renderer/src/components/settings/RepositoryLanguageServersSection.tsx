@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
 import { translate } from '@/i18n/i18n'
 import { resetLspClients } from '@/lib/lsp/lsp-session-opener'
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { SettingsBadge, SettingsRow, SettingsSwitchRow } from './SettingsFormControls'
 import { SearchableSetting } from './SearchableSetting'
+import { LanguageServerInstallPanel } from './LanguageServerInstallPanel'
 import { getRepoExecutionHostId, LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
 import { LANGUAGE_SERVER_CATALOG } from '../../../../shared/language-server-catalog'
 import type {
@@ -51,6 +54,11 @@ export function RepositoryLanguageServersSection({
   forceVisible
 }: Props): React.JSX.Element {
   const [probe, setProbe] = useState<LspProbeResult | null>(null)
+  const [installing, setInstalling] = useState<{
+    serverId: LanguageServerId
+    mode: 'install' | 'update'
+  } | null>(null)
+  const [probeNonce, setProbeNonce] = useState(0)
   const isLocal = getRepoExecutionHostId(repo) === LOCAL_EXECUTION_HOST_ID
   const settings = repo.languageServers
   useEffect(() => {
@@ -70,7 +78,7 @@ export function RepositoryLanguageServersSection({
     return () => {
       cancelled = true
     }
-  }, [repo.id, settings?.command])
+  }, [repo.id, settings?.command, probeNonce])
 
   const setEnabled = (next: Partial<Record<LanguageServerId, boolean>>): void => {
     // Why: running sessions only restart once the new setting is actually persisted.
@@ -84,11 +92,27 @@ export function RepositoryLanguageServersSection({
       }
     })
   }
+  const saveCommand = (serverId: LanguageServerId, text: string): void => {
+    // Why: plain whitespace split; quoted paths with spaces are not supported.
+    const argv = text.trim().split(/\s+/).filter(Boolean)
+    const command = { ...settings?.command, [serverId]: argv.length > 0 ? argv : undefined }
+    void Promise.resolve(updateRepo(repo.id, { languageServers: { ...settings, command } })).then(
+      (ok) => {
+        if (ok !== false) {
+          resetLspClients()
+        }
+      }
+    )
+  }
   const rubyChoice: RubyChoice = settings?.enabled?.['ruby-lsp']
     ? 'ruby-lsp'
     : settings?.enabled?.solargraph
       ? 'solargraph'
       : 'off'
+
+  const rubyProbe = rubyChoice === 'off' ? undefined : probe?.[rubyChoice]
+  const rubyCommand = rubyChoice === 'off' ? '' : (settings?.command?.[rubyChoice]?.join(' ') ?? '')
+  const rubyEntry = rubyChoice === 'off' ? null : LANGUAGE_SERVER_CATALOG[rubyChoice]
 
   return (
     <SearchableSetting
@@ -146,6 +170,58 @@ export function RepositoryLanguageServersSection({
           </Select>
         }
       />
+      {isLocal && rubyEntry?.kind === 'external' && rubyChoice !== 'off' && (
+        <>
+          {(rubyProbe?.status === 'missing' || rubyProbe?.status === 'installed') && (
+            <SettingsRow
+              label={translate(`${KEY}.manage`, 'Install or update')}
+              control={
+                rubyProbe.status === 'missing' ? (
+                  <Button
+                    size="sm"
+                    onClick={() => setInstalling({ serverId: rubyChoice, mode: 'install' })}
+                  >
+                    {translate(`${KEY}.install`, 'Install')}
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setInstalling({ serverId: rubyChoice, mode: 'update' })}
+                  >
+                    {translate(`${KEY}.update`, 'Update')}
+                  </Button>
+                )
+              }
+            />
+          )}
+          <SettingsRow
+            label={translate(`${KEY}.customCommand`, 'Custom command')}
+            labelId={`lsp-command-label-${repo.id}`}
+            control={
+              <Input
+                key={`${rubyChoice}:${rubyCommand}`}
+                className="w-64"
+                aria-labelledby={`lsp-command-label-${repo.id}`}
+                defaultValue={rubyCommand}
+                placeholder={rubyEntry.defaultCommand.join(' ')}
+                onBlur={(event) => saveCommand(rubyChoice, event.target.value)}
+              />
+            }
+          />
+          {installing && (
+            <LanguageServerInstallPanel
+              repoPath={repo.path}
+              serverId={installing.serverId}
+              mode={installing.mode}
+              onFinished={() => {
+                setInstalling(null)
+                setProbeNonce((n) => n + 1)
+              }}
+            />
+          )}
+        </>
+      )}
     </SearchableSetting>
   )
 }

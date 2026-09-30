@@ -7853,7 +7853,13 @@
           "ruby": "Ruby",
           "off": "끔",
           "bundled": "내장",
-          "notInstalled": "설치되지 않음"
+          "notInstalled": "설치되지 않음",
+          "manage": "설치 또는 업데이트",
+          "install": "설치",
+          "update": "업데이트",
+          "customCommand": "사용자 지정 명령",
+          "installTitle": "{{server}} 설치",
+          "installAria": "언어 서버 설치 터미널"
         },
         "RepositoryPane": {
           "15a99d9b9f": "상대 경로는 이 프로젝트 루트에서 확인됩니다.",

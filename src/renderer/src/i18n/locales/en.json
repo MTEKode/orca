@@ -8081,7 +8081,13 @@
           "ruby": "Ruby",
           "off": "Off",
           "bundled": "Bundled",
-          "notInstalled": "Not installed"
+          "notInstalled": "Not installed",
+          "manage": "Install or update",
+          "install": "Install",
+          "update": "Update",
+          "customCommand": "Custom command",
+          "installTitle": "Install {{server}}",
+          "installAria": "Language server install terminal"
         },
         "RepositoryPane": {
           "15a99d9b9f": "Relative paths resolve from this project root.",

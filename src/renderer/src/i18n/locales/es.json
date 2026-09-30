@@ -6820,7 +6820,13 @@
           "ruby": "Ruby",
           "off": "Desactivado",
           "bundled": "Incluido",
-          "notInstalled": "No instalado"
+          "notInstalled": "No instalado",
+          "manage": "Instalar o actualizar",
+          "install": "Instalar",
+          "update": "Actualizar",
+          "customCommand": "Comando personalizado",
+          "installTitle": "Instalar {{server}}",
+          "installAria": "Terminal de instalación del servidor de lenguaje"
         },
         "RepositoryPane": {
           "15a99d9b9f": "Las rutas relativas se resuelven desde la raíz de este proyecto.",

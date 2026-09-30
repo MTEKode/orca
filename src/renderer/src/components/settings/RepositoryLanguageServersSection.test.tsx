@@ -6,6 +6,16 @@ import { resetLspClients } from '@/lib/lsp/lsp-session-opener'
 import { RepositoryLanguageServersSection } from './RepositoryLanguageServersSection'
 
 vi.mock('@/lib/lsp/lsp-session-opener', () => ({ resetLspClients: vi.fn() }))
+vi.mock('../onboarding/OnboardingInlineCommandTerminal', () => ({
+  OnboardingInlineCommandTerminal: (props: {
+    command: string
+    prepareCommandForShell: (command: string, shell: string | undefined) => string
+  }) => (
+    <pre data-testid="install-terminal">
+      {props.prepareCommandForShell(props.command, '/bin/zsh')}
+    </pre>
+  )
+}))
 
 const repo: Repo = {
   id: 'r',
@@ -91,5 +101,41 @@ describe('RepositoryLanguageServersSection', () => {
         true
       )
     )
+  })
+
+  it('runs the install command from the project directory', async () => {
+    window.api.lsp.probe = vi.fn(async () => ({ 'ruby-lsp': { status: 'missing' as const } }))
+    render(
+      <RepositoryLanguageServersSection
+        repo={{ ...repo, languageServers: { enabled: { 'ruby-lsp': true } } }}
+        updateRepo={vi.fn()}
+        forceVisible
+      />
+    )
+    fireEvent.click(await screen.findByRole('button', { name: /install/i }))
+    expect(screen.getByTestId('install-terminal').textContent).toBe(
+      "cd -- '/repo' && gem install ruby-lsp"
+    )
+  })
+
+  it('saves a custom command as argv', async () => {
+    const updateRepo = vi.fn(async () => true)
+    render(
+      <RepositoryLanguageServersSection
+        repo={{ ...repo, languageServers: { enabled: { 'ruby-lsp': true } } }}
+        updateRepo={updateRepo}
+        forceVisible
+      />
+    )
+    const input = screen.getByLabelText(/custom command/i)
+    fireEvent.change(input, { target: { value: 'bundle exec ruby-lsp' } })
+    fireEvent.blur(input)
+    expect(updateRepo).toHaveBeenCalledWith('r', {
+      languageServers: {
+        enabled: { 'ruby-lsp': true },
+        command: { 'ruby-lsp': ['bundle', 'exec', 'ruby-lsp'] }
+      }
+    })
+    await waitFor(() => expect(resetLspClients).toHaveBeenCalled())
   })
 })
