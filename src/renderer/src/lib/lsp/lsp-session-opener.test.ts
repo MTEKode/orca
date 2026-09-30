@@ -69,6 +69,14 @@ function createPortPair(): { server: MessagePort; client: MessagePort } {
   return { server: channel.port2, client: channel.port1 }
 }
 
+type FakePort = MessagePort & { close: ReturnType<typeof vi.fn> }
+
+// Why: the opener only calls close() on these ports, so a stub observes it directly.
+function createFakePort(): FakePort {
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: opener touches only close() on ports it discards.
+  return { close: vi.fn() } as unknown as FakePort
+}
+
 function dispatchPortMessage(requestId: string, port: MessagePort) {
   window.dispatchEvent(
     new MessageEvent('message', {
@@ -200,30 +208,13 @@ describe('getLspClient', () => {
   })
 
   it('a port for an unknown requestId is closed', async () => {
-    const { server, client } = createPortPair()
-    server.start()
+    // The port listener is installed lazily by the first open attempt.
+    await getLspClient('worktree-1', 'typescript')
+    const port = createFakePort()
 
-    // Listen for close event on peer to verify closure
-    const closedPromise = new Promise<void>((resolve) => {
-      server.addEventListener('close', () => resolve())
-    })
+    dispatchPortMessage('unknown-id', port)
 
-    // Send a port with an unknown requestId; listener should close it
-    window.dispatchEvent(
-      new MessageEvent('message', {
-        data: { type: LSP_PORT_WINDOW_MESSAGE, requestId: 'unknown-id' },
-        source: window,
-        ports: [client]
-      })
-    )
-
-    // Wait for close event with timeout
-    await Promise.race([
-      closedPromise,
-      new Promise<void>((resolve) => setTimeout(() => resolve(), 100))
-    ])
-    // Port should be closed (listener.close() causes peer 'close' event)
-    // If close didn't happen, test will timeout below
+    expect(port.close).toHaveBeenCalledTimes(1)
   })
 
   it('port arriving before open resolves is captured and used immediately', async () => {
@@ -252,33 +243,23 @@ describe('getLspClient', () => {
   })
 
   it('early port is closed if open fails', async () => {
-    const { server, client } = createPortPair()
-    server.start()
+    const port = createFakePort()
+    let closedBeforeOpenSettled: boolean | undefined
 
-    // Listen for close event on peer to verify closure
-    const closedPromise = new Promise<void>((resolve) => {
-      server.addEventListener('close', () => resolve())
-    })
-
-    let capturedRequestId: string | undefined
     openFn.mockImplementation(({ requestId }) => {
-      capturedRequestId = requestId
-      // Dispatch port synchronously
-      if (capturedRequestId) {
-        dispatchPortMessage(capturedRequestId, client)
-      }
-      // Resolve as failed
+      // Deliver the port while open is still pending, then fail the open.
+      dispatchPortMessage(requestId, port)
+      closedBeforeOpenSettled = port.close.mock.calls.length > 0
       return Promise.resolve({ ok: false })
     })
 
     const result = await getLspClient('worktree-1', 'typescript')
-    expect(result).toBeNull()
 
-    // Wait for close event; listener should close it when open fails
-    await Promise.race([
-      closedPromise,
-      new Promise<void>((resolve) => setTimeout(() => resolve(), 100))
-    ])
+    expect(result).toBeNull()
+    expect(openFn).toHaveBeenCalledTimes(1)
+    // Proves the port was a live waiter's port (not closed as unknown) when it arrived.
+    expect(closedBeforeOpenSettled).toBe(false)
+    expect(port.close).toHaveBeenCalledTimes(1)
   })
 
   it('resetLspClients closes the tracked client', async () => {
