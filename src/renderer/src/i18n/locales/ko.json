@@ -3089,6 +3089,9 @@
             "cc5a2dc706": "창 제목 수정: {{value0}}",
             "7dbbfcbecc": "창 제목"
           },
+          "TerminalSymbolLinks": {
+            "noDefinition": "{{token}}의 정의를 찾을 수 없습니다"
+          },
           "TerminalSessionStateSaveFailureDialog": {
             "6bee0c8f17": "디스크 공간 분석기 열기",
             "ae20d0ffc2": "닫기",

@@ -3192,6 +3192,9 @@
             "cc5a2dc706": "Modifier le titre du volet : {{value0}}",
             "7dbbfcbecc": "Titre du volet"
           },
+          "TerminalSymbolLinks": {
+            "noDefinition": "Aucune définition trouvée pour {{token}}"
+          },
           "TerminalLinkActionPopover": {
             "openLink": "Ouvrir le lien",
             "openFile": "Ouvrir le fichier",

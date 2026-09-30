@@ -3255,6 +3255,9 @@
             "cc5a2dc706": "Edit pane title: {{value0}}",
             "7dbbfcbecc": "Pane title"
           },
+          "TerminalSymbolLinks": {
+            "noDefinition": "No definition found for {{token}}"
+          },
           "TerminalLinkActionPopover": {
             "openLink": "Open link",
             "openFile": "Open file",

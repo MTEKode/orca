@@ -13,6 +13,10 @@ import {
   installFilePathLinkClickFallback
 } from './terminal-link-handlers'
 import { createTerminalHandleLinkProvider } from './terminal-handle-links'
+import { createTerminalSymbolLinkProvider } from './terminal-symbol-links'
+import { useAppStore } from '@/store'
+import { getRepoMapFromState } from '@/store/selectors'
+import { getRepoIdFromWorktreeId } from '../../../../shared/worktree/id'
 import { installTerminalLinkifierClickPriming } from './terminal-linkifier-click-priming'
 import { installTerminalLinkPointerGesture } from './terminal-link-pointer-gesture'
 import { installHttpLinkClickFallback } from './terminal-url-link-hit-testing'
@@ -36,6 +40,7 @@ type PaneLinkContext = {
     TerminalPaneLifecycleRefs,
     | 'linkProviderDisposablesRef'
     | 'terminalHandleLinkDisposablesRef'
+    | 'symbolLinkDisposablesRef'
     | 'linkifierClickPrimingDisposablesRef'
     | 'linkPointerGesturesRef'
     | 'fileLinkClickFallbackDisposablesRef'
@@ -93,6 +98,24 @@ export function installTerminalPaneLinkHandling(context: PaneLinkContext): void 
         getRuntimeEnvironmentId: () => linkDeps.getRuntimeEnvironmentIdForPane?.(pane.id) ?? null,
         linkTooltip: pane.linkTooltip,
         getLinkActionContext: () => getLinkActionContext(pane.id)
+      })
+    )
+  )
+  refs.symbolLinkDisposablesRef.current.set(
+    pane.id,
+    pane.terminal.registerLinkProvider(
+      createTerminalSymbolLinkProvider({
+        getTerminal: () =>
+          managerRef.current?.getPanes().find((candidate) => candidate.id === pane.id)?.terminal ??
+          null,
+        worktreeId: linkDeps.worktreeId,
+        worktreePath: linkDeps.worktreePath,
+        isLspEnabled: () => {
+          const repo = getRepoMapFromState(useAppStore.getState()).get(
+            getRepoIdFromWorktreeId(linkDeps.worktreeId)
+          )
+          return Object.values(repo?.languageServers?.enabled ?? {}).some(Boolean)
+        }
       })
     )
   )

@@ -2796,6 +2796,9 @@
             "cc5a2dc706": "Editar título del panel: {{value0}}",
             "7dbbfcbecc": "Título del panel"
           },
+          "TerminalSymbolLinks": {
+            "noDefinition": "No se ha encontrado ninguna definición para {{token}}"
+          },
           "TerminalSessionStateSaveFailureDialog": {
             "6bee0c8f17": "Abrir analizador de espacio en disco",
             "ae20d0ffc2": "Descartar",

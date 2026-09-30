@@ -3089,6 +3089,9 @@
             "cc5a2dc706": "编辑窗格标题：{{value0}}",
             "7dbbfcbecc": "窗格标题"
           },
+          "TerminalSymbolLinks": {
+            "noDefinition": "未找到 {{token}} 的定义"
+          },
           "TerminalSessionStateSaveFailureDialog": {
             "6bee0c8f17": "打开磁盘空间分析器",
             "ae20d0ffc2": "关闭",

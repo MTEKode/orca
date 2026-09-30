@@ -3089,6 +3089,9 @@
             "cc5a2dc706": "編集ペインのタイトル: {{value0}}",
             "7dbbfcbecc": "ペインのタイトル"
           },
+          "TerminalSymbolLinks": {
+            "noDefinition": "{{token}} の定義が見つかりません"
+          },
           "TerminalSessionStateSaveFailureDialog": {
             "6bee0c8f17": "ディスクスペースアナライザーを開く",
             "ae20d0ffc2": "閉じる",
