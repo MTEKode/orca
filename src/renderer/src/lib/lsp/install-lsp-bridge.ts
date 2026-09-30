@@ -2,8 +2,7 @@
 import type * as Monaco from 'monaco-editor'
 import { typescript as monacoTS } from 'monaco-editor'
 import { useAppStore } from '@/store'
-import { getRepoMapFromState, getWorktreeMapFromState } from '@/store/selectors'
-import { getRepoExecutionHostId, LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
+import { getWorktreeMapFromState } from '@/store/selectors'
 import { LspDocumentSync } from './lsp-document-sync'
 import { registerLspEditorOpener } from './lsp-editor-opener'
 import { registerLspNavigationProviders } from './lsp-navigation-providers'
@@ -14,26 +13,14 @@ function findOwner(fsPath: string) {
   return findOwningWorktree(getWorktreeMapFromState(useAppStore.getState()).values(), fsPath)
 }
 
-function anyLocalRepoUsesTypescriptLsp(): boolean {
-  for (const repo of getRepoMapFromState(useAppStore.getState()).values()) {
-    if (
-      repo.languageServers?.enabled?.typescript &&
-      getRepoExecutionHostId(repo) === LOCAL_EXECUTION_HOST_ID
-    ) {
-      return true
-    }
-  }
-  return false
-}
-
-function setWorkerNavigation(enabled: boolean): void {
-  // ponytail: the worker toggle is global per language, so one opted-in repo turns off single-file TS hover everywhere.
+function disableWorkerNavigation(): void {
+  // Why: the LSP providers fall back to the worker themselves; its own providers would duplicate results.
   for (const defaults of [monacoTS.typescriptDefaults, monacoTS.javascriptDefaults]) {
     defaults.setModeConfiguration({
       ...defaults.modeConfiguration,
-      hovers: enabled,
-      definitions: enabled,
-      references: enabled
+      hovers: false,
+      definitions: false,
+      references: false
     })
   }
 }
@@ -51,20 +38,8 @@ export function installLspBridge(monaco: typeof Monaco): () => void {
     registerLspEditorOpener(monaco, findOwner)
   ]
   monaco.editor.getModels().forEach((model) => sync.track(model))
-  let lspOwnsTypescript = anyLocalRepoUsesTypescriptLsp()
-  setWorkerNavigation(!lspOwnsTypescript)
-  const unsubscribe = useAppStore.subscribe((state, prev) => {
-    if (state.repos === prev.repos) {
-      return
-    }
-    const next = anyLocalRepoUsesTypescriptLsp()
-    if (next !== lspOwnsTypescript) {
-      lspOwnsTypescript = next
-      setWorkerNavigation(!next)
-    }
-  })
+  disableWorkerNavigation()
   return () => {
-    unsubscribe()
     disposables.forEach((disposable) => disposable.dispose())
   }
 }

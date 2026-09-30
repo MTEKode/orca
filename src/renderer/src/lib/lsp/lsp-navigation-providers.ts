@@ -10,6 +10,7 @@ import {
 import type { LspDocumentSync } from './lsp-document-sync'
 import { LSP_LANGUAGE_IDS } from './lsp-document-sync'
 import { resolveLocationModels } from './lsp-location-models'
+import { createTypeScriptWorkerFallback } from './lsp-typescript-worker-fallback'
 
 const readFile = (filePath: string) => window.api.fs.readFile({ filePath })
 
@@ -18,10 +19,17 @@ export function registerLspNavigationProviders(
   sync: LspDocumentSync
 ): Monaco.IDisposable[] {
   const languages = [...LSP_LANGUAGE_IDS]
-  const locationsFor = async (model: Monaco.editor.ITextModel, method: string, extra: object) => {
+  // Why: the worker's own providers stay off, so un-owned TS/JS models navigate through it here.
+  const worker = createTypeScriptWorkerFallback(monaco)
+  const locationsFor = async (
+    model: Monaco.editor.ITextModel,
+    method: string,
+    extra: object,
+    fallback: () => Promise<Monaco.languages.Location[] | null>
+  ) => {
     const client = await sync.clientFor(model)
     if (!client) {
-      return null
+      return fallback()
     }
     const params = { textDocument: { uri: model.uri.toString() }, ...extra }
     const result = await client.request(method, params).catch(() => null)
@@ -30,20 +38,24 @@ export function registerLspNavigationProviders(
   return [
     monaco.languages.registerDefinitionProvider(languages, {
       provideDefinition: (model, position) =>
-        locationsFor(model, 'textDocument/definition', { position: toLspPosition(position) })
+        locationsFor(model, 'textDocument/definition', { position: toLspPosition(position) }, () =>
+          worker.definition(model, position)
+        )
     }),
     monaco.languages.registerReferenceProvider(languages, {
       provideReferences: (model, position) =>
-        locationsFor(model, 'textDocument/references', {
-          position: toLspPosition(position),
-          context: { includeDeclaration: true }
-        })
+        locationsFor(
+          model,
+          'textDocument/references',
+          { position: toLspPosition(position), context: { includeDeclaration: true } },
+          () => worker.references(model, position)
+        )
     }),
     monaco.languages.registerHoverProvider(languages, {
       provideHover: async (model, position) => {
         const client = await sync.clientFor(model)
         if (!client) {
-          return null
+          return worker.hover(model, position)
         }
         const result = await client
           .request('textDocument/hover', {
