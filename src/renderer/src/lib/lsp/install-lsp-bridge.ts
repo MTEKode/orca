@@ -8,7 +8,7 @@ import { LspDocumentSync } from './lsp-document-sync'
 import { registerLspEditorOpener } from './lsp-editor-opener'
 import { registerLspNavigationProviders } from './lsp-navigation-providers'
 import { findOwningWorktree } from './lsp-owning-worktree'
-import { getLspClient } from './lsp-session-opener'
+import { getLspClient, releaseLspClient, retainLspClient } from './lsp-session-opener'
 
 function findOwner(fsPath: string) {
   return findOwningWorktree(getWorktreeMapFromState(useAppStore.getState()).values(), fsPath)
@@ -39,7 +39,12 @@ function setWorkerNavigation(enabled: boolean): void {
 }
 
 export function installLspBridge(monaco: typeof Monaco): () => void {
-  const sync = new LspDocumentSync({ findOwner, getClient: getLspClient })
+  const sync = new LspDocumentSync({
+    findOwner,
+    getClient: getLspClient,
+    retainClient: retainLspClient,
+    releaseClient: releaseLspClient
+  })
   const disposables: Monaco.IDisposable[] = [
     monaco.editor.onDidCreateModel((model) => sync.track(model)),
     ...registerLspNavigationProviders(monaco, sync),

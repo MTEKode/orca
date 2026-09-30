@@ -17,6 +17,8 @@ type SyncClient = Pick<LspPortClient, 'isClosed' | 'notify' | 'request'>
 export type LspDocumentSyncDeps = {
   findOwner: (fsPath: string) => OwningWorktree | null
   getClient: (worktreeId: string, languageId: string) => Promise<SyncClient | null>
+  retainClient: (worktreeId: string, languageId: string) => void
+  releaseClient: (worktreeId: string, languageId: string) => void
 }
 
 type TrackedDocument = {
@@ -62,6 +64,8 @@ export class LspDocumentSync {
     }
     const doc: TrackedDocument = { model, owner, openedOn: null, dirty: false }
     this.documents.set(key, doc)
+    const languageId = model.getLanguageId()
+    this.deps.retainClient(owner.worktreeId, languageId)
     model.onDidChangeContent(() => {
       doc.dirty = true
     })
@@ -70,6 +74,7 @@ export class LspDocumentSync {
       if (doc.openedOn && !doc.openedOn.isClosed) {
         doc.openedOn.notify('textDocument/didClose', { textDocument: { uri: key } })
       }
+      this.deps.releaseClient(owner.worktreeId, languageId)
     })
     this.clientFor(model).catch(() => undefined)
   }

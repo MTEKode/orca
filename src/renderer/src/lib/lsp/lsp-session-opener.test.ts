@@ -10,6 +10,8 @@ const originalAddEventListener = window.addEventListener.bind(window)
 
 let getLspClient: typeof OpenerModule.getLspClient
 let resetLspClients: typeof OpenerModule.resetLspClients
+let retainLspClient: typeof OpenerModule.retainLspClient
+let releaseLspClient: typeof OpenerModule.releaseLspClient
 let LspPortClientClass: typeof PortClientModule.LspPortClient
 let openFn: ReturnType<typeof vi.fn>
 let addEventListenerSpy: { mockRestore: () => void } | null = null
@@ -46,6 +48,8 @@ beforeEach(async () => {
   const mod = await import('./lsp-session-opener')
   getLspClient = mod.getLspClient
   resetLspClients = mod.resetLspClients
+  retainLspClient = mod.retainLspClient
+  releaseLspClient = mod.releaseLspClient
 })
 
 afterEach(() => {
@@ -280,5 +284,45 @@ describe('getLspClient', () => {
     await new Promise((resolve) => setTimeout(resolve, 10))
 
     expect(closeSpy).toHaveBeenCalled()
+  })
+
+  it('releasing the last lease closes and evicts the client; an earlier release keeps it', async () => {
+    openFn.mockImplementation(({ requestId }) => {
+      setTimeout(() => dispatchPortMessage(requestId, createPortPair().client), 10)
+      return Promise.resolve({ ok: true })
+    })
+    retainLspClient('worktree-1', 'typescript')
+    retainLspClient('worktree-1', 'typescript')
+    const opened = requireClient(await getLspClient('worktree-1', 'typescript'))
+    const closeSpy = vi.spyOn(opened, 'close')
+
+    releaseLspClient('worktree-1', 'typescript')
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(closeSpy).not.toHaveBeenCalled()
+    expect(await getLspClient('worktree-1', 'typescript')).toBe(opened)
+    expect(openFn).toHaveBeenCalledTimes(1)
+
+    releaseLspClient('worktree-1', 'typescript')
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(closeSpy).toHaveBeenCalledTimes(1)
+    const reopened = await getLspClient('worktree-1', 'typescript')
+    expect(reopened).not.toBe(opened)
+    expect(openFn).toHaveBeenCalledTimes(2)
+    reopened?.close()
+  })
+
+  it('releasing a lease on another language keeps this client', async () => {
+    openFn.mockImplementation(({ requestId }) => {
+      setTimeout(() => dispatchPortMessage(requestId, createPortPair().client), 10)
+      return Promise.resolve({ ok: true })
+    })
+    retainLspClient('worktree-1', 'typescript')
+    const opened = requireClient(await getLspClient('worktree-1', 'typescript'))
+    const closeSpy = vi.spyOn(opened, 'close')
+    retainLspClient('worktree-1', 'ruby')
+    releaseLspClient('worktree-1', 'ruby')
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(closeSpy).not.toHaveBeenCalled()
+    opened.close()
   })
 })

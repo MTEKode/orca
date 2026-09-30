@@ -39,6 +39,10 @@ function model(
   }
 }
 
+function leases() {
+  return { retainClient: vi.fn(), releaseClient: vi.fn() }
+}
+
 function fakeClient() {
   return { isClosed: false, notify: vi.fn(), request: vi.fn(), close: vi.fn() }
 }
@@ -47,11 +51,11 @@ describe('LspDocumentSync', () => {
   const owner = { worktreeId: 'r::/repo', worktreePath: '/repo', repoId: 'r' }
 
   it('ignores diff models and files outside a worktree', () => {
-    const sync = new LspDocumentSync({ findOwner: () => owner, getClient: vi.fn() })
+    const sync = new LspDocumentSync({ ...leases(), findOwner: () => owner, getClient: vi.fn() })
     sync.track(model('diff:original:x', 'typescript', 'diff'))
     sync.track(model('file:///repo/a.py', 'python'))
     expect(sync.isTracked(model('diff:original:x', 'typescript', 'diff'))).toBe(false)
-    const outside = new LspDocumentSync({ findOwner: () => null, getClient: vi.fn() })
+    const outside = new LspDocumentSync({ ...leases(), findOwner: () => null, getClient: vi.fn() })
     const m = model('file:///elsewhere/a.ts')
     outside.track(m)
     expect(outside.isTracked(m)).toBe(false)
@@ -60,6 +64,7 @@ describe('LspDocumentSync', () => {
   it('opens, flushes changes before a request, and closes on dispose', async () => {
     const client = fakeClient()
     const sync = new LspDocumentSync({
+      ...leases(),
       findOwner: () => owner,
       getClient: async () => client
     })
@@ -90,7 +95,7 @@ describe('LspDocumentSync', () => {
     const first = fakeClient()
     const second = fakeClient()
     const getClient = vi.fn().mockResolvedValueOnce(first).mockResolvedValue(second)
-    const sync = new LspDocumentSync({ findOwner: () => owner, getClient })
+    const sync = new LspDocumentSync({ ...leases(), findOwner: () => owner, getClient })
     const m = model('file:///repo/a.ts')
     sync.track(m)
     await sync.clientFor(m)
@@ -102,6 +107,7 @@ describe('LspDocumentSync', () => {
   it('sends exactly one didOpen when clientFor calls race on first open', async () => {
     const client = fakeClient()
     const sync = new LspDocumentSync({
+      ...leases(),
       findOwner: () => owner,
       getClient: async () => client
     })
@@ -122,6 +128,7 @@ describe('LspDocumentSync', () => {
       resolve = r
     })
     const sync = new LspDocumentSync({
+      ...leases(),
       findOwner: () => owner,
       getClient: () => pending
     })
@@ -145,7 +152,7 @@ describe('LspDocumentSync', () => {
     const second = fakeClient()
     let current = first
     const getClient = async () => current
-    const sync = new LspDocumentSync({ findOwner: () => owner, getClient })
+    const sync = new LspDocumentSync({ ...leases(), findOwner: () => owner, getClient })
     const m = model('file:///repo/a.ts')
     sync.track(m)
     await sync.clientFor(m)
@@ -162,6 +169,7 @@ describe('LspDocumentSync', () => {
   it('sends no didClose when the client is already closed', async () => {
     const client = fakeClient()
     const sync = new LspDocumentSync({
+      ...leases(),
       findOwner: () => owner,
       getClient: async () => client
     })
@@ -171,6 +179,43 @@ describe('LspDocumentSync', () => {
     client.isClosed = true
     m.dispose()
     expect(client.notify).not.toHaveBeenCalledWith('textDocument/didClose', expect.anything())
+  })
+})
+
+describe('LspDocumentSync client leases', () => {
+  const owner = { worktreeId: 'r::/repo', worktreePath: '/repo', repoId: 'r' }
+
+  it('retains once per tracked document and releases after didClose', async () => {
+    const client = fakeClient()
+    const lease = leases()
+    const sync = new LspDocumentSync({
+      ...lease,
+      findOwner: () => owner,
+      getClient: async () => client
+    })
+    const a = model('file:///repo/a.ts')
+    const b = model('file:///repo/b.ts')
+    sync.track(a)
+    sync.track(a)
+    sync.track(b)
+    await sync.clientFor(a)
+    expect(lease.retainClient).toHaveBeenCalledTimes(2)
+    expect(lease.retainClient).toHaveBeenCalledWith('r::/repo', 'typescript')
+    a.dispose()
+    expect(lease.releaseClient).toHaveBeenCalledTimes(1)
+    expect(lease.releaseClient).toHaveBeenCalledWith('r::/repo', 'typescript')
+    expect(client.notify.mock.invocationCallOrder.at(-1)).toBeLessThan(
+      lease.releaseClient.mock.invocationCallOrder[0]
+    )
+    b.dispose()
+    expect(lease.releaseClient).toHaveBeenCalledTimes(2)
+  })
+
+  it('does not lease untracked models', () => {
+    const lease = leases()
+    const sync = new LspDocumentSync({ ...lease, findOwner: () => null, getClient: vi.fn() })
+    sync.track(model('file:///elsewhere/a.ts'))
+    expect(lease.retainClient).not.toHaveBeenCalled()
   })
 })
 

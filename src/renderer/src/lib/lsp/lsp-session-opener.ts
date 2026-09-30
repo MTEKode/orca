@@ -8,6 +8,7 @@ const REFUSAL_CACHE_MS = 10_000
 type CachedClient = { client: Promise<LspPortClient | null>; refusedAt: number | null }
 type PortDeferred = { port: MessagePort | null; resolve: (port: MessagePort) => void }
 const clients = new Map<string, CachedClient>()
+const leases = new Map<string, number>()
 const portWaiters = new Map<string, PortDeferred>()
 let listening = false
 
@@ -84,11 +85,15 @@ async function openClient(worktreeId: string, languageId: string): Promise<LspPo
 }
 
 /** Cached per worktree + Monaco language; a refusal is cached briefly so hovers don't hammer IPC. */
+function clientKey(worktreeId: string, languageId: string): string {
+  return `${worktreeId}\u0000${languageId}`
+}
+
 export async function getLspClient(
   worktreeId: string,
   languageId: string
 ): Promise<LspPortClient | null> {
-  const key = `${worktreeId}\u0000${languageId}`
+  const key = clientKey(worktreeId, languageId)
 
   while (true) {
     const cached = clients.get(key)
@@ -119,6 +124,26 @@ export async function getLspClient(
     clients.set(key, entry)
     return entry.client
   }
+}
+
+/** Marks a user (a tracked document or an in-flight lookup) of the worktree + language client. */
+export function retainLspClient(worktreeId: string, languageId: string): void {
+  const key = clientKey(worktreeId, languageId)
+  leases.set(key, (leases.get(key) ?? 0) + 1)
+}
+
+/** Drops one user; the last one closes the port so main can idle the server out. */
+export function releaseLspClient(worktreeId: string, languageId: string): void {
+  const key = clientKey(worktreeId, languageId)
+  const remaining = (leases.get(key) ?? 0) - 1
+  if (remaining > 0) {
+    leases.set(key, remaining)
+    return
+  }
+  leases.delete(key)
+  const entry = clients.get(key)
+  clients.delete(key)
+  void entry?.client.then((client) => client?.close())
 }
 
 export function resetLspClients(): void {
