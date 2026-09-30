@@ -11,7 +11,9 @@ describe('normalizeRepoLanguageServerSettings', () => {
 
   it('keeps known boolean flags and drops unknown ids', () => {
     expect(
-      normalizeRepoLanguageServerSettings({ enabled: { typescript: true, gopls: true, 'ruby-lsp': 'yes' } })
+      normalizeRepoLanguageServerSettings({
+        enabled: { typescript: true, gopls: true, 'ruby-lsp': 'yes' }
+      })
     ).toEqual({ enabled: { typescript: true } })
   })
 

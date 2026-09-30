@@ -15,7 +15,11 @@ export type LanguageServerProbe =
   | { status: 'unsupported-host' }
 
 export type LspOpenArgs = { requestId: string; worktreeId: string; languageId: string }
-export type LspOpenFailureReason = 'invalid-worktree' | 'unsupported-host' | 'disabled' | 'unavailable'
+export type LspOpenFailureReason =
+  | 'invalid-worktree'
+  | 'unsupported-host'
+  | 'disabled'
+  | 'unavailable'
 export type LspOpenResult =
   | { ok: true; sessionKey: string }
   | { ok: false; reason: LspOpenFailureReason }
