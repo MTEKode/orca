@@ -71,7 +71,8 @@ export async function probeRepoLanguageServers(
       result[id] = { status: 'bundled' }
     } else if (!local) {
       result[id] = { status: 'unsupported-host' }
-    } else {
+    } else if (repo.languageServers?.enabled?.[id]) {
+      // Why: probing runs the (possibly repo-controlled) command, so only an opted-in server is run.
       result[id] = await probeExternal(repo, id, entry, deps)
     }
   }

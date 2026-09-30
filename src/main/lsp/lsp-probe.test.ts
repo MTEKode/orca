@@ -2,7 +2,14 @@ import { describe, expect, it, vi } from 'vitest'
 import type { Repo } from '../../shared/repo-types'
 import { probeRepoLanguageServers, type LspProbeDeps } from './lsp-probe'
 
-const repo: Repo = { id: 'r', path: '/repo', displayName: 'r', badgeColor: '#000000', addedAt: 0 }
+const repo: Repo = {
+  id: 'r',
+  path: '/repo',
+  displayName: 'r',
+  badgeColor: '#000000',
+  addedAt: 0,
+  languageServers: { enabled: { 'ruby-lsp': true, solargraph: true } }
+}
 
 function deps(overrides: Partial<LspProbeDeps> = {}): LspProbeDeps {
   return {
@@ -49,5 +56,23 @@ describe('probeRepoLanguageServers', () => {
     const result = await probeRepoLanguageServers({ ...repo, connectionId: 'ssh-1' }, d)
     expect(result['ruby-lsp']).toEqual({ status: 'unsupported-host' })
     expect(d.run).not.toHaveBeenCalled()
+  })
+
+  it('never runs the command of a server that is not enabled', async () => {
+    const d = deps({ resolveOnPath: vi.fn(async (name: string) => `/shims/${name}`) })
+    const result = await probeRepoLanguageServers(
+      {
+        ...repo,
+        languageServers: {
+          enabled: { solargraph: true },
+          command: { 'ruby-lsp': ['bundle', 'exec', 'ruby-lsp'] }
+        }
+      },
+      d
+    )
+    expect(result['ruby-lsp']).toBeUndefined()
+    expect(d.resolveOnPath).not.toHaveBeenCalledWith('bundle', expect.anything())
+    expect(d.run).toHaveBeenCalledTimes(1)
+    expect(d.run).not.toHaveBeenCalledWith(expect.objectContaining({ program: '/shims/bundle' }))
   })
 })

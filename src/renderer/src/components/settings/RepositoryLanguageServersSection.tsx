@@ -102,7 +102,7 @@ export function RepositoryLanguageServersSection({
     return () => {
       cancelled = true
     }
-  }, [repo.id, settings?.command, probeNonce])
+  }, [repo.id, settings?.command, settings?.enabled, probeNonce])
 
   const setEnabled = (next: Partial<Record<LanguageServerId, boolean>>): void => {
     // Why: running sessions only restart once the new setting is actually persisted.

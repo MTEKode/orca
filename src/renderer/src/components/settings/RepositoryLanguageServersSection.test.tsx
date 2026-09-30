@@ -123,6 +123,19 @@ describe('RepositoryLanguageServersSection', () => {
     expect(await screen.findByText('Not installed')).toBeTruthy()
   })
 
+  it('re-probes when the enabled server changes', async () => {
+    const props = { updateRepo: vi.fn(), forceVisible: true, searchQuery: '', searchEntries: [] }
+    const { rerender } = render(<RepositoryLanguageServersSection repo={repo} {...props} />)
+    await waitFor(() => expect(window.api.lsp.probe).toHaveBeenCalledTimes(1))
+    rerender(
+      <RepositoryLanguageServersSection
+        repo={{ ...repo, languageServers: { enabled: { 'ruby-lsp': true } } }}
+        {...props}
+      />
+    )
+    await waitFor(() => expect(window.api.lsp.probe).toHaveBeenCalledTimes(2))
+  })
+
   it('disables controls for remote projects', async () => {
     render(
       <RepositoryLanguageServersSection
