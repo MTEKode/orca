@@ -163,4 +163,33 @@ describe('LspSession', () => {
     session.attachPort(a.port)
     expect(a.port.close).toHaveBeenCalled()
   })
+
+  it('logs the exit code and stderr tail once when the server dies at startup', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const script = "process.stderr.write('x'.repeat(10000) + 'boom-tail'); process.exit(3)"
+    const { session, onExit } = startSession({
+      command: { program: process.execPath, args: ['-e', script], env: process.env }
+    })
+    await session.ready.catch(() => undefined)
+    await vi.waitFor(() => expect(warn).toHaveBeenCalled(), { timeout: 5000 })
+    await vi.waitFor(() => expect(onExit).toHaveBeenCalledWith(true), { timeout: 5000 })
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(warn).toHaveBeenCalledTimes(1)
+    const message = String(warn.mock.calls[0][0])
+    expect(message).toContain('[lsp] typescript language server for')
+    expect(message).toContain(tmpdir())
+    expect(message).toContain('exited with code 3')
+    expect(message).toMatch(/boom-tail$/)
+    expect(message.length).toBeLessThan(4_096 + 200)
+    warn.mockRestore()
+  })
+
+  it('does not log on an orderly shutdown', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const { session } = startSession()
+    await session.ready
+    await session.dispose()
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
+  })
 })

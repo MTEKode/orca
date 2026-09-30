@@ -9,6 +9,7 @@ import {
 import type { LanguageServerId } from '../../shared/language-server-types'
 import { LspMessageRouter, isJsonRpcMessage, type JsonRpcMessage } from './lsp-message-router'
 import type { ResolvedLspCommand } from './lsp-server-command'
+import { LspStderrTail } from './lsp-stderr-tail'
 
 type LspChildProcess = ReturnType<typeof spawnProcess>
 
@@ -46,11 +47,13 @@ export class LspSession {
   private readonly ports = new Map<number, LspPort>()
   private readonly queued: { portId: number; message: JsonRpcMessage }[] = []
   private readonly exitedPromise: Promise<void>
+  private readonly stderr: LspStderrTail
   private nextPortId = 1
   private isReady = false
   private exited = false
   private disposing = false
   private failed = false
+  private loggedFailure = false
   private idleTimer: ReturnType<typeof setTimeout> | null = null
 
   constructor(private readonly config: LspSessionConfig) {
@@ -70,23 +73,30 @@ export class LspSession {
       [{ uri: rootUri, name: basename(config.rootPath) }]
     )
     new StreamMessageReader(this.child.stdout).listen((message) => this.onServerMessage(message))
-    this.child.stderr.resume()
+    this.stderr = new LspStderrTail(this.child.stderr)
     this.exitedPromise = new Promise((resolve) => {
-      const onGone = (): void => {
-        this.onChildExit()
+      const onGone = (detail: string): void => {
+        this.onChildExit(detail)
         resolve()
       }
-      this.child.once('exit', onGone)
+      this.child.once('exit', (code, signal) =>
+        onGone(signal ? `exited with signal ${signal}` : `exited with code ${code}`)
+      )
       // Why: kill() failures also emit 'error' on a live process; only a failed spawn means it never ran.
-      this.child.once('error', () => {
+      this.child.once('error', (error) => {
         if (this.child.pid === undefined) {
-          onGone()
+          onGone(`failed to spawn: ${error.message}`)
         }
       })
     })
     this.ready = this.initialize(rootUri)
-    this.ready.catch(() => {
-      this.failed ||= !this.disposing
+    this.ready.catch((error: unknown) => {
+      if (!this.disposing) {
+        this.failed = true
+        this.logFailure(
+          `failed to start: ${error instanceof Error ? error.message : String(error)}`
+        )
+      }
       void this.dispose({ force: true })
     })
   }
@@ -199,7 +209,7 @@ export class LspSession {
     }
   }
 
-  private onChildExit(): void {
+  private onChildExit(detail: string): void {
     if (this.exited) {
       return
     }
@@ -207,11 +217,25 @@ export class LspSession {
     this.router.rejectInternal(new Error('language server exited'))
     this.killLeftoverGroup()
     if (!this.disposing) {
+      this.logFailure(detail)
       this.disposing = true
       this.clearIdleTimer()
       this.closePorts()
       this.config.onExit(true)
     }
+  }
+
+  private logFailure(detail: string): void {
+    if (this.loggedFailure) {
+      return
+    }
+    this.loggedFailure = true
+    const { serverId, rootPath } = this.config
+    this.stderr.whenFlushed((tail) => {
+      console.warn(
+        `[lsp] ${serverId} language server for ${rootPath} ${detail}${tail ? `; stderr:\n${tail}` : ''}`
+      )
+    })
   }
 
   // Why: grandchildren in the detached group can outlive the root and ignore EOF.
