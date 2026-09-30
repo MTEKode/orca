@@ -2,6 +2,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Repo } from '../../../../shared/repo-types'
+import { resetLspClients } from '@/lib/lsp/lsp-session-opener'
 import { RepositoryLanguageServersSection } from './RepositoryLanguageServersSection'
 
 vi.mock('@/lib/lsp/lsp-session-opener', () => ({ resetLspClients: vi.fn() }))
@@ -37,6 +38,44 @@ describe('RepositoryLanguageServersSection', () => {
     expect(updateRepo).toHaveBeenCalledWith('r', {
       languageServers: { enabled: { typescript: true } }
     })
+    await waitFor(() => expect(resetLspClients).toHaveBeenCalledTimes(1))
+  })
+
+  it('keeps existing command and ruby flags when toggling TypeScript', () => {
+    const updateRepo = vi.fn(async () => true)
+    const withSettings: Repo = {
+      ...repo,
+      languageServers: {
+        enabled: { 'ruby-lsp': true },
+        command: { 'ruby-lsp': ['bundle', 'exec', 'ruby-lsp'] }
+      }
+    }
+    render(
+      <RepositoryLanguageServersSection repo={withSettings} updateRepo={updateRepo} forceVisible />
+    )
+    fireEvent.click(screen.getByRole('switch', { name: /typescript/i }))
+    expect(updateRepo).toHaveBeenCalledWith('r', {
+      languageServers: {
+        enabled: { 'ruby-lsp': true, typescript: true },
+        command: { 'ruby-lsp': ['bundle', 'exec', 'ruby-lsp'] }
+      }
+    })
+  })
+
+  it('does not reset clients when the update fails', async () => {
+    vi.mocked(resetLspClients).mockClear()
+    const updateRepo = vi.fn(async () => false)
+    render(<RepositoryLanguageServersSection repo={repo} updateRepo={updateRepo} forceVisible />)
+    fireEvent.click(screen.getByRole('switch', { name: /typescript/i }))
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(resetLspClients).not.toHaveBeenCalled()
+  })
+
+  it('shows Not installed for a missing enabled Ruby server', async () => {
+    const enabled: Repo = { ...repo, languageServers: { enabled: { solargraph: true } } }
+    render(<RepositoryLanguageServersSection repo={enabled} updateRepo={vi.fn()} forceVisible />)
+    expect(await screen.findByText('Not installed')).toBeTruthy()
   })
 
   it('disables controls for remote projects', async () => {

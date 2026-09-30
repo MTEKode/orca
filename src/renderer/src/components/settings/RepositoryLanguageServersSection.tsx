@@ -1,10 +1,8 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { translate } from '@/i18n/i18n'
 import { resetLspClients } from '@/lib/lsp/lsp-session-opener'
-import { Badge } from '../ui/badge'
-import { Label } from '../ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { Switch } from '../ui/switch'
+import { SettingsBadge, SettingsRow, SettingsSwitchRow } from './SettingsFormControls'
 import { SearchableSetting } from './SearchableSetting'
 import { getRepoExecutionHostId, LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
 import { LANGUAGE_SERVER_CATALOG } from '../../../../shared/language-server-catalog'
@@ -33,11 +31,15 @@ function ServerStatus({
   }
   switch (probe.status) {
     case 'bundled':
-      return <Badge variant="secondary">{translate(`${KEY}.bundled`, 'Bundled')}</Badge>
+      return <SettingsBadge>{translate(`${KEY}.bundled`, 'Bundled')}</SettingsBadge>
     case 'installed':
-      return <Badge variant="secondary">{probe.version}</Badge>
+      return <SettingsBadge>{probe.version}</SettingsBadge>
     case 'missing':
-      return <Badge variant="outline">{translate(`${KEY}.notInstalled`, 'Not installed')}</Badge>
+      return (
+        <SettingsBadge tone="muted">
+          {translate(`${KEY}.notInstalled`, 'Not installed')}
+        </SettingsBadge>
+      )
     case 'unsupported-host':
       return null
   }
@@ -51,16 +53,36 @@ export function RepositoryLanguageServersSection({
   const [probe, setProbe] = useState<LspProbeResult | null>(null)
   const isLocal = getRepoExecutionHostId(repo) === LOCAL_EXECUTION_HOST_ID
   const settings = repo.languageServers
-  const refreshProbe = useCallback(() => {
-    void window.api.lsp.probe({ repoId: repo.id }).then(setProbe, () => setProbe(null))
-  }, [repo.id])
-  useEffect(refreshProbe, [refreshProbe, settings?.command])
+  useEffect(() => {
+    let cancelled = false
+    void window.api.lsp.probe({ repoId: repo.id }).then(
+      (result) => {
+        if (!cancelled) {
+          setProbe(result)
+        }
+      },
+      () => {
+        if (!cancelled) {
+          setProbe(null)
+        }
+      }
+    )
+    return () => {
+      cancelled = true
+    }
+  }, [repo.id, settings?.command])
 
   const setEnabled = (next: Partial<Record<LanguageServerId, boolean>>): void => {
-    void updateRepo(repo.id, {
-      languageServers: { ...settings, enabled: { ...settings?.enabled, ...next } }
+    // Why: running sessions only restart once the new setting is actually persisted.
+    void Promise.resolve(
+      updateRepo(repo.id, {
+        languageServers: { ...settings, enabled: { ...settings?.enabled, ...next } }
+      })
+    ).then((ok) => {
+      if (ok !== false) {
+        resetLspClients()
+      }
     })
-    resetLspClients()
   }
   const rubyChoice: RubyChoice = settings?.enabled?.['ruby-lsp']
     ? 'ruby-lsp'
@@ -84,7 +106,7 @@ export function RepositoryLanguageServersSection({
         'ruby',
         'typescript'
       ]}
-      className="space-y-3"
+      className="space-y-1"
       forceVisible={forceVisible}
     >
       {!isLocal && (
@@ -92,42 +114,38 @@ export function RepositoryLanguageServersSection({
           {translate(`${KEY}.localOnly`, 'Language servers are available for local projects only.')}
         </p>
       )}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <Label htmlFor={`lsp-typescript-${repo.id}`}>
-            {translate(`${KEY}.typescript`, 'TypeScript / JavaScript')}
-          </Label>
-          <ServerStatus probe={probe?.typescript} />
-        </div>
-        <Switch
-          id={`lsp-typescript-${repo.id}`}
-          checked={Boolean(settings?.enabled?.typescript)}
-          disabled={!isLocal}
-          onCheckedChange={(checked) => setEnabled({ typescript: checked })}
-        />
-      </div>
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <Label>{translate(`${KEY}.ruby`, 'Ruby')}</Label>
-          <ServerStatus probe={rubyChoice === 'off' ? undefined : probe?.[rubyChoice]} />
-        </div>
-        <Select
-          value={rubyChoice}
-          disabled={!isLocal}
-          onValueChange={(value) =>
-            setEnabled({ 'ruby-lsp': value === 'ruby-lsp', solargraph: value === 'solargraph' })
-          }
-        >
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="off">{translate(`${KEY}.off`, 'Off')}</SelectItem>
-            <SelectItem value="ruby-lsp">{LANGUAGE_SERVER_CATALOG['ruby-lsp'].label}</SelectItem>
-            <SelectItem value="solargraph">{LANGUAGE_SERVER_CATALOG.solargraph.label}</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <SettingsSwitchRow
+        label={translate(`${KEY}.typescript`, 'TypeScript / JavaScript')}
+        description={<ServerStatus probe={probe?.typescript} />}
+        checked={Boolean(settings?.enabled?.typescript)}
+        disabled={!isLocal}
+        onChange={() => setEnabled({ typescript: !settings?.enabled?.typescript })}
+      />
+      <SettingsRow
+        label={translate(`${KEY}.ruby`, 'Ruby')}
+        labelId={`lsp-ruby-${repo.id}`}
+        description={
+          rubyChoice === 'off' ? undefined : <ServerStatus probe={probe?.[rubyChoice]} />
+        }
+        control={
+          <Select
+            value={rubyChoice}
+            disabled={!isLocal}
+            onValueChange={(value) =>
+              setEnabled({ 'ruby-lsp': value === 'ruby-lsp', solargraph: value === 'solargraph' })
+            }
+          >
+            <SelectTrigger className="w-40" aria-labelledby={`lsp-ruby-${repo.id}`}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="off">{translate(`${KEY}.off`, 'Off')}</SelectItem>
+              <SelectItem value="ruby-lsp">{LANGUAGE_SERVER_CATALOG['ruby-lsp'].label}</SelectItem>
+              <SelectItem value="solargraph">{LANGUAGE_SERVER_CATALOG.solargraph.label}</SelectItem>
+            </SelectContent>
+          </Select>
+        }
+      />
     </SearchableSetting>
   )
 }
