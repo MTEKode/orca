@@ -48,7 +48,15 @@ describe('RepositoryLanguageServersSection', () => {
 
   it('enables the TypeScript server for this project only', async () => {
     const updateRepo = vi.fn(async () => true)
-    render(<RepositoryLanguageServersSection repo={repo} updateRepo={updateRepo} forceVisible />)
+    render(
+      <RepositoryLanguageServersSection
+        repo={repo}
+        updateRepo={updateRepo}
+        forceVisible
+        searchQuery=""
+        searchEntries={[]}
+      />
+    )
     fireEvent.click(screen.getByRole('switch', { name: /typescript/i }))
     expect(updateRepo).toHaveBeenCalledWith('r', {
       languageServers: { enabled: { typescript: true } }
@@ -66,7 +74,13 @@ describe('RepositoryLanguageServersSection', () => {
       }
     }
     render(
-      <RepositoryLanguageServersSection repo={withSettings} updateRepo={updateRepo} forceVisible />
+      <RepositoryLanguageServersSection
+        repo={withSettings}
+        updateRepo={updateRepo}
+        forceVisible
+        searchQuery=""
+        searchEntries={[]}
+      />
     )
     fireEvent.click(screen.getByRole('switch', { name: /typescript/i }))
     expect(updateRepo).toHaveBeenCalledWith('r', {
@@ -80,7 +94,15 @@ describe('RepositoryLanguageServersSection', () => {
   it('does not reset clients when the update fails', async () => {
     vi.mocked(resetLspClients).mockClear()
     const updateRepo = vi.fn(async () => false)
-    render(<RepositoryLanguageServersSection repo={repo} updateRepo={updateRepo} forceVisible />)
+    render(
+      <RepositoryLanguageServersSection
+        repo={repo}
+        updateRepo={updateRepo}
+        forceVisible
+        searchQuery=""
+        searchEntries={[]}
+      />
+    )
     fireEvent.click(screen.getByRole('switch', { name: /typescript/i }))
     await Promise.resolve()
     await Promise.resolve()
@@ -89,7 +111,15 @@ describe('RepositoryLanguageServersSection', () => {
 
   it('shows Not installed for a missing enabled Ruby server', async () => {
     const enabled: Repo = { ...repo, languageServers: { enabled: { solargraph: true } } }
-    render(<RepositoryLanguageServersSection repo={enabled} updateRepo={vi.fn()} forceVisible />)
+    render(
+      <RepositoryLanguageServersSection
+        repo={enabled}
+        updateRepo={vi.fn()}
+        forceVisible
+        searchQuery=""
+        searchEntries={[]}
+      />
+    )
     expect(await screen.findByText('Not installed')).toBeTruthy()
   })
 
@@ -99,6 +129,8 @@ describe('RepositoryLanguageServersSection', () => {
         repo={{ ...repo, connectionId: 'ssh-1' }}
         updateRepo={vi.fn()}
         forceVisible
+        searchQuery=""
+        searchEntries={[]}
       />
     )
     await waitFor(() =>
@@ -115,6 +147,8 @@ describe('RepositoryLanguageServersSection', () => {
         repo={{ ...repo, languageServers: { enabled: { 'ruby-lsp': true } } }}
         updateRepo={vi.fn()}
         forceVisible
+        searchQuery=""
+        searchEntries={[]}
       />
     )
     fireEvent.click(await screen.findByRole('button', { name: /install/i }))
@@ -130,6 +164,8 @@ describe('RepositoryLanguageServersSection', () => {
         repo={{ ...repo, languageServers: { enabled: { 'ruby-lsp': true } } }}
         updateRepo={updateRepo}
         forceVisible
+        searchQuery=""
+        searchEntries={[]}
       />
     )
     const input = screen.getByLabelText(/custom command/i)
@@ -148,7 +184,13 @@ describe('RepositoryLanguageServersSection', () => {
   const startInstall = async (): Promise<void> => {
     window.api.lsp.probe = vi.fn(async () => ({ 'ruby-lsp': { status: 'missing' as const } }))
     render(
-      <RepositoryLanguageServersSection repo={missingRepo} updateRepo={vi.fn()} forceVisible />
+      <RepositoryLanguageServersSection
+        repo={missingRepo}
+        updateRepo={vi.fn()}
+        forceVisible
+        searchQuery=""
+        searchEntries={[]}
+      />
     )
     fireEvent.click(await screen.findByRole('button', { name: /^install$/i }))
   }
@@ -179,7 +221,13 @@ describe('RepositoryLanguageServersSection', () => {
   it('does not save when the custom command is unchanged', () => {
     const updateRepo = vi.fn(async () => true)
     render(
-      <RepositoryLanguageServersSection repo={missingRepo} updateRepo={updateRepo} forceVisible />
+      <RepositoryLanguageServersSection
+        repo={missingRepo}
+        updateRepo={updateRepo}
+        forceVisible
+        searchQuery=""
+        searchEntries={[]}
+      />
     )
     const input = screen.getByLabelText(/custom command/i)
     fireEvent.focus(input)

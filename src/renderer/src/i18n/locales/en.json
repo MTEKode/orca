@@ -8074,6 +8074,18 @@
           "searchEmojiPlaceholder": "Search emoji"
         },
         "RepositoryLanguageServersSection": {
+          "search": {
+            "languageServer": "language server",
+            "goToDefinition": "go to definition",
+            "findReferences": "find references",
+            "hover": "hover",
+            "lsp": "lsp",
+            "ruby": "ruby",
+            "rubyLsp": "ruby-lsp",
+            "solargraph": "solargraph",
+            "typescript": "typescript",
+            "gemInstall": "gem install"
+          },
           "title": "Language Servers",
           "description": "Go to definition, find references and hover for this project. Enabling a server runs code from this repository.",
           "localOnly": "Language servers are available for local projects only.",

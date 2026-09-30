@@ -6,6 +6,7 @@ import { Input } from '../ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { SettingsBadge, SettingsRow, SettingsSwitchRow } from './SettingsFormControls'
 import { SearchableSetting } from './SearchableSetting'
+import { matchesSettingsSearch, type SettingsSearchEntry } from './settings-search'
 import { LanguageServerInstallPanel } from './LanguageServerInstallPanel'
 import { getRepoExecutionHostId, LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
 import { LANGUAGE_SERVER_CATALOG } from '../../../../shared/language-server-catalog'
@@ -21,6 +22,8 @@ type Props = {
   repo: Repo
   updateRepo: (repoId: string, updates: Pick<Repo, 'languageServers'>) => void | Promise<boolean>
   forceVisible: boolean
+  searchQuery: string
+  searchEntries: SettingsSearchEntry[]
 }
 const KEY = 'auto.components.settings.RepositoryLanguageServersSection'
 
@@ -51,7 +54,9 @@ function ServerStatus({
 export function RepositoryLanguageServersSection({
   repo,
   updateRepo,
-  forceVisible
+  forceVisible,
+  searchQuery,
+  searchEntries
 }: Props): React.JSX.Element {
   const [probe, setProbe] = useState<LspProbeResult | null>(null)
   const [installing, setInstalling] = useState<{
@@ -149,17 +154,9 @@ export function RepositoryLanguageServersSection({
         `${KEY}.description`,
         'Go to definition, find references and hover for this project. Enabling a server runs code from this repository.'
       )}
-      keywords={[
-        repo.displayName,
-        'lsp',
-        'language server',
-        'go to definition',
-        'references',
-        'ruby',
-        'typescript'
-      ]}
+      keywords={searchEntries[0]?.keywords}
+      forceVisible={forceVisible || matchesSettingsSearch(searchQuery, searchEntries)}
       className="space-y-1"
-      forceVisible={forceVisible}
     >
       {!isLocal && (
         <p className="text-muted-foreground text-xs">

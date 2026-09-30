@@ -1429,7 +1429,18 @@
           "notInstalled": "Not installed",
           "off": "Off",
           "ruby": "Ruby",
-          "title": "Language Servers",
+          "search": {
+            "findReferences": "find references",
+            "gemInstall": "gem install",
+            "goToDefinition": "go to definition",
+            "hover": "hover",
+            "languageServer": "language server",
+            "lsp": "lsp",
+            "ruby": "ruby",
+            "rubyLsp": "ruby-lsp",
+            "solargraph": "solargraph",
+            "typescript": "typescript"
+          },
           "typescript": "TypeScript / JavaScript",
           "update": "Update"
         },

@@ -174,6 +174,33 @@ describe('RepositoryPane search entries', () => {
     }
   })
 
+  it('renders the language servers section when searching for a server name', () => {
+    useAppStore.setState({
+      settingsSearchQuery: 'ruby-lsp',
+      settingsSearchInputQuery: 'ruby-lsp'
+    })
+
+    act(() => {
+      root.render(
+        React.createElement(
+          TooltipProvider,
+          null,
+          React.createElement(RepositoryPane, {
+            repo,
+            yamlHooks: null,
+            hasHooksFile: false,
+            hooksInspectionReady: true,
+            mayNeedUpdate: false,
+            updateRepo: vi.fn(),
+            removeProject: vi.fn()
+          })
+        )
+      )
+    })
+
+    expect(container.textContent).toContain('TypeScript / JavaScript')
+  })
+
   it('warns about live terminals and active tasks before project runtime changes', () => {
     const worktreeId = 'repo-1::/tmp/repo'
     useAppStore.setState({
