@@ -169,4 +169,17 @@ describe('LspMessageRouter', () => {
     })
     expect(toServer).toHaveLength(0)
   })
+
+  it('allows workspace/symbol requests', () => {
+    const { router, toServer } = setup()
+    expect(
+      router.fromClient(1, {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'workspace/symbol',
+        params: { query: 'Greeter' }
+      })
+    ).toBeNull()
+    expect(toServer).toHaveLength(1)
+  })
 })

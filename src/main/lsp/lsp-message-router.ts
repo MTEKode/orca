@@ -18,7 +18,8 @@ export function isJsonRpcMessage(value: unknown): value is JsonRpcMessage {
 const CLIENT_REQUESTS = new Set([
   'textDocument/definition',
   'textDocument/references',
-  'textDocument/hover'
+  'textDocument/hover',
+  'workspace/symbol'
 ])
 const CLIENT_NOTIFICATIONS = new Set([
   'textDocument/didOpen',

@@ -34,7 +34,7 @@ export const LANGUAGE_SERVER_CATALOG: Record<
       enabledFeatures: {
         definition: true,
         hover: true,
-        workspaceSymbol: false,
+        workspaceSymbol: true,
         completion: false,
         diagnostics: false,
         formatting: false,
@@ -61,7 +61,12 @@ export const LANGUAGE_SERVER_CATALOG: Record<
     versionArgs: ['--version'],
     installCommand: 'gem install solargraph',
     updateCommand: 'gem update solargraph',
-    initializationOptions: { diagnostics: false, completion: false, formatting: false, autoformat: false }
+    initializationOptions: {
+      diagnostics: false,
+      completion: false,
+      formatting: false,
+      autoformat: false
+    }
   }
 }
 

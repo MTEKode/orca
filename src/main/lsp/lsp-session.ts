@@ -151,7 +151,7 @@ export class LspSession {
             references: {},
             hover: { contentFormat: ['markdown', 'plaintext'] }
           },
-          workspace: { workspaceFolders: true, configuration: true }
+          workspace: { workspaceFolders: true, configuration: true, symbol: {} }
         }
       }),
       INITIALIZE_TIMEOUT_MS
