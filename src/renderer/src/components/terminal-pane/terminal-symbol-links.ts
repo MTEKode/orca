@@ -8,6 +8,8 @@ import {
   isTerminalLinkDirectActivation
 } from './terminal-link-activation'
 import { openDetectedFilePath } from './terminal-file-open-routing'
+import { getRepoExecutionHostId, LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
+import type { Repo } from '../../../../shared/repo-types'
 import { buildWrappedLogicalLine, rangeForParsedFileLink } from './wrapped-terminal-link-ranges'
 
 const SYMBOL_TOKEN = /[A-Za-z_][A-Za-z0-9_]*(?:(?:::|#|\.)[A-Za-z_][A-Za-z0-9_]*)*[?!]?/g
@@ -38,11 +40,33 @@ export function extractSymbolTokens(
   return tokens
 }
 
+/** Symbol links need a local repo with at least one enabled language server. */
+export function isSymbolLookupEnabledForRepo(repo: Repo | undefined): boolean {
+  return (
+    repo !== undefined &&
+    getRepoExecutionHostId(repo) === LOCAL_EXECUTION_HOST_ID &&
+    Object.values(repo.languageServers?.enabled ?? {}).some(Boolean)
+  )
+}
+
+function toFilePath(uri: string): string | null {
+  try {
+    const url = new URL(uri)
+    if (url.protocol !== 'file:') {
+      return null
+    }
+    return decodeURIComponent(url.pathname).replace(/^\/([A-Za-z]:)/, '$1')
+  } catch {
+    return null
+  }
+}
+
 async function openSymbolDefinition(token: string, deps: TerminalSymbolLinkDeps): Promise<void> {
   const candidates = await lookupWorkspaceSymbol(deps.worktreeId, token)
   // ponytail: opens the top-ranked match; add a picker if ties turn out common.
   const best = rankWorkspaceSymbols(token, candidates, deps.worktreePath)[0]
-  if (!best) {
+  const filePath = best ? toFilePath(best.uri) : null
+  if (!best || !filePath) {
     toast(
       translate(
         'auto.components.terminal.pane.TerminalSymbolLinks.noDefinition',
@@ -52,7 +76,6 @@ async function openSymbolDefinition(token: string, deps: TerminalSymbolLinkDeps)
     )
     return
   }
-  const filePath = decodeURIComponent(new URL(best.uri).pathname).replace(/^\/([A-Za-z]:)/, '$1')
   openDetectedFilePath(filePath, best.line + 1, best.character + 1, {
     worktreeId: deps.worktreeId,
     worktreePath: deps.worktreePath
@@ -66,8 +89,16 @@ function setDecorations(link: ILink, armed: boolean): void {
   }
 }
 
-export function createTerminalSymbolLinkProvider(deps: TerminalSymbolLinkDeps): ILinkProvider {
+export function createTerminalSymbolLinkProvider(
+  deps: TerminalSymbolLinkDeps
+): ILinkProvider & { dispose(): void } {
+  // Why: xterm never calls leave() on teardown, so the provider owns the single active watcher.
+  let stopWatchingModifier: (() => void) | null = null
   return {
+    dispose: () => {
+      stopWatchingModifier?.()
+      stopWatchingModifier = null
+    },
     provideLinks: (bufferLineNumber, callback) => {
       const terminal = deps.getTerminal()
       const logicalLine =
@@ -84,7 +115,6 @@ export function createTerminalSymbolLinkProvider(deps: TerminalSymbolLinkDeps): 
           if (!range) {
             return null
           }
-          let stopWatchingModifier: (() => void) | null = null
           const link: ILink = {
             range,
             text: token.text,
@@ -95,19 +125,28 @@ export function createTerminalSymbolLinkProvider(deps: TerminalSymbolLinkDeps): 
               // link.decorations, so writes must wait a microtask and go through the link itself.
               const armed = isTerminalLinkActivation(event)
               queueMicrotask(() => setDecorations(link, armed))
-              const onKey = (keyEvent: KeyboardEvent): void =>
-                setDecorations(link, isTerminalLinkActivation(keyEvent))
-              document.addEventListener('keydown', onKey)
-              document.addEventListener('keyup', onKey)
               stopWatchingModifier?.()
-              stopWatchingModifier = () => {
-                document.removeEventListener('keydown', onKey)
-                document.removeEventListener('keyup', onKey)
+              const onKey = (keyEvent: KeyboardEvent): void => {
+                if (terminal.element?.isConnected === false) {
+                  stop()
+                  return
+                }
+                setDecorations(link, isTerminalLinkActivation(keyEvent))
               }
+              const stop = (): void => {
+                document.removeEventListener('keydown', onKey, { capture: true })
+                document.removeEventListener('keyup', onKey, { capture: true })
+                if (stopWatchingModifier === stop) {
+                  stopWatchingModifier = null
+                }
+              }
+              // Why: capture so key handlers that stopPropagation can't hide modifier presses.
+              document.addEventListener('keydown', onKey, { capture: true })
+              document.addEventListener('keyup', onKey, { capture: true })
+              stopWatchingModifier = stop
             },
             leave: () => {
               stopWatchingModifier?.()
-              stopWatchingModifier = null
               setDecorations(link, false)
             },
             activate: (event) => {

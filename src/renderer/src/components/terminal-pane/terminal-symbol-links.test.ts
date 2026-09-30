@@ -1,5 +1,5 @@
 import type { ILink, Terminal } from '@xterm/xterm'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
   lookupWorkspaceSymbol: vi.fn(),
@@ -24,7 +24,12 @@ vi.mock('./wrapped-terminal-link-ranges', () => ({
   })
 }))
 
-import { createTerminalSymbolLinkProvider, extractSymbolTokens } from './terminal-symbol-links'
+import type { Repo } from '../../../../shared/repo-types'
+import {
+  createTerminalSymbolLinkProvider,
+  extractSymbolTokens,
+  isSymbolLookupEnabledForRepo
+} from './terminal-symbol-links'
 
 describe('extractSymbolTokens', () => {
   it('finds qualified identifiers with exclusive end indexes', () => {
@@ -46,24 +51,38 @@ describe('extractSymbolTokens', () => {
   })
 })
 
+const terminalElement = { isConnected: true }
+
 function fakeTerminal(): Terminal {
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the provider only reads buffer.active and calls clearSelection.
-  return { buffer: { active: {} }, clearSelection: vi.fn() } as unknown as Terminal
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the provider only reads buffer.active and element, and calls clearSelection.
+  return {
+    buffer: { active: {} },
+    element: terminalElement,
+    clearSelection: vi.fn()
+  } as unknown as Terminal
 }
 
-function provideLinks(isLspEnabled: boolean): ILink[] | undefined {
-  const terminal = fakeTerminal()
-  const provider = createTerminalSymbolLinkProvider({
-    getTerminal: () => terminal,
+function createProvider(
+  isLspEnabled: boolean
+): ReturnType<typeof createTerminalSymbolLinkProvider> {
+  return createTerminalSymbolLinkProvider({
+    getTerminal: fakeTerminal,
     worktreeId: 'repo::/work/app',
     worktreePath: '/work/app',
     isLspEnabled: () => isLspEnabled
   })
+}
+
+function linksFrom(provider: ReturnType<typeof createProvider>): ILink[] | undefined {
   let links: ILink[] | undefined
   provider.provideLinks(1, (result) => {
     links = result
   })
   return links
+}
+
+function provideLinks(isLspEnabled: boolean): ILink[] | undefined {
+  return linksFrom(createProvider(isLspEnabled))
 }
 
 function greeterLink(): ILink {
@@ -122,5 +141,84 @@ describe('createTerminalSymbolLinkProvider', () => {
     greeterLink().activate(click(true), 'Greeter')
     await vi.waitFor(() => expect(mocks.toast).toHaveBeenCalled())
     expect(mocks.openDetectedFilePath).not.toHaveBeenCalled()
+  })
+
+  it('shows the toast instead of rejecting on a non-file or invalid URI', async () => {
+    mocks.lookupWorkspaceSymbol.mockResolvedValue([
+      { name: 'Greeter', kind: 5, containerName: null, uri: 'not a uri', line: 0, character: 0 }
+    ])
+    greeterLink().activate(click(true), 'Greeter')
+    await vi.waitFor(() => expect(mocks.toast).toHaveBeenCalled())
+    expect(mocks.openDetectedFilePath).not.toHaveBeenCalled()
+  })
+})
+
+describe('modifier key watcher', () => {
+  const add = vi.fn()
+  const remove = vi.fn()
+
+  function hover(provider: ReturnType<typeof createProvider>): ILink {
+    const link = linksFrom(provider)?.find((candidate) => candidate.text === 'Greeter')
+    if (!link) {
+      throw new Error('expected a Greeter link')
+    }
+    link.hover?.(click(true), 'Greeter')
+    return link
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    terminalElement.isConnected = true
+    vi.stubGlobal('document', { addEventListener: add, removeEventListener: remove })
+    vi.stubGlobal('queueMicrotask', () => {})
+  })
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('adds one keydown and one keyup listener per hover without stacking', () => {
+    const provider = createProvider(true)
+    hover(provider)
+    expect(add.mock.calls.map((call) => call[0])).toEqual(['keydown', 'keyup'])
+    hover(provider)
+    expect(add).toHaveBeenCalledTimes(4)
+    expect(remove).toHaveBeenCalledTimes(2)
+  })
+
+  it('removes the listeners on leave', () => {
+    hover(createProvider(true)).leave?.(click(false), 'Greeter')
+    expect(remove.mock.calls.map((call) => call[0])).toEqual(['keydown', 'keyup'])
+  })
+
+  it('removes the listeners on dispose without leave', () => {
+    const provider = createProvider(true)
+    hover(provider)
+    provider.dispose()
+    expect(remove.mock.calls.map((call) => call[0])).toEqual(['keydown', 'keyup'])
+  })
+
+  it('removes the listeners when the terminal element is disconnected', () => {
+    hover(createProvider(true))
+    terminalElement.isConnected = false
+    add.mock.calls[0][1](click(true))
+    expect(remove.mock.calls.map((call) => call[0])).toEqual(['keydown', 'keyup'])
+  })
+})
+
+describe('isSymbolLookupEnabledForRepo', () => {
+  function repo(extra: Partial<Repo>): Repo {
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: only host and languageServers fields are read.
+    return { languageServers: { enabled: { ruby: true } }, ...extra } as unknown as Repo
+  }
+
+  it('is true for a local repo with an enabled server', () => {
+    expect(isSymbolLookupEnabledForRepo(repo({}))).toBe(true)
+  })
+
+  it('is false without an enabled server or repo', () => {
+    expect(isSymbolLookupEnabledForRepo(repo({ languageServers: { enabled: {} } }))).toBe(false)
+    expect(isSymbolLookupEnabledForRepo(undefined)).toBe(false)
+  })
+
+  it('is false for a remote repo even with enabled flags', () => {
+    expect(isSymbolLookupEnabledForRepo(repo({ connectionId: 'ssh-1' }))).toBe(false)
   })
 })

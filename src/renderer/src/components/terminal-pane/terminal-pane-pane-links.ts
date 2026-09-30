@@ -13,7 +13,10 @@ import {
   installFilePathLinkClickFallback
 } from './terminal-link-handlers'
 import { createTerminalHandleLinkProvider } from './terminal-handle-links'
-import { createTerminalSymbolLinkProvider } from './terminal-symbol-links'
+import {
+  createTerminalSymbolLinkProvider,
+  isSymbolLookupEnabledForRepo
+} from './terminal-symbol-links'
 import { useAppStore } from '@/store'
 import { getRepoMapFromState } from '@/store/selectors'
 import { getRepoIdFromWorktreeId } from '../../../../shared/worktree/id'
@@ -101,24 +104,26 @@ export function installTerminalPaneLinkHandling(context: PaneLinkContext): void 
       })
     )
   )
-  refs.symbolLinkDisposablesRef.current.set(
-    pane.id,
-    pane.terminal.registerLinkProvider(
-      createTerminalSymbolLinkProvider({
-        getTerminal: () =>
-          managerRef.current?.getPanes().find((candidate) => candidate.id === pane.id)?.terminal ??
-          null,
-        worktreeId: linkDeps.worktreeId,
-        worktreePath: linkDeps.worktreePath,
-        isLspEnabled: () => {
-          const repo = getRepoMapFromState(useAppStore.getState()).get(
-            getRepoIdFromWorktreeId(linkDeps.worktreeId)
-          )
-          return Object.values(repo?.languageServers?.enabled ?? {}).some(Boolean)
-        }
-      })
-    )
-  )
+  const symbolProvider = createTerminalSymbolLinkProvider({
+    getTerminal: () =>
+      managerRef.current?.getPanes().find((candidate) => candidate.id === pane.id)?.terminal ??
+      null,
+    worktreeId: linkDeps.worktreeId,
+    worktreePath: linkDeps.worktreePath,
+    isLspEnabled: () =>
+      isSymbolLookupEnabledForRepo(
+        getRepoMapFromState(useAppStore.getState()).get(
+          getRepoIdFromWorktreeId(linkDeps.worktreeId)
+        )
+      )
+  })
+  const symbolRegistration = pane.terminal.registerLinkProvider(symbolProvider)
+  refs.symbolLinkDisposablesRef.current.set(pane.id, {
+    dispose: () => {
+      symbolRegistration.dispose()
+      symbolProvider.dispose()
+    }
+  })
   refs.linkifierClickPrimingDisposablesRef.current.set(
     pane.id,
     installTerminalLinkifierClickPriming(pane.terminal)
