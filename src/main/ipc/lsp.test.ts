@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const mocks = vi.hoisted(() => ({
-  handlers: new Map<string, (event: unknown, args: unknown) => unknown>(),
-  ports: [] as {
+const mocks = vi.hoisted(() => {
+  const ports: {
     on: ReturnType<typeof vi.fn>
     start: ReturnType<typeof vi.fn>
     postMessage: ReturnType<typeof vi.fn>
     close: ReturnType<typeof vi.fn>
-  }[]
-}))
+  }[] = []
+  return { handlers: new Map<string, (event: unknown, args: unknown) => unknown>(), ports }
+})
 vi.mock('electron', () => ({
   ipcMain: {
     handle: (name: string, handler: (event: unknown, args: unknown) => unknown) =>

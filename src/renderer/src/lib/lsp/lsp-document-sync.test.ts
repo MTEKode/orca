@@ -1,5 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
-import { LspDocumentSync, lspLanguageIdForPath, type SyncModel } from './lsp-document-sync'
+import {
+  LspDocumentSync,
+  lspLanguageIdForPath,
+  type LspDocumentSyncDeps,
+  type SyncModel
+} from './lsp-document-sync'
+
+type SyncClient = NonNullable<Awaited<ReturnType<LspDocumentSyncDeps['getClient']>>>
 
 function model(
   uri: string,
@@ -54,7 +61,7 @@ describe('LspDocumentSync', () => {
     const client = fakeClient()
     const sync = new LspDocumentSync({
       findOwner: () => owner,
-      getClient: async () => client as never
+      getClient: async () => client
     })
     const m = model('file:///repo/a.tsx')
     sync.track(m)
@@ -96,7 +103,7 @@ describe('LspDocumentSync', () => {
     const client = fakeClient()
     const sync = new LspDocumentSync({
       findOwner: () => owner,
-      getClient: async () => client as never
+      getClient: async () => client
     })
     const m = model('file:///repo/a.ts')
     sync.track(m)
@@ -110,13 +117,13 @@ describe('LspDocumentSync', () => {
 
   it('drops a stale call when a same-URI model replaces the doc while getClient is pending', async () => {
     const client = fakeClient()
-    let resolve: (c: unknown) => void = () => {}
-    const pending = new Promise((r) => {
+    let resolve: (c: SyncClient) => void = () => {}
+    const pending = new Promise<SyncClient>((r) => {
       resolve = r
     })
     const sync = new LspDocumentSync({
       findOwner: () => owner,
-      getClient: () => pending as never
+      getClient: () => pending
     })
     const m1 = model('file:///repo/a.ts')
     sync.track(m1)
@@ -137,7 +144,7 @@ describe('LspDocumentSync', () => {
     const first = fakeClient()
     const second = fakeClient()
     let current = first
-    const getClient = async () => current as never
+    const getClient = async () => current
     const sync = new LspDocumentSync({ findOwner: () => owner, getClient })
     const m = model('file:///repo/a.ts')
     sync.track(m)
@@ -156,7 +163,7 @@ describe('LspDocumentSync', () => {
     const client = fakeClient()
     const sync = new LspDocumentSync({
       findOwner: () => owner,
-      getClient: async () => client as never
+      getClient: async () => client
     })
     const m = model('file:///repo/a.ts')
     sync.track(m)

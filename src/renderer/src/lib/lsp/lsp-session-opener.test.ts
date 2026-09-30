@@ -2,49 +2,45 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { LSP_PORT_WINDOW_MESSAGE } from '../../../../shared/language-server-types'
 
-// Capture original addEventListener before any wrapping
-// oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: capture original before wrapping
-const originalAddEventListener = (
-  window.addEventListener as unknown as typeof window.addEventListener
-).bind(window)
+// Why: type-only imports are erased, so vi.resetModules() still reloads fresh module state.
+import type * as OpenerModule from './lsp-session-opener'
+import type * as PortClientModule from './lsp-port-client'
 
-// Reset module state between tests
-let getLspClient: any // eslint-disable-line @typescript-eslint/no-explicit-any
-let resetLspClients: () => void
-let LspPortClientClass: any // eslint-disable-line @typescript-eslint/no-explicit-any
+const originalAddEventListener = window.addEventListener.bind(window)
+
+let getLspClient: typeof OpenerModule.getLspClient
+let resetLspClients: typeof OpenerModule.resetLspClients
+let LspPortClientClass: typeof PortClientModule.LspPortClient
 let openFn: ReturnType<typeof vi.fn>
-const addedListeners: ((event: MessageEvent) => void)[] = []
+let addEventListenerSpy: { mockRestore: () => void } | null = null
+const addedListeners: EventListenerOrEventListenerObject[] = []
 
 beforeEach(async () => {
-  // Dynamic import to reset module state
   vi.resetModules()
 
   openFn = vi.fn().mockResolvedValue({ ok: false })
-  // Setup window API before importing the module
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: test setup requires extending window object
-  ;(window as unknown as { api?: { lsp?: { open?: unknown } } }).api = {
-    lsp: { open: openFn }
-  }
+  Reflect.set(window, 'api', { lsp: { open: openFn } })
 
-  // Track listeners added during module import
+  // Why: track the opener's message listener so afterEach can remove it between tests.
   addedListeners.splice(0)
-  // Wrap addEventListener to track message listeners
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: test setup requires intercepting addEventListener
-  ;(window.addEventListener as unknown) = function (
-    type: string,
-    listener: EventListener | null,
-    options?: boolean | AddEventListenerOptions
-  ) {
-    if (type === 'message' && listener) {
-      addedListeners.push(listener as (event: MessageEvent) => void)
-      return originalAddEventListener(type, listener, options)
-    }
-    if (listener) {
-      return originalAddEventListener(type, listener, options)
-    }
-  }
+  addEventListenerSpy = vi
+    .spyOn(window, 'addEventListener')
+    .mockImplementation(
+      (
+        type: string,
+        listener: EventListenerOrEventListenerObject | null,
+        options?: boolean | AddEventListenerOptions
+      ) => {
+        if (!listener) {
+          return
+        }
+        if (type === 'message') {
+          addedListeners.push(listener)
+        }
+        originalAddEventListener(type, listener, options)
+      }
+    )
 
-  // Need to re-import LspPortClient after vi.resetModules()
   const portClientMod = await import('./lsp-port-client')
   LspPortClientClass = portClientMod.LspPortClient
   const mod = await import('./lsp-session-opener')
@@ -54,14 +50,12 @@ beforeEach(async () => {
 
 afterEach(() => {
   vi.clearAllMocks()
-  // Remove tracked listeners to prevent cross-test pollution
   for (const listener of addedListeners) {
     window.removeEventListener('message', listener)
   }
   addedListeners.splice(0)
-  // Restore original addEventListener
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: restoring original
-  ;(window.addEventListener as unknown) = originalAddEventListener
+  addEventListenerSpy?.mockRestore()
+  addEventListenerSpy = null
 })
 
 function createPortPair(): { server: MessagePort; client: MessagePort } {
@@ -69,12 +63,17 @@ function createPortPair(): { server: MessagePort; client: MessagePort } {
   return { server: channel.port2, client: channel.port1 }
 }
 
-type FakePort = MessagePort & { close: ReturnType<typeof vi.fn> }
+// Why: a real port with a spied close() lets tests observe exactly what the opener closes.
+function createFakePort(): { port: MessagePort; close: ReturnType<typeof vi.spyOn> } {
+  const port = new MessageChannel().port1
+  return { port, close: vi.spyOn(port, 'close') }
+}
 
-// Why: the opener only calls close() on these ports, so a stub observes it directly.
-function createFakePort(): FakePort {
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: opener touches only close() on ports it discards.
-  return { close: vi.fn() } as unknown as FakePort
+function requireClient<T>(client: T | null): T {
+  if (!client) {
+    throw new Error('expected an LSP client')
+  }
+  return client
 }
 
 function dispatchPortMessage(requestId: string, port: MessagePort) {
@@ -179,11 +178,10 @@ describe('getLspClient', () => {
       // Send port with wrong source first (should be closed/ignored)
       setTimeout(() => {
         if (capturedRequestId) {
-          // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: intentionally wrong source for test
           window.dispatchEvent(
             new MessageEvent('message', {
               data: { type: LSP_PORT_WINDOW_MESSAGE, requestId: capturedRequestId },
-              source: {} as unknown as MessageEventSource,
+              source: new MessageChannel().port1,
               ports: [clientA]
             })
           )
@@ -202,7 +200,7 @@ describe('getLspClient', () => {
     expect(client).toBeInstanceOf(LspPortClientClass)
 
     // Send request through client; it should arrive on serverB, not serverA
-    await expect(client!.request('textDocument/hover', {})).resolves.toBe('ok')
+    await expect(requireClient(client).request('textDocument/hover', {})).resolves.toBe('ok')
     expect(messageFromB).toBe(true)
     expect(messageFromA).toBe(false)
   })
@@ -210,11 +208,11 @@ describe('getLspClient', () => {
   it('a port for an unknown requestId is closed', async () => {
     // The port listener is installed lazily by the first open attempt.
     await getLspClient('worktree-1', 'typescript')
-    const port = createFakePort()
+    const { port, close } = createFakePort()
 
     dispatchPortMessage('unknown-id', port)
 
-    expect(port.close).toHaveBeenCalledTimes(1)
+    expect(close).toHaveBeenCalledTimes(1)
   })
 
   it('port arriving before open resolves is captured and used immediately', async () => {
@@ -239,17 +237,17 @@ describe('getLspClient', () => {
     server.addEventListener('message', (event) => {
       server.postMessage({ jsonrpc: '2.0', id: event.data.id, result: 'alive' })
     })
-    await expect(result!.request('ping', {})).resolves.toBe('alive')
+    await expect(requireClient(result).request('ping', {})).resolves.toBe('alive')
   })
 
   it('early port is closed if open fails', async () => {
-    const port = createFakePort()
+    const { port, close } = createFakePort()
     let closedBeforeOpenSettled: boolean | undefined
 
     openFn.mockImplementation(({ requestId }) => {
       // Deliver the port while open is still pending, then fail the open.
       dispatchPortMessage(requestId, port)
-      closedBeforeOpenSettled = port.close.mock.calls.length > 0
+      closedBeforeOpenSettled = close.mock.calls.length > 0
       return Promise.resolve({ ok: false })
     })
 
@@ -259,7 +257,7 @@ describe('getLspClient', () => {
     expect(openFn).toHaveBeenCalledTimes(1)
     // Proves the port was a live waiter's port (not closed as unknown) when it arrived.
     expect(closedBeforeOpenSettled).toBe(false)
-    expect(port.close).toHaveBeenCalledTimes(1)
+    expect(close).toHaveBeenCalledTimes(1)
   })
 
   it('resetLspClients closes the tracked client', async () => {
@@ -274,7 +272,7 @@ describe('getLspClient', () => {
     const openedClient = await getLspClient('worktree-1', 'typescript')
     expect(openedClient).toBeInstanceOf(LspPortClientClass)
 
-    const closeSpy = vi.spyOn(openedClient as any, 'close') // eslint-disable-line @typescript-eslint/no-explicit-any
+    const closeSpy = vi.spyOn(requireClient(openedClient), 'close')
 
     resetLspClients()
 

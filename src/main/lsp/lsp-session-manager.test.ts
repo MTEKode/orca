@@ -6,6 +6,7 @@ import {
   type LspSessionManagerDeps
 } from './lsp-session-manager'
 import type { LspSessionConfig } from './lsp-session'
+import type { ResolvedLspServer } from './lsp-server-command'
 
 function repo(overrides: Partial<Repo> = {}): Repo {
   return {
@@ -111,16 +112,12 @@ describe('LspSessionManager', () => {
   })
 
   it('aborts pending acquire when disposeForRepo is called', async () => {
-    let resolve: (v: unknown) => void = () => {}
-    const deferred = new Promise<unknown>((r) => {
+    let resolve: (v: ResolvedLspServer | null) => void = () => {}
+    const deferred = new Promise<ResolvedLspServer | null>((r) => {
       resolve = r
     })
     const { manager, created } = setup({
-      resolveCommand: () =>
-        deferred as Promise<{
-          command: { program: string; args: string[]; env: Record<string, string> }
-          initializationOptions: null
-        } | null>
+      resolveCommand: () => deferred
     })
     const acquiring = manager.acquire({ worktreeId: 'r1::/repo', languageId: 'ruby' })
     manager.disposeForRepo('r1')
@@ -131,16 +128,12 @@ describe('LspSessionManager', () => {
   })
 
   it('aborts pending acquire when disposeAll is called', async () => {
-    let resolve: (v: unknown) => void = () => {}
-    const deferred = new Promise<unknown>((r) => {
+    let resolve: (v: ResolvedLspServer | null) => void = () => {}
+    const deferred = new Promise<ResolvedLspServer | null>((r) => {
       resolve = r
     })
     const { manager, created } = setup({
-      resolveCommand: () =>
-        deferred as Promise<{
-          command: { program: string; args: string[]; env: Record<string, string> }
-          initializationOptions: null
-        } | null>
+      resolveCommand: () => deferred
     })
     const acquiring = manager.acquire({ worktreeId: 'r1::/repo', languageId: 'ruby' })
     await manager.disposeAll()
@@ -151,16 +144,12 @@ describe('LspSessionManager', () => {
   })
 
   it('creates only one session for concurrent acquires of same key', async () => {
-    let resolve: (v: unknown) => void = () => {}
-    const deferred = new Promise<unknown>((r) => {
+    let resolve: (v: ResolvedLspServer | null) => void = () => {}
+    const deferred = new Promise<ResolvedLspServer | null>((r) => {
       resolve = r
     })
     const { manager, created } = setup({
-      resolveCommand: () =>
-        deferred as Promise<{
-          command: { program: string; args: string[]; env: Record<string, string> }
-          initializationOptions: null
-        } | null>
+      resolveCommand: () => deferred
     })
     const promise1 = manager.acquire({ worktreeId: 'r1::/repo', languageId: 'typescript' })
     const promise2 = manager.acquire({ worktreeId: 'r1::/repo', languageId: 'typescript' })
