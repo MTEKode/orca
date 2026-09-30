@@ -52,6 +52,8 @@ async function openClient(worktreeId: string, languageId: string): Promise<LspPo
   const result = await window.api.lsp.open({ requestId, worktreeId, languageId }).catch(() => null)
   if (!result?.ok) {
     portWaiters.delete(requestId)
+    // Why: close port if it arrived before open failed, to prevent process leak.
+    deferred.port?.close()
     return null
   }
 

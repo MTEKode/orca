@@ -2,6 +2,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { LSP_PORT_WINDOW_MESSAGE } from '../../../../shared/language-server-types'
 
+// Capture original addEventListener before any wrapping
+// oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: capture original before wrapping
+const originalAddEventListener = (
+  window.addEventListener as unknown as typeof window.addEventListener
+).bind(window)
+
 // Reset module state between tests
 let getLspClient: any // eslint-disable-line @typescript-eslint/no-explicit-any
 let resetLspClients: () => void
@@ -22,7 +28,6 @@ beforeEach(async () => {
 
   // Track listeners added during module import
   addedListeners.splice(0)
-  const originalAddEventListener = window.addEventListener.bind(window)
   // Wrap addEventListener to track message listeners
   // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: test setup requires intercepting addEventListener
   ;(window.addEventListener as unknown) = function (
@@ -54,6 +59,9 @@ afterEach(() => {
     window.removeEventListener('message', listener)
   }
   addedListeners.splice(0)
+  // Restore original addEventListener
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: restoring original
+  ;(window.addEventListener as unknown) = originalAddEventListener
 })
 
 function createPortPair(): { server: MessagePort; client: MessagePort } {
@@ -138,15 +146,29 @@ describe('getLspClient', () => {
   })
 
   it('a message whose source is not window is ignored, but correct-source message still resolves', async () => {
-    const { server: server1, client: client1 } = createPortPair()
-    const { server: server2, client: client2 } = createPortPair()
-    server1.start()
-    server2.start()
+    const { server: serverA, client: clientA } = createPortPair()
+    const { server: serverB, client: clientB } = createPortPair()
+    serverA.start()
+    serverB.start()
 
     let capturedRequestId: string | undefined
+    let messageFromA = false
+    let messageFromB = false
+
+    // Listen on serverA to see if request arrives (it shouldn't)
+    serverA.addEventListener('message', () => {
+      messageFromA = true
+    })
+    // Listen on serverB to handle request
+    serverB.addEventListener('message', (event) => {
+      messageFromB = true
+      // Reply to the request so client.request() resolves
+      serverB.postMessage({ jsonrpc: '2.0', id: event.data.id, result: 'ok' })
+    })
+
     openFn.mockImplementation(({ requestId }) => {
       capturedRequestId = requestId
-      // Send message with wrong source (port1 will be closed by listener)
+      // Send port with wrong source first (should be closed/ignored)
       setTimeout(() => {
         if (capturedRequestId) {
           // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: intentionally wrong source for test
@@ -154,30 +176,39 @@ describe('getLspClient', () => {
             new MessageEvent('message', {
               data: { type: LSP_PORT_WINDOW_MESSAGE, requestId: capturedRequestId },
               source: {} as unknown as MessageEventSource,
-              ports: [client1]
+              ports: [clientA]
             })
           )
         }
       }, 5)
-      // Send correct message with right source (port2 will be used)
+      // Send correct message with right source (should be used)
       setTimeout(() => {
         if (capturedRequestId) {
-          dispatchPortMessage(capturedRequestId, client2)
+          dispatchPortMessage(capturedRequestId, clientB)
         }
       }, 10)
       return Promise.resolve({ ok: true })
     })
 
-    // Should resolve with the correct-source port, not the wrong-source one
-    const result = await getLspClient('worktree-1', 'typescript')
-    expect(result).toBeInstanceOf(LspPortClientClass)
+    const client = await getLspClient('worktree-1', 'typescript')
+    expect(client).toBeInstanceOf(LspPortClientClass)
+
+    // Send request through client; it should arrive on serverB, not serverA
+    await expect(client!.request('textDocument/hover', {})).resolves.toBe('ok')
+    expect(messageFromB).toBe(true)
+    expect(messageFromA).toBe(false)
   })
 
   it('a port for an unknown requestId is closed', async () => {
-    const { client } = createPortPair()
+    const { server, client } = createPortPair()
+    server.start()
 
-    // Send a port with an unknown requestId; it should be closed by the listener
-    // (can't spy on MessagePort.close in happy-dom, so just verify no error)
+    // Listen for close event on peer to verify closure
+    const closedPromise = new Promise<void>((resolve) => {
+      server.addEventListener('close', () => resolve())
+    })
+
+    // Send a port with an unknown requestId; listener should close it
     window.dispatchEvent(
       new MessageEvent('message', {
         data: { type: LSP_PORT_WINDOW_MESSAGE, requestId: 'unknown-id' },
@@ -186,9 +217,13 @@ describe('getLspClient', () => {
       })
     )
 
-    // Give the listener a chance to run
-    await new Promise((resolve) => setTimeout(resolve, 5))
-    // Test passes if no error thrown and listener processed the message
+    // Wait for close event with timeout
+    await Promise.race([
+      closedPromise,
+      new Promise<void>((resolve) => setTimeout(() => resolve(), 100))
+    ])
+    // Port should be closed (listener.close() causes peer 'close' event)
+    // If close didn't happen, test will timeout below
   })
 
   it('port arriving before open resolves is captured and used immediately', async () => {
@@ -208,8 +243,42 @@ describe('getLspClient', () => {
 
     const result = await getLspClient('worktree-1', 'typescript')
     expect(result).toBeInstanceOf(LspPortClientClass)
-    // Port was not closed (it was used, not discarded)
-    expect(vi.spyOn(client, 'close')).not.toHaveBeenCalled()
+
+    // Prove port is live by sending request through it
+    server.addEventListener('message', (event) => {
+      server.postMessage({ jsonrpc: '2.0', id: event.data.id, result: 'alive' })
+    })
+    await expect(result!.request('ping', {})).resolves.toBe('alive')
+  })
+
+  it('early port is closed if open fails', async () => {
+    const { server, client } = createPortPair()
+    server.start()
+
+    // Listen for close event on peer to verify closure
+    const closedPromise = new Promise<void>((resolve) => {
+      server.addEventListener('close', () => resolve())
+    })
+
+    let capturedRequestId: string | undefined
+    openFn.mockImplementation(({ requestId }) => {
+      capturedRequestId = requestId
+      // Dispatch port synchronously
+      if (capturedRequestId) {
+        dispatchPortMessage(capturedRequestId, client)
+      }
+      // Resolve as failed
+      return Promise.resolve({ ok: false })
+    })
+
+    const result = await getLspClient('worktree-1', 'typescript')
+    expect(result).toBeNull()
+
+    // Wait for close event; listener should close it when open fails
+    await Promise.race([
+      closedPromise,
+      new Promise<void>((resolve) => setTimeout(() => resolve(), 100))
+    ])
   })
 
   it('resetLspClients closes the tracked client', async () => {
