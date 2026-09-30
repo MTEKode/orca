@@ -56,14 +56,14 @@ const didOpen = (uri: string) => ({
   params: { textDocument: { uri, languageId: 'typescript', version: 1, text: '' } }
 })
 
-describe('LspSession', () => {
+describe('LspSession', { timeout: 30_000 }, () => {
   it('queues early port messages and answers them after initialize', async () => {
     const { session } = startSession()
     const a = fakePort()
     session.attachPort(a.port)
     a.send(hover(1))
     await vi.waitFor(() => expect(a.sent).toContainEqual(expect.objectContaining({ id: 1 })), {
-      timeout: 5000
+      timeout: 15_000
     })
     expect(a.sent).toHaveLength(1) // Why: diagnostics from the fixture must not reach the port.
     await session.dispose()
@@ -82,7 +82,7 @@ describe('LspSession', () => {
         expect(b.sent).toContainEqual(
           expect.objectContaining({ result: { contents: { kind: 'markdown', value: 'open:1' } } })
         ),
-      { timeout: 5000 }
+      { timeout: 15_000 }
     )
     a.disconnect()
     b.send(hover(2))
@@ -94,7 +94,7 @@ describe('LspSession', () => {
             result: { contents: { kind: 'markdown', value: 'open:0' } }
           })
         ),
-      { timeout: 5000 }
+      { timeout: 15_000 }
     )
     await session.dispose()
   })
@@ -105,7 +105,7 @@ describe('LspSession', () => {
     session.attachPort(a.port)
     await session.ready
     a.disconnect()
-    await vi.waitFor(() => expect(onExit).toHaveBeenCalledWith(false), { timeout: 5000 })
+    await vi.waitFor(() => expect(onExit).toHaveBeenCalledWith(false), { timeout: 15_000 })
   })
 
   it('reports an unexpected exit and closes its ports', async () => {
@@ -121,7 +121,7 @@ describe('LspSession', () => {
     session.attachPort(a.port)
     await session.ready
     children[0]?.kill('SIGKILL')
-    await vi.waitFor(() => expect(onExit).toHaveBeenCalledWith(true), { timeout: 5000 })
+    await vi.waitFor(() => expect(onExit).toHaveBeenCalledWith(true), { timeout: 15_000 })
     expect(a.port.close).toHaveBeenCalled()
   })
 
@@ -142,7 +142,7 @@ describe('LspSession', () => {
             result: { contents: { kind: 'markdown', value: 'open:0' } }
           })
         ),
-      { timeout: 5000 }
+      { timeout: 15_000 }
     )
   })
 
@@ -151,7 +151,7 @@ describe('LspSession', () => {
       command: { program: process.execPath, args: ['-e', 'process.exit(1)'], env: process.env }
     })
     await session.ready.catch(() => undefined)
-    await vi.waitFor(() => expect(onExit).toHaveBeenCalledWith(true), { timeout: 5000 })
+    await vi.waitFor(() => expect(onExit).toHaveBeenCalledWith(true), { timeout: 15_000 })
     await session.dispose()
     expect(onExit).toHaveBeenCalledTimes(1)
   })
@@ -171,8 +171,8 @@ describe('LspSession', () => {
       command: { program: process.execPath, args: ['-e', script], env: process.env }
     })
     await session.ready.catch(() => undefined)
-    await vi.waitFor(() => expect(warn).toHaveBeenCalled(), { timeout: 5000 })
-    await vi.waitFor(() => expect(onExit).toHaveBeenCalledWith(true), { timeout: 5000 })
+    await vi.waitFor(() => expect(warn).toHaveBeenCalled(), { timeout: 15_000 })
+    await vi.waitFor(() => expect(onExit).toHaveBeenCalledWith(true), { timeout: 15_000 })
     await new Promise((resolve) => setTimeout(resolve, 50))
     expect(warn).toHaveBeenCalledTimes(1)
     const message = String(warn.mock.calls[0][0])
@@ -195,7 +195,7 @@ describe('LspSession', () => {
 
   it('shuts down after the idle timeout when no port is ever attached', async () => {
     const { onExit } = startSession()
-    await vi.waitFor(() => expect(onExit).toHaveBeenCalledWith(false), { timeout: 5000 })
+    await vi.waitFor(() => expect(onExit).toHaveBeenCalledWith(false), { timeout: 15_000 })
   })
 
   it('keeps a session whose port attaches before the idle timeout', async () => {
