@@ -48,7 +48,10 @@ export function installLspBridge(monaco: typeof Monaco): () => void {
   monaco.editor.getModels().forEach((model) => sync.track(model))
   let lspOwnsTypescript = anyLocalRepoUsesTypescriptLsp()
   setWorkerNavigation(!lspOwnsTypescript)
-  const unsubscribe = useAppStore.subscribe(() => {
+  const unsubscribe = useAppStore.subscribe((state, prev) => {
+    if (state.repos === prev.repos) {
+      return
+    }
     const next = anyLocalRepoUsesTypescriptLsp()
     if (next !== lspOwnsTypescript) {
       lspOwnsTypescript = next

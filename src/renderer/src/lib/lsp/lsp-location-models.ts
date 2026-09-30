@@ -7,7 +7,7 @@ export const MAX_LOCATION_FILES = 100
 const MAX_PEEK_MODELS = 50
 
 type UriLike = { scheme: string; path: string; fsPath: string; toString(): string }
-type PeekModel = { isAttachedToEditor(): boolean; dispose(): void }
+type PeekModel = { isAttachedToEditor(): boolean; dispose(): void; isDisposed?(): boolean }
 /** Generic over the Uri class so real Monaco (its Uri) and tests (the esm URI) both type-check. */
 export type LocationModelMonaco<U extends UriLike> = {
   Uri: { parse(value: string): U; from(components: { scheme: string; path: string }): U }
@@ -18,15 +18,23 @@ export type LocationModelMonaco<U extends UriLike> = {
 }
 type ReadFile = (filePath: string) => Promise<{ content: string; isBinary: boolean }>
 
-const peekModels: PeekModel[] = []
+const peekModels: { key: string; model: PeekModel }[] = []
 
-function prunePeekModels(): void {
-  while (peekModels.length > MAX_PEEK_MODELS) {
-    const index = peekModels.findIndex((model) => !model.isAttachedToEditor())
-    if (index === -1) {
-      return
+// Why: models of the result being returned must survive until Monaco attaches them, even past the cap.
+function prunePeekModels(keep: Set<string>): void {
+  for (let i = peekModels.length - 1; i >= 0; i--) {
+    if (peekModels[i].model.isDisposed?.()) {
+      peekModels.splice(i, 1)
     }
-    peekModels.splice(index, 1)[0].dispose()
+  }
+  for (let i = 0; i < peekModels.length && peekModels.length > MAX_PEEK_MODELS;) {
+    const { key, model } = peekModels[i]
+    if (keep.has(key) || model.isAttachedToEditor()) {
+      i++
+      continue
+    }
+    peekModels.splice(i, 1)
+    model.dispose()
   }
 }
 
@@ -49,8 +57,10 @@ async function modelUriFor<U extends UriLike>(
   if (!file || file.isBinary) {
     return null
   }
-  peekModels.push(monaco.editor.createModel(file.content, undefined, peekUri))
-  prunePeekModels()
+  peekModels.push({
+    key: peekUri.toString(),
+    model: monaco.editor.createModel(file.content, undefined, peekUri)
+  })
   return peekUri
 }
 
@@ -74,5 +84,6 @@ export async function resolveLocationModels<U extends UriLike>(
       resolved.push({ uri, range: toMonacoRange(location.range) })
     }
   }
+  prunePeekModels(new Set(resolved.map(({ uri }) => uri.toString())))
   return resolved
 }

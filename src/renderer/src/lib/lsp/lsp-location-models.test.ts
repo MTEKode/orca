@@ -8,20 +8,32 @@ import {
   type LocationModelMonaco
 } from './lsp-location-models'
 
-function fakeMonaco(existing: string[] = []): LocationModelMonaco<URI> & { created: string[] } {
+function fakeMonaco(
+  existing: string[] = []
+): LocationModelMonaco<URI> & { created: string[]; disposedUris: string[] } {
   const created: string[] = []
+  const disposedUris: string[] = []
   const models = new Map<string, { isAttachedToEditor: () => boolean; dispose: () => void }>()
   for (const uri of existing) {
     models.set(uri, { isAttachedToEditor: () => true, dispose: vi.fn() })
   }
   return {
     created,
+    disposedUris,
     Uri: URI,
     editor: {
       getModel: (uri) => models.get(uri.toString()) ?? null,
       createModel: (_value, _language, uri) => {
         created.push(uri.toString())
-        const model = { isAttachedToEditor: () => false, dispose: vi.fn() }
+        let disposed = false
+        const model = {
+          isAttachedToEditor: () => false,
+          dispose: () => {
+            disposed = true
+            disposedUris.push(uri.toString())
+          },
+          isDisposed: () => disposed
+        }
         models.set(uri.toString(), model)
         return model
       }
@@ -44,7 +56,7 @@ describe('resolveLocationModels', () => {
     expect(readFile).not.toHaveBeenCalled()
   })
 
-  it('creates read-only peek models for unopened files and drops unreadable ones', async () => {
+  it('creates peek models for unopened files and drops unreadable ones', async () => {
     const monaco = fakeMonaco()
     const readFile = vi.fn(async (path: string) =>
       path.endsWith('bin.dat') ? { content: '', isBinary: true } : { content: 'x', isBinary: false }
@@ -71,5 +83,21 @@ describe('resolveLocationModels', () => {
     const result = await resolveLocationModels(monaco, locations, readFile)
     expect(readFile).toHaveBeenCalledTimes(MAX_LOCATION_FILES)
     expect(result).toHaveLength(MAX_LOCATION_FILES)
+  })
+
+  it('keeps every model of the current result alive, then prunes to the cap on the next resolve', async () => {
+    const monaco = fakeMonaco()
+    const readFile = vi.fn(async () => ({ content: 'x', isBinary: false }))
+    const locations = Array.from({ length: 80 }, (_, i) => ({
+      uri: `file:///pool/f${i}.rb`,
+      range
+    }))
+    const first = await resolveLocationModels(monaco, locations, readFile)
+    expect(first).toHaveLength(80)
+    expect(monaco.disposedUris).toEqual([])
+
+    const other = [{ uri: 'file:///other/x.rb', range }]
+    await resolveLocationModels(monaco, other, readFile)
+    expect(monaco.disposedUris).toHaveLength(31)
   })
 })

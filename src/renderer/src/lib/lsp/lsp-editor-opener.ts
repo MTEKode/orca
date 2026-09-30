@@ -29,7 +29,8 @@ export function registerLspEditorOpener(
       if (resource.scheme === 'file' && source.getModel()?.uri.toString() === resource.toString()) {
         return false
       }
-      const fsPath = monaco.Uri.file(resource.path).fsPath
+      const fsPath =
+        resource.scheme === 'file' ? resource.fsPath : monaco.Uri.file(resource.path).fsPath
       const owner = findOwner(fsPath)
       if (!owner) {
         return false
