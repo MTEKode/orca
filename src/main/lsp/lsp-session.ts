@@ -1,0 +1,206 @@
+import { basename } from 'node:path'
+import { pathToFileURL } from 'node:url'
+import { StreamMessageReader, StreamMessageWriter } from 'vscode-jsonrpc/node'
+import { spawnProcess, type ProcessSpec } from '../../shared/child-process/run-process'
+import { forceTerminateProcessTree } from '../../shared/child-process/process-tree-termination'
+import type { LanguageServerId } from '../../shared/language-server-types'
+import { LspMessageRouter, isJsonRpcMessage, type JsonRpcMessage } from './lsp-message-router'
+import type { ResolvedLspCommand } from './lsp-server-command'
+
+type LspChildProcess = ReturnType<typeof spawnProcess>
+
+export type LspPort = {
+  post(message: unknown): void
+  onMessage(listener: (data: unknown) => void): void
+  onClose(listener: () => void): void
+  close(): void
+}
+
+export type LspSessionConfig = {
+  serverId: LanguageServerId
+  rootPath: string
+  command: ResolvedLspCommand
+  initializationOptions: unknown
+  idleShutdownMs: number
+  onExit: (unexpected: boolean) => void
+  spawn?: (spec: ProcessSpec) => LspChildProcess
+}
+
+const INITIALIZE_TIMEOUT_MS = 120_000 // Why: ruby-lsp installs its composed bundle on first start.
+const SHUTDOWN_GRACE_MS = 2_000
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('timed out')), ms)
+    promise.then(resolve, reject).finally(() => clearTimeout(timer))
+  })
+}
+
+export class LspSession {
+  readonly ready: Promise<void>
+  private readonly child: LspChildProcess
+  private readonly router: LspMessageRouter
+  private readonly ports = new Map<number, LspPort>()
+  private readonly queued: { portId: number; message: JsonRpcMessage }[] = []
+  private readonly exitedPromise: Promise<void>
+  private nextPortId = 1
+  private isReady = false
+  private exited = false
+  private disposing = false
+  private idleTimer: ReturnType<typeof setTimeout> | null = null
+
+  constructor(private readonly config: LspSessionConfig) {
+    const rootUri = pathToFileURL(config.rootPath).toString()
+    this.child = (config.spawn ?? spawnProcess)({
+      program: config.command.program,
+      args: config.command.args,
+      cwd: config.rootPath,
+      env: config.command.env,
+      // Why: own process group for tree kill; piped stdin still makes the server exit on EOF if Orca dies.
+      detached: process.platform !== 'win32',
+      timeoutMs: null
+    })
+    const writer = new StreamMessageWriter(this.child.stdin)
+    this.router = new LspMessageRouter(
+      (message) => void writer.write(message).catch(() => undefined),
+      [{ uri: rootUri, name: basename(config.rootPath) }]
+    )
+    new StreamMessageReader(this.child.stdout).listen((message) => this.onServerMessage(message))
+    this.child.stderr.resume()
+    this.exitedPromise = new Promise((resolve) => {
+      const onGone = (): void => {
+        this.onChildExit()
+        resolve()
+      }
+      this.child.once('exit', onGone)
+      this.child.once('error', onGone)
+    })
+    this.ready = this.initialize(rootUri)
+    this.ready.catch(() => void this.dispose({ force: true }))
+  }
+
+  attachPort(port: LspPort): void {
+    const portId = this.nextPortId++
+    this.ports.set(portId, port)
+    this.clearIdleTimer()
+    port.onMessage((data) => {
+      if (isJsonRpcMessage(data)) {
+        this.fromPort(portId, data)
+      }
+    })
+    port.onClose(() => this.detachPort(portId))
+  }
+
+  async dispose(options: { force?: boolean } = {}): Promise<void> {
+    if (this.disposing) {
+      return
+    }
+    this.disposing = true
+    this.clearIdleTimer()
+    this.closePorts()
+    if (!this.exited) {
+      if (!options.force) {
+        await withTimeout(this.router.request('shutdown', null), SHUTDOWN_GRACE_MS).catch(
+          () => undefined
+        )
+        this.router.notify('exit', null)
+      }
+      const exitedInTime = await withTimeout(
+        this.exitedPromise,
+        options.force ? 0 : SHUTDOWN_GRACE_MS
+      ).then(
+        () => true,
+        () => false
+      )
+      if (!exitedInTime) {
+        await forceTerminateProcessTree(this.child)
+      }
+    }
+    this.config.onExit(false)
+  }
+
+  private async initialize(rootUri: string): Promise<void> {
+    await withTimeout(
+      this.router.request('initialize', {
+        processId: process.pid,
+        rootUri,
+        workspaceFolders: [{ uri: rootUri, name: basename(this.config.rootPath) }],
+        initializationOptions: this.config.initializationOptions,
+        capabilities: {
+          textDocument: {
+            synchronization: { dynamicRegistration: false, didSave: false },
+            definition: { linkSupport: true },
+            references: {},
+            hover: { contentFormat: ['markdown', 'plaintext'] }
+          },
+          workspace: { workspaceFolders: true, configuration: true }
+        }
+      }),
+      INITIALIZE_TIMEOUT_MS
+    )
+    this.router.notify('initialized', {})
+    this.isReady = true
+    for (const { portId, message } of this.queued.splice(0)) {
+      this.fromPort(portId, message)
+    }
+  }
+
+  private fromPort(portId: number, message: JsonRpcMessage): void {
+    if (!this.isReady) {
+      this.queued.push({ portId, message })
+      return
+    }
+    const reply = this.router.fromClient(portId, message)
+    if (reply) {
+      this.ports.get(portId)?.post(reply)
+    }
+  }
+
+  private onServerMessage(message: unknown): void {
+    if (!isJsonRpcMessage(message)) {
+      return
+    }
+    const routed = this.router.fromServer(message)
+    if (routed) {
+      this.ports.get(routed.portId)?.post(routed.message)
+    }
+  }
+
+  private detachPort(portId: number): void {
+    if (!this.ports.delete(portId)) {
+      return
+    }
+    this.router.detachPort(portId)
+    if (this.ports.size === 0 && !this.disposing) {
+      this.idleTimer = setTimeout(() => void this.dispose(), this.config.idleShutdownMs)
+    }
+  }
+
+  private onChildExit(): void {
+    if (this.exited) {
+      return
+    }
+    this.exited = true
+    this.router.rejectInternal(new Error('language server exited'))
+    if (!this.disposing) {
+      this.disposing = true
+      this.clearIdleTimer()
+      this.closePorts()
+      this.config.onExit(true)
+    }
+  }
+
+  private closePorts(): void {
+    for (const port of this.ports.values()) {
+      port.close()
+    }
+    this.ports.clear()
+  }
+
+  private clearIdleTimer(): void {
+    if (this.idleTimer) {
+      clearTimeout(this.idleTimer)
+      this.idleTimer = null
+    }
+  }
+}
