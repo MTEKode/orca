@@ -7,7 +7,13 @@ export const MAX_LOCATION_FILES = 100
 const MAX_PEEK_MODELS = 50
 
 type UriLike = { scheme: string; path: string; fsPath: string; toString(): string }
-type PeekModel = { isAttachedToEditor(): boolean; dispose(): void; isDisposed?(): boolean }
+type PeekModel = {
+  isAttachedToEditor(): boolean
+  dispose(): void
+  isDisposed?(): boolean
+  getValue(): string
+  setValue(value: string): void
+}
 /** Generic over the Uri class so real Monaco (its Uri) and tests (the esm URI) both type-check. */
 export type LocationModelMonaco<U extends UriLike> = {
   Uri: { parse(value: string): U; from(components: { scheme: string; path: string }): U }
@@ -50,10 +56,26 @@ async function modelUriFor<U extends UriLike>(
   }
   // Why: peek needs a model per location; a separate scheme keeps Orca's file-model ownership untouched.
   const peekUri = monaco.Uri.from({ scheme: LSP_PEEK_SCHEME, path: fileUri.path })
-  if (monaco.editor.getModel(peekUri)) {
+  const existing = monaco.editor.getModel(peekUri)
+  if (existing?.isAttachedToEditor()) {
     return peekUri
   }
   const file = await readFile(fsPath).catch(() => null)
+  const current = monaco.editor.getModel(peekUri)
+  if (current) {
+    // Why: a detached peek model may be stale; an attached one is left alone mid-peek.
+    if (current.isAttachedToEditor()) {
+      return peekUri
+    }
+    if (!file || file.isBinary) {
+      current.dispose()
+      return null
+    }
+    if (current.getValue() !== file.content) {
+      current.setValue(file.content)
+    }
+    return peekUri
+  }
   if (!file || file.isBinary) {
     return null
   }
@@ -70,7 +92,8 @@ export async function resolveLocationModels<U extends UriLike>(
   readFile: ReadFile
 ): Promise<{ uri: U; range: MonacoRangeLike }[]> {
   const byPath = new Map<string, Promise<U | null>>()
-  const resolved: { uri: U; range: MonacoRangeLike }[] = []
+  const pending: { fsPath: string; location: LspLocation }[] = []
+  // Why: start every read before awaiting any, so N files cost one round of IPC latency.
   for (const location of locations) {
     const fsPath = monaco.Uri.parse(location.uri).fsPath
     if (!byPath.has(fsPath)) {
@@ -79,6 +102,10 @@ export async function resolveLocationModels<U extends UriLike>(
       }
       byPath.set(fsPath, modelUriFor(monaco, fsPath, readFile))
     }
+    pending.push({ fsPath, location })
+  }
+  const resolved: { uri: U; range: MonacoRangeLike }[] = []
+  for (const { fsPath, location } of pending) {
     const uri = await byPath.get(fsPath)
     if (uri) {
       resolved.push({ uri, range: toMonacoRange(location.range) })

@@ -8,31 +8,53 @@ import {
   type LocationModelMonaco
 } from './lsp-location-models'
 
-function fakeMonaco(
-  existing: string[] = []
-): LocationModelMonaco<URI> & { created: string[]; disposedUris: string[] } {
+type FakeModel = {
+  isAttachedToEditor: () => boolean
+  dispose: () => void
+  isDisposed?: () => boolean
+  getValue: () => string
+  setValue: (value: string) => void
+}
+
+function fakeMonaco(existing: string[] = []): LocationModelMonaco<URI> & {
+  created: string[]
+  disposedUris: string[]
+  models: Map<string, FakeModel>
+} {
   const created: string[] = []
   const disposedUris: string[] = []
-  const models = new Map<string, { isAttachedToEditor: () => boolean; dispose: () => void }>()
+  const models = new Map<string, FakeModel>()
   for (const uri of existing) {
-    models.set(uri, { isAttachedToEditor: () => true, dispose: vi.fn() })
+    models.set(uri, {
+      isAttachedToEditor: () => true,
+      dispose: vi.fn(),
+      getValue: () => '',
+      setValue: vi.fn()
+    })
   }
   return {
     created,
     disposedUris,
+    models,
     Uri: URI,
     editor: {
       getModel: (uri) => models.get(uri.toString()) ?? null,
-      createModel: (_value, _language, uri) => {
+      createModel: (initial, _language, uri) => {
         created.push(uri.toString())
         let disposed = false
+        let value = initial
         const model = {
           isAttachedToEditor: () => false,
           dispose: () => {
             disposed = true
             disposedUris.push(uri.toString())
+            models.delete(uri.toString())
           },
-          isDisposed: () => disposed
+          isDisposed: () => disposed,
+          getValue: () => value,
+          setValue: vi.fn((next: string) => {
+            value = next
+          })
         }
         models.set(uri.toString(), model)
         return model
@@ -99,5 +121,50 @@ describe('resolveLocationModels', () => {
     const other = [{ uri: 'file:///other/x.rb', range }]
     await resolveLocationModels(monaco, other, readFile)
     expect(monaco.disposedUris).toHaveLength(31)
+  })
+
+  it('refreshes a reused detached peek model from disk, and drops it once unreadable', async () => {
+    const monaco = fakeMonaco()
+    let disk: { content: string; isBinary: boolean } | null = { content: 'v1', isBinary: false }
+    const readFile = vi.fn(async () => {
+      if (!disk) {
+        throw new Error('gone')
+      }
+      return disk
+    })
+    const locations = [{ uri: 'file:///refresh/a.rb', range }]
+    const [first] = await resolveLocationModels(monaco, locations, readFile)
+    disk = { content: 'v2', isBinary: false }
+    const [second] = await resolveLocationModels(monaco, locations, readFile)
+    expect(second.uri.toString()).toBe(first.uri.toString())
+    expect(monaco.created).toHaveLength(1)
+    expect(monaco.models.get(first.uri.toString())?.getValue()).toBe('v2')
+
+    disk = null
+    expect(await resolveLocationModels(monaco, locations, readFile)).toEqual([])
+    expect(monaco.disposedUris).toContain(first.uri.toString())
+  })
+
+  it('starts every file read before awaiting any of them', async () => {
+    const monaco = fakeMonaco()
+    const resolvers: (() => void)[] = []
+    const readFile = vi.fn(
+      () =>
+        new Promise<{ content: string; isBinary: boolean }>((resolve) => {
+          resolvers.push(() => resolve({ content: 'x', isBinary: false }))
+        })
+    )
+    const result = resolveLocationModels(
+      monaco,
+      [
+        { uri: 'file:///concurrent/a.rb', range },
+        { uri: 'file:///concurrent/b.rb', range }
+      ],
+      readFile
+    )
+    await Promise.resolve()
+    expect(readFile).toHaveBeenCalledTimes(2)
+    resolvers.forEach((resolve) => resolve())
+    expect(await result).toHaveLength(2)
   })
 })
