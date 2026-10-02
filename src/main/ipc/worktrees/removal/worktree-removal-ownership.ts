@@ -2,7 +2,7 @@ import type { OrcaRuntimeService } from '../../../runtime/orca-runtime'
 import { getSshPtyProvider, getLocalPtyProvider, clearProviderPtyState } from '../../pty'
 import { killAllProcessesForWorktree } from '../../../runtime/worktree-teardown'
 import type { Store } from '../../../persistence/loading-store/store'
-import { getRepoExecutionHostId } from '../../../../shared/execution-host'
+import { getRepoExecutionHostId, LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
 import type { ExecutionHostId } from '../../../../shared/execution-host'
 import type { Repo } from '../../../../shared/repo-types'
 import { hasWorktreeRemovalRepoOwnerOnOtherHost } from '../../../worktree-removal-repo-owner'
@@ -89,8 +89,10 @@ export function removeWorktreeMetadataAndTransientState(
   } else {
     store.removeWorktreeMeta(worktreeId)
   }
-  // Why: sessions are local-only and restart lazily, so disposing even when another host owns the ID is harmless.
-  getLspSessionManager()?.disposeForWorktree(worktreeId)
+  // Why: sessions are local-only; a remote removal must not kill a local session that shares the path-derived ID.
+  if (!hostId || hostId === LOCAL_EXECUTION_HOST_ID) {
+    getLspSessionManager()?.disposeForWorktree(worktreeId)
+  }
   if (!preservesSameIdOwner) {
     advertisedUrlWatcher.forgetWorktree(worktreeId)
     // Why: drop this worktree's localhost label routes so they don't accumulate in the proxy's route maps all session.
