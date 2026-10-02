@@ -113,7 +113,14 @@ export class LspDocumentSync {
       })
       doc.openedOn = client
       doc.dirty = false
-      this.openedListeners.forEach((listener) => listener(model))
+      this.openedListeners.forEach((listener) => {
+        try {
+          listener(model)
+        } catch (error) {
+          // Why: a feature's refresh hook must never fail the navigation request that opened the file.
+          console.error('[lsp] document-opened listener failed', error)
+        }
+      })
     } else if (doc.dirty) {
       // ponytail: full-text sync on demand; switch to incremental if large files lag.
       client.notify('textDocument/didChange', {

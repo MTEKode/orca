@@ -5,6 +5,7 @@ import {
   LSP_SEMANTIC_TOKEN_TYPES,
   type SemanticTokensLegend
 } from '../../../../shared/lsp-semantic-token-legend'
+import { THEMED_SEMANTIC_TOKEN_TYPES } from '../monaco-orca-themes'
 import type { LspDocumentSync } from './lsp-document-sync'
 
 const SEMANTIC_TOKEN_LANGUAGE = 'ruby'
@@ -27,9 +28,12 @@ function remapModifiers(bits: number, modifierMap: readonly number[]): number {
 export function remapSemanticTokens(
   data: readonly number[],
   server: SemanticTokensLegend,
-  canonical: SemanticTokensLegend = CANONICAL_LEGEND
+  canonical: SemanticTokensLegend = CANONICAL_LEGEND,
+  themedTypes: readonly string[] = THEMED_SEMANTIC_TOKEN_TYPES
 ): Uint32Array {
-  const typeMap = server.tokenTypes.map((type) => canonical.tokenTypes.indexOf(type))
+  const typeMap = server.tokenTypes.map((type) =>
+    themedTypes.includes(type) ? canonical.tokenTypes.indexOf(type) : -1
+  )
   const modifierMap = server.tokenModifiers.map((mod) => canonical.tokenModifiers.indexOf(mod))
   const out: number[] = []
   let line = 0

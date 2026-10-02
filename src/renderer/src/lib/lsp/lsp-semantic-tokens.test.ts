@@ -26,6 +26,13 @@ describe('remapSemanticTokens', () => {
     ])
   })
 
+  it('drops tokens whose type has no theme rule', () => {
+    const server = { tokenTypes: ['macro', 'method'], tokenModifiers: [] }
+    expect(Array.from(remapSemanticTokens([0, 1, 2, 0, 0, 0, 4, 3, 1, 0], server))).toEqual([
+      0, 5, 3, 13, 0
+    ])
+  })
+
   it('ignores a trailing partial tuple', () => {
     const server = { tokenTypes: ['variable'], tokenModifiers: [] }
     expect(Array.from(remapSemanticTokens([0, 1, 2, 0, 0, 3], server, canonical))).toEqual([

@@ -18,5 +18,14 @@ describe('orca Monaco themes', () => {
     expect(themes['orca-light'].rules).toContainEqual({ token: 'method', foreground: '795E26' })
     expect(themes['orca-dark'].rules).toContainEqual({ token: 'namespace', foreground: '4EC9B0' })
     expect(themes['orca-dark'].rules).toContainEqual({ token: 'parameter', foreground: '9CDCFE' })
+    // Why: matches the unruled root foreground of the built-in vs / vs-dark themes.
+    expect(themes['orca-light'].rules).toContainEqual({
+      token: 'namespace.cpp',
+      foreground: '000000'
+    })
+    expect(themes['orca-dark'].rules).toContainEqual({
+      token: 'namespace.cpp',
+      foreground: 'D4D4D4'
+    })
   })
 })

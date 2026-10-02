@@ -199,6 +199,27 @@ describe('LspDocumentSync', () => {
     expect(opened).toHaveBeenCalledTimes(2)
   })
 
+  it('still returns the client when a document-opened listener throws', async () => {
+    const client = fakeClient()
+    const sync = new LspDocumentSync({
+      ...leases(),
+      findOwner: () => owner,
+      getClient: async () => client
+    })
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const later = vi.fn()
+    sync.onDocumentOpened(() => {
+      throw new Error('listener exploded')
+    })
+    sync.onDocumentOpened(later)
+    const m = model('file:///repo/a.rb', 'ruby')
+    sync.track(m)
+    await expect(sync.clientFor(m)).resolves.toBe(client)
+    expect(later).toHaveBeenCalledWith(m)
+    expect(consoleError).toHaveBeenCalled()
+    consoleError.mockRestore()
+  })
+
   it('sends no didClose when the client is already closed', async () => {
     const client = fakeClient()
     const sync = new LspDocumentSync({
