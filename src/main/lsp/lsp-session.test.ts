@@ -150,6 +150,24 @@ describe('LspSession', { timeout: 30_000 }, () => {
     expect(a.port.close).toHaveBeenCalled()
   })
 
+  it('survives repeated error events on a live child without exiting', async () => {
+    const children: ReturnType<typeof spawnProcess>[] = []
+    const { session, onExit } = startSession({
+      spawn: (spec: ProcessSpec) => {
+        const child = spawnProcess(spec)
+        children.push(child)
+        return child
+      }
+    })
+    await session.ready
+    const child = children[0]
+    expect(() => {
+      child?.emit('error', new Error('kill failed 1'))
+      child?.emit('error', new Error('kill failed 2'))
+    }).not.toThrow()
+    expect(onExit).not.toHaveBeenCalled()
+  })
+
   it('drops queued messages of a port that disconnects before initialize', async () => {
     const { session } = startSession()
     const a = fakePort()

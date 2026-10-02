@@ -86,8 +86,8 @@ export class LspSession {
       this.child.once('exit', (code, signal) =>
         onGone(signal ? `exited with signal ${signal}` : `exited with code ${code}`)
       )
-      // Why: kill() failures also emit 'error' on a live process; only a failed spawn means it never ran.
-      this.child.once('error', (error) => {
+      // Why: kill() failures can emit 'error' repeatedly on a live process; only a failed spawn means it never ran.
+      this.child.on('error', (error) => {
         if (this.child.pid === undefined) {
           onGone(`failed to spawn: ${error.message}`)
         }
