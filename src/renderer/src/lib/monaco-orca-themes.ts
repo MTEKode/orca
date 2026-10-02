@@ -60,6 +60,83 @@ function semanticRules(palette: SemanticPalette): Monaco.editor.ITokenThemeRule[
   ]
 }
 
+type RubySyntaxPalette = {
+  keyword: string
+  number: string
+  regexp: string
+  // Why: mirrors of the built-in vs / vs-dark rules, so a sigil or delimiter matches its token.
+  builtInString: string
+  builtInComment: string
+  builtInConstant: string
+  builtInVariable: string
+}
+
+const LIGHT_RUBY_SYNTAX_PALETTE: RubySyntaxPalette = {
+  keyword: '0000FF',
+  number: '098658',
+  regexp: '811F3F',
+  builtInString: 'A31515',
+  builtInComment: '008000',
+  builtInConstant: 'DD0000',
+  builtInVariable: '001188'
+}
+const DARK_RUBY_SYNTAX_PALETTE: RubySyntaxPalette = {
+  keyword: '569CD6',
+  number: 'B5CEA8',
+  regexp: 'D16969',
+  builtInString: 'CE9178',
+  builtInComment: '608B4E',
+  builtInConstant: '569CD6',
+  builtInVariable: '74B0DF'
+}
+
+// Why: Ruby TextMate scopes the built-in themes leave unruled or share with another token kind.
+const RUBY_TEXTMATE_SCOPE_COLORS = {
+  'entity.name.function.ruby': 'method',
+  'support.function.kernel.ruby': 'method',
+  'entity.name.type.class.ruby': 'type',
+  'entity.name.type.module.ruby': 'type',
+  'entity.other.inherited-class.ruby': 'type',
+  'support.class.ruby': 'type',
+  'variable.other.constant.ruby': 'enumMember',
+  'variable.language.self.ruby': 'keyword',
+  'punctuation.section.embedded.begin.ruby': 'keyword',
+  'punctuation.section.embedded.end.ruby': 'keyword',
+  'constant.numeric.ruby': 'number',
+  'string.regexp.interpolated.ruby': 'regexp',
+  'string.regexp.group.ruby': 'regexp',
+  'string.regexp.character-class.ruby': 'regexp',
+  'string.regexp.arbitrary-repetition.ruby': 'regexp',
+  'punctuation.section.regexp.ruby': 'regexp',
+  'punctuation.section.regexp.begin.ruby': 'regexp',
+  'punctuation.section.regexp.end.ruby': 'regexp',
+  'keyword.operator.assignment.ruby': 'baseForeground',
+  'keyword.operator.assignment.augmented.ruby': 'baseForeground',
+  'keyword.operator.arithmetic.ruby': 'baseForeground',
+  'keyword.operator.comparison.ruby': 'baseForeground',
+  'keyword.operator.logical.ruby': 'baseForeground',
+  'keyword.operator.other.ruby': 'baseForeground',
+  'punctuation.definition.string.begin.ruby': 'builtInString',
+  'punctuation.definition.string.end.ruby': 'builtInString',
+  'punctuation.definition.comment.ruby': 'builtInComment',
+  'punctuation.definition.comment.begin.ruby': 'builtInComment',
+  'punctuation.definition.comment.end.ruby': 'builtInComment',
+  'punctuation.definition.constant.ruby': 'builtInConstant',
+  'punctuation.definition.constant.hashkey.ruby': 'builtInConstant',
+  'punctuation.definition.symbol.begin.ruby': 'builtInConstant',
+  'punctuation.definition.symbol.end.ruby': 'builtInConstant',
+  'punctuation.definition.variable.ruby': 'builtInVariable'
+} as const satisfies Record<`${string}.ruby`, keyof SemanticPalette | keyof RubySyntaxPalette>
+
+function rubyTextMateRules(
+  palette: SemanticPalette & RubySyntaxPalette
+): Monaco.editor.ITokenThemeRule[] {
+  return Object.entries(RUBY_TEXTMATE_SCOPE_COLORS).map(([token, color]) => ({
+    token,
+    foreground: palette[color]
+  }))
+}
+
 export function orcaMonacoTheme(isDark: boolean): string {
   return isDark ? ORCA_DARK_THEME : ORCA_LIGHT_THEME
 }
@@ -68,13 +145,19 @@ export function defineOrcaMonacoThemes(monaco: typeof Monaco): void {
   monaco.editor.defineTheme(ORCA_LIGHT_THEME, {
     base: 'vs',
     inherit: true,
-    rules: semanticRules(LIGHT_PALETTE),
+    rules: [
+      ...semanticRules(LIGHT_PALETTE),
+      ...rubyTextMateRules({ ...LIGHT_PALETTE, ...LIGHT_RUBY_SYNTAX_PALETTE })
+    ],
     colors: {}
   })
   monaco.editor.defineTheme(ORCA_DARK_THEME, {
     base: 'vs-dark',
     inherit: true,
-    rules: semanticRules(DARK_PALETTE),
+    rules: [
+      ...semanticRules(DARK_PALETTE),
+      ...rubyTextMateRules({ ...DARK_PALETTE, ...DARK_RUBY_SYNTAX_PALETTE })
+    ],
     colors: {}
   })
 }

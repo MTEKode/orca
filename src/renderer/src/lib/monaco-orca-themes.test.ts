@@ -28,4 +28,35 @@ describe('orca Monaco themes', () => {
       foreground: 'D4D4D4'
     })
   })
+
+  it('colors Ruby TextMate scopes the built-in themes leave unruled or indistinct', () => {
+    const defineTheme = vi.fn()
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: only editor.defineTheme is used.
+    defineOrcaMonacoThemes({ editor: { defineTheme } } as unknown as typeof Monaco)
+    const themes = Object.fromEntries(defineTheme.mock.calls.map(([name, data]) => [name, data]))
+    const light = themes['orca-light'].rules
+    const dark = themes['orca-dark'].rules
+
+    expect(light).toContainEqual({ token: 'entity.name.function.ruby', foreground: '795E26' })
+    expect(dark).toContainEqual({ token: 'entity.name.type.class.ruby', foreground: '4EC9B0' })
+    expect(light).toContainEqual({ token: 'string.regexp.interpolated.ruby', foreground: '811F3F' })
+    expect(dark).toContainEqual({ token: 'constant.numeric.ruby', foreground: 'B5CEA8' })
+    expect(light).toContainEqual({
+      token: 'punctuation.section.embedded.begin.ruby',
+      foreground: '0000FF'
+    })
+    // Why: a sigil or delimiter keeps the built-in color of the token it belongs to.
+    expect(light).toContainEqual({
+      token: 'punctuation.definition.string.begin.ruby',
+      foreground: 'A31515'
+    })
+    expect(dark).toContainEqual({
+      token: 'punctuation.definition.comment.ruby',
+      foreground: '608B4E'
+    })
+    expect(dark).toContainEqual({
+      token: 'punctuation.definition.variable.ruby',
+      foreground: '74B0DF'
+    })
+  })
 })
