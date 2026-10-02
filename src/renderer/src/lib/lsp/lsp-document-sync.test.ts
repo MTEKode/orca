@@ -166,6 +166,39 @@ describe('LspDocumentSync', () => {
     })
   })
 
+  it('notifies document-opened listeners after each didOpen, not on later flushes', async () => {
+    const first = fakeClient()
+    const second = fakeClient()
+    let current = first
+    const sync = new LspDocumentSync({
+      ...leases(),
+      findOwner: () => owner,
+      getClient: async () => current
+    })
+    const opened = vi.fn()
+    const subscription = sync.onDocumentOpened(opened)
+    const m = model('file:///repo/a.rb', 'ruby')
+    sync.track(m)
+    await sync.clientFor(m)
+    expect(opened).toHaveBeenCalledTimes(1)
+    expect(opened).toHaveBeenCalledWith(m)
+    expect(opened.mock.invocationCallOrder[0]).toBeGreaterThan(
+      first.notify.mock.invocationCallOrder[0]
+    )
+    m.change('x = 1')
+    await sync.clientFor(m)
+    expect(opened).toHaveBeenCalledTimes(1)
+    first.isClosed = true
+    current = second
+    await sync.clientFor(m)
+    expect(opened).toHaveBeenCalledTimes(2)
+    subscription.dispose()
+    second.isClosed = true
+    current = fakeClient()
+    await sync.clientFor(m)
+    expect(opened).toHaveBeenCalledTimes(2)
+  })
+
   it('sends no didClose when the client is already closed', async () => {
     const client = fakeClient()
     const sync = new LspDocumentSync({

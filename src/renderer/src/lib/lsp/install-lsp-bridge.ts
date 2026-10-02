@@ -7,6 +7,7 @@ import { LspDocumentSync } from './lsp-document-sync'
 import { registerLspEditorOpener } from './lsp-editor-opener'
 import { registerLspNavigationProviders } from './lsp-navigation-providers'
 import { findOwningWorktree } from './lsp-owning-worktree'
+import { registerLspSemanticTokensProvider } from './lsp-semantic-tokens'
 import { getLspClient, releaseLspClient, retainLspClient } from './lsp-session-opener'
 
 function findOwner(fsPath: string) {
@@ -35,6 +36,7 @@ export function installLspBridge(monaco: typeof Monaco): () => void {
   const disposables: Monaco.IDisposable[] = [
     monaco.editor.onDidCreateModel((model) => sync.track(model)),
     ...registerLspNavigationProviders(monaco, sync),
+    registerLspSemanticTokensProvider(monaco, sync),
     registerLspEditorOpener(monaco, findOwner)
   ]
   monaco.editor.getModels().forEach((model) => sync.track(model))

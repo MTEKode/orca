@@ -41,7 +41,7 @@ export const LANGUAGE_SERVER_CATALOG: Record<
         codeActions: false,
         codeLens: false,
         inlayHint: false,
-        semanticHighlighting: false,
+        semanticHighlighting: true,
         onTypeFormatting: false,
         signatureHelp: false,
         documentHighlights: false,

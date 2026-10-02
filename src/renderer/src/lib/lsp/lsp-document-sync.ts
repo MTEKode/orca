@@ -45,8 +45,19 @@ function isLspLanguage(languageId: string): boolean {
 
 export class LspDocumentSync {
   private readonly documents = new Map<string, TrackedDocument>()
+  private readonly openedListeners = new Set<(model: SyncModel) => void>()
 
   constructor(private readonly deps: LspDocumentSyncDeps) {}
+
+  // Why: lets per-document features (semantic tokens) re-query once a starting server finally has the file.
+  onDocumentOpened(listener: (model: SyncModel) => void): Disposable {
+    this.openedListeners.add(listener)
+    return {
+      dispose: () => {
+        this.openedListeners.delete(listener)
+      }
+    }
+  }
 
   isTracked(model: SyncModel): boolean {
     return this.documents.has(model.uri.toString())
@@ -102,6 +113,7 @@ export class LspDocumentSync {
       })
       doc.openedOn = client
       doc.dirty = false
+      this.openedListeners.forEach((listener) => listener(model))
     } else if (doc.dirty) {
       // ponytail: full-text sync on demand; switch to incremental if large files lag.
       client.notify('textDocument/didChange', {
