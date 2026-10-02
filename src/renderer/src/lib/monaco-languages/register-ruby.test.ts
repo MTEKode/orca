@@ -16,12 +16,8 @@ describe('rubyTextMateRegistration', () => {
     expect(rubyTextMateRegistration.configuration).toBeUndefined()
   })
 
-  it('covers the common Ruby file associations', () => {
-    expect(rubyTextMateRegistration.language).toMatchObject({
-      id: RUBY_LANGUAGE_ID,
-      extensions: expect.arrayContaining(['.rb', '.rake', '.gemspec', '.ru']),
-      filenames: expect.arrayContaining(['Gemfile', 'Rakefile', 'Guardfile'])
-    })
+  it('only names the pre-registered Ruby language', () => {
+    expect(rubyTextMateRegistration.language).toEqual({ id: RUBY_LANGUAGE_ID })
   })
 })
 
