@@ -69,6 +69,31 @@ describe('LspSession', { timeout: 30_000 }, () => {
     await session.dispose()
   })
 
+  it('answers the semantic tokens legend from initialize and forwards token requests', async () => {
+    const { session } = startSession()
+    const a = fakePort()
+    session.attachPort(a.port)
+    a.send({ jsonrpc: '2.0', id: 1, method: 'orca/semanticTokensLegend' })
+    a.send({
+      jsonrpc: '2.0',
+      id: 2,
+      method: 'textDocument/semanticTokens/full',
+      params: { textDocument: { uri: 'file:///a.rb' } }
+    })
+    await vi.waitFor(() => expect(a.sent).toHaveLength(2), { timeout: 15_000 })
+    expect(a.sent).toContainEqual({
+      jsonrpc: '2.0',
+      id: 1,
+      result: { tokenTypes: ['variable', 'method'], tokenModifiers: ['declaration'] }
+    })
+    expect(a.sent).toContainEqual({
+      jsonrpc: '2.0',
+      id: 2,
+      result: { resultId: 'r1', data: [0, 0, 3, 1, 1] }
+    })
+    await session.dispose()
+  })
+
   it("closes a disconnected port's documents on the server", async () => {
     const { session } = startSession()
     const a = fakePort()

@@ -1,4 +1,8 @@
 import { isRecord } from '../../shared/agent-status-child-work-value-guards'
+import {
+  isSemanticTokensLegend,
+  type SemanticTokensLegend
+} from '../../shared/lsp-semantic-token-legend'
 
 export type JsonRpcId = number | string
 export type JsonRpcMessage = {
@@ -19,8 +23,11 @@ const CLIENT_REQUESTS = new Set([
   'textDocument/definition',
   'textDocument/references',
   'textDocument/hover',
+  'textDocument/semanticTokens/full',
   'workspace/symbol'
 ])
+// Why: the server legend arrives once in initialize; ports ask the router instead of the server.
+const SEMANTIC_TOKENS_LEGEND_REQUEST = 'orca/semanticTokensLegend'
 const CLIENT_NOTIFICATIONS = new Set([
   'textDocument/didOpen',
   'textDocument/didChange',
@@ -52,11 +59,19 @@ export class LspMessageRouter {
   private nextServerId = 1
   private readonly pending = new Map<number, Pending>()
   private readonly documentOwners = new Map<string, Set<number>>()
+  private semanticTokensLegend: SemanticTokensLegend | null = null
 
   constructor(
     private readonly sendToServer: (message: JsonRpcMessage) => void,
     private readonly workspaceFolders: readonly { uri: string; name: string }[]
   ) {}
+
+  setServerCapabilities(initializeResult: unknown): void {
+    const capabilities = isRecord(initializeResult) ? initializeResult.capabilities : null
+    const provider = isRecord(capabilities) ? capabilities.semanticTokensProvider : null
+    const legend = isRecord(provider) ? provider.legend : null
+    this.semanticTokensLegend = isSemanticTokensLegend(legend) ? legend : null
+  }
 
   fromClient(portId: number, message: JsonRpcMessage): JsonRpcMessage | null {
     const { id, method } = message
@@ -64,6 +79,9 @@ export class LspMessageRouter {
       return null
     }
     if (id !== undefined && id !== null) {
+      if (method === SEMANTIC_TOKENS_LEGEND_REQUEST) {
+        return { jsonrpc: '2.0', id, result: this.semanticTokensLegend }
+      }
       if (!CLIENT_REQUESTS.has(method)) {
         return errorReply(id, `Method not allowed: ${method}`)
       }

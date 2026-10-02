@@ -7,6 +7,10 @@ import {
   signalProcessTree
 } from '../../shared/child-process/process-tree-termination'
 import type { LanguageServerId } from '../../shared/language-server-types'
+import {
+  LSP_SEMANTIC_TOKEN_MODIFIERS,
+  LSP_SEMANTIC_TOKEN_TYPES
+} from '../../shared/lsp-semantic-token-legend'
 import { LspMessageRouter, isJsonRpcMessage, type JsonRpcMessage } from './lsp-message-router'
 import type { ResolvedLspCommand } from './lsp-server-command'
 import { LspStderrTail } from './lsp-stderr-tail'
@@ -150,7 +154,7 @@ export class LspSession {
   }
 
   private async initialize(rootUri: string): Promise<void> {
-    await withTimeout(
+    const result = await withTimeout(
       this.router.request('initialize', {
         processId: process.pid,
         rootUri,
@@ -161,13 +165,22 @@ export class LspSession {
             synchronization: { dynamicRegistration: false, didSave: false },
             definition: { linkSupport: true },
             references: {},
-            hover: { contentFormat: ['markdown', 'plaintext'] }
+            hover: { contentFormat: ['markdown', 'plaintext'] },
+            semanticTokens: {
+              requests: { full: true },
+              tokenTypes: LSP_SEMANTIC_TOKEN_TYPES,
+              tokenModifiers: LSP_SEMANTIC_TOKEN_MODIFIERS,
+              formats: ['relative'],
+              overlappingTokenSupport: false,
+              multilineTokenSupport: false
+            }
           },
           workspace: { workspaceFolders: true, configuration: true, symbol: {} }
         }
       }),
       INITIALIZE_TIMEOUT_MS
     )
+    this.router.setServerCapabilities(result)
     this.router.notify('initialized', {})
     this.isReady = true
     for (const { portId, message } of this.queued.splice(0)) {

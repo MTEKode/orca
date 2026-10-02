@@ -182,4 +182,29 @@ describe('LspMessageRouter', () => {
     ).toBeNull()
     expect(toServer).toHaveLength(1)
   })
+
+  it('allows semantic token requests', () => {
+    const { router, toServer } = setup()
+    expect(
+      router.fromClient(1, {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'textDocument/semanticTokens/full',
+        params: { textDocument: { uri: 'file:///a.rb' } }
+      })
+    ).toBeNull()
+    expect(toServer).toHaveLength(1)
+  })
+
+  it('answers the semantic tokens legend locally from the server capabilities', () => {
+    const { router, toServer } = setup()
+    const legendRequest = { jsonrpc: '2.0' as const, id: 4, method: 'orca/semanticTokensLegend' }
+    expect(router.fromClient(1, legendRequest)).toEqual({ jsonrpc: '2.0', id: 4, result: null })
+    const legend = { tokenTypes: ['variable', 'method'], tokenModifiers: ['declaration'] }
+    router.setServerCapabilities({ capabilities: { semanticTokensProvider: { legend } } })
+    expect(router.fromClient(1, legendRequest)).toEqual({ jsonrpc: '2.0', id: 4, result: legend })
+    router.setServerCapabilities({ capabilities: { semanticTokensProvider: { legend: 'bad' } } })
+    expect(router.fromClient(1, legendRequest)).toEqual({ jsonrpc: '2.0', id: 4, result: null })
+    expect(toServer).toHaveLength(0)
+  })
 })
