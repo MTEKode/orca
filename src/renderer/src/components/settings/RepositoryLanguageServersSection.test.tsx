@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Repo } from '../../../../shared/repo-types'
 import { resetLspClients } from '@/lib/lsp/lsp-session-opener'
@@ -229,6 +230,25 @@ describe('RepositoryLanguageServersSection', () => {
     await waitFor(() =>
       expect(vi.mocked(window.api.lsp.probe).mock.calls.length).toBeGreaterThan(before)
     )
+  })
+
+  it('closes the install panel when the Ruby server selection changes', async () => {
+    const user = userEvent.setup()
+    window.api.lsp.probe = vi.fn(async () => ({ 'ruby-lsp': { status: 'missing' as const } }))
+    const props = { updateRepo: vi.fn(), forceVisible: true, searchQuery: '', searchEntries: [] }
+    const { rerender } = render(<RepositoryLanguageServersSection repo={missingRepo} {...props} />)
+    fireEvent.click(await screen.findByRole('button', { name: /^install$/i }))
+    fireEvent.click(screen.getByText('finish-fail'))
+    await user.click(screen.getByRole('combobox', { name: 'Ruby' }))
+    await user.click(screen.getByRole('option', { name: 'Solargraph' }))
+    rerender(
+      <RepositoryLanguageServersSection
+        repo={{ ...repo, languageServers: { enabled: { solargraph: true } } }}
+        {...props}
+      />
+    )
+    expect(screen.queryByTestId('install-terminal')).toBeNull()
+    expect(screen.queryByText('Install failed. Check the output above.')).toBeNull()
   })
 
   it('does not save when the custom command is unchanged', () => {

@@ -180,9 +180,11 @@ export function RepositoryLanguageServersSection({
           <Select
             value={rubyChoice}
             disabled={!isLocal}
-            onValueChange={(value) =>
+            onValueChange={(value) => {
+              // Why: an install panel belongs to the previous server and must not linger under the new one.
+              closeInstall()
               setEnabled({ 'ruby-lsp': value === 'ruby-lsp', solargraph: value === 'solargraph' })
-            }
+            }}
           >
             <SelectTrigger className="w-40" aria-labelledby={`lsp-ruby-${repo.id}`}>
               <SelectValue />
