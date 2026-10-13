@@ -19,32 +19,29 @@ vi.mock('../../lsp/lsp-session-registry', () => ({
 import { registerRepoCatalogHandlers } from './repo-catalog-handlers'
 
 describe('repo removal stops language servers', () => {
-  const store = { removeProject: vi.fn(), removeProjectForHost: vi.fn() }
+  const store = { removeProjectForHost: vi.fn() }
   beforeEach(() => {
     mocks.handlers.clear()
     mocks.disposeForRepo.mockClear()
-    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the removal handlers only call these two store methods.
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the removal handler only calls this store method.
     registerRepoCatalogHandlers({} as never, store as never)
-  })
-
-  it('disposes the repo sessions after repos:remove', async () => {
-    await mocks.handlers.get('repos:remove')?.({}, { repoId: 'r1' })
-    expect(store.removeProject).toHaveBeenCalledWith('r1')
-    expect(mocks.disposeForRepo).toHaveBeenCalledWith('r1')
   })
 
   it('disposes on a local repos:removeForHost but not a remote one', async () => {
     await mocks.handlers.get('repos:removeForHost')?.({}, { repoId: 'r1', hostId: 'ssh:box' })
     expect(mocks.disposeForRepo).not.toHaveBeenCalled()
     await mocks.handlers.get('repos:removeForHost')?.({}, { repoId: 'r1', hostId: 'local' })
+    expect(store.removeProjectForHost).toHaveBeenCalledWith('r1', 'local')
     expect(mocks.disposeForRepo).toHaveBeenCalledWith('r1')
   })
 
   it('does not dispose when removal throws', async () => {
-    store.removeProject.mockImplementationOnce(() => {
+    store.removeProjectForHost.mockImplementationOnce(() => {
       throw new Error('nope')
     })
-    await expect(mocks.handlers.get('repos:remove')?.({}, { repoId: 'r1' })).rejects.toThrow()
+    await expect(
+      mocks.handlers.get('repos:removeForHost')?.({}, { repoId: 'r1', hostId: 'local' })
+    ).rejects.toThrow()
     expect(mocks.disposeForRepo).not.toHaveBeenCalled()
   })
 })

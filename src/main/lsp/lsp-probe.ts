@@ -10,11 +10,8 @@ import {
 } from '../../shared/language-server-types'
 import { getRepoExecutionHostId, LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host'
 import type { Repo } from '../../shared/repo-types'
-import {
-  runProcess,
-  type ProcessResult,
-  type ProcessSpec
-} from '../../shared/child-process/run-process'
+import { runProcess } from '@orca/process-host'
+import type { ProcessResult, ProcessSpec } from '@orca/process-host/process-spec'
 import { resolveLoginShellEnvironment } from '../startup/login-shell-environment'
 import { resolveCommandOnLocalPath, type ResolveCommandOptions } from '../ipc/command-path-resolver'
 

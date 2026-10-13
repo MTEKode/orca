@@ -94,7 +94,6 @@ describe('registerTextMateLanguage', () => {
     registerTextMateLanguage(monaco as never, {
       language: { id: 'ruby', extensions: ['.rb'] },
       configuration: { comments: { lineComment: '#' } },
-      scopeName: 'source.ruby',
       loadGrammar: vi.fn(),
       replaceExistingTokenizer: true
     })
@@ -114,7 +113,6 @@ describe('registerTextMateLanguage', () => {
     registerTextMateLanguage(monaco as never, {
       language: { id: 'ruby', extensions: ['.rb'] },
       configuration,
-      scopeName: 'source.ruby',
       loadGrammar: vi.fn(),
       replaceExistingTokenizer: true
     })

@@ -1,11 +1,12 @@
 import { basename } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { StreamMessageReader, StreamMessageWriter } from 'vscode-jsonrpc/node'
-import { spawnProcess, type ProcessSpec } from '../../shared/child-process/run-process'
+import { spawnProcess } from '@orca/process-host'
+import type { PipedChildProcess, PipedProcessSpawner } from '@orca/process-host/process-spec'
 import {
   forceTerminateProcessTree,
   signalProcessTree
-} from '../../shared/child-process/process-tree-termination'
+} from '@orca/process-host/process-tree-termination'
 import type { LanguageServerId } from '../../shared/language-server-types'
 import {
   LSP_SEMANTIC_TOKEN_MODIFIERS,
@@ -14,8 +15,6 @@ import {
 import { LspMessageRouter, isJsonRpcMessage, type JsonRpcMessage } from './lsp-message-router'
 import type { ResolvedLspCommand } from './lsp-server-command'
 import { LspStderrTail } from './lsp-stderr-tail'
-
-type LspChildProcess = ReturnType<typeof spawnProcess>
 
 export type LspPort = {
   post(message: unknown): void
@@ -31,7 +30,7 @@ export type LspSessionConfig = {
   initializationOptions: unknown
   idleShutdownMs: number
   onExit: (unexpected: boolean) => void
-  spawn?: (spec: ProcessSpec) => LspChildProcess
+  spawn?: PipedProcessSpawner
 }
 
 const INITIALIZE_TIMEOUT_MS = 120_000 // Why: ruby-lsp installs its composed bundle on first start.
@@ -46,7 +45,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 
 export class LspSession {
   readonly ready: Promise<void>
-  private readonly child: LspChildProcess
+  private readonly child: PipedChildProcess
   private readonly router: LspMessageRouter
   private readonly ports = new Map<number, LspPort>()
   private readonly queued: { portId: number; message: JsonRpcMessage }[] = []

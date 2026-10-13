@@ -32,7 +32,6 @@ function registerStubTextMateRuby(
   }
   registerTextMateLanguage(monaco, {
     language: { id: 'ruby' },
-    scopeName: 'source.ruby',
     loadGrammar: vi.fn(),
     loadProviderModule: async () => ({ createTextMateTokensProvider: async () => provider }),
     replaceExistingTokenizer: true

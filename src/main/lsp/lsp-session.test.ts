@@ -1,7 +1,8 @@
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { spawnProcess, type ProcessSpec } from '../../shared/child-process/run-process'
+import { spawnProcess } from '@orca/process-host'
+import type { PipedChildProcess, PipedProcessSpec } from '@orca/process-host/process-spec'
 import { LspSession, type LspPort, type LspSessionConfig } from './lsp-session'
 
 const FAKE_SERVER = fileURLToPath(
@@ -134,9 +135,9 @@ describe('LspSession', { timeout: 30_000 }, () => {
   })
 
   it('reports an unexpected exit and closes its ports', async () => {
-    const children: ReturnType<typeof spawnProcess>[] = []
+    const children: PipedChildProcess[] = []
     const { session, onExit } = startSession({
-      spawn: (spec: ProcessSpec) => {
+      spawn: (spec: PipedProcessSpec) => {
         const child = spawnProcess(spec)
         children.push(child)
         return child
@@ -151,9 +152,9 @@ describe('LspSession', { timeout: 30_000 }, () => {
   })
 
   it('survives repeated error events on a live child without exiting', async () => {
-    const children: ReturnType<typeof spawnProcess>[] = []
+    const children: PipedChildProcess[] = []
     const { session, onExit } = startSession({
-      spawn: (spec: ProcessSpec) => {
+      spawn: (spec: PipedProcessSpec) => {
         const child = spawnProcess(spec)
         children.push(child)
         return child
@@ -211,7 +212,9 @@ describe('LspSession', { timeout: 30_000 }, () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const script = "process.stderr.write('x'.repeat(10000) + 'boom-tail'); process.exit(3)"
     const { session, onExit } = startSession({
-      command: { program: process.execPath, args: ['-e', script], env: process.env }
+      command: { program: process.execPath, args: ['-e', script], env: process.env },
+      // Why: under load a 50ms idle shutdown can beat the crash and turn it into an orderly dispose.
+      idleShutdownMs: 60_000
     })
     await session.ready.catch(() => undefined)
     await vi.waitFor(() => expect(warn).toHaveBeenCalled(), { timeout: 15_000 })
