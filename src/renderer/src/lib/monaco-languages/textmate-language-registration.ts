@@ -13,7 +13,6 @@ type TextMateTokenProviderModule = {
 export type TextMateLanguageRegistration = {
   language: Monaco.languages.ILanguageExtensionPoint
   configuration?: Monaco.languages.LanguageConfiguration
-  scopeName: string
   loadGrammar: TextMateGrammarLoader
   loadProviderModule?: () => Promise<TextMateTokenProviderModule>
   // Why: Monaco's basic languages (e.g. Ruby) are pre-registered with a lazy Monarch factory.
@@ -56,10 +55,7 @@ export function registerTextMateLanguage(
       tokensProviderPromise ??= (
         registration.loadProviderModule ?? loadDefaultProviderModule
       )().then(({ createTextMateTokensProvider }) =>
-        createTextMateTokensProvider({
-          scopeName: registration.scopeName,
-          loadGrammar: registration.loadGrammar
-        })
+        createTextMateTokensProvider({ loadGrammar: registration.loadGrammar })
       )
       return tokensProviderPromise
     }

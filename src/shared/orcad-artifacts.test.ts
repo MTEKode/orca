@@ -5,6 +5,7 @@ import { BUNDLED_RIPGREP_PLATFORMS, bundledRipgrepBinaryName } from './bundled-r
 import { SERVER_TARGETS } from './node-runtime-pin'
 import {
   ORCAD_BUILD_TARGET_FILENAME,
+  ORCAD_FOREIGN_SQLITE_READER_ENTRY,
   ORCAD_NODE_PTY_JS_ARTIFACTS,
   ORCAD_NODE_RUNTIME_MARKER_FILENAME,
   ORCAD_RIPGREP_ARTIFACTS,
@@ -16,6 +17,13 @@ import {
 } from './orcad-artifacts'
 
 describe('standalone runtime artifacts', () => {
+  it.each(SERVER_TARGETS)(
+    'ships the foreign SQLite reader worker the %s runtime starts',
+    (target) => {
+      expect(orcadArtifactFilenames(target)).toContain(ORCAD_FOREIGN_SQLITE_READER_ENTRY)
+    }
+  )
+
   it('names a search binary for every SSH host platform', () => {
     const expected = BUNDLED_RIPGREP_PLATFORMS.map(
       (platform) => `ripgrep/${platform}/${bundledRipgrepBinaryName(platform)}`
@@ -82,8 +90,6 @@ describe('standalone runtime artifacts', () => {
   it('keeps target-specific files out of the shared template set', () => {
     const common = orcadTemplateCommonFilenames()
     for (const target of SERVER_TARGETS) {
-      const specific = orcadArtifactFilenames(target).filter((file) => !common.includes(file))
-      expect(specific.every((file) => !common.includes(file))).toBe(true)
       expect(common.every((file) => orcadArtifactFilenames(target).includes(file))).toBe(true)
     }
   })
