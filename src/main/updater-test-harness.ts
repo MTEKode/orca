@@ -61,6 +61,7 @@ type UpdaterModuleFactories = {
     fetchNewerReleaseTagsWithReadiness: (...args: unknown[]) => Promise<unknown>
     fetchLatestStableReleaseTag: () => Promise<string | null>
     getReleaseDownloadUrl: (tag: string) => string
+    getLatestReleaseDownloadUrl: () => string
   }
   localBuildSwitch: () => { chooseLocalBuild: UpdaterSpy }
   localBuildFeedServer: () => { startLocalBuildFeed: UpdaterSpy }
@@ -245,7 +246,9 @@ export function createUpdaterMocks(): UpdaterMocks {
           : result
       },
       getReleaseDownloadUrl: (tag: string) =>
-        `https://github.com/stablyai/orca/releases/download/${tag}`
+        `https://github.com/stablyai/orca/releases/download/${tag}`,
+      getLatestReleaseDownloadUrl: () =>
+        'https://github.com/stablyai/orca/releases/latest/download'
     }),
     localBuildSwitch: () => ({ chooseLocalBuild: chooseLocalBuildMock }),
     localBuildFeedServer: () => ({ startLocalBuildFeed: startLocalBuildFeedMock })

@@ -1,5 +1,9 @@
 import { compareAppVersions, isValidAppVersion } from './app-version'
 
+declare global {
+  const ORCA_RELEASE_REPOSITORY: string
+}
+
 export type ReleaseChannel = 'stable' | 'rc' | 'hourly' | 'daily' | 'adhoc'
 
 export const RELEASE_CHANNELS: readonly ReleaseChannel[] = [
@@ -22,7 +26,8 @@ export const RELEASE_CHANNEL_LABELS: Readonly<Record<ReleaseChannel, string>> = 
 export const HOURLY_RELEASE_REPO = 'stablyai/orca-hourly'
 export const DAILY_RELEASE_REPO = 'stablyai/orca-daily'
 export const ADHOC_RELEASE_REPO = 'stablyai/orca-adhoc'
-export const MAIN_RELEASE_REPO = 'stablyai/orca'
+export const MAIN_RELEASE_REPO =
+  typeof ORCA_RELEASE_REPOSITORY === 'string' ? ORCA_RELEASE_REPOSITORY : 'stablyai/orca'
 
 /** The dev channels, each published to its own repo rather than the main one. */
 const DEDICATED_REPO_CHANNELS = ['hourly', 'daily', 'adhoc'] as const

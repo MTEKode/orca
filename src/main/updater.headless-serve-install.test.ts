@@ -101,7 +101,8 @@ vi.mock('./updater-prerelease-feed', () => ({
     tags: ['v1.0.61'],
     state: 'ready'
   }),
-  getReleaseDownloadUrl: vi.fn()
+  getReleaseDownloadUrl: vi.fn(),
+  getLatestReleaseDownloadUrl: () => 'https://github.com/stablyai/orca/releases/latest/download'
 }))
 vi.mock('./update-install-exit-watchdog', () => ({
   armUpdateInstallExitWatchdog: armUpdateInstallExitWatchdogMock,

@@ -43,10 +43,19 @@ concurrency:
   group: release-cut
   cancel-in-progress: false
 
+env:
+  ORCA_RELEASE_REPOSITORY: ${{ github.repository }}
+  ORCA_WINDOWS_PUBLISHER_NAME: ${{ vars.ORCA_WINDOWS_PUBLISHER_NAME || 'SignPath Foundation' }}
+  ORCA_SIGNPATH_ORGANIZATION_ID: ${{ vars.ORCA_SIGNPATH_ORGANIZATION_ID || 'c37aa192-a27a-4377-9c90-5d6c95912dc0' }}
+  ORCA_SIGNPATH_PROJECT_SLUG: ${{ vars.ORCA_SIGNPATH_PROJECT_SLUG || 'orca' }}
+  ORCA_SIGNPATH_SIGNING_POLICY_SLUG: ${{ vars.ORCA_SIGNPATH_SIGNING_POLICY_SLUG || 'release-signing' }}
+  ORCA_SIGNPATH_WINDOWS_INNER_ARTIFACT_CONFIGURATION: ${{ vars.ORCA_SIGNPATH_WINDOWS_INNER_ARTIFACT_CONFIGURATION || 'windows-inner-binaries-zip' }}
+  ORCA_SIGNPATH_WINDOWS_INSTALLER_ARTIFACT_CONFIGURATION: ${{ vars.ORCA_SIGNPATH_WINDOWS_INSTALLER_ARTIFACT_CONFIGURATION || 'github-actions-windows-installer' }}
+
 jobs:
   cut:
-    # Limit version/tag mutations to canonical repo; fork schedules must not diverge their main and conflict upstream.
-    if: github.repository == 'stablyai/orca'
+    # The MTEkode fork dispatches cuts against upstream SHAs so its main stays mergeable.
+    if: github.repository == 'stablyai/orca' || github.repository == 'MTEkode/orca'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -1490,10 +1499,10 @@ jobs:
         uses: signpath/github-action-submit-signing-request@v2
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-          organization-id: c37aa192-a27a-4377-9c90-5d6c95912dc0
-          project-slug: orca
-          signing-policy-slug: release-signing
-          artifact-configuration-slug: windows-inner-binaries-zip
+          organization-id: ${{ env.ORCA_SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ env.ORCA_SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ env.ORCA_SIGNPATH_SIGNING_POLICY_SLUG }}
+          artifact-configuration-slug: ${{ env.ORCA_SIGNPATH_WINDOWS_INNER_ARTIFACT_CONFIGURATION }}
           github-artifact-id: ${{ steps.upload-unsigned-inner.outputs.artifact-id }}
           wait-for-completion: false
 
@@ -1504,7 +1513,7 @@ jobs:
         shell: pwsh
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SIGNPATH_ORGANIZATION_ID: c37aa192-a27a-4377-9c90-5d6c95912dc0
+          SIGNPATH_ORGANIZATION_ID: ${{ env.ORCA_SIGNPATH_ORGANIZATION_ID }}
           SIGNPATH_REQUEST_ID: ${{ steps.submit-inner-signing.outputs.signing-request-id }}
           SIGNPATH_REQUEST_URL: ${{ steps.submit-inner-signing.outputs.signing-request-web-url }}
           TAG: ${{ needs.cut.outputs.tag }}
@@ -1517,7 +1526,8 @@ jobs:
           GITHUB_RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           if ([string]::IsNullOrWhiteSpace($env:SLACK_WEBHOOK_URL)) {
-            throw 'SLACK_WEBHOOK_URL secret is required so release approvers know when SignPath is waiting.'
+            Write-Host 'Skipping Slack notification because SLACK_WEBHOOK_URL is not configured.'
+            exit 0
           }
 
           $requestUrl = $env:SIGNPATH_REQUEST_URL
@@ -1567,10 +1577,11 @@ jobs:
         shell: pwsh
         env:
           SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+          ORCA_SIGNPATH_ORGANIZATION_ID: ${{ env.ORCA_SIGNPATH_ORGANIZATION_ID }}
           SIGNPATH_REQUEST_ID: ${{ steps.submit-inner-signing.outputs.signing-request-id }}
         run: |
           Get-SignedArtifact `
-            -OrganizationId c37aa192-a27a-4377-9c90-5d6c95912dc0 `
+            -OrganizationId $env:ORCA_SIGNPATH_ORGANIZATION_ID `
             -ApiToken $env:SIGNPATH_API_TOKEN `
             -SigningRequestId $env:SIGNPATH_REQUEST_ID `
             -OutputArtifactPath signed-inner.zip `
@@ -1602,8 +1613,8 @@ jobs:
             }
             $signed = Get-Item -LiteralPath @($candidates)[0]
             $signature = Get-AuthenticodeSignature -FilePath $signed.FullName
-            if ($null -eq $signature.SignerCertificate -or ($requireValid -and ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notlike '*CN=SignPath Foundation*'))) {
-              $failures.Add("returned without a valid SignPath signature: $relative")
+            if ($null -eq $signature.SignerCertificate -or ($requireValid -and ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notlike "*CN=$env:ORCA_WINDOWS_PUBLISHER_NAME*"))) {
+              $failures.Add("returned without a valid $env:ORCA_WINDOWS_PUBLISHER_NAME signature: $relative")
               continue
             }
             Copy-Item -Path $signed.FullName -Destination (Join-Path $root $relative) -Force
@@ -1638,8 +1649,8 @@ jobs:
           }
           $signed = Get-Item -LiteralPath @($candidates)[0]
           $signature = Get-AuthenticodeSignature -FilePath $signed.FullName
-          if ($null -eq $signature.SignerCertificate -or ($requireValid -and ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notlike '*CN=SignPath Foundation*'))) {
-            throw 'The returned NSIS uninstaller carries no valid SignPath signature.'
+          if ($null -eq $signature.SignerCertificate -or ($requireValid -and ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notlike "*CN=$env:ORCA_WINDOWS_PUBLISHER_NAME*"))) {
+            throw "The returned NSIS uninstaller carries no valid $env:ORCA_WINDOWS_PUBLISHER_NAME signature."
           }
           $signedDir = Join-Path $env:RUNNER_TEMP 'uninstaller-signing\signed'
           New-Item -ItemType Directory -Force -Path $signedDir | Out-Null
@@ -1659,8 +1670,8 @@ jobs:
           # Rehearsal shares the builder cache: never seed a release with its test-certificate elevate.exe.
           $signature = Get-AuthenticodeSignature -FilePath $signed
           $subject = if ($null -eq $signature.SignerCertificate) { '<none>' } else { $signature.SignerCertificate.Subject }
-          if ($signature.Status -ne 'Valid' -or $subject -notlike '*CN=SignPath Foundation*') {
-            throw "win-unpacked elevate.exe is not SignPath-signed ($($signature.Status), $subject)."
+          if ($signature.Status -ne 'Valid' -or $subject -notlike "*CN=$env:ORCA_WINDOWS_PUBLISHER_NAME*") {
+            throw "win-unpacked elevate.exe is not signed by $env:ORCA_WINDOWS_PUBLISHER_NAME ($($signature.Status), $subject)."
           }
           node config/scripts/replace-cached-nsis-elevate.mjs $signed
           if ($LASTEXITCODE -ne 0) {
@@ -1707,10 +1718,10 @@ jobs:
         uses: signpath/github-action-submit-signing-request@v2
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-          organization-id: c37aa192-a27a-4377-9c90-5d6c95912dc0
-          project-slug: orca
-          signing-policy-slug: release-signing
-          artifact-configuration-slug: github-actions-windows-installer
+          organization-id: ${{ env.ORCA_SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ env.ORCA_SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ env.ORCA_SIGNPATH_SIGNING_POLICY_SLUG }}
+          artifact-configuration-slug: ${{ env.ORCA_SIGNPATH_WINDOWS_INSTALLER_ARTIFACT_CONFIGURATION }}
           github-artifact-id: ${{ steps.upload-unsigned-windows-installer.outputs.artifact-id }}
           wait-for-completion: false
 
@@ -1719,7 +1730,7 @@ jobs:
         shell: pwsh
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SIGNPATH_ORGANIZATION_ID: c37aa192-a27a-4377-9c90-5d6c95912dc0
+          SIGNPATH_ORGANIZATION_ID: ${{ env.ORCA_SIGNPATH_ORGANIZATION_ID }}
           SIGNPATH_REQUEST_ID: ${{ steps.submit-signing-request.outputs.signing-request-id }}
           SIGNPATH_REQUEST_URL: ${{ steps.submit-signing-request.outputs.signing-request-web-url }}
           TAG: ${{ needs.cut.outputs.tag }}
@@ -1733,7 +1744,8 @@ jobs:
           INNER_SIGNING_SUBMITTED: ${{ steps.submit-inner-signing.outcome == 'success' }}
         run: |
           if ([string]::IsNullOrWhiteSpace($env:SLACK_WEBHOOK_URL)) {
-            throw 'SLACK_WEBHOOK_URL secret is required so release approvers know when SignPath is waiting.'
+            Write-Host 'Skipping Slack notification because SLACK_WEBHOOK_URL is not configured.'
+            exit 0
           }
 
           $requestUrl = $env:SIGNPATH_REQUEST_URL
@@ -1783,10 +1795,11 @@ jobs:
         shell: pwsh
         env:
           SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+          ORCA_SIGNPATH_ORGANIZATION_ID: ${{ env.ORCA_SIGNPATH_ORGANIZATION_ID }}
           SIGNPATH_REQUEST_ID: ${{ steps.submit-signing-request.outputs.signing-request-id }}
         run: |
           Get-SignedArtifact `
-            -OrganizationId c37aa192-a27a-4377-9c90-5d6c95912dc0 `
+            -OrganizationId $env:ORCA_SIGNPATH_ORGANIZATION_ID `
             -ApiToken $env:SIGNPATH_API_TOKEN `
             -SigningRequestId $env:SIGNPATH_REQUEST_ID `
             -OutputArtifactPath signed-windows.zip `
@@ -1841,7 +1854,7 @@ jobs:
           if ($signature.Status -ne 'Valid') {
             throw ($signature | Format-List * | Out-String)
           }
-          if ($signature.SignerCertificate.Subject -notlike '*CN=SignPath Foundation*') {
+          if ($signature.SignerCertificate.Subject -notlike "*CN=$env:ORCA_WINDOWS_PUBLISHER_NAME*") {
             throw "Unexpected Windows signer: $($signature.SignerCertificate.Subject)"
           }
           $signature.SignerCertificate | Format-List Subject,Issuer,NotBefore,NotAfter,Thumbprint
@@ -1942,8 +1955,8 @@ jobs:
                 Write-Host $line
                 if ($embedded -ne $actual) {
                   $failures.Add("the rebuilt installer embedded different uninstaller bytes than the signed one ($embedded vs $actual)")
-                } elseif ($signature.Status -ne 'Valid' -or $subject -notlike '*CN=SignPath Foundation*') {
-                  $failures.Add("not signed by SignPath Foundation: Uninstall Orca.exe ($($signature.Status), $subject)")
+                } elseif ($signature.Status -ne 'Valid' -or $subject -notlike "*CN=$env:ORCA_WINDOWS_PUBLISHER_NAME*") {
+                  $failures.Add("not signed by $env:ORCA_WINDOWS_PUBLISHER_NAME`: Uninstall Orca.exe ($($signature.Status), $subject)")
                 }
               }
             } else {
@@ -1960,8 +1973,8 @@ jobs:
               $line = "{0,-14} {1}  <{2}>" -f $signature.Status, $relative, $subject
               $report.Add($line)
               Write-Host $line
-              if ($signature.Status -ne 'Valid' -or $subject -notlike '*CN=SignPath Foundation*') {
-                $failures.Add("not signed by SignPath Foundation: $relative ($($signature.Status), $subject)")
+              if ($signature.Status -ne 'Valid' -or $subject -notlike "*CN=$env:ORCA_WINDOWS_PUBLISHER_NAME*") {
+                $failures.Add("not signed by $env:ORCA_WINDOWS_PUBLISHER_NAME`: $relative ($($signature.Status), $subject)")
               }
             }
 
@@ -1979,7 +1992,7 @@ jobs:
               Add-GateSummary "FAILED — $message"
             } else {
               # Use report, not extracted targets: it also includes the embedded uninstaller.
-              $ok = "All $($report.Count) checked binaries are signed by SignPath Foundation."
+              $ok = "All $($report.Count) checked binaries are signed by $env:ORCA_WINDOWS_PUBLISHER_NAME."
               Add-GateEvidence "VERDICT: PASSED — $ok"
               Add-GateSummary "PASSED — $ok"
               Write-Host $ok
@@ -2006,7 +2019,8 @@ jobs:
           INSTALLER_SUBMISSION_OUTCOME: ${{ steps.submit-signing-request.outcome }}
         run: |
           if ([string]::IsNullOrWhiteSpace($env:SLACK_WEBHOOK_URL)) {
-            throw 'SLACK_WEBHOOK_URL is missing; cannot notify release approvers of the signing failure.'
+            Write-Host 'Skipping Slack notification because SLACK_WEBHOOK_URL is not configured.'
+            exit 0
           }
           $stage = 'inner-binary signing or installer rebuild'
           if ($env:INSTALLER_SUBMISSION_OUTCOME -in @('success', 'failure')) {
@@ -2018,7 +2032,7 @@ jobs:
             @{ Id = $env:INSTALLER_REQUEST_ID; Label = 'Installer signing request' }
           )) {
             if (-not [string]::IsNullOrWhiteSpace($request.Id)) {
-              $message += "`n<https://app.signpath.io/Web/c37aa192-a27a-4377-9c90-5d6c95912dc0/SigningRequests/$($request.Id)|$($request.Label)>"
+              $message += "`n<https://app.signpath.io/Web/$env:ORCA_SIGNPATH_ORGANIZATION_ID/SigningRequests/$($request.Id)|$($request.Label)>"
             }
           }
           $message += "`nCheck the failed step before retrying. Late SignPath approval does not resume this run; missing Windows assets require a fresh release dispatch, not Re-run failed jobs."
@@ -2257,7 +2271,7 @@ jobs:
     # event to other workflows. Dispatch the trusted default-branch workflow;
     # it validates and checks out the released tag before deploying.
     # Why explicit: a skipped orcad-template (tags that predate it) would skip every job after it.
-    if: ${{ !cancelled() && needs.publish-release.result == 'success' && needs.cut.outputs.tag != '' }}
+    if: ${{ !cancelled() && needs.publish-release.result == 'success' && needs.cut.outputs.tag != '' && github.repository == 'stablyai/orca' }}
     runs-on: ubuntu-latest
     permissions:
       actions: write
@@ -2291,7 +2305,7 @@ jobs:
       - cut
     # Why: publish-complete-draft-releases can expose a recovered RC without
     # running the build/publish jobs; still advance the RC cask to that tag.
-    if: ${{ needs.cut.outputs.latest_published_rc_tag != '' }}
+    if: ${{ needs.cut.outputs.latest_published_rc_tag != '' && github.repository == 'stablyai/orca' }}
     uses: ./.github/workflows/homebrew-bump.yml
     with:
       tag: ${{ needs.cut.outputs.latest_published_rc_tag }}
@@ -2302,7 +2316,7 @@ jobs:
       - cut
       - publish-release
     # Why explicit: a skipped orcad-template (tags that predate it) would skip every job after it.
-    if: ${{ !cancelled() && needs.publish-release.result == 'success' && needs.cut.outputs.tag != '' && startsWith(needs.cut.outputs.tag, 'v') }}
+    if: ${{ !cancelled() && needs.publish-release.result == 'success' && needs.cut.outputs.tag != '' && startsWith(needs.cut.outputs.tag, 'v') && github.repository == 'stablyai/orca' }}
     uses: ./.github/workflows/homebrew-bump.yml
     with:
       tag: ${{ needs.cut.outputs.tag }}
