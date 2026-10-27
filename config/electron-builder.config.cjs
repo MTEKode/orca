@@ -132,6 +132,8 @@ const nativeChatVisualsResource = {
   from: 'resources/native-chat-visuals',
   to: 'native-chat-visuals'
 }
+// MTE Flow installer copies these files into the user's home at runtime.
+const mteFlowResource = { from: 'resources/mte-flow', to: 'mte-flow' }
 // SSH deploy resolves process.resourcesPath/relay; extraResources keeps bundles on real disk.
 const relayExtraResource = {
   from: 'out/relay',
@@ -157,6 +159,7 @@ const commonExtraResources = [
   skillFreshnessResources,
   ...agentBrowserSkillResources,
   nativeChatVisualsResource,
+  mteFlowResource,
   emojiShortcodeDatasetResource
 ]
 // Native speech addons need real disk paths; copy only the artifact target’s variant.

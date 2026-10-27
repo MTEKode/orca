@@ -49,6 +49,35 @@ export const getExperimentalPaneSearchEntries = createLocalizedCatalog(
     },
     getNativeChatExperimentalSearchEntry(),
     {
+      title: translate('auto.components.settings.experimental.search.mteFlow.title', 'MTE Flow'),
+      description: translate(
+        'auto.components.settings.experimental.search.mteFlow.description',
+        'Install the MTE Flow orchestrator, coder and validator agents and make them the default coding flow.'
+      ),
+      keywords: [
+        ...translateSearchKeyword(
+          'auto.components.settings.experimental.search.mteFlow.mte',
+          'mte'
+        ),
+        ...translateSearchKeyword(
+          'auto.components.settings.experimental.search.mteFlow.flow',
+          'flow'
+        ),
+        ...translateSearchKeyword(
+          'auto.components.settings.experimental.search.mteFlow.orchestrator',
+          'orchestrator'
+        ),
+        ...translateSearchKeyword(
+          'auto.components.settings.experimental.search.mteFlow.validator',
+          'validator'
+        ),
+        ...translateSearchKeyword(
+          'auto.components.settings.experimental.search.mteFlow.coder',
+          'coder'
+        )
+      ]
+    },
+    {
       title: translate(
         'auto.components.settings.experimental.search.agentDashboard.title',
         'Agent Dashboard'
@@ -203,6 +232,9 @@ export function getExperimentalSearchEntry() {
     pet: findEntry(translate('auto.components.settings.experimental.search.87d99e634b', 'Pet')),
     nativeChat: findEntry(
       translate('auto.components.settings.experimental.search.nativeChat.title', 'Chat UI')
+    ),
+    mteFlow: findEntry(
+      translate('auto.components.settings.experimental.search.mteFlow.title', 'MTE Flow')
     ),
     agentDashboard: findEntry(
       translate(

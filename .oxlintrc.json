@@ -254,6 +254,7 @@
     "src/main/acp/generated/acp-protocol.generated.ts",
     "src/shared/rpc-contract/rpc-params-catalog.generated.ts",
     "src/cli/bundled-skill-guides.ts",
+    "resources/mte-flow/**",
     "**/node_modules",
     "**/dist",
     "**/out",

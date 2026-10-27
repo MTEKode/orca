@@ -1,7 +1,8 @@
 # MTE Flow profile
 
-Use this workflow by default for every coding task coordinated through Orca, including
-tasks where the user did not name MTE Flow. This is a profile of Orca orchestration. Do not
+Use this workflow for every coding task coordinated through Orca whenever MTE Flow is
+enabled (Settings > Experimental, which adds an MTE Flow section to the user's global
+instructions), including tasks where the user did not name MTE Flow, and whenever the user asks for it. This is a profile of Orca orchestration. Do not
 build a second scheduler, use non-Orca subagents, or call `.mte/scripts/mte.mjs`.
 
 ## Roles and native state

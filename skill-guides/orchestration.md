@@ -18,8 +18,9 @@ description: >-
 Orchestration is Orca's structured coordination layer. It records who owns work,
 which attempt is authoritative, and when supervised work has settled.
 
-Use the MTE Flow profile in `references/mte-flow.md` by default for every coding task
-coordinated through Orca. It applies the requirements interview, detailed task spec,
+Use the MTE Flow profile in `references/mte-flow.md` for every coding task coordinated
+through Orca whenever MTE Flow is enabled (the user's global instructions contain an MTE Flow
+section) or the user asks for it. It applies the requirements interview, detailed task spec,
 independent coder and validator roles, project memory, and bounded retry policy to Orca's
 native Runs, Tasks, Dispatches, and messages.
 
