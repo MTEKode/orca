@@ -981,6 +981,10 @@ jobs:
           filter: blob:none
           persist-credentials: false
 
+      - name: Fetch upstream release tags
+        if: github.repository == 'MTEkode/orca'
+        run: git fetch --force --filter=blob:none --no-tags https://github.com/stablyai/orca.git '+refs/tags/v*:refs/tags/v*'
+
       - uses: ./.github/actions/install-node-dependencies
         with:
           native-runtime: node
