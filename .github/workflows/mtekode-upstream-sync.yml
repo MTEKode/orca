@@ -72,6 +72,18 @@ jobs:
           echo "Upstream main: $upstream_sha"
           echo "Release requested: $release_requested"
 
+      - name: Disable upstream CI workflows
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # The fork only runs this sync and manual releases; upstream PR/push/schedule workflows stay off.
+          for f in .github/workflows/*.y*ml; do
+            name="$(basename "$f")"
+            [[ "$name" == mtekode-upstream-sync.yml ]] && continue
+            grep -qE '^  (pull_request|pull_request_target|push|schedule|workflow_run):' "$f" || continue
+            gh workflow disable "$name" >/dev/null 2>&1 || true
+          done
+
       - name: Check signing configuration
         id: readiness
         if: steps.sync.outputs.release_requested == 'true'
