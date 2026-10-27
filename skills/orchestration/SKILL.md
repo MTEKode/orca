@@ -4,7 +4,9 @@ description: >-
   Coordinate supervised Orca workers, or work as a dispatched worker
   (heartbeats, ask, worker_done): threaded messages, blocking ask/reply, task
   dispatch, worker_done/escalation waits, task DAGs, decision gates,
-  coordinator loops, and decomposing work across agents. Use `orca-cli` for full
+  coordinator loops, decomposing work across agents, and the MTE Flow profile for
+  requirements interviews, detailed specs, independent coding, and validation. Use
+  `orca-cli` for full
   ownership handoffs — "hand off", "handoff", "handover", "give this to another
   agent", "another worktree" — unless asked to supervise, monitor, or coordinate
   a DAG, and for terminal control, lightweight terminal prompts, shell commands,
@@ -21,6 +23,15 @@ Engage Orca orchestration whenever you need structured multi-agent coordination:
 messages, blocking ask/reply flows, task dispatch, worker_done/escalation waits, task DAGs,
 decision gates, coordinator loops, or decomposing work across agents. Engage it as well
 when you are a dispatched worker sending heartbeats, `ask` questions, or `worker_done`. Use
+the MTE Flow profile by default for every coding task coordinated through Orca. It
+provides the requirements lock, detailed task spec, project memory, and independent
+coder/validator cycle. Load this workflow reference first:
+
+```text
+ORCA skills get orchestration --reference references/mte-flow.md
+```
+
+Use
 the orca-cli skill instead for full ownership handoffs ("hand off", "handoff", "handover",
 "give this to another agent", "another worktree") when the user did not ask to supervise,
 monitor, wait for results, or coordinate a DAG — and for ordinary terminal control, shell
