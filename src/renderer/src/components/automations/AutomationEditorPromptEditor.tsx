@@ -10,6 +10,7 @@ import '@/lib/monaco-setup'
 import { useAppStore } from '@/store'
 import { cn } from '@/lib/utils'
 import { buildAutomationPromptEditorOptions } from './automation-editor-prompt-options'
+import { orcaMonacoTheme } from '@/lib/monaco-orca-themes'
 
 export const AUTOMATION_PROMPT_EDITOR_SLOT = 'automation-prompt-editor'
 
@@ -151,7 +152,7 @@ export function AutomationEditorPromptEditor({
           defaultLanguage="plaintext"
           // Own post-mount syncing; a controlled value would wipe Monaco’s undo stack.
           defaultValue={value}
-          theme={isDark ? 'vs-dark' : 'vs'}
+          theme={orcaMonacoTheme(isDark)}
           onChange={handleChange}
           onMount={handleMount}
           options={options}

@@ -3,6 +3,7 @@ import { HIDDEN_WINDOW_FRAME_PUMP_STOP_CHANNEL } from '../shared/hidden-window-f
 import { installHiddenWindowFramePump } from './hidden-window-frame-pump'
 import type { PreloadApi } from './api-types'
 import { installBrowserFindListener } from './preload-runtime-support'
+import { installLspPortForwarding, lspApi } from './api/lsp-bridge'
 import { appApi } from './api/app-bridge'
 import { orcaProfilesApi } from './api/orca-profiles-bridge'
 import { platformApi } from './api/platform-bridge'
@@ -89,6 +90,7 @@ import { agentStatusApi } from './api/agent-status-bridge'
 import { speechApi } from './api/speech-bridge'
 
 installBrowserFindListener()
+installLspPortForwarding()
 
 const telemetryTrackApi: PreloadApi['telemetryTrack'] = (name, props) =>
   ipcRenderer.invoke('telemetry:track', name, props)
@@ -100,6 +102,7 @@ const telemetryGetConsentStateApi: PreloadApi['telemetryGetConsentState'] = () =
   ipcRenderer.invoke('telemetry:getConsentState')
 
 const api = {
+  lsp: lspApi,
   app: appApi,
   orcaProfiles: orcaProfilesApi,
   platform: platformApi,

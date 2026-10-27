@@ -1,9 +1,11 @@
+import { getRepoExecutionHostId, LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host'
 import { isFolderRepo } from '../../shared/repo-kind'
 import { commitProvenRepoKindChange } from '../folder-repo-git-conversion'
 import type { Repo } from '../../shared/repo-types'
 import type { RuntimeRepoSelector } from './runtime-repo-selector'
 import type { GhAccountBinding } from '../../shared/github/account-binding'
 import { invalidateAuthorizedRootsCache } from '../ipc/registered-worktree-roots-cache'
+import { getLspSessionManager } from '../lsp/lsp-session-registry'
 import { prepareLocalWorktreeRootForRepo } from '../worktree-root-preparation'
 import type { RuntimeStore } from './runtime-store-contract'
 import { assertWslMoveRepoWritable } from '../persistence/moving-wsl-projects/wsl-move-scope-guard'
@@ -144,6 +146,10 @@ export class RuntimeRepositorySettingsController {
     // Recheck WSL fence after stop awaits.
     assertWslMoveRepoWritable(store, repo)
     store.removeProjectForHost(repo)
+    // Local language servers are scoped to the project and must not outlive its removal.
+    if (getRepoExecutionHostId(repo) === LOCAL_EXECUTION_HOST_ID) {
+      getLspSessionManager()?.disposeForRepo(repo.id)
+    }
     // Sweep again for terminals spawned during stop. Retire chats only after the final WSL fence because that step is irreversible.
     await stopProjectTerminals(teardownStops('project-removal', 'structured-chat'))
     this.deps.forgetTerminalTopology(repo.id)
