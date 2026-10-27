@@ -1,5 +1,5 @@
 import type { Store } from '../persistence'
-import { resolveRegisteredWorktreePath } from '../ipc/registered-worktree-roots-cache'
+import { resolveRegisteredWorktreePathForRepo } from '../ipc/registered-worktree-path-for-repo'
 import { LspSession } from './lsp-session'
 import { LspSessionManager } from './lsp-session-manager'
 import { resolveLspServerCommand } from './lsp-server-command'
@@ -13,7 +13,8 @@ export function installLspSessionManager(store: Store): LspSessionManager {
   }
   manager = new LspSessionManager({
     getRepo: (repoId) => store.getRepo(repoId),
-    resolveWorktreeRoot: (worktreePath) => resolveRegisteredWorktreePath(worktreePath, store),
+    resolveWorktreeRoot: (worktreePath, repo) =>
+      resolveRegisteredWorktreePathForRepo(worktreePath, repo, store),
     resolveCommand: (serverId, rootPath, settings) =>
       resolveLspServerCommand(serverId, rootPath, settings),
     createSession: (config) => new LspSession(config)

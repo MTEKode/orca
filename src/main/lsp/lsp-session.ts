@@ -55,6 +55,8 @@ export class LspSession {
   private isReady = false
   private exited = false
   private disposing = false
+  private disposalPromise: Promise<void> | null = null
+  private forceTerminationPromise: Promise<boolean> | null = null
   private failed = false
   private loggedFailure = false
   private idleTimer: ReturnType<typeof setTimeout> | null = null
@@ -122,15 +124,23 @@ export class LspSession {
     port.onClose(() => this.detachPort(portId))
   }
 
-  async dispose(options: { force?: boolean } = {}): Promise<void> {
-    if (this.disposing) {
-      return
+  dispose(options: { force?: boolean } = {}): Promise<void> {
+    if (this.disposalPromise) {
+      if (options.force) {
+        return Promise.all([this.disposalPromise, this.forceTerminate()]).then(() => {})
+      }
+      return this.disposalPromise
     }
     this.disposing = true
     this.clearIdleTimer()
     this.closePorts()
+    this.disposalPromise = this.disposeProcess(options.force === true)
+    return this.disposalPromise
+  }
+
+  private async disposeProcess(force: boolean): Promise<void> {
     if (!this.exited) {
-      if (!options.force) {
+      if (!force) {
         await withTimeout(this.router.request('shutdown', null), SHUTDOWN_GRACE_MS).catch(
           () => undefined
         )
@@ -138,18 +148,40 @@ export class LspSession {
       }
       const exitedInTime = await withTimeout(
         this.exitedPromise,
-        options.force ? 0 : SHUTDOWN_GRACE_MS
+        force ? 0 : SHUTDOWN_GRACE_MS
       ).then(
         () => true,
         () => false
       )
       if (!exitedInTime) {
-        await forceTerminateProcessTree(this.child)
+        await this.forceTerminate()
+      } else if (process.platform !== 'win32') {
+        await this.forceTerminate()
       } else {
         this.killLeftoverGroup()
       }
     }
     this.config.onExit(this.failed)
+  }
+
+  private forceTerminate(): Promise<boolean> {
+    this.forceTerminationPromise ??= forceTerminateProcessTree(this.child).then(
+      (terminated) => {
+        if (!terminated) {
+          console.warn(
+            `[lsp] could not confirm language server process tree stopped for ${this.config.rootPath}`
+          )
+        }
+        return terminated
+      },
+      (error: unknown) => {
+        console.warn(
+          `[lsp] failed to stop language server process tree for ${this.config.rootPath}: ${String(error)}`
+        )
+        return false
+      }
+    )
+    return this.forceTerminationPromise
   }
 
   private async initialize(rootUri: string): Promise<void> {

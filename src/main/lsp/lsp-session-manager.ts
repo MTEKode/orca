@@ -22,7 +22,7 @@ export type LspAcquireResult =
 
 export type LspSessionManagerDeps = {
   getRepo: (repoId: string) => Repo | undefined
-  resolveWorktreeRoot: (worktreePath: string) => Promise<string>
+  resolveWorktreeRoot: (worktreePath: string, repo: Repo) => Promise<string>
   resolveCommand: (
     serverId: LanguageServerId,
     rootPath: string,
@@ -42,11 +42,17 @@ type Entry = {
   lastUsed: number
 }
 
+type PendingDisposal = {
+  session: LspSessionHandle
+  promise: Promise<void>
+}
+
 const MAX_UNEXPECTED_EXITS = 3
 const fail = (reason: LspOpenFailureReason): LspAcquireResult => ({ ok: false, reason })
 
 export class LspSessionManager {
   private readonly sessions = new Map<string, Entry>()
+  private readonly pendingDisposals = new Set<PendingDisposal>()
   private readonly unexpectedExits = new Map<string, number>()
   private useCounter = 0
   private generation = 0
@@ -68,7 +74,9 @@ export class LspSessionManager {
     if (!serverId) {
       return fail('disabled')
     }
-    const rootPath = await this.deps.resolveWorktreeRoot(parsed.worktreePath).catch(() => null)
+    const rootPath = await this.deps
+      .resolveWorktreeRoot(parsed.worktreePath, repo)
+      .catch(() => null)
     if (this.generation !== gen || this.disposed) {
       return fail('unavailable')
     }
@@ -109,9 +117,13 @@ export class LspSessionManager {
   async disposeAll(options: { force?: boolean } = {}): Promise<void> {
     this.generation++
     this.disposed = true
-    const entries = [...this.sessions.values()]
+    const entries = [...this.sessions.entries()]
     this.sessions.clear()
-    await Promise.all(entries.map((entry) => entry.session.dispose(options)))
+    const alreadyDisposing = [...this.pendingDisposals].map(({ session }) =>
+      session.dispose(options)
+    )
+    const newlyDisposing = entries.map(([key, entry]) => this.beginDisposal(key, entry, options))
+    await Promise.all([...alreadyDisposing, ...newlyDisposing])
   }
 
   private async createEntry(
@@ -181,17 +193,35 @@ export class LspSessionManager {
       if (!key || !entry) {
         return
       }
-      this.sessions.delete(key)
-      void entry.session.dispose()
+      void this.beginDisposal(key, entry)
     }
   }
 
   private disposeWhere(predicate: (entry: Entry) => boolean): void {
     for (const [key, entry] of this.sessions) {
       if (predicate(entry)) {
-        this.sessions.delete(key)
-        void entry.session.dispose()
+        void this.beginDisposal(key, entry)
       }
     }
+  }
+
+  private beginDisposal(
+    key: string,
+    entry: Entry,
+    options: { force?: boolean } = {}
+  ): Promise<void> {
+    if (this.sessions.get(key) === entry) {
+      this.sessions.delete(key)
+    }
+    const pending: PendingDisposal = {
+      session: entry.session,
+      promise: entry.session.dispose(options)
+    }
+    this.pendingDisposals.add(pending)
+    void pending.promise.then(
+      () => this.pendingDisposals.delete(pending),
+      () => this.pendingDisposals.delete(pending)
+    )
+    return pending.promise
   }
 }
