@@ -1,5 +1,9 @@
 import { compareAppVersions, isValidAppVersion } from './app-version'
 
+declare global {
+  const ORCA_RELEASE_REPOSITORY: string
+}
+
 export type ReleaseChannel = 'stable' | 'rc' | 'hourly' | 'daily' | 'adhoc'
 
 export const RELEASE_CHANNELS: readonly ReleaseChannel[] = [
