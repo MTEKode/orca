@@ -1,0 +1,119 @@
+name: MTEkode unsigned release
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit SHA or branch to release (default main)
+        required: false
+        default: main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mtekode-release
+  cancel-in-progress: false
+
+env:
+  ORCA_RELEASE_REPOSITORY: ${{ github.repository }}
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.next.outputs.tag }}
+      version: ${{ steps.next.outputs.version }}
+      sha: ${{ steps.next.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
+      - id: next
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          pkg="$(node -p "require('./package.json').version")"
+          latest="$(gh release list --limit 100 --json tagName --jq '.[].tagName' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sed 's/^v//' | sort -V | tail -1 || true)"
+          if [[ -n "$latest" && "$(printf '%s\n%s\n' "$pkg" "$latest" | sort -V | tail -1)" == "$latest" ]]; then
+            IFS=. read -r a b c <<<"$latest"
+            version="$a.$b.$((c + 1))"
+          else
+            version="$pkg"
+          fi
+          sha="$(git rev-parse HEAD)"
+          gh release create "v$version" --draft --target "$sha" --title "v$version" --generate-notes
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            install: pnpm install --frozen-lockfile
+            publish: node config/scripts/ensure-native-runtime.mjs --runtime=electron && pnpm exec electron-builder --config config/electron-builder.config.cjs --win --publish always -c.publish.releaseType=draft -c.win.verifyUpdateCodeSignature=false
+          - os: ubuntu-latest
+            install: pnpm install --frozen-lockfile
+            publish: node config/scripts/ensure-native-runtime.mjs --runtime=electron && pnpm exec electron-builder --config config/electron-builder.config.cjs --linux AppImage deb rpm --x64 --publish always -c.publish.releaseType=draft
+          - os: ubuntu-24.04-arm
+            install: pnpm install --frozen-lockfile
+            publish: node config/scripts/ensure-native-runtime.mjs --runtime=electron && ORCA_LINUX_ARM64_RELEASE=1 pnpm exec electron-builder --config config/electron-builder.config.cjs --linux AppImage deb rpm --arm64 --publish always -c.publish.releaseType=draft
+          - os: macos-15
+            install: pnpm install --frozen-lockfile --cpu=current,x64,arm64
+            publish: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON config/scripts/pinned-node-downloads.mjs darwin-arm64 darwin-x64 && node config/scripts/ensure-native-runtime.mjs --runtime=electron && pnpm exec electron-builder --config config/electron-builder.config.cjs --mac --publish always -c.publish.releaseType=draft
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+      - uses: pnpm/setup@v2
+        with:
+          install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          check-latest: true
+          cache: pnpm
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            mobile/pnpm-lock.yaml
+      - name: Linux packaging dependencies
+        if: runner.os == 'Linux'
+        run: |
+          npm install -g node-gyp@11.5.0
+          echo "npm_config_node_gyp=$(npm root -g)/node-gyp/bin/node-gyp.js" >> "$GITHUB_ENV"
+          sudo apt-get update && sudo apt-get install -y python3-gi gir1.2-atspi-2.0 at-spi2-core xclip xdotool rpm
+      - name: Windows Rust toolchain
+        if: runner.os == 'Windows'
+        run: command -v cargo || { rustup toolchain install stable --profile minimal && rustup default stable; }
+      - name: Set release version
+        run: npm pkg set version=${{ needs.prepare.outputs.version }}
+      - run: ${{ matrix.install }}
+      - uses: ./.github/actions/install-mobile-dependencies
+      - name: Build app
+        run: pnpm run build:release
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+          ORCA_BUILD_IDENTITY: stable
+      - name: Package and upload to the draft release
+        run: ${{ matrix.publish }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+  publish:
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "${{ needs.prepare.outputs.tag }}" --draft=false --latest --repo "$GITHUB_REPOSITORY"

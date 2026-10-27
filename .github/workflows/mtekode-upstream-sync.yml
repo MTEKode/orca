@@ -27,7 +27,6 @@ jobs:
     outputs:
       release_requested: ${{ steps.sync.outputs.release_requested }}
       source_sha: ${{ steps.sync.outputs.source_sha }}
-      release_ready: ${{ steps.readiness.outputs.release_ready }}
     steps:
       - name: Checkout fork main
         uses: actions/checkout@v6
@@ -84,69 +83,14 @@ jobs:
             gh workflow disable "$name" >/dev/null 2>&1 || true
           done
 
-      - name: Check signing configuration
-        id: readiness
-        if: steps.sync.outputs.release_requested == 'true'
-        env:
-          MAC_CERTS: ${{ secrets.MAC_CERTS }}
-          MAC_CERTS_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
-          ORCA_SIGNPATH_ORGANIZATION_ID: ${{ vars.ORCA_SIGNPATH_ORGANIZATION_ID }}
-          ORCA_SIGNPATH_PROJECT_SLUG: ${{ vars.ORCA_SIGNPATH_PROJECT_SLUG }}
-          ORCA_SIGNPATH_SIGNING_POLICY_SLUG: ${{ vars.ORCA_SIGNPATH_SIGNING_POLICY_SLUG }}
-          ORCA_SIGNPATH_WINDOWS_INNER_ARTIFACT_CONFIGURATION: ${{ vars.ORCA_SIGNPATH_WINDOWS_INNER_ARTIFACT_CONFIGURATION }}
-          ORCA_SIGNPATH_WINDOWS_INSTALLER_ARTIFACT_CONFIGURATION: ${{ vars.ORCA_SIGNPATH_WINDOWS_INSTALLER_ARTIFACT_CONFIGURATION }}
-          ORCA_WINDOWS_PUBLISHER_NAME: ${{ vars.ORCA_WINDOWS_PUBLISHER_NAME }}
-        run: |
-          set -euo pipefail
-          required=(
-            MAC_CERTS
-            MAC_CERTS_PASSWORD
-            APPLE_ID
-            APPLE_APP_SPECIFIC_PASSWORD
-            APPLE_TEAM_ID
-            SIGNPATH_API_TOKEN
-            ORCA_SIGNPATH_ORGANIZATION_ID
-            ORCA_SIGNPATH_PROJECT_SLUG
-            ORCA_SIGNPATH_SIGNING_POLICY_SLUG
-            ORCA_SIGNPATH_WINDOWS_INNER_ARTIFACT_CONFIGURATION
-            ORCA_SIGNPATH_WINDOWS_INSTALLER_ARTIFACT_CONFIGURATION
-            ORCA_WINDOWS_PUBLISHER_NAME
-          )
-          missing=()
-          for name in "${required[@]}"; do
-            if [[ -z "${!name:-}" ]]; then
-              missing+=("$name")
-            fi
-          done
-
-          if ((${#missing[@]})); then
-            echo 'release_ready=false' >> "$GITHUB_OUTPUT"
-            {
-              echo '## Fork release not dispatched'
-              echo
-              echo 'The upstream merge is complete. Add these signing secrets and repository variables before automatic releases can run:'
-              echo
-              for name in "${missing[@]}"; do echo "- \`$name\`"; done
-            } >> "$GITHUB_STEP_SUMMARY"
-            echo "::warning::Release signing setup is incomplete: ${missing[*]}"
-            exit 0
-          fi
-
-          echo 'release_ready=true' >> "$GITHUB_OUTPUT"
-
       - name: Dispatch release build for the synced commit
-        if: steps.sync.outputs.release_requested == 'true' && steps.readiness.outputs.release_ready == 'true'
+        if: steps.sync.outputs.release_requested == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SOURCE_SHA: ${{ steps.sync.outputs.source_sha }}
         run: |
           set -euo pipefail
-          jq -n --arg sha "$SOURCE_SHA" '{ref:"main", inputs:{kind:"patch", ref:$sha}}' |
-            gh api --method POST "repos/$GITHUB_REPOSITORY/actions/workflows/release-cut.yml/dispatches" --input -
+          gh workflow run mtekode-release.yml --ref main -f ref="$SOURCE_SHA"
 
       - name: Report idle check
         if: steps.sync.outputs.release_requested != 'true'
