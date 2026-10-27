@@ -63,7 +63,7 @@ jobs:
           - os: ubuntu-24.04-arm
             install: pnpm install --frozen-lockfile
             publish: node config/scripts/ensure-native-runtime.mjs --runtime=electron && ORCA_LINUX_ARM64_RELEASE=1 pnpm exec electron-builder --config config/electron-builder.config.cjs --linux AppImage deb rpm --arm64 --publish always -c.publish.releaseType=draft
-          - os: macos-15
+          - os: macos-15-intel
             install: pnpm install --frozen-lockfile --cpu=current,x64,arm64
             publish: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON config/scripts/pinned-node-downloads.mjs darwin-arm64 darwin-x64 && node config/scripts/ensure-native-runtime.mjs --runtime=electron && pnpm exec electron-builder --config config/electron-builder.config.cjs --mac --publish always -c.publish.releaseType=draft
     runs-on: ${{ matrix.os }}
@@ -109,6 +109,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          # Hosted Intel cannot boot the arm64 terminal host; unset CI lets the packaging check skip it.
+          CI: ${{ runner.os == 'macOS' && 'false' || 'true' }}
 
   publish:
     needs: [prepare, build]
