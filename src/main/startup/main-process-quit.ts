@@ -1,6 +1,7 @@
 import { killWslChannelsInCloseGrace } from '../wsl/wsl-command-channel'
 import { app, type Event } from 'electron'
 import { closeAllWatchers } from '../ipc/filesystem/watchers/filesystem-watcher-shutdown'
+import { getLspSessionManager } from '../lsp/lsp-session-registry'
 import { disposeWorktreeBaseDirectoryWatchers } from '../ipc/worktree-base-directory-watcher'
 import { stopFolderRepoGitUpgradeWatch } from '../ipc/folder-repo-git-upgrade'
 import { killAllPty } from '../ipc/pty/kill-all'
@@ -136,6 +137,8 @@ function installWillQuitHandler(): void {
     state.pluginMarketplaceService = null
     state.pluginMarketplaceInstaller = null
     const pluginHostShutdown = state.pluginService?.dispose() ?? Promise.resolve()
+    // Why: language servers are spawned detached, so quit must await their kill or they orphan.
+    const lspShutdown = getLspSessionManager()?.disposeAll({ force: true }) ?? Promise.resolve()
     const codexBackfillRecoveryShutdown = stopCodexStateDbBackfillRecoveries()
     stopCodexAccountSessionBridges()
     // Stamp resume reasons before stopping sessions; an update restart was not a user quit.
@@ -264,6 +267,7 @@ function installWillQuitHandler(): void {
       { name: 'local-ssh-browser-routes', promise: localSshRouteShutdown },
       { name: 'ssh', promise: sshShutdown },
       { name: 'plugin-hosts', promise: pluginHostShutdown },
+      { name: 'lsp-sessions', promise: lspShutdown },
       { name: 'skill-uploads', promise: skillUploadShutdown },
       { name: 'grok-hooks', promise: grokHookCleanup },
       { name: 'ref-maintenance', promise: refMaintenanceShutdown },
