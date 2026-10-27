@@ -1,6 +1,7 @@
 import { EventEmitter } from 'node:events'
 import { afterAll, vi } from 'vitest'
 import type { Mock } from 'vitest'
+import type { UpdaterPrereleaseFeedMock } from './updater-prerelease-feed-mock'
 import { clearTrackedRealTimers, trackRealTimers } from './updater-test-timer-tracking'
 
 type UpdaterSpy = Mock<(...args: unknown[]) => unknown>
@@ -57,12 +58,7 @@ type UpdaterModuleFactories = {
     armUpdateInstallExitWatchdog: UpdaterSpy
     disarmUpdateInstallExitWatchdog: UpdaterSpy
   }
-  updaterPrereleaseFeed: () => {
-    fetchNewerReleaseTagsWithReadiness: (...args: unknown[]) => Promise<unknown>
-    fetchLatestStableReleaseTag: () => Promise<string | null>
-    getReleaseDownloadUrl: (tag: string) => string
-    getLatestReleaseDownloadUrl: () => string
-  }
+  updaterPrereleaseFeed: () => UpdaterPrereleaseFeedMock
   localBuildSwitch: () => { chooseLocalBuild: UpdaterSpy }
   localBuildFeedServer: () => { startLocalBuildFeed: UpdaterSpy }
 }
@@ -247,8 +243,7 @@ export function createUpdaterMocks(): UpdaterMocks {
       },
       getReleaseDownloadUrl: (tag: string) =>
         `https://github.com/stablyai/orca/releases/download/${tag}`,
-      getLatestReleaseDownloadUrl: () =>
-        'https://github.com/stablyai/orca/releases/latest/download'
+      getLatestReleaseDownloadUrl: () => 'https://github.com/stablyai/orca/releases/latest/download'
     }),
     localBuildSwitch: () => ({ chooseLocalBuild: chooseLocalBuildMock }),
     localBuildFeedServer: () => ({ startLocalBuildFeed: startLocalBuildFeedMock })

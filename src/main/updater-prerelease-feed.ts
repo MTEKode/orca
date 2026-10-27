@@ -2,23 +2,20 @@ import { net } from 'electron'
 import { parse } from 'yaml'
 import { MAIN_RELEASE_REPO } from '../shared/release-channel'
 import { compareVersions, isPrereleaseVersion, isValidVersion } from './updater-fallback'
+import {
+  ATOM_FEED_URL,
+  RELEASES_DOWNLOAD_BASE,
+  RELEASES_PAGE_BASE,
+  getReleaseAssetUrl,
+  getReleaseManifestUrl
+} from './updater-release-urls'
 
-const RELEASES_PAGE_BASE = `https://github.com/${MAIN_RELEASE_REPO}/releases`
-const ATOM_FEED_URL = `${RELEASES_PAGE_BASE}.atom`
-const RELEASES_DOWNLOAD_BASE = `${RELEASES_PAGE_BASE}/download`
+export { getLatestReleaseDownloadUrl, getReleaseDownloadUrl } from './updater-release-urls'
 const FETCH_TIMEOUT_MS = 5000
 const MAX_MANIFEST_PROBE_CANDIDATES = 6
 
 // Atom includes stable and prerelease tags without channel filtering.
 const TAG_HREF_RE = /href="https:\/\/github\.com\/([^/]+\/[^/]+)\/releases\/tag\/([^"]+)"/g
-
-export function getReleaseDownloadUrl(tag: string): string {
-  return `${RELEASES_DOWNLOAD_BASE}/${encodeURIComponent(tag)}`
-}
-
-export function getLatestReleaseDownloadUrl(): string {
-  return `${RELEASES_PAGE_BASE}/latest/download`
-}
 
 function getPlatformManifestName(): string {
   if (process.platform === 'darwin') {
@@ -29,14 +26,6 @@ function getPlatformManifestName(): string {
     return process.arch === 'x64' ? 'latest-linux.yml' : `latest-linux-${process.arch}.yml`
   }
   return 'latest.yml'
-}
-
-function getReleaseManifestUrl(tag: string): string {
-  return `${getReleaseDownloadUrl(tag)}/${getPlatformManifestName()}`
-}
-
-function getReleaseAssetUrl(tag: string, assetName: string): string {
-  return `${getReleaseDownloadUrl(tag)}/${encodeURIComponent(assetName)}`
 }
 
 export function normalizeTagToVersion(tag: string): string {
@@ -166,8 +155,7 @@ async function getReleaseAssetReadiness(tag: string, assetName: string): Promise
   const isRelativeAsset = !/^https?:\/\//i.test(assetName)
   const isGitHubReleaseAsset =
     process.platform === 'win32' &&
-    (isRelativeAsset ||
-      assetName.startsWith(`${RELEASES_DOWNLOAD_BASE}/`))
+    (isRelativeAsset || assetName.startsWith(`${RELEASES_DOWNLOAD_BASE}/`))
   const assetUrl = isRelativeAsset
     ? getReleaseAssetUrl(tag, assetName.split('/').findLast(Boolean) ?? assetName)
     : assetName
@@ -192,7 +180,7 @@ async function getReleaseAssetReadiness(tag: string, assetName: string): Promise
 async function getPlatformManifestReadiness(tag: string): Promise<ReleaseReadiness> {
   try {
     // Feed entries may precede manifests or installer assets; do not offer downloads that would 404.
-    const manifestUrl = getReleaseManifestUrl(tag)
+    const manifestUrl = getReleaseManifestUrl(tag, getPlatformManifestName())
     const res = await net.fetch(manifestUrl, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })
     if (res.status === 404) {
       return 'not-ready'
