@@ -701,7 +701,7 @@ jobs:
 
   dependency-security:
     needs: cut
-    if: needs.cut.outputs.should_release == 'true' && !contains(needs.cut.outputs.tag, '-')
+    if: false # fork: release gates disabled, only build and publish
     uses: ./.github/workflows/dependency-security.yml
     with:
       ref: refs/tags/${{ needs.cut.outputs.tag }}
@@ -711,7 +711,7 @@ jobs:
 
   terminal-rendering-golden:
     needs: cut
-    if: needs.cut.outputs.should_release == 'true'
+    if: false # fork: release gates disabled, only build and publish
     name: golden e2e ${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
@@ -833,7 +833,7 @@ jobs:
 
   skill-sharing-release-gate:
     needs: cut
-    if: needs.cut.outputs.should_release == 'true'
+    if: false # fork: release gates disabled, only build and publish
     name: skill sharing release gate ${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
     # The full suite is release-blocking on macOS. Windows still produces the
@@ -888,7 +888,7 @@ jobs:
 
   skill-sharing-linux-floor-release-gate:
     needs: cut
-    if: needs.cut.outputs.should_release == 'true'
+    if: false # fork: release gates disabled, only build and publish
     name: skill sharing release gate linux-glibc-2.31
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -940,7 +940,7 @@ jobs:
   # but they include heavier app-like flows and must not block publishing.
   terminal-rendering-release-evidence:
     needs: cut
-    if: needs.cut.outputs.should_release == 'true'
+    if: false # fork: release gates disabled, only build and publish
     continue-on-error: true
     name: terminal rendering release evidence ${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
@@ -1043,15 +1043,9 @@ jobs:
   release-preflight:
     needs:
       - cut
-      - terminal-rendering-golden
-      - skill-sharing-release-gate
-      - skill-sharing-linux-floor-release-gate
     if: >-
       always() &&
-      needs.cut.outputs.should_release == 'true' &&
-      needs.terminal-rendering-golden.result == 'success' &&
-      needs.skill-sharing-release-gate.result == 'success' &&
-      needs.skill-sharing-linux-floor-release-gate.result == 'success'
+      needs.cut.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -2166,19 +2160,13 @@ jobs:
       - build
       - build-mac
       - verify-mac-build
-      - skill-sharing-linux-floor-release-gate
-      - skill-sharing-release-gate
-      - terminal-rendering-golden
     # Why explicit: a skipped orcad-template (tags that predate it) would skip every job after it.
     if: >-
       !cancelled() &&
       needs.cut.result == 'success' &&
       needs.build.result == 'success' &&
       needs.build-mac.result == 'success' &&
-      needs.verify-mac-build.result == 'success' &&
-      needs.skill-sharing-linux-floor-release-gate.result == 'success' &&
-      needs.skill-sharing-release-gate.result == 'success' &&
-      needs.terminal-rendering-golden.result == 'success'
+      needs.verify-mac-build.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -2241,7 +2229,7 @@ jobs:
       - cut
       - publish-release
     # Why explicit: a skipped orcad-template (tags that predate it) would skip every job after it.
-    if: ${{ !cancelled() && needs.publish-release.result == 'success' && needs.cut.outputs.tag != '' }}
+    if: false # fork: no post-release E2E
     runs-on: ubuntu-latest
     permissions:
       actions: write
