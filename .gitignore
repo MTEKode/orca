@@ -153,3 +153,8 @@ ci-shards/
 /.build/windows-native-benchmark/
 
 .local/static-analysis-research/
+
+# MTE Flow local memory database (binary runtime artifacts)
+.mte/memory.db
+.mte/memory.db-wal
+.mte/memory.db-shm
