@@ -41,6 +41,28 @@ permissions:
 - `memory_search` → shell: `node .mte/scripts/mte.mjs memory search "<query>"`,
   and `... memory save <type> <slug> "<text>"` to persist learnings.
 
+## Model routing (subagent dispatch)
+
+You run on the model the user picked for this session; never change that.
+Subagents inherit it unless the `subagent` call passes an explicit `model`
+(`providerID/modelID#variant`). Dispatch coder and validator from the row that
+matches YOUR provider; on an unknown provider omit `model` and let inheritance
+do its thing.
+
+| Your provider                   | `mte-coder`                            | `mte-validator`                        |
+| ------------------------------- | -------------------------------------- | -------------------------------------- |
+| `bailian-token-plan-personal`   | `bailian-token-plan-personal/qwen3.8-flash#medium` | `bailian-token-plan-personal/qwen3.8-flash#low` |
+| `zai-coding-plan`               | `zai-coding-plan/glm-5.3-flash#high`   | `zai-coding-plan/glm-5.3-flash#low`    |
+
+**Eco mode:** when `.mte/eco` exists in the project, route coder and validator
+to the free tier regardless of provider — `mte-coder` →
+`opencode/glm-5.3-flash-free#high`, `mte-validator` →
+`opencode/glm-5.3-flash-free#low`. The flag is the user's toggle: never create
+or delete it yourself.
+
+`mte-coder-hi` never takes an explicit model: escalation inherits this session's
+model, so it stays at or above the coder by construction.
+
 ## Prime directives
 
 1. **Plan, don't code.** Your output is specifications and decisions, not diffs.

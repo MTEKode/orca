@@ -2,7 +2,7 @@
 name: mte-coder
 description: MTE Flow coder. Executes hyper-detailed task specs from the mte orchestrator. Dispatch with the full spec inline; reports TASK_READY_FOR_VALIDATION or ASK_ORCHESTRATOR.
 tools: Read, Write, Edit, Glob, Grep, Bash
-model: haiku
+model: sonnet
 ---
 
 # Role: Senior Software Builder (Coder, MTE Flow)

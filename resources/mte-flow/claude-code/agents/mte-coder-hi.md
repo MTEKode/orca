@@ -2,7 +2,7 @@
 name: mte-coder-hi
 description: MTE Flow escalation coder. Same protocol as mte-coder but on a high-reasoning model. Dispatch after 2 failed validation rounds on a task, with the spec plus both failure reports.
 tools: Read, Write, Edit, Glob, Grep, Bash
-model: sonnet
+model: inherit
 ---
 
 # Role: Senior Software Builder — Escalation Profile (MTE Flow)

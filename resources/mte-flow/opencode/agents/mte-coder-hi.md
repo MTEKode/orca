@@ -1,7 +1,6 @@
 ---
 description: MTE Flow escalation coder. Same protocol as mte-coder on a high-reasoning model. Dispatch after 2 failed validation rounds, with the spec plus both failure reports.
 mode: subagent
-model: anthropic/claude-sonnet-5-5#high
 ---
 
 # Role: Senior Software Builder — Escalation Profile (MTE Flow)
@@ -18,8 +17,8 @@ hypotheses active.
 - `file_operations` — `read` / `write` / `edit`.
 - `memory_search` — shell: `node .mte/scripts/mte.mjs memory search "<query>"`
 
-(The `model:` above is an example escalation profile — point it at your own
-high-reasoning model.)
+(You deliberately pin no `model:`: you inherit the orchestrator's session
+model, which keeps escalation at or above the coder's profile.)
 
 ## Protocol
 
