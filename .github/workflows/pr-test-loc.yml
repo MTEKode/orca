@@ -1,15 +1,14 @@
 name: PR test LoC
 
 on:
-  workflow_dispatch:
-    inputs:
-      pr_number:
-        description: Pull request number to update with test and production line counts
-        required: true
-        type: number
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 concurrency:
-  group: pr-test-loc-${{ inputs.pr_number }}
+  group: pr-test-loc-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 permissions:
@@ -19,8 +18,8 @@ permissions:
 jobs:
   loc:
     name: test vs non-test LoC
-    # API calls and a small Node script fit the standard runner.
-    runs-on: ${{ github.repository == 'MTEkode/orca' && 'ubuntu-24.04' || 'blacksmith-2vcpu-ubuntu-2404' }}
+    # API calls and a small Node script fit the free single-CPU container runner.
+    runs-on: ubuntu-slim
     timeout-minutes: 2
     steps:
       # Read file counts through API without checkout; execute only default-branch scripts because GITHUB_TOKEN has write scope. PR edits take effect after merge.
@@ -29,7 +28,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          PR_NUMBER: ${{ inputs.pr_number }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
           TRUSTED_REF: ${{ github.event.repository.default_branch }}
         run: |
           set -euo pipefail

@@ -51,6 +51,24 @@ upstream (e.g. `structured-agent-session-question-params.ts`).
    origin/main HEAD.
 4. Pushed to fork:main.
 
+## Conflict resolution addendum (attempt 1, live merge)
+
+Merge of origin/main @86def974bd into fork-main is IN PROGRESS (MERGE_HEAD set).
+Conflict inventory + policy:
+
+| Path                                                                                                                                                                    | Kind    | Policy                                                                                                                                                                             |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.github/workflows/{computer-e2e,dependency-security,mobile,node-server-tests,pr-test-loc,pr,unit-selection-evidence,windows-typecheck-parity,wsl-orcad-e2e}.yml`        | UU ×9   | Take upstream (`--theirs`). Fork-only workflows (mtekode-\*, adhoc/daily/hourly mac, dev-channel win) stay untouched.                                                               |
+| `src/shared/repo-types.ts`                                                                                                                                              | UU      | UNION: fork adds `RepoLanguageServerSettings` (LSP line), upstream adds `OrcadRetainedMarker`. Keep both imports and both sides' type additions.                                    |
+| `src/renderer/src/lib/monaco-languages/textmate-language-registration.test.ts`                                                                                          | UD      | Fork's Ruby-TextMate feature modified it; upstream deleted it and replaced the textmate system. Preserve fork's Ruby grammar behavior adapted to upstream's new architecture; if the old test is obsolete, delete it but ensure equivalent Ruby-grammar coverage exists. |
+| `src/cli/bundled-skill-guides.ts`                                                                                                                                       | UU      | Inspect; union if additive, else upstream.                                                                                                                                          |
+| `src/renderer/src/i18n/en-runtime-required.json`                                                                                                                        | UU      | Union of keys from both sides.                                                                                                                                                      |
+
+Principle: BOTH feature lines survive — upstream's monaco/orcad refactor AND
+fork's LSP/Ruby navigation. Auto-merged-but-typebroken code counts as part of
+the conflict: `pnpm tc:node` must be green after resolution. Escape hatch if
+irreconcilable: `git merge --abort` + ASK_ORCHESTRATOR (never force).
+
 ## Run log
 
 | Attempt | Agent                       | Outcome     |

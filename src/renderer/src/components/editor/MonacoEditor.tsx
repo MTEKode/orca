@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import Editor from '@monaco-editor/react'
-import type { editor } from 'monaco-editor'
+import type { editor, IRange } from 'monaco-editor'
 import type { MarkdownDocument } from '../../../../shared/filesystem-entry-types'
 import { useAppStore } from '@/store'
 import '@/lib/monaco-setup'
@@ -131,6 +131,7 @@ export default function MonacoEditor({
   const [gutterMenuOpen, setGutterMenuOpen] = useState(false)
   const [gutterMenuPoint, setGutterMenuPoint] = useState({ x: 0, y: 0 })
   const [gutterMenuLine, setGutterMenuLine] = useState(1)
+  const [gutterMenuSelection, setGutterMenuSelection] = useState<IRange | null>(null)
   const isDark = useDocumentDarkTheme()
 
   const { queueReveal, cancelScheduledReveal, clearTransientRevealHighlight } =
@@ -216,7 +217,12 @@ export default function MonacoEditor({
     contentSync,
     decorations,
     annotations,
-    gutterMenu: { setGutterMenuOpen, setGutterMenuPoint, setGutterMenuLine }
+    gutterMenu: {
+      setGutterMenuOpen,
+      setGutterMenuPoint,
+      setGutterMenuLine,
+      setGutterMenuSelection
+    }
   })
 
   useEffect(() => {
@@ -320,6 +326,7 @@ export default function MonacoEditor({
         onOpenChange={setGutterMenuOpen}
         point={gutterMenuPoint}
         line={gutterMenuLine}
+        selection={gutterMenuSelection}
         filePath={filePath}
         relativePath={relativePath}
       />
