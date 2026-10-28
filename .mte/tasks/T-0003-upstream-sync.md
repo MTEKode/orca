@@ -56,13 +56,13 @@ upstream (e.g. `structured-agent-session-question-params.ts`).
 Merge of origin/main @86def974bd into fork-main is IN PROGRESS (MERGE_HEAD set).
 Conflict inventory + policy:
 
-| Path                                                                                                                                                                    | Kind    | Policy                                                                                                                                                                             |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.github/workflows/{computer-e2e,dependency-security,mobile,node-server-tests,pr-test-loc,pr,unit-selection-evidence,windows-typecheck-parity,wsl-orcad-e2e}.yml`        | UU ×9   | Take upstream (`--theirs`). Fork-only workflows (mtekode-\*, adhoc/daily/hourly mac, dev-channel win) stay untouched.                                                               |
-| `src/shared/repo-types.ts`                                                                                                                                              | UU      | UNION: fork adds `RepoLanguageServerSettings` (LSP line), upstream adds `OrcadRetainedMarker`. Keep both imports and both sides' type additions.                                    |
-| `src/renderer/src/lib/monaco-languages/textmate-language-registration.test.ts`                                                                                          | UD      | Fork's Ruby-TextMate feature modified it; upstream deleted it and replaced the textmate system. Preserve fork's Ruby grammar behavior adapted to upstream's new architecture; if the old test is obsolete, delete it but ensure equivalent Ruby-grammar coverage exists. |
-| `src/cli/bundled-skill-guides.ts`                                                                                                                                       | UU      | Inspect; union if additive, else upstream.                                                                                                                                          |
-| `src/renderer/src/i18n/en-runtime-required.json`                                                                                                                        | UU      | Union of keys from both sides.                                                                                                                                                      |
+| Path                                                                                                                                                              | Kind  | Policy                                                                                                                                                                                                                                                                   |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `.github/workflows/{computer-e2e,dependency-security,mobile,node-server-tests,pr-test-loc,pr,unit-selection-evidence,windows-typecheck-parity,wsl-orcad-e2e}.yml` | UU ×9 | Take upstream (`--theirs`). Fork-only workflows (mtekode-\*, adhoc/daily/hourly mac, dev-channel win) stay untouched.                                                                                                                                                    |
+| `src/shared/repo-types.ts`                                                                                                                                        | UU    | UNION: fork adds `RepoLanguageServerSettings` (LSP line), upstream adds `OrcadRetainedMarker`. Keep both imports and both sides' type additions.                                                                                                                         |
+| `src/renderer/src/lib/monaco-languages/textmate-language-registration.test.ts`                                                                                    | UD    | Fork's Ruby-TextMate feature modified it; upstream deleted it and replaced the textmate system. Preserve fork's Ruby grammar behavior adapted to upstream's new architecture; if the old test is obsolete, delete it but ensure equivalent Ruby-grammar coverage exists. |
+| `src/cli/bundled-skill-guides.ts`                                                                                                                                 | UU    | Inspect; union if additive, else upstream.                                                                                                                                                                                                                               |
+| `src/renderer/src/i18n/en-runtime-required.json`                                                                                                                  | UU    | Union of keys from both sides.                                                                                                                                                                                                                                           |
 
 Principle: BOTH feature lines survive — upstream's monaco/orcad refactor AND
 fork's LSP/Ruby navigation. Auto-merged-but-typebroken code counts as part of
@@ -71,10 +71,30 @@ irreconcilable: `git merge --abort` + ASK_ORCHESTRATOR (never force).
 
 ## Run log
 
-| Attempt | Agent                       | Outcome     |
-| ------- | --------------------------- | ----------- |
-| 1       | mte (orchestrator, git ops) | in progress |
+| Attempt | Agent                       | Outcome                                                                                                                                                                                       |
+| ------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1       | mte (orchestrator, git ops) | in progress                                                                                                                                                                                   |
+| 2       | mte-coder                   | dispatched with conflict addendum.                                                                                                                                                            |
+| 2       | mte-coder                   | Merge resolved, commit 664bc61787 (not pushed). 3 deviations accepted, see Q&A log. TASK_READY_FOR_VALIDATION.                                                                                |
+| 2       | mte-validator               | VALIDATION_FAILED — one attributable failure: this spec file itself was not oxfmt-formatted (broke the repo-wide format check that justifies --no-verify). All merge-resolution checks green. |
+| 2       | mte (orchestrator)          | Formatted the spec file (my write domain), repo-wide oxfmt --check exit 0. Re-validating.                                                                                                     |
 
 ## Q&A log
 
 - 2026-10-29: user locked "merge, no rebase" (published fork history).
+- 2026-10-29 deviation (accepted): merge commit made with `--no-verify` —
+  lint-staged/husky OOM-kills oxlint over ~10k staged merge files (verified
+  twice). Compensating checks run manually: full `pnpm tc` (node+web+cli),
+  repo-wide `oxfmt --check`, full `run-lint.mjs` with per-finding attribution,
+  per-file oxlint/oxfmt on all resolved files.
+- 2026-10-29 deviation (accepted): the two "union" policies for generated
+  files (`bundled-skill-guides.ts`, `en-runtime-required.json`) were fulfilled
+  by regenerating from auto-merged sources via their generator scripts — both
+  carry "Generated" headers; regeneration is the canonical union path.
+- 2026-10-29 deviation (accepted): UD conflict on
+  `textmate-language-registration.test.ts` resolved as KEEP-OURS. Evidence:
+  upstream deleted it in `964c64b0cc` ("test: remove 64 low-value tests" —
+  routine pruning), the tested source `textmate-token-provider.ts` exists
+  upstream unchanged, fork's 2 of 4 tests cover `replaceExistingTokenizer`
+  (load-bearing for the Ruby grammar), all 4 pass. Spec policy allowed
+  deletion only if obsolete; the file is not obsolete for the fork's feature.
