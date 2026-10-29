@@ -15,3 +15,5 @@
 - [t0006-native-checks-done](t0006-native-checks-done.md) - T-0006 CLOSED 2026-10-29 VALIDATION_PASSED: orca mte check = native replacement for mte.mjs validate
 
 - [t0007-shared-mte-packaging](t0007-shared-mte-packaging.md) - T-0007 CLOSED 2026-10-29 VALIDATION_PASSED (orca repo): CLI-consumed MTE modules moved src/main/mte-
+
+- [t0008-legacy-deleted-epic-complete](t0008-legacy-deleted-epic-complete.md) - T-0008 CLOSED 2026-10-29 VALIDATION_PASSED (commit 1003198bb2 on fork:main): legacy standalone MTE f
