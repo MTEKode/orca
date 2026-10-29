@@ -1,6 +1,6 @@
 # T-0003 — Sync fork-main with upstream origin/main (epic step 0)
 
-Status: in_progress
+Status: closed (VALIDATION_PASSED, attempt 2; pushed to fork:main at 3c96d0eb47)
 Attempt: 1
 Created: 2026-10-29
 Epic: MTE native replan (see memory note `mte-native-orplan-locked` / this lock in

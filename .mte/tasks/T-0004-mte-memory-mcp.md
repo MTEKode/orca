@@ -1,6 +1,6 @@
 # T-0004 — M1: native memory MCP server (orca CLI) + workspace resolution
 
-Status: dispatched
+Status: closed (VALIDATION_PASSED, attempt 1 round 2; shipped in commit ca2d5cbdb1)
 Attempt: 1
 Created: 2026-10-29
 Epic: MTE native replan. Depends on T-0003 (merged upstream). Extends the
