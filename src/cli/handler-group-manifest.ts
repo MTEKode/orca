@@ -292,5 +292,10 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
     name: 'ports',
     keys: ['ports'],
     load: async () => (await import('./handlers/ports.js')).PORTS_HANDLERS
+  },
+  {
+    name: 'mte',
+    keys: ['mte memory'],
+    load: async () => (await import('./handlers/mte.js')).MTE_HANDLERS
   }
 ]

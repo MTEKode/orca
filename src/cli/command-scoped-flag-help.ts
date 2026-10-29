@@ -79,6 +79,11 @@ const COMMAND_SCOPED_FLAG_HELP: Record<string, Record<string, string>> = {
   },
   ports: {
     all: '--all                  List every listener on the workspace host, not just this workspace'
+  },
+  'mte memory': {
+    role: '--role <role>          Memory role gate: orchestrator, coder, or validator',
+    workspace:
+      '--workspace <path>     Workspace root holding .mte/memory.db (default: nearest .git/.mte ancestor)'
   }
 }
 
