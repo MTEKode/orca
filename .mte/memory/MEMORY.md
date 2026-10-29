@@ -13,3 +13,5 @@
 - [t0004-mcp-server-done](t0004-mcp-server-done.md) - T-0004 CLOSED 2026-10-29 VALIDATION_PASSED: orca mte memory CLI subcommand = native MCP stdio server
 
 - [t0006-native-checks-done](t0006-native-checks-done.md) - T-0006 CLOSED 2026-10-29 VALIDATION_PASSED: orca mte check = native replacement for mte.mjs validate
+
+- [t0007-shared-mte-packaging](t0007-shared-mte-packaging.md) - T-0007 CLOSED 2026-10-29 VALIDATION_PASSED (orca repo): CLI-consumed MTE modules moved src/main/mte-
