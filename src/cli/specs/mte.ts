@@ -29,5 +29,24 @@ export const MTE_COMMAND_SPECS: CommandSpec[] = [
       'orca mte start --agent claude --goal "Ship the import refactor"',
       'orca mte start --agent codex --adapter codex --json'
     ]
+  },
+  {
+    path: ['mte', 'check'],
+    summary: 'Run the detected repo checks (lint, typecheck, test) for the MTE validator',
+    usage:
+      'orca mte check [--workspace <path>] [--timeout <seconds>] [--tail <lines>] [--only <group>] [--detect] [--json]',
+    allowedFlags: [...LOCAL_COMMAND_FLAGS, 'workspace', 'timeout', 'tail', 'only', 'detect'],
+    repeatableFlags: ['only'],
+    notes: [
+      'Detects the stack once (package.json, eslint/tsc fallbacks, python uv/bare, go, cargo, Makefile targets) and runs lint, typecheck and test sequentially with a per-group timeout.',
+      'Exit code is the number of failing groups (0 green), so agents can gate on it directly.',
+      '--detect prints the detected LINT=/TYPECHECK=/TEST= commands and exits 0 without running them.',
+      '--workspace defaults to the nearest ancestor directory holding .git or .mte.'
+    ],
+    examples: [
+      'orca mte check',
+      'orca mte check --detect',
+      'orca mte check --only lint --only test --timeout 300 --json'
+    ]
   }
 ]

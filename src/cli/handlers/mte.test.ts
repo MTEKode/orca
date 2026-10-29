@@ -22,6 +22,7 @@ vi.mock('../runtime-client', async () => {
 })
 
 import { RuntimeClient } from '../runtime-client'
+import { REPEATED_FLAG_SEPARATOR } from '../args'
 import { setAppEnvironment } from '../../shared/app-environment'
 import {
   MTE_START_DEFAULT_GOAL,
@@ -31,6 +32,9 @@ import {
   runMteStart,
   type MteStartLaunchArgs
 } from './mte'
+import { resolveMteCheckInvocation, runMteCheck } from './mte-check'
+import { detectChecks } from '../../main/mte-flow/checks/detect-checks'
+import type { CheckGroup, CheckGroupResult } from '../../main/mte-flow/checks/run-checks'
 import { MTE_PLANNER_PROMPT } from '../../main/mte-flow/planner-prompt'
 import type { WorkspaceMcpPlan } from '../../main/mte-flow/mcp/workspace-mcp-config'
 
@@ -379,5 +383,236 @@ describe('runMteStart', () => {
     expect(order).toEqual([`apply:${join(root, '.mcp.json')}`, 'launch:claude'])
     expect(process.exitCode).toBe(1)
     expect(String(errSpy.mock.calls[0]?.[0])).toContain('agent launch failed')
+  })
+})
+
+describe('resolveMteCheckInvocation', () => {
+  let root: string
+
+  beforeEach(() => {
+    root = mkdtempSync(join(tmpdir(), 'orca-mte-check-'))
+    mkdirSync(join(root, '.mte'))
+  })
+
+  afterEach(() => {
+    rmSync(root, { recursive: true, force: true })
+  })
+
+  it('defaults workspace to the .mte ancestor, timeout to 600, tail to 50 and only to every group', () => {
+    const nested = join(root, 'a', 'b')
+    mkdirSync(nested, { recursive: true })
+    expect(resolveMteCheckInvocation(flags([]), nested)).toEqual({
+      ok: true,
+      workspaceRoot: root,
+      timeoutSeconds: 600,
+      tailLines: 50,
+      only: [],
+      detect: false
+    })
+  })
+
+  it('parses explicit timeout, tail, workspace and detect', () => {
+    const invocation = resolveMteCheckInvocation(
+      flags([
+        ['workspace', join(root, 'pkg')],
+        ['timeout', '120'],
+        ['tail', '10'],
+        ['detect', true]
+      ]),
+      root
+    )
+    expect(invocation).toEqual({
+      ok: true,
+      workspaceRoot: join(root, 'pkg'),
+      timeoutSeconds: 120,
+      tailLines: 10,
+      only: [],
+      detect: true
+    })
+  })
+
+  it('rejects a valueless or non-positive timeout and tail', () => {
+    const timeoutMessage = '--timeout requires a positive integer of seconds'
+    expect(resolveMteCheckInvocation(flags([['timeout', true]]), root)).toEqual({
+      ok: false,
+      message: timeoutMessage
+    })
+    expect(resolveMteCheckInvocation(flags([['timeout', 'zero']]), root)).toEqual({
+      ok: false,
+      message: timeoutMessage
+    })
+    expect(resolveMteCheckInvocation(flags([['timeout', '0']]), root)).toEqual({
+      ok: false,
+      message: timeoutMessage
+    })
+    expect(resolveMteCheckInvocation(flags([['tail', '-3']]), root)).toEqual({
+      ok: false,
+      message: '--tail requires a positive integer of lines'
+    })
+  })
+
+  it('parses repeatable --only groups and rejects unknown ones or a valueless flag', () => {
+    expect(
+      resolveMteCheckInvocation(flags([['only', `lint${REPEATED_FLAG_SEPARATOR}test`]]), root)
+    ).toMatchObject({ ok: true, only: ['lint', 'test'] })
+    expect(resolveMteCheckInvocation(flags([['only', 'deploy']]), root)).toEqual({
+      ok: false,
+      message: '--only must be one of: lint, typecheck, test'
+    })
+    expect(resolveMteCheckInvocation(flags([['only', true]]), root)).toEqual({
+      ok: false,
+      message: '--only requires a group value (lint, typecheck, or test)'
+    })
+  })
+})
+
+describe('runMteCheck', () => {
+  let root: string
+  const originalExitCode = process.exitCode
+
+  beforeEach(() => {
+    root = mkdtempSync(join(tmpdir(), 'orca-mte-check-run-'))
+    mkdirSync(join(root, '.mte'))
+  })
+
+  afterEach(() => {
+    process.exitCode = originalExitCode
+    vi.restoreAllMocks()
+    rmSync(root, { recursive: true, force: true })
+  })
+
+  type CheckStatus = CheckGroupResult['status']
+
+  // Fabricated results keep the CLI tests free of real toolchain spawns.
+  function groupResult(group: CheckGroup, status: CheckStatus, tail = ''): CheckGroupResult {
+    return {
+      group,
+      command: status === 'skipped' ? 'none' : `${group} command`,
+      status,
+      exitCode: status === 'failed' ? 2 : status === 'passed' ? 0 : null,
+      tail,
+      timedOut: false,
+      durationMs: 1500
+    }
+  }
+
+  it('prints the detected LINT/TYPECHECK/TEST commands in --detect mode without running anything', async () => {
+    const deps = {
+      detect: (workspaceRoot: string) => detectChecks(workspaceRoot),
+      run: vi.fn<(options: unknown) => CheckGroupResult[]>(() => [])
+    }
+    writeFileSync(join(root, 'Makefile'), 'lint:\n\ttrue\n\ntest:\n\ttrue\n')
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await runMteCheck(
+      {
+        flags: flags([
+          ['detect', true],
+          ['workspace', root]
+        ]),
+        cwd: root,
+        json: false
+      },
+      deps
+    )
+
+    const output = logSpy.mock.calls.map((call) => String(call[0])).join('\n')
+    expect(output).toContain('LINT=make lint')
+    expect(output).toContain('TYPECHECK=none')
+    expect(output).toContain('TEST=make test')
+    expect(deps.run).not.toHaveBeenCalled()
+    expect(process.exitCode ?? 0).toBe(0)
+  })
+
+  it('prints one text line per group on stdout and failure tails on stderr, exiting with the failed count', async () => {
+    const deps = {
+      run: vi.fn(() => [
+        groupResult('lint', 'failed', 'error: lint exploded'),
+        groupResult('typecheck', 'passed'),
+        groupResult('test', 'skipped')
+      ])
+    }
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const errSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true)
+
+    await runMteCheck({ flags: flags([['workspace', root]]), cwd: root, json: false }, deps)
+
+    const stdout = logSpy.mock.calls.map((call) => String(call[0])).join('\n')
+    expect(stdout).toContain('lint=lint command failed (exit 2, 1.5s)')
+    expect(stdout).toContain('typecheck=typecheck command passed (exit 0, 1.5s)')
+    expect(stdout).toContain('test=none skipped (exit -, 1.5s)')
+    expect(process.exitCode).toBe(1)
+    const stderr = errSpy.mock.calls.map((call) => String(call[0])).join('')
+    expect(stderr).toContain('---- lint (lint command) last lines ----')
+    expect(stderr).toContain('  error: lint exploded')
+    expect(deps.run).toHaveBeenCalledWith(
+      expect.objectContaining({ workspaceRoot: root, timeoutSeconds: 600, tailLines: 50 })
+    )
+  })
+
+  it('respects --only and forwards it to the runner', async () => {
+    const deps = { run: vi.fn(() => [groupResult('lint', 'passed')]) }
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await runMteCheck(
+      {
+        flags: flags([
+          ['workspace', root],
+          ['only', 'lint'],
+          ['timeout', '30']
+        ]),
+        cwd: root,
+        json: false
+      },
+      deps
+    )
+
+    expect(deps.run).toHaveBeenCalledWith(
+      expect.objectContaining({ only: ['lint'], timeoutSeconds: 30 })
+    )
+    expect(process.exitCode).toBe(0)
+  })
+
+  it('emits the JSON shape {workspaceRoot, detected, results, failedGroups} under --json', async () => {
+    const deps = {
+      detect: () => ({ lint: 'none', typecheck: 'none', test: 'none' }),
+      run: vi.fn(() => [
+        groupResult('lint', 'failed', 'boom'),
+        groupResult('typecheck', 'failed'),
+        groupResult('test', 'skipped')
+      ])
+    }
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await runMteCheck(
+      {
+        flags: flags([
+          ['workspace', root],
+          ['json', true]
+        ]),
+        cwd: root,
+        json: true
+      },
+      deps
+    )
+
+    const printed = JSON.parse(String(logSpy.mock.calls[0]?.[0])) as Record<string, unknown>
+    expect(Object.keys(printed)).toEqual(['workspaceRoot', 'detected', 'results', 'failedGroups'])
+    expect(printed.workspaceRoot).toBe(root)
+    expect(printed.detected).toEqual({ lint: 'none', typecheck: 'none', test: 'none' })
+    expect((printed.results as unknown[]).length).toBe(3)
+    expect(printed.failedGroups).toBe(2)
+    expect(process.exitCode).toBe(2)
+  })
+
+  it('reports usage errors on stderr and exits 1 without running', async () => {
+    const deps = { run: vi.fn() }
+    const errSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true)
+
+    await runMteCheck({ flags: flags([['timeout', 'nope']]), cwd: root, json: false }, deps)
+
+    expect(process.exitCode).toBe(1)
+    expect(deps.run).not.toHaveBeenCalled()
+    expect(String(errSpy.mock.calls[0]?.[0])).toContain('--timeout requires a positive integer')
   })
 })

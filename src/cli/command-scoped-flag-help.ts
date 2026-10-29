@@ -91,6 +91,15 @@ const COMMAND_SCOPED_FLAG_HELP: Record<string, Record<string, string>> = {
     adapter: '--adapter <name>       MCP config target: claude (default), opencode, or codex',
     workspace:
       '--workspace <path>     Workspace root for the MCP config and planner chat (default: nearest .git/.mte ancestor)'
+  },
+  'mte check': {
+    workspace:
+      '--workspace <path>     Workspace root to check (default: nearest .git/.mte ancestor)',
+    timeout: '--timeout <seconds>    Per-group timeout in seconds (default 600)',
+    tail: '--tail <lines>         Failure tail lines per failing group (default 50)',
+    only: '--only <group>         Run just this group (lint, typecheck, or test); repeat for several',
+    detect:
+      '--detect               Print the detected LINT=/TYPECHECK=/TEST= commands without running'
   }
 }
 

@@ -295,7 +295,7 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
   },
   {
     name: 'mte',
-    keys: ['mte memory', 'mte start'],
+    keys: ['mte memory', 'mte start', 'mte check'],
     load: async () => (await import('./handlers/mte.js')).MTE_HANDLERS
   }
 ]
