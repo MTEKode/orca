@@ -1,8 +1,8 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { resolveMemoryWorkspaceRoot } from './memory-workspace-root'
+import { realMemoryWorkspacePath, resolveMemoryWorkspaceRoot } from './memory-workspace-root'
 
 describe('resolveMemoryWorkspaceRoot', () => {
   let root: string
@@ -40,5 +40,21 @@ describe('resolveMemoryWorkspaceRoot', () => {
     mkdirSync(start, { recursive: true })
     expect(resolveMemoryWorkspaceRoot(start)).toBe(start)
     expect(resolveMemoryWorkspaceRoot(join(start, 'missing'))).toBe(join(start, 'missing'))
+  })
+})
+
+describe('realMemoryWorkspacePath', () => {
+  it('realpaths existing dirs through symlinks and falls back to the raw value when missing', () => {
+    const root = mkdtempSync(join(tmpdir(), 'orca-mte-real-'))
+    const linkPath = `${root}-link`
+    symlinkSync(root, linkPath, 'dir')
+    try {
+      expect(realMemoryWorkspacePath(linkPath)).toBe(realpathSync(root))
+      expect(realMemoryWorkspacePath(root)).toBe(realpathSync(root))
+      expect(realMemoryWorkspacePath(join(root, 'missing'))).toBe(join(root, 'missing'))
+    } finally {
+      rmSync(linkPath, { force: true })
+      rmSync(root, { recursive: true, force: true })
+    }
   })
 })

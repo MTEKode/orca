@@ -1,6 +1,6 @@
 # T-0005 — M2: native MTE planner bootstrap (prompt + workspace MCP wiring + mte start)
 
-Status: closed (VALIDATION_PASSED, attempt 1 + fix round; 2026-10-29)
+Status: closed (VALIDATION_PASSED, attempt 1 + fix rounds 1-2; 2026-10-29)
 Attempt: 1
 Created: 2026-10-29
 Epic: MTE native replan. Depends on T-0004 (`orca mte memory` MCP server) and
@@ -209,3 +209,30 @@ REQUIRED FIX in `planner-prompt.ts` (+ tests + criteria wording):
   injection deferred; kickoff prompt carries the persona (v1). Codex gets a
   global MCP registration with baked `--workspace` (no project-scoped
   support) — acceptable per-session tradeoff, documented.
+
+## Fix round 2 (2026-10-29, post-E2E findings)
+
+Live E2E (`mte start --agent opencode --workspace /tmp/mte-e2e`) exposed two
+issues:
+
+1. **Symlinked workspace paths fail with a bare `selector_not_found`.** macOS
+   `/tmp` → `/private/tmp`: `repo add` registers the realpath, but `mte start`
+   builds the launch selector from the unresolved `--workspace` value. Fix:
+   `realpathSync` the workspace root (fallback to the raw value on error)
+   BEFORE selector construction, MCP config writing, and the kickoff prompt;
+   apply the same resolution in the `mte memory` command's `--workspace`
+   default/explicit value so DB paths and baked config paths always agree.
+2. **Unregistered workspace = dead end.** Fix: when the launch fails with a
+   workspace/selector-not-found class error, call the repo-add RPC for the
+   resolved path and retry the launch exactly once; surface both attempts in
+   the JSON receipt (`launch.retry: 'repo-add'` marker or equivalent).
+
+Tests: symlink fixture (real dir + symlink pointing at it) asserting the
+selector/config use the realpath; auto-register retry path against the faked
+launch seam (first call fails selector_not_found, repo-add invoked, second
+call succeeds); no retry on other launch errors. Keep all prior behavior and
+tests green. Gates: targeted vitest, tc:node, tc:cli, oxlint touched,
+repo-wide oxfmt --check.
+
+| 2 | mte-coder (eco route) | Fix round 2 delivered: realpath resolution + auto-register/retry (mte-start-launch.ts extracted for max-lines). 4 deviations accepted (launchRetry top-level marker; repo_not_found added to retry class; file extraction; realpathed fixtures). |
+| 2 | mte-validator (eco route) | VALIDATION_PASSED — 2316 tests, tc node+cli, oxlint, oxfmt repo-wide, all fix-round criteria covered (symlink, single retry, marker, no-retry-on-other-errors, resolver untouched). |

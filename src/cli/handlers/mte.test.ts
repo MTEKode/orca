@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -29,9 +29,10 @@ import {
   resolveMteStartCliCommand,
   resolveMteStartInvocation,
   resolveMemoryCliInvocation,
-  runMteStart,
-  type MteStartLaunchArgs
+  runMteStart
 } from './mte'
+import { RuntimeClientError } from '../runtime/types'
+import type { MteStartLaunchArgs } from './mte-start-launch'
 import { resolveMteCheckInvocation, runMteCheck } from './mte-check'
 import { detectChecks } from '../../main/mte-flow/checks/detect-checks'
 import type { CheckGroup, CheckGroupResult } from '../../main/mte-flow/checks/run-checks'
@@ -46,7 +47,8 @@ describe('resolveMemoryCliInvocation', () => {
   let root: string
 
   beforeEach(() => {
-    root = mkdtempSync(join(tmpdir(), 'orca-mte-cli-'))
+    // macOS exposes temp dirs through symlinks; the invocation realpaths them, so assert on real paths.
+    root = realpathSync(mkdtempSync(join(tmpdir(), 'orca-mte-cli-')))
   })
 
   afterEach(() => {
@@ -112,13 +114,33 @@ describe('resolveMemoryCliInvocation', () => {
       workspaceRoot: nested
     })
   })
+
+  it('realpaths an explicit symlinked workspace so the DB path matches the registered folder', () => {
+    const realDir = mkdtempSync(join(tmpdir(), 'orca-mte-mem-'))
+    const linkPath = `${realDir}-link`
+    symlinkSync(realDir, linkPath, 'dir')
+    try {
+      expect(
+        resolveMemoryCliInvocation(
+          flags([
+            ['role', 'coder'],
+            ['workspace', linkPath]
+          ]),
+          root
+        )
+      ).toEqual({ ok: true, role: 'coder', workspaceRoot: realpathSync(realDir) })
+    } finally {
+      rmSync(linkPath, { force: true })
+      rmSync(realDir, { recursive: true, force: true })
+    }
+  })
 })
 
 describe('resolveMteStartInvocation', () => {
   let root: string
 
   beforeEach(() => {
-    root = mkdtempSync(join(tmpdir(), 'orca-mte-start-'))
+    root = realpathSync(mkdtempSync(join(tmpdir(), 'orca-mte-start-')))
     mkdirSync(join(root, '.mte'))
   })
 
@@ -229,7 +251,7 @@ describe('runMteStart', () => {
   const originalExitCode = process.exitCode
 
   beforeEach(() => {
-    root = mkdtempSync(join(tmpdir(), 'orca-mte-run-'))
+    root = realpathSync(mkdtempSync(join(tmpdir(), 'orca-mte-run-')))
     mkdirSync(join(root, '.mte'))
   })
 
@@ -383,6 +405,151 @@ describe('runMteStart', () => {
     expect(order).toEqual([`apply:${join(root, '.mcp.json')}`, 'launch:claude'])
     expect(process.exitCode).toBe(1)
     expect(String(errSpy.mock.calls[0]?.[0])).toContain('agent launch failed')
+  })
+
+  it('resolves a symlinked workspace so the config path and the launch selector use the real path', async () => {
+    const realDir = mkdtempSync(join(tmpdir(), 'orca-mte-real-'))
+    mkdirSync(join(realDir, '.mte'))
+    const linkPath = `${realDir}-link`
+    symlinkSync(realDir, linkPath, 'dir')
+    try {
+      const order: string[] = []
+      const deps = fakeDeps(order)
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+      await runMteStart(
+        {
+          flags: flags([
+            ['agent', 'claude'],
+            ['workspace', linkPath],
+            ['json', true]
+          ]),
+          client: new RuntimeClient('/tmp/orca-user-data', 1000, null, null),
+          cwd: realDir,
+          json: true
+        },
+        deps
+      )
+
+      const realPath = realpathSync(realDir)
+      expect(order).toEqual([`apply:${join(realPath, '.mcp.json')}`, 'launch:claude'])
+      const launched: MteStartLaunchArgs = deps.launch.mock.calls[0]?.[0]
+      expect(launched.worktreePath).toBe(realPath)
+      const printed = JSON.parse(String(logSpy.mock.calls[0]?.[0]))
+      expect(printed.mcpConfig.configPath).toBe(join(realPath, '.mcp.json'))
+      expect(process.exitCode ?? 0).toBe(0)
+    } finally {
+      rmSync(linkPath, { force: true })
+      rmSync(realDir, { recursive: true, force: true })
+    }
+  })
+
+  it('registers the workspace with repo add and retries the launch once on selector_not_found', async () => {
+    let launchAttempts = 0
+    const deps = {
+      cliCommand: '/usr/local/bin/orca',
+      applyConfig: vi.fn(async () => {}),
+      launch: vi.fn(async (args: MteStartLaunchArgs) => {
+        launchAttempts += 1
+        if (launchAttempts === 1) {
+          throw new RuntimeClientError(
+            'selector_not_found',
+            `workspace not registered: ${args.worktreePath}`
+          )
+        }
+        return { launchJson: { ok: true }, receiptText: 'agent: chat session' }
+      })
+    }
+    callMock.mockResolvedValue(undefined)
+    callMock.mockClear()
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await runMteStart(
+      {
+        flags: flags([
+          ['agent', 'claude'],
+          ['workspace', root],
+          ['json', true]
+        ]),
+        client: new RuntimeClient('/tmp/orca-user-data', 1000, null, null),
+        cwd: root,
+        json: true
+      },
+      deps
+    )
+
+    const attempts: MteStartLaunchArgs[] = deps.launch.mock.calls.map((call) => call[0])
+    expect(deps.launch).toHaveBeenCalledTimes(2)
+    expect(attempts[1]).toEqual(attempts[0])
+    expect(callMock).toHaveBeenCalledWith('repo.add', { path: root })
+    const printed = JSON.parse(String(logSpy.mock.calls[0]?.[0]))
+    expect(printed.launch).toEqual({ ok: true })
+    expect(printed.launchRetry).toBe('repo-add')
+    expect(process.exitCode ?? 0).toBe(0)
+  })
+
+  it('does not register or retry when the launch fails for another reason', async () => {
+    const deps = {
+      cliCommand: '/usr/local/bin/orca',
+      applyConfig: vi.fn(async () => {}),
+      launch: vi.fn(async () => {
+        throw new Error('agent launch failed')
+      })
+    }
+    callMock.mockClear()
+    const errSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true)
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await runMteStart(
+      {
+        flags: flags([
+          ['agent', 'claude'],
+          ['workspace', root],
+          ['json', true]
+        ]),
+        client: new RuntimeClient('/tmp/orca-user-data', 1000, null, null),
+        cwd: root,
+        json: true
+      },
+      deps
+    )
+
+    expect(deps.launch).toHaveBeenCalledTimes(1)
+    expect(callMock).not.toHaveBeenCalled()
+    expect(process.exitCode).toBe(1)
+    expect(String(errSpy.mock.calls[0]?.[0])).toContain('agent launch failed')
+  })
+
+  it('stops after one failed retry instead of looping', async () => {
+    const deps = {
+      cliCommand: '/usr/local/bin/orca',
+      applyConfig: vi.fn(async () => {}),
+      launch: vi.fn(async () => {
+        throw new RuntimeClientError('selector_not_found', 'workspace not registered')
+      })
+    }
+    callMock.mockResolvedValue(undefined)
+    callMock.mockClear()
+    const errSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true)
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await runMteStart(
+      {
+        flags: flags([
+          ['agent', 'claude'],
+          ['workspace', root]
+        ]),
+        client: new RuntimeClient('/tmp/orca-user-data', 1000, null, null),
+        cwd: root,
+        json: false
+      },
+      deps
+    )
+
+    expect(deps.launch).toHaveBeenCalledTimes(2)
+    expect(callMock).toHaveBeenCalledTimes(1)
+    expect(process.exitCode).toBe(1)
+    expect(String(errSpy.mock.calls[0]?.[0])).toContain('workspace not registered')
   })
 })
 

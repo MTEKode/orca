@@ -1,15 +1,7 @@
 import { resolve as resolvePath } from 'node:path'
 import { readOrcaCliVersion } from '../cli-version'
 import type { CommandHandler } from '../dispatch'
-import {
-  callAgentLaunch,
-  formatAgentLaunch,
-  getAgentLaunchCapabilities,
-  parseCliAgent,
-  readCliAgentLaunch
-} from '../agent-launch-request'
-import { RuntimeClientError, type RuntimeClient } from '../runtime-client'
-import { getRequiredWorktreeSelector } from '../selectors'
+import type { RuntimeClient } from '../runtime-client'
 import { errorMessage } from '../../shared/error-message'
 import { plannerKickoffPrompt } from '../../main/mte-flow/planner-prompt'
 import {
@@ -19,9 +11,19 @@ import {
   type WorkspaceMcpPlan
 } from '../../main/mte-flow/mcp/workspace-mcp-config'
 import { runMemoryMcpServer } from '../../main/mte-flow/mcp/memory-mcp-server'
-import { resolveMemoryWorkspaceRoot } from '../../main/mte-flow/memory-workspace-root'
+import {
+  realMemoryWorkspacePath,
+  resolveMemoryWorkspaceRoot
+} from '../../main/mte-flow/memory-workspace-root'
 import { runtimeOrchestrationCliCommand } from '../../main/runtime/orchestration/cli-command'
 import type { MemoryRole } from '../../main/mte-flow/memory-store'
+import {
+  isWorkspaceRegistrationError,
+  launchPlannerChat,
+  registerWorkspaceRepo,
+  type MteStartLaunch,
+  type MteStartLaunchOutcome
+} from './mte-start-launch'
 import { runMteCheck } from './mte-check'
 
 const MEMORY_ROLE_FLAGS = ['orchestrator', 'coder', 'validator'] as const
@@ -58,7 +60,11 @@ export function resolveMemoryCliInvocation(
   if (workspaceFlag !== undefined && (typeof workspaceFlag !== 'string' || workspaceFlag === '')) {
     return { ok: false, message: '--workspace requires a path value' }
   }
-  return { ok: true, role, workspaceRoot: workspaceFlag ?? resolveMemoryWorkspaceRoot(cwd) }
+  return {
+    ok: true,
+    role,
+    workspaceRoot: realMemoryWorkspacePath(workspaceFlag ?? resolveMemoryWorkspaceRoot(cwd))
+  }
 }
 
 // Usage failures must exit before any protocol byte reaches stdout.
@@ -128,10 +134,11 @@ export function resolveMteStartInvocation(
     }
     adapter = parsed
   }
-  const workspaceRoot =
+  const workspaceRoot = realMemoryWorkspacePath(
     typeof workspaceFlag === 'string' && workspaceFlag.length > 0
       ? resolvePath(workspaceFlag)
       : resolveMemoryWorkspaceRoot(cwd)
+  )
   return { ok: true, agent, workspaceRoot, goal, adapter }
 }
 
@@ -147,60 +154,6 @@ export function resolveMteStartCliCommand(
   }
   // Dev builds with an app environment say orca-dev; packaged and plain CLI runs use their own entry.
   return appCliCommand ?? argv1 ?? 'orca'
-}
-
-export type MteStartLaunchArgs = {
-  client: RuntimeClient
-  agent: string
-  prompt: string
-  worktreePath: string
-  cwd: string
-}
-
-export type MteStartLaunchOutcome = {
-  launchJson: unknown
-  receiptText: string
-}
-
-export type MteStartLaunch = (args: MteStartLaunchArgs) => Promise<MteStartLaunchOutcome>
-
-// Reuses the agent-launch machinery exactly as `orca agent launch --surface chat` does.
-async function launchPlannerChat(args: MteStartLaunchArgs): Promise<MteStartLaunchOutcome> {
-  if (args.client.isRemote) {
-    throw new RuntimeClientError('invalid_argument', 'orca mte start runs on the local host only.')
-  }
-  const agent = parseCliAgent(args.agent)
-  const launch = readCliAgentLaunch(
-    new Map<string, string | boolean>([
-      ['prompt', args.prompt],
-      ['surface', 'chat']
-    ]),
-    agent,
-    { createsWorktree: false }
-  )
-  const worktree = await getRequiredWorktreeSelector(
-    new Map<string, string | boolean>([['worktree', `path:${args.worktreePath}`]]),
-    'worktree',
-    args.cwd,
-    args.client
-  )
-  const capabilities = await getAgentLaunchCapabilities(args.client)
-  if (!capabilities) {
-    throw new RuntimeClientError(
-      'incompatible_runtime',
-      'This Orca host cannot start agents from the CLI. Update Orca on the execution host.'
-    )
-  }
-  const result = await callAgentLaunch(
-    args.client,
-    launch,
-    { target: { kind: 'existing', worktree }, presentation: 'background' },
-    capabilities
-  )
-  return {
-    launchJson: result,
-    receiptText: formatAgentLaunch(result.result)
-  }
 }
 
 export type MteStartDeps = {
@@ -239,19 +192,34 @@ export async function runMteStart(
     return
   }
   try {
-    const outcome = await (deps.launch ?? launchPlannerChat)({
+    const launch = deps.launch ?? launchPlannerChat
+    const launchArgs = {
       client: ctx.client,
       agent: invocation.agent,
       prompt: plannerKickoffPrompt(invocation.goal),
       worktreePath: invocation.workspaceRoot,
       cwd: ctx.cwd
-    })
+    }
+    let launchRetry: 'repo-add' | undefined
+    let outcome: MteStartLaunchOutcome
+    try {
+      outcome = await launch(launchArgs)
+    } catch (error) {
+      if (!isWorkspaceRegistrationError(error)) {
+        throw error
+      }
+      // Register the workspace exactly once, then give the launch a single second chance.
+      await registerWorkspaceRepo(ctx.client, invocation.workspaceRoot, ctx.cwd)
+      launchRetry = 'repo-add'
+      outcome = await launch(launchArgs)
+    }
     if (ctx.json) {
       console.log(
         JSON.stringify(
           {
             mcpConfig: { adapter: plan.adapter, configPath: plan.configPath, status: configStatus },
-            launch: outcome.launchJson
+            launch: outcome.launchJson,
+            ...(launchRetry ? { launchRetry } : {})
           },
           null,
           2
@@ -259,6 +227,9 @@ export async function runMteStart(
       )
     } else {
       console.log(`mcp config (${plan.adapter}): ${plan.configPath} (${configStatus})`)
+      if (launchRetry) {
+        console.log('workspace was not registered; applied repo add and retried the launch')
+      }
       console.log(outcome.receiptText)
     }
   } catch (error) {
