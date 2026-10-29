@@ -16444,8 +16444,6 @@
             "109a791e7b": "Speichern",
             "bb0a55f856": "Wird gespeichert…",
             "0203bed775": "Abbrechen",
-            "6978871a3d": "Öffnen",
-            "cce596969e": "Notiz löschen",
             "cad3384faa": "Notiz bearbeiten",
             "508ee678a5": "Im Browser öffnen",
             "noteAuthorFallback": "Notiz",
@@ -16456,16 +16454,11 @@
             "e05063cfc1": "Zeile {{value0}}",
             "c845170b3b": "Zeilen {{value0}}-{{value1}}",
             "commentTooLarge": "Der Kommentar ist zu groß, um ihn sicher zu senden.",
-            "f6c449191e": "Notiz für die KI hinzufügen",
             "5fa4bfebaa": "Notiz hinzufügen",
             "5e9b3d0c2e": "Wird hinzugefügt…"
           },
-          "useDiffCommentDecorator": {
-            "995fa28b50": "Diese Notiz"
-          },
-          "diffCommentZoneCard": {
-            "noteAlreadySent": "Notiz bereits gesendet"
-          }
+          "useDiffCommentDecorator": {},
+          "diffCommentZoneCard": {}
         }
       },
       "dictation": {

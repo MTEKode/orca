@@ -16064,8 +16064,6 @@
             "109a791e7b": "保存",
             "bb0a55f856": "保存…",
             "0203bed775": "取消",
-            "6978871a3d": "打开",
-            "cce596969e": "删除注释",
             "cad3384faa": "编辑备注",
             "508ee678a5": "在浏览器中打开",
             "noteAuthorFallback": "备注",
@@ -16076,16 +16074,11 @@
             "e05063cfc1": "行 {{value0}}",
             "c845170b3b": "行 {{value0}}-{{value1}}",
             "commentTooLarge": "评论过长，无法安全提交。",
-            "f6c449191e": "为AI添加注释",
             "5fa4bfebaa": "添加备注",
             "5e9b3d0c2e": "添加..."
           },
-          "useDiffCommentDecorator": {
-            "995fa28b50": "此注"
-          },
-          "diffCommentZoneCard": {
-            "noteAlreadySent": "备注已发送"
-          }
+          "useDiffCommentDecorator": {},
+          "diffCommentZoneCard": {}
         }
       },
       "dictation": {

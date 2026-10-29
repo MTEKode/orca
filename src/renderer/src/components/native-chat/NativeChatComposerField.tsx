@@ -25,6 +25,8 @@ import type {
 } from '../../../../shared/native-chat/input/native-chat-session-options'
 import type { NativeChatOptionPickerRequest } from './native-chat-composer-types'
 import { NativeChatImageAttachmentPreview } from './NativeChatImageAttachmentPreview'
+import { NativeChatComposerCommentChips } from './NativeChatComposerCommentChips'
+import { useNativeChatQueuedDiffComments } from './use-native-chat-queued-diff-comments'
 import type { NativeChatComposerGoalMode } from './use-native-chat-composer-submit'
 import { translate } from '@/i18n/i18n'
 import { useNativeChatComposerDraftUnsaved } from './use-native-chat-draft-unsaved'
@@ -47,6 +49,8 @@ export type NativeChatComposerFieldProps = {
   activeSuggestion: number
   notices: readonly NativeChatComposerNotice[]
   imageAttachments: readonly NativeChatComposerImageAttachment[]
+  /** Worktree whose queued diff comments show as chips above the editor. */
+  worktreeId?: string
   /** A structured chat numbers its images, as its chips in the prompt read. */
   numberImages?: boolean
   /** The paired server a structured chat runs on, which reads back files stored there. */
@@ -134,6 +138,7 @@ export function NativeChatComposerField({
   activeSuggestion,
   notices,
   imageAttachments,
+  worktreeId,
   numberImages = false,
   attachmentEnvironmentId,
   sendButtonDisabled,
@@ -178,6 +183,7 @@ export function NativeChatComposerField({
         : 0
   // Value the IME started from, and whether a programmatic clear was dropped on top of it.
   const compositionBaseRef = useRef('')
+  const queuedCommentCount = useNativeChatQueuedDiffComments(worktreeId).length
   const imageRow = useMemo(() => imageAttachments.map(({ id }) => id), [imageAttachments])
   const droppedDraftClearRef = useRef(false)
   // Remember the editor’s last draft because chip node views can flushSync a render before its onChange publishes.
@@ -296,14 +302,15 @@ export function NativeChatComposerField({
           <div
             className={cn(
               // Use a constant container border so focus changes cannot flash it.
-              'rounded-xl border border-chat-composer-border p-1.5 shadow-xs',
+              'rounded-[12px] border border-chat-composer-border p-3 shadow-xs',
               'bg-chat-composer-surface',
               // Contain caret-blink repaint to the composer; keep 4px slack around overhanging attachment buttons, while menus use portals.
               '[contain:paint]'
             )}
           >
-            {imageAttachments.length > 0 ? (
+            {imageAttachments.length > 0 || queuedCommentCount > 0 ? (
               <div className="mb-2 flex flex-wrap gap-2 px-1 pt-1.5">
+                {worktreeId ? <NativeChatComposerCommentChips worktreeId={worktreeId} /> : null}
                 {imageAttachments.map((attachment, index) => (
                   <NativeChatImageAttachmentPreview
                     key={attachment.id}
@@ -349,7 +356,7 @@ export function NativeChatComposerField({
               }
               // Let layout handle wrapping and touch targets; scroll after eight lines without JavaScript measurement.
               className={cn(
-                'min-h-12 w-full bg-transparent px-2 py-1 text-sm text-chat-foreground-strong outline-none pointer-coarse:min-h-14',
+                'min-h-[7.5rem] w-full bg-transparent px-2.5 py-1.5 text-base text-chat-foreground-strong outline-none pointer-coarse:min-h-[8rem]',
                 'max-h-[calc(8lh+0.5rem)] overflow-y-auto scrollbar-sleek',
                 // Why: the editor is a contenteditable, which `:disabled` never matches.
                 'placeholder:text-chat-foreground-faint [&[contenteditable=false]]:cursor-not-allowed [&[contenteditable=false]]:opacity-50'

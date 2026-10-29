@@ -31,7 +31,7 @@ describe('DiffCommentDraftCard', () => {
 
     expect(view.getByText('Line 42')).toBeDefined()
     expect(view.queryByText('You')).toBeNull()
-    const textarea = view.getByPlaceholderText('Add note for the AI')
+    const textarea = view.getByPlaceholderText('Add a comment for the AI')
     expect(textarea).toBeDefined()
     expect(document.activeElement).toBe(textarea)
     expect(view.getByRole('button', { name: 'Add note' })).toBeDefined()

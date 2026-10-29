@@ -713,7 +713,7 @@ describe('WorktreeCard compact hover details', () => {
     expect(markup).toContain('data-worktree-card-parent-content=""')
     expect(markup).toContain('items-center')
     expect(markup).toContain('w-5 items-center')
-    expect(markup).toContain('text-[13px] leading-5')
+    expect(markup).toContain('text-[14px] leading-5')
   })
 
   it('does not show a folder path row in new-card mode when no project groups exist', async () => {

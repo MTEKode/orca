@@ -11,6 +11,7 @@ import { isMacPlatform } from '../../terminal-pane/terminal-link-open-hints'
 import { getIntlLocale, translate } from '@/i18n/i18n'
 import { localizedHostedReviewCopy } from '@/i18n/hosted-review-localized-copy'
 import { isGitHubPRSuppressed } from '../../../../../shared/worktree/github-pr-suppression'
+import { ChecksPanelConductorSections } from './conductor-git-status-sections'
 import type { ChecksPanelEmptyContentModel } from './empty-content-props'
 import { useNow } from '@/hooks/use-now'
 
@@ -383,6 +384,18 @@ export function ChecksPanelEmptyContent({
               </Button>
             ) : null}
           </div>
+        )}
+        {!operationInProgress && (
+          <ChecksPanelConductorSections
+            worktreeId={activeWorktreeId}
+            showDraftFields={!createComposerOpen}
+            canCreatePr={
+              createComposerOpen && !isCreatingPr && !isPublishingBranch && !isRemoteOperationActive
+            }
+            onCreatePr={() => void handleCreatePullRequest(false)}
+            onPull={() => void handleSyncBranch()}
+            pullDisabled={isSyncingBranch || isRemoteOperationActive}
+          />
         )}
       </div>
     )

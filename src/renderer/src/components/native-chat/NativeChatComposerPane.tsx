@@ -28,6 +28,7 @@ import { useNativeChatStructuredComposerSend } from './use-native-chat-structure
 import { useImeEnterGestureOwnership } from '@/lib/ime-composition-keyboard-event'
 import { useNativeChatComposerAppMenuSelection } from './use-native-chat-composer-app-menu-selection'
 import { useNativeChatComposerSubmit } from './use-native-chat-composer-submit'
+import { useNativeChatHasQueuedDiffComments } from './use-native-chat-queued-diff-comments'
 import { useNativeChatComposerCommandPicker } from './use-native-chat-composer-command-picker'
 
 /** Send through the chat’s structured transport or verified PTY route, with agent-aware autocomplete and image handling. */
@@ -154,9 +155,9 @@ export const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, Nativ
       setDraft,
       setNotice
     })
-    const { imageAttachments, attachResolvedPaths, clearImageAttachments, removeImageAttachment } =
-      attachments
+    const { imageAttachments, attachResolvedPaths, clearImageAttachments } = attachments
     const imageBlock = nativeChatImageSendBlock(imageAttachments)
+    const hasQueuedComments = useNativeChatHasQueuedDiffComments(structuredTransport?.worktreeId)
     const sendBlockedReason = imageBlock.reason ?? structuredTransport?.sendBlockedReason ?? null
     const sendHeld =
       attachments.pastedTextSaving ||
@@ -168,7 +169,7 @@ export const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, Nativ
       ? sendHeld || !editSession.canSave
       : isWorking
         ? !hasPty || !onStop
-        : sendHeld || (draft.trim() === '' && imageAttachments.length === 0)
+        : sendHeld || (draft.trim() === '' && imageAttachments.length === 0 && !hasQueuedComments)
 
     const {
       pickAttachments,
@@ -374,6 +375,7 @@ export const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, Nativ
           activeSuggestion={activeSuggestion}
           notices={notices}
           imageAttachments={imageAttachments}
+          worktreeId={structuredTransport?.worktreeId}
           numberImages={Boolean(structuredTransport)}
           attachmentEnvironmentId={structuredTransport?.runtimeEnvironmentId ?? undefined}
           sendButtonDisabled={sendButtonDisabled}
@@ -398,7 +400,7 @@ export const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, Nativ
           goalMode={goalMode}
           onRetrySkills={picker.retrySkills}
           onChooseMentionFile={completeMention}
-          onRemoveImageAttachment={(id) => removeImageAttachment(id)}
+          onRemoveImageAttachment={(id) => attachments.removeImageAttachment(id)}
           onAttach={pickAttachments}
           onDictationToggle={dictation.toggleDictation}
           onDictationHoldStart={dictation.startHoldDictation}

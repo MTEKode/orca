@@ -105,8 +105,8 @@ describe('native chat composer autogrow', () => {
 
   it('keeps the touch-target minimum heights', () => {
     const textarea = renderField('')
-    expect(textarea.className).toContain('min-h-12')
-    expect(textarea.className).toContain('pointer-coarse:min-h-14')
+    expect(textarea.className).toContain('min-h-[7.5rem]')
+    expect(textarea.className).toContain('pointer-coarse:min-h-[8rem]')
   })
 
   it('does not pin an inline height that a resize could leave stale', () => {

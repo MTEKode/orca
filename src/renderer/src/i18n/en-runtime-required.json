@@ -420,6 +420,8 @@
             "discardFailedSampleMore_other": "{{paths}}, +{{count}} more",
             "discardFailed_one": "Failed to discard {{count}} file",
             "discardFailed_other": "Failed to discard {{count}} files",
+            "filesChanged_one": "{{count}} file changed",
+            "filesChanged_other": "{{count}} files changed",
             "noteCount_one": "{{count}} note",
             "noteCount_other": "{{count}} notes"
           },

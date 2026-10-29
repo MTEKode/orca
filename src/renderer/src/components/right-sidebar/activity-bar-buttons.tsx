@@ -27,6 +27,8 @@ export type ActivityBarItem = {
   sshOnly?: boolean
   /** Host-owned health indicator; plugin content cannot style this chrome. */
   statusIndicator?: CheckStatus
+  /** Text-variant tabs render this as a muted count suffix. */
+  badgeCount?: number
 }
 
 const STATUS_DOT_COLOR: Record<CheckStatus, string> = {
@@ -127,17 +129,52 @@ export function ActivityBarButton({
   active,
   onClick,
   layout,
-  statusIndicator
+  statusIndicator,
+  variant = 'icon'
 }: {
   item: ActivityBarItem
   active: boolean
   onClick: () => void
   layout: 'top' | 'side'
   statusIndicator?: CheckStatus | null
+  variant?: 'icon' | 'text'
 }): React.JSX.Element {
   const Icon = item.icon
   const isTop = layout === 'top'
   const effectiveStatus = item.statusIndicator ?? statusIndicator
+
+  if (variant === 'text') {
+    return (
+      <button
+        type="button"
+        className={cn(
+          'relative flex h-7 shrink-0 items-center rounded-md px-3 text-[13px] font-medium transition-colors',
+          RIGHT_SIDEBAR_HEADER_NO_DRAG_CLASS_NAME,
+          active
+            ? 'bg-accent text-accent-foreground'
+            : 'text-muted-foreground hover:text-foreground'
+        )}
+        onClick={onClick}
+        data-workspace-board-dismiss=""
+        aria-current={active ? 'page' : undefined}
+        aria-label={activityItemAriaLabel(item, effectiveStatus)}
+        title={item.shortcut ? `${item.title} (${item.shortcut})` : item.title}
+      >
+        {item.title}
+        {item.badgeCount ? (
+          <span className="ml-1 tabular-nums text-muted-foreground">{item.badgeCount}</span>
+        ) : null}
+        {effectiveStatus && effectiveStatus !== 'neutral' && (
+          <span
+            className={cn(
+              'ml-1.5 size-[7px] rounded-full',
+              STATUS_DOT_COLOR[effectiveStatus] ?? 'bg-muted-foreground'
+            )}
+          />
+        )}
+      </button>
+    )
+  }
 
   return (
     <Tooltip>

@@ -117,7 +117,7 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
       onClick={handleCriticalAction}
       variant={stops ? 'secondary' : 'default'}
       size="icon"
-      className="size-8 rounded-full pointer-coarse:size-10"
+      className="size-[30px] pointer-coarse:size-10"
     >
       {stops ? <Square className="size-3.5 fill-current" /> : <ArrowUp className="size-4" />}
     </Button>
@@ -126,6 +126,22 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
   return (
     <div className="flex w-full items-center justify-between gap-2 text-chat-foreground-faint">
       <div className="flex min-w-0 items-center gap-0.5">
+        {/* Keep option pickers beside the session actions they affect. */}
+        <NativeChatSessionOptionPickers
+          surface={sessionOptionsSurface}
+          snapshot={sessionOptionsSnapshot}
+          isWorking={isWorking}
+          pickerRequest={sessionOptionsPickerRequest}
+          focusComposer={focusComposer}
+        />
+        <NativeChatComposerPermissionPicker
+          surface={sessionOptionsSurface}
+          snapshot={sessionOptionsSnapshot}
+          {...(agent ? { agent } : {})}
+        />
+        {onExitGoalMode ? <NativeChatComposerGoalChip onExit={onExitGoalMode} /> : null}
+      </div>
+      <div className="ml-auto flex items-center gap-1.5">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -144,22 +160,6 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
             {translate('components.native-chat.composer.attach', 'Attach file')}
           </TooltipContent>
         </Tooltip>
-        <NativeChatComposerPermissionPicker
-          surface={sessionOptionsSurface}
-          snapshot={sessionOptionsSnapshot}
-          {...(agent ? { agent } : {})}
-        />
-        {onExitGoalMode ? <NativeChatComposerGoalChip onExit={onExitGoalMode} /> : null}
-      </div>
-      <div className="ml-auto flex items-center gap-1.5">
-        {/* Keep option pickers beside the session actions they affect. */}
-        <NativeChatSessionOptionPickers
-          surface={sessionOptionsSurface}
-          snapshot={sessionOptionsSnapshot}
-          isWorking={isWorking}
-          pickerRequest={sessionOptionsPickerRequest}
-          focusComposer={focusComposer}
-        />
         {contextUsage ? <NativeChatContextUsageRing usage={contextUsage} /> : null}
         <Tooltip>
           <TooltipTrigger asChild>

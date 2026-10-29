@@ -22,6 +22,7 @@ import { translate } from '@/i18n/i18n'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 import { AgentSessionHistoryIcon } from './agent-session-history-icon'
 import type { ActivityBarItem } from './activity-bar-buttons'
+import { selectUncommittedChangeCount } from './source-control/uncommitted-change-count'
 
 export type RightSidebarActivityItems = {
   visibleItems: ActivityBarItem[]
@@ -46,6 +47,7 @@ export function useRightSidebarActivityItems({
   const activeWorktree = useAppStore((s) =>
     activeWorktreeId ? (s.getKnownWorktreeById(activeWorktreeId) ?? null) : null
   )
+  const uncommittedChangeCount = useAppStore(selectUncommittedChangeCount(activeWorktreeId))
   const activeRepo = useRepoById(activeWorktree?.repoId ?? null)
   const activeWorkspaceScope = parseWorkspaceKey(activeWorktreeId ?? '')
   const isFolderWorkspace = activeWorkspaceScope?.type === 'folder'
@@ -107,7 +109,8 @@ export function useRightSidebarActivityItems({
         icon: GitBranch,
         title: translate('auto.components.right.sidebar.index.0314901467', 'Source Control'),
         shortcut: sourceControlShortcut === 'Unassigned' ? '' : sourceControlShortcut,
-        gitOnly: true
+        gitOnly: true,
+        badgeCount: uncommittedChangeCount > 0 ? uncommittedChangeCount : undefined
       },
       {
         id: 'checks',
@@ -134,6 +137,7 @@ export function useRightSidebarActivityItems({
       visiblePluginPanels,
       portsShortcut,
       sourceControlShortcut,
+      uncommittedChangeCount,
       languageRevision
     ]
   )

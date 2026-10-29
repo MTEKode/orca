@@ -18868,8 +18868,6 @@
             "109a791e7b": "Salvar",
             "bb0a55f856": "Salvando…",
             "0203bed775": "Cancelar",
-            "6978871a3d": "Abrir",
-            "cce596969e": "Excluir nota",
             "cad3384faa": "Editar nota",
             "508ee678a5": "Abrir no navegador",
             "noteAuthorFallback": "Nota",
@@ -18880,16 +18878,11 @@
             "e05063cfc1": "Linha {{value0}}",
             "c845170b3b": "Linhas {{value0}}-{{value1}}",
             "commentTooLarge": "O comentário é muito grande para ser enviado com segurança.",
-            "f6c449191e": "Adicionar nota para a IA",
             "5fa4bfebaa": "Adicionar nota",
             "5e9b3d0c2e": "Adicionando..."
           },
-          "useDiffCommentDecorator": {
-            "995fa28b50": "Esta nota"
-          },
-          "diffCommentZoneCard": {
-            "noteAlreadySent": "Nota já enviada"
-          }
+          "useDiffCommentDecorator": {},
+          "diffCommentZoneCard": {}
         }
       },
       "UnexpectedSignoutCard": {

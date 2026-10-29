@@ -16465,8 +16465,6 @@
             "109a791e7b": "Guardar",
             "bb0a55f856": "Guardando…",
             "0203bed775": "Cancelar",
-            "6978871a3d": "Abierto",
-            "cce596969e": "Eliminar nota",
             "cad3384faa": "Editar nota",
             "508ee678a5": "Abrir en el navegador",
             "noteAuthorFallback": "Nota",
@@ -16477,16 +16475,11 @@
             "e05063cfc1": "Línea {{value0}}",
             "c845170b3b": "Líneas {{value0}}-{{value1}}",
             "commentTooLarge": "El comentario es demasiado grande para enviarlo de forma segura.",
-            "f6c449191e": "Agregar nota para la IA",
             "5fa4bfebaa": "Agregar nota",
             "5e9b3d0c2e": "Agregando..."
           },
-          "useDiffCommentDecorator": {
-            "995fa28b50": "esta nota"
-          },
-          "diffCommentZoneCard": {
-            "noteAlreadySent": "Nota ya enviada"
-          }
+          "useDiffCommentDecorator": {},
+          "diffCommentZoneCard": {}
         }
       },
       "dictation": {

@@ -16064,8 +16064,6 @@
             "109a791e7b": "保存",
             "bb0a55f856": "保存中…",
             "0203bed775": "キャンセル",
-            "6978871a3d": "オープン",
-            "cce596969e": "メモの削除",
             "cad3384faa": "メモを編集する",
             "508ee678a5": "ブラウザで開く",
             "noteAuthorFallback": "メモ",
@@ -16076,16 +16074,11 @@
             "e05063cfc1": "{{value0}} 行目",
             "c845170b3b": "行 {{value0}}-{{value1}}",
             "commentTooLarge": "コメントが大きすぎるため安全に送信できません。",
-            "f6c449191e": "AI 向けのメモを追加",
             "5fa4bfebaa": "メモを追加",
             "5e9b3d0c2e": "追加中…"
           },
-          "useDiffCommentDecorator": {
-            "995fa28b50": "このメモ"
-          },
-          "diffCommentZoneCard": {
-            "noteAlreadySent": "メモは送信済みです"
-          }
+          "useDiffCommentDecorator": {},
+          "diffCommentZoneCard": {}
         }
       },
       "dictation": {

@@ -54,6 +54,7 @@ export function RightSidebarTopActivityBar({
                         active={effectiveTab === item.id}
                         onClick={() => onSelectTab(item.id)}
                         layout="top"
+                        variant="text"
                         statusIndicator={item.id === 'checks' ? checksStatus : null}
                       />
                     ))}
@@ -108,6 +109,7 @@ export function RightSidebarTopActivityBar({
                     active={effectiveTab === item.id}
                     onClick={() => onSelectTab(item.id)}
                     layout="top"
+                    variant="text"
                     statusIndicator={item.id === 'checks' ? checksStatus : null}
                   />
                 ))}

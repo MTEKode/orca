@@ -13766,6 +13766,8 @@
             "2c417432b7": "Resolved locally",
             "f3a8b2c1d0e5": "Enter a {{value0}} title.",
             "e2b7a1c0d9f4": "Failed to create {{value0}}",
+            "filesChanged_one": "{{count}} file changed",
+            "filesChanged_other": "{{count}} files changed",
             "hugeRepoIgnorePrompt": "This repository has too many active changes. Add \"{{value0}}\" to .gitignore?",
             "hugeRepoIgnoreAction": "Add to .gitignore",
             "tooManyChanges": "Too many changes detected. Only the first {{value0}} changes are shown.",
@@ -13922,6 +13924,15 @@
             }
           },
           "checks": {
+            "conductor": {
+              "comments": "Comments",
+              "createPr": "Create PR",
+              "gitStatus": "Git status",
+              "noPrOpen": "No PR open",
+              "prDescription": "PR description",
+              "prTitle": "PR title",
+              "pull": "Pull"
+            },
             "panel": {
               "loadFailedOnMachine": "Could not load from {{machine}}: {{detail}}",
               "content": {
@@ -16870,28 +16881,26 @@
             "109a791e7b": "Save",
             "bb0a55f856": "Saving…",
             "0203bed775": "Cancel",
-            "6978871a3d": "Open",
-            "cce596969e": "Delete note",
             "cad3384faa": "Edit note",
             "508ee678a5": "Open in browser",
             "noteAuthorFallback": "Note",
-            "sentMeta": "sent"
+            "sentMeta": "sent",
+            "editAction": "Edit",
+            "removeFromChat": "Remove from chat"
           },
           "DiffCommentPopover": {
             "2b3ce6d394": "Cancel",
             "e05063cfc1": "Line {{value0}}",
             "c845170b3b": "Lines {{value0}}-{{value1}}",
             "commentTooLarge": "Comment is too large to submit safely.",
-            "f6c449191e": "Add note for the AI",
             "5fa4bfebaa": "Add note",
-            "5e9b3d0c2e": "Adding..."
+            "5e9b3d0c2e": "Adding...",
+            "fileScope": "File",
+            "commentPlaceholder": "Add a comment for the AI",
+            "commentSubmit": "Comment"
           },
-          "useDiffCommentDecorator": {
-            "995fa28b50": "This note"
-          },
-          "diffCommentZoneCard": {
-            "noteAlreadySent": "Note already sent"
-          }
+          "useDiffCommentDecorator": {},
+          "diffCommentZoneCard": {}
         }
       },
       "dictation": {
@@ -19416,7 +19425,8 @@
           "medium": "Med",
           "xhigh": "XHigh"
         },
-        "imageUnavailable": "Preview unavailable"
+        "imageUnavailable": "Preview unavailable",
+        "removeDiffComment": "Remove comment on {{path}} lines {{lines}}"
       },
       "tool": {
         "exitCode": "exit {{value0}}",

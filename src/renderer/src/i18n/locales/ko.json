@@ -16064,8 +16064,6 @@
             "109a791e7b": "저장",
             "bb0a55f856": "저장…",
             "0203bed775": "취소",
-            "6978871a3d": "열기",
-            "cce596969e": "메모 삭제",
             "cad3384faa": "메모 수정",
             "508ee678a5": "브라우저에서 열기",
             "noteAuthorFallback": "메모",
@@ -16076,16 +16074,11 @@
             "e05063cfc1": "라인 {{value0}}",
             "c845170b3b": "라인 {{value0}}-{{value1}}",
             "commentTooLarge": "댓글이 너무 길어 안전하게 제출할 수 없습니다.",
-            "f6c449191e": "AI에게 전달할 메모 추가",
             "5fa4bfebaa": "메모 추가",
             "5e9b3d0c2e": "추가 중..."
           },
-          "useDiffCommentDecorator": {
-            "995fa28b50": "이 메모"
-          },
-          "diffCommentZoneCard": {
-            "noteAlreadySent": "이미 보낸 메모"
-          }
+          "useDiffCommentDecorator": {},
+          "diffCommentZoneCard": {}
         }
       },
       "dictation": {

@@ -19,6 +19,9 @@ import { nativeChatAttachImagesAgainReason } from './native-chat-image-reattach'
 import { nativeChatNoticeFromError } from './native-chat-composer-notice'
 import { agentSessionWriteNoticeText } from './agent-session-write-notice-text'
 import { translate } from '@/i18n/i18n'
+import { useAppStore } from '@/store'
+import { readQueuedDiffCommentsSafely } from './use-native-chat-queued-diff-comments'
+import { composePromptWithDiffComments } from '@/lib/native-chat-comment-delivery'
 import {
   readNativeChatComposerDraft,
   subscribeToNativeChatComposerDraftAppend,
@@ -106,6 +109,11 @@ export function useNativeChatStructuredComposerSend({
       if (hostCommand && structuredAgentSessionCommandChangesConversation(text)) {
         structuredTransport.onSubmitted?.()
       }
+      // Queued diff comments ride along with plain messages only; commands go out untouched.
+      const worktreeId = structuredTransport.worktreeId
+      const state = useAppStore.getState()
+      const queued = hostCommand ? [] : readQueuedDiffCommentsSafely(state, worktreeId)
+      const { prompt: outgoing, snapshots } = composePromptWithDiffComments(text, queued)
       const isCurrent = structuredTransport.capturePresentation()
       const submitted = readNativeChatComposerDraft(draftScopeKey)
       let completeAddition = false
@@ -119,7 +127,7 @@ export function useNativeChatStructuredComposerSend({
       )
       await dispatchNativeChatStructuredComposerText(
         structuredTransport,
-        text,
+        outgoing,
         attachments,
         promptSkillRefs(submitted.document)
       )
@@ -129,6 +137,9 @@ export function useNativeChatStructuredComposerSend({
           }
           if (!accepted) {
             return
+          }
+          if (worktreeId && snapshots.length > 0) {
+            void useAppStore.getState().clearDeliveredDiffComments(worktreeId, snapshots)
           }
           completeNativeChatStructuredUserAction(
             agent,

@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { translate } from '@/i18n/i18n'
+import { useNativeChatHasQueuedDiffComments } from './use-native-chat-queued-diff-comments'
 import { applyPickerSuggestion } from '../../../../shared/native-chat/input/native-chat-picker-triggers'
 import type { NativeChatPickerItem } from '../../../../shared/native-chat/input/native-chat-picker-items'
 import type { NativeChatStructuredComposerTransport } from './native-chat-composer-types'
@@ -48,6 +49,8 @@ export function useNativeChatComposerSubmit(args: {
 }): { send: () => void; goalMode: NativeChatComposerGoalMode } {
   const { caret, disabled, draft, draftScopeKey, imageAttachments, sendPty, sendStructured } = args
   const { consumeOrcaCommand, setCaret, setDraft, structuredTransport } = args
+  // Queued diff comments let a structured send go out with an empty editor.
+  const hasQueuedComments = useNativeChatHasQueuedDiffComments(structuredTransport?.worktreeId)
   const threadGoal = structuredTransport?.threadGoal
   const [entered, setEntered] = useState(false)
   const active = entered && threadGoal !== undefined
@@ -129,7 +132,10 @@ export function useNativeChatComposerSubmit(args: {
       }
     } else if (!structuredTransport) {
       sendPty()
-    } else if ((draft.trim() !== '' || imageAttachments.length > 0) && !disabled) {
+    } else if (
+      (draft.trim() !== '' || imageAttachments.length > 0 || hasQueuedComments) &&
+      !disabled
+    ) {
       sendStructured(draft, imageAttachments)
     }
   }, [
@@ -138,6 +144,7 @@ export function useNativeChatComposerSubmit(args: {
     disabled,
     draft,
     draftScopeKey,
+    hasQueuedComments,
     imageAttachments,
     sendPty,
     sendStructured,
