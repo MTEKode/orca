@@ -1,4 +1,3 @@
-import { syncMteFlowSetting } from '../mte-flow/apply-setting'
 import type { BrowserWindow } from 'electron'
 import { registerCoreHandlers } from '../ipc/register-core-handlers/register-core-handlers'
 import { attachMainWindowServices } from '../window/attach-main-window-services'
@@ -66,7 +65,6 @@ export function attachMainWindowCoreServices(
   }
   // Server status probes start inside registerCoreHandlers; held hosts must be marked first.
   holdLaunchReconnectOptOuts(store.getSshTargets())
-  void syncMteFlowSetting(undefined, store.getSettings())
   registerCoreHandlers(
     store,
     runtime,

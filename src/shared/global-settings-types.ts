@@ -466,8 +466,6 @@ export type GlobalSettings = GlobalSettingsBase & {
   agentHibernationIdleMs?: number
   /** Experimental: opt-in preview of the updated worktree-card layout and metadata behavior. */
   experimentalNewWorktreeCardStyle?: boolean
-  /** Experimental: installs MTE Flow (agents, /mte command, default-flow instructions) in the user's home for Claude Code, OpenCode and Antigravity. */
-  experimentalMteFlow?: boolean
   /** Experimental: per-workspace on-demand environment recipes and setup surface. */
   experimentalEphemeralVms?: boolean
   /** Experimental (Windows): add WSL distros as hosts, each running its own Orca server. */

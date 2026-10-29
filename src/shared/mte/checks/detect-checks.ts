@@ -70,7 +70,7 @@ function declaresScript(scripts: unknown, name: string): boolean {
   return typeof value === 'string' && value !== ''
 }
 
-/** Faithful port of mte.mjs detectChecks (node/python/go/rust + Makefile fallbacks). */
+/** Detect project check commands: node/python/go/rust toolchains with a Makefile fallback. */
 export function detectChecks(workspaceRoot: string): DetectedChecks {
   const has = (rel: string): boolean => existsSync(join(workspaceRoot, rel))
   let lint = 'none'

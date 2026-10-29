@@ -9,7 +9,6 @@ import { HiddenExperimentalGroup } from './HiddenExperimentalGroup'
 import { NumberField, SettingsSwitch } from './SettingsFormControls'
 import { translate } from '@/i18n/i18n'
 import { NativeChatExperimentalSetting } from './NativeChatExperimentalSetting'
-import { MteFlowExperimentalSetting } from './MteFlowExperimentalSetting'
 import { AgentDashboardExperimentalSetting } from './AgentDashboardExperimentalSetting'
 import { EphemeralVmsExperimentalSetting } from './EphemeralVmsExperimentalSetting'
 import { BrowserExtensionsExperimentalSetting } from './BrowserExtensionsExperimentalSetting'
@@ -42,7 +41,6 @@ export function ExperimentalPane({
   const showNativeChat = matchesSettingsSearch(searchQuery, [
     getExperimentalSearchEntry().nativeChat
   ])
-  const showMteFlow = matchesSettingsSearch(searchQuery, [getExperimentalSearchEntry().mteFlow])
   const showAgentDashboard = matchesSettingsSearch(searchQuery, [
     getExperimentalSearchEntry().agentDashboard
   ])
@@ -64,10 +62,6 @@ export function ExperimentalPane({
 
   return (
     <div className="space-y-4">
-      {showMteFlow ? (
-        <MteFlowExperimentalSetting settings={settings} updateSettings={updateSettings} />
-      ) : null}
-
       {showAgentDashboard ? (
         <AgentDashboardExperimentalSetting settings={settings} updateSettings={updateSettings} />
       ) : null}

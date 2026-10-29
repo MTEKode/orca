@@ -4,9 +4,7 @@ description: >-
   Coordinate supervised Orca workers, or work as a dispatched worker
   (heartbeats, ask, worker_done): threaded messages, blocking ask/reply, task
   dispatch, worker_done/escalation waits, task DAGs, decision gates,
-  coordinator loops, decomposing work across agents, and the MTE Flow profile for
-  requirements interviews, detailed specs, independent coding, and validation. Use
-  `orca-cli` for full
+  coordinator loops, and decomposing work across agents. Use `orca-cli` for full
   ownership handoffs — "hand off", "handoff", "handover", "give this to another
   agent", "another worktree" — unless asked to supervise, monitor, or coordinate
   a DAG, and for terminal control, lightweight terminal prompts, shell commands,
@@ -17,12 +15,6 @@ description: >-
 
 Orchestration is Orca's structured coordination layer. It records who owns work,
 which attempt is authoritative, and when supervised work has settled.
-
-Use the MTE Flow profile in `references/mte-flow.md` for every coding task coordinated
-through Orca whenever MTE Flow is enabled (the user's global instructions contain an MTE Flow
-section) or the user asks for it. It applies the requirements interview, detailed task spec,
-independent coder and validator roles, project memory, and bounded retry policy to Orca's
-native Runs, Tasks, Dispatches, and messages.
 
 ## Outcome
 
@@ -47,8 +39,7 @@ absence included, is a checkpoint.
 | The current prompt contains a live injected preamble with Task and Dispatch IDs                                                                | Dispatched worker       | Follow the preamble and the worker obligations below                           |
 | The user asks to hand off ownership or start another agent/worktree without supervision                                                        | Handoff owner           | Use `orca-cli`; create no Run, Task, or Dispatch and do not monitor completion |
 | A message carries a legacy authority label                                                                                                     | Compatibility operator  | Load the legacy contract reference before any lifecycle mutation               |
-| No live preamble and the user asks for code or a project change                                                                                | Coordinator             | Apply the default MTE Flow profile and supervise the coding Task               |
-| No live preamble and the user asks only for information, inspection, or terminal/worktree operation                                            | Ordinary terminal agent | Do not emit lifecycle messages; use `orca-cli` for terminal/worktree work      |
+| No live preamble and no explicit supervision                                                                                                   | Ordinary terminal agent | Do not emit lifecycle messages; use `orca-cli` for terminal/worktree work      |
 
 Model or effort selection does not make a handoff supervised: `orca-cli`'s
 `worktree create --agent` and `agent launch` take `--model` and `--effort`, and
@@ -213,7 +204,6 @@ older CLI rejects `--full`, keep this kernel's safety floor, use that command's
 | Action gate                                                                                                   | Bundled reference                         |
 | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
 | Expanded DAG waves, launch model/effort, same-terminal reuse, or review ownership                             | `references/coordinator-loop.md`          |
-| MTE Flow: requirements lock, detailed task spec, separate coder/validator, or bounded validation retries      | `references/mte-flow.md`                  |
 | You are a dispatched worker and the live preamble does not answer your question, or `check` returned an error | `references/worker-contract.md`           |
 | New worktree, exact workspace, SSH, WSL, or connected-server placement                                        | `references/placement-and-remote.md`      |
 | Inbox replay, follow-up messages, group addresses, or decision gates                                          | `references/messaging-and-gates.md`       |
