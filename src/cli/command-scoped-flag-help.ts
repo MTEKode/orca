@@ -84,6 +84,13 @@ const COMMAND_SCOPED_FLAG_HELP: Record<string, Record<string, string>> = {
     role: '--role <role>          Memory role gate: orchestrator, coder, or validator',
     workspace:
       '--workspace <path>     Workspace root holding .mte/memory.db (default: nearest .git/.mte ancestor)'
+  },
+  'mte start': {
+    agent: '--agent <id>           Planner chat agent id, such as claude, codex, or opencode',
+    goal: '--goal <text>          Goal embedded in the kickoff prompt (default: ask the user in chat)',
+    adapter: '--adapter <name>       MCP config target: claude (default), opencode, or codex',
+    workspace:
+      '--workspace <path>     Workspace root for the MCP config and planner chat (default: nearest .git/.mte ancestor)'
   }
 }
 
