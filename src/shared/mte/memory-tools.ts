@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { errorMessage } from '../../shared/error-message'
+import { errorMessage } from '../error-message'
 import type { AskRole, MemoryRole, MemoryStore } from './memory-store'
 
 export type { MemoryRole }

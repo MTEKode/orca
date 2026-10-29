@@ -1,6 +1,7 @@
 import { mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import Database from '../sqlite/sync-database'
+import { openSqliteConnection } from './sqlite-connection'
+import type { SqliteConnection } from './sqlite-connection'
 import { createMemoryStore } from './memory-store'
 import type { MemoryStore } from './memory-store'
 
@@ -86,7 +87,7 @@ export function memoryDbPath(workspaceRoot: string): string {
 }
 
 /** Idempotently applies pragmas + schema (tables + FTS + triggers) to an open DB. */
-export function initMemorySchema(db: Database): void {
+export function initMemorySchema(db: SqliteConnection): void {
   db.pragma('journal_mode = WAL')
   db.pragma('synchronous = NORMAL')
   db.pragma('busy_timeout = 5000')
@@ -94,11 +95,11 @@ export function initMemorySchema(db: Database): void {
 }
 
 /** Opens (creating parent dirs and schema as needed). ':memory:' is supported. */
-export function openMemoryDatabase(dbPath: (string & {}) | ':memory:'): Database {
+export function openMemoryDatabase(dbPath: (string & {}) | ':memory:'): SqliteConnection {
   if (dbPath !== ':memory:') {
     mkdirSync(dirname(dbPath), { recursive: true })
   }
-  const db = new Database(dbPath)
+  const db = openSqliteConnection(dbPath)
   initMemorySchema(db)
   return db
 }

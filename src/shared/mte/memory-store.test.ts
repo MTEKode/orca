@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest'
-import type Database from '../sqlite/sync-database'
+import type { SqliteConnection } from './sqlite-connection'
 import { memoryDbPath, openMemoryDatabase, openMemoryStore } from './memory-database'
 import { createMemoryStore, toFtsMatchQuery } from './memory-store'
 import type { MemoryStore } from './memory-store'
@@ -19,7 +19,7 @@ const TRIGGER_NAMES = [
 
 const ALL_TABLES = ['decisions', 'notes', 'notes_fts', 'qa_fts', 'qa_log', 'questions']
 
-function tableNames(db: Database): unknown[] {
+function tableNames(db: SqliteConnection): unknown[] {
   return db
     .prepare(
       "SELECT name FROM sqlite_master WHERE type = 'table' AND name IN ('decisions', 'qa_log', 'qa_fts', 'questions', 'notes', 'notes_fts') ORDER BY name"
@@ -28,7 +28,7 @@ function tableNames(db: Database): unknown[] {
     .map((row) => row.name)
 }
 
-function triggerNames(db: Database): unknown[] {
+function triggerNames(db: SqliteConnection): unknown[] {
   return db
     .prepare("SELECT name FROM sqlite_master WHERE type = 'trigger' ORDER BY name")
     .all()
@@ -99,7 +99,7 @@ describe('memory database schema', () => {
 })
 
 describe('memory store', () => {
-  let db: Database
+  let db: SqliteConnection
   let store: MemoryStore
 
   beforeEach(() => {

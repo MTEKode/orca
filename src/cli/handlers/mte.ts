@@ -3,20 +3,20 @@ import { readOrcaCliVersion } from '../cli-version'
 import type { CommandHandler } from '../dispatch'
 import type { RuntimeClient } from '../runtime-client'
 import { errorMessage } from '../../shared/error-message'
-import { plannerKickoffPrompt } from '../../main/mte-flow/planner-prompt'
+import { plannerKickoffPrompt } from '../../shared/mte/planner-prompt'
 import {
   applyWorkspaceMcpConfig,
   planWorkspaceMcpConfig,
   type WorkspaceMcpAdapter,
   type WorkspaceMcpPlan
-} from '../../main/mte-flow/mcp/workspace-mcp-config'
-import { runMemoryMcpServer } from '../../main/mte-flow/mcp/memory-mcp-server'
+} from '../../shared/mte/mcp/workspace-mcp-config'
+import { runMemoryMcpServer } from '../../shared/mte/mcp/memory-mcp-server'
 import {
   realMemoryWorkspacePath,
   resolveMemoryWorkspaceRoot
-} from '../../main/mte-flow/memory-workspace-root'
-import { runtimeOrchestrationCliCommand } from '../../main/runtime/orchestration/cli-command'
-import type { MemoryRole } from '../../main/mte-flow/memory-store'
+} from '../../shared/mte/memory-workspace-root'
+import { runtimeOrchestrationCliCommand } from '../../shared/mte/cli-command'
+import type { MemoryRole } from '../../shared/mte/memory-store'
 import {
   isWorkspaceRegistrationError,
   launchPlannerChat,

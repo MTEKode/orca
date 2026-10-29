@@ -1,5 +1,4 @@
-import type Database from '../sqlite/sync-database'
-import type { SqliteRow } from '../sqlite/sqlite-statement'
+import type { SqliteConnection, SqliteRow } from './sqlite-connection'
 
 export type DecisionStatus = 'active' | 'superseded'
 
@@ -204,7 +203,7 @@ export function toFtsMatchQuery(query: string): string {
     .join(' AND ')
 }
 
-export function createMemoryStore(db: Database): MemoryStore {
+export function createMemoryStore(db: SqliteConnection): MemoryStore {
   const selectById = <Row>(
     sql: string,
     toRow: (row: SqliteRow) => Row,

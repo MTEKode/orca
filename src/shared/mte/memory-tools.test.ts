@@ -116,7 +116,7 @@ describe('memory tool handlers', () => {
       feature: 'memory layer',
       decision: 'sqlite over flat files',
       rationale: 'queryable with zero new dependencies',
-      affected_files: ['src/main/mte-flow']
+      affected_files: ['src/shared/mte']
     })
     expect(recorded).toEqual({
       ok: true,
@@ -125,13 +125,13 @@ describe('memory tool handlers', () => {
         feature: 'memory layer',
         decision: 'sqlite over flat files',
         rationale: 'queryable with zero new dependencies',
-        affected_files: ['src/main/mte-flow'],
+        affected_files: ['src/shared/mte'],
         status: 'active',
         created_at: expect.any(String)
       }
     })
     const listed = resultRows(
-      handlers.execute('get_decisions', { file_path: 'src/main/mte-flow/memory-store.ts' })
+      handlers.execute('get_decisions', { file_path: 'src/shared/mte/memory-store.ts' })
     )
     expect(listed).toHaveLength(1)
     expect(resultRows(handlers.execute('get_decisions', {}))).toHaveLength(1)

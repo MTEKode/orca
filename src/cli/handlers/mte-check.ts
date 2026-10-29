@@ -1,6 +1,6 @@
 import { resolve as resolvePath } from 'node:path'
 import { REPEATED_FLAG_SEPARATOR } from '../args'
-import { detectChecks, type DetectedChecks } from '../../main/mte-flow/checks/detect-checks'
+import { detectChecks, type DetectedChecks } from '../../shared/mte/checks/detect-checks'
 import {
   failedGroupCount,
   runChecks,
@@ -9,8 +9,8 @@ import {
   type CheckGroup,
   type CheckGroupResult,
   type RunChecksOptions
-} from '../../main/mte-flow/checks/run-checks'
-import { resolveMemoryWorkspaceRoot } from '../../main/mte-flow/memory-workspace-root'
+} from '../../shared/mte/checks/run-checks'
+import { resolveMemoryWorkspaceRoot } from '../../shared/mte/memory-workspace-root'
 
 // Usage failures must exit before any check byte reaches stdout.
 function refuseUsage(message: string): void {

@@ -34,10 +34,10 @@ import {
 import { RuntimeClientError } from '../runtime/types'
 import type { MteStartLaunchArgs } from './mte-start-launch'
 import { resolveMteCheckInvocation, runMteCheck } from './mte-check'
-import { detectChecks } from '../../main/mte-flow/checks/detect-checks'
-import type { CheckGroup, CheckGroupResult } from '../../main/mte-flow/checks/run-checks'
-import { MTE_PLANNER_PROMPT } from '../../main/mte-flow/planner-prompt'
-import type { WorkspaceMcpPlan } from '../../main/mte-flow/mcp/workspace-mcp-config'
+import { detectChecks } from '../../shared/mte/checks/detect-checks'
+import type { CheckGroup, CheckGroupResult } from '../../shared/mte/checks/run-checks'
+import { MTE_PLANNER_PROMPT } from '../../shared/mte/planner-prompt'
+import type { WorkspaceMcpPlan } from '../../shared/mte/mcp/workspace-mcp-config'
 
 function flags(entries: [string, string | boolean][]): Map<string, string | boolean> {
   return new Map<string, string | boolean>(entries)
