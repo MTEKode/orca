@@ -81,7 +81,8 @@ export function structuredSessionNotices({
   composerError,
   claudeSignIn = null,
   availability = null,
-  hostPermission = null
+  hostPermission = null,
+  hostNotice = null
 }: {
   launch: {
     lifecycle: StructuredAgentSessionLaunchLifecycle | null
@@ -94,6 +95,8 @@ export function structuredSessionNotices({
   claudeSignIn?: NativeChatClaudeSignIn | null
   availability?: NativeChatComposerNotice | null
   hostPermission?: NativeChatComposerNotice | null
+  /** The host outage's own words; said last, after everything the pane can still try. */
+  hostNotice?: NativeChatComposerNotice | null
 }): NativeChatComposerNotice[] {
   // A host held for its permission mode already says why nothing starts; Retry returns with it.
   const launchNotice = nativeChatLaunchNotice({
@@ -117,6 +120,7 @@ export function structuredSessionNotices({
           }
         ]
       : []),
-    ...(composerError ? [{ key: 'composer-error', kind: 'error' as const, ...composerError }] : [])
+    ...(composerError ? [{ key: 'composer-error', kind: 'error' as const, ...composerError }] : []),
+    ...(hostNotice ? [hostNotice] : [])
   ]
 }

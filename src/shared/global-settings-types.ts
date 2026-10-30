@@ -211,6 +211,8 @@ export type GlobalSettings = GlobalSettingsBase & {
   nativeChatResumeWorkOnRestart?: boolean
   /** Queue editable mid-turn follow-ups until turn end on capable hosts. Absent means on; off sends immediately. */
   nativeChatQueueFollowUps?: boolean
+  /** Snapshot the worktree at turn boundaries so a turn can be reverted; absent means on. */
+  nativeChatTurnCheckpoints?: boolean
   /** Teach newly started native chats to create inline visuals; absent means on. */
   nativeChatInlineVisuals?: boolean
   /** Hovering a web link in chat fetches the page to preview it; absent means on. GitHub cards ignore this. */

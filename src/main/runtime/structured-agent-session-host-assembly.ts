@@ -18,6 +18,10 @@ import { createStructuredAgentEnvironmentResolvers } from './structured-agent-sh
 import type { StructuredAgentAdapterContext } from './structured-agent-runtime-registration-types'
 import { STRUCTURED_AGENT_RUNTIME_REGISTRATIONS } from './structured-agent-runtime-registrations'
 import { createStructuredAgentSessionLifecycleDelivery } from './structured-agent-session-lifecycle-delivery'
+import {
+  createTurnCheckpointService,
+  installTurnCheckpointService
+} from '../git/checkpoints/turn-checkpoint-service'
 import { createStructuredAgentSessionDispatchFollowUps } from './structured-agent-session-dispatch-followups'
 import { modelCatalogHostDeps } from './structured-agent-model-catalog-wiring'
 import type { StructuredAgentSessionRuntimeDeps } from './structured-agent-session-runtime'
@@ -57,6 +61,12 @@ export async function installOnJournal(
   const adapter = new StructuredAgentSessionAdapterRouter(agents, async () => {
     await Promise.all(registrations.map((registration) => registration.adapter.closeAll()))
   })
+  const turnCheckpoints = createTurnCheckpointService({
+    getRecord: (sessionId) => store.getRecord(sessionId),
+    isEnabled: () => deps.resolveTurnCheckpointsEnabled?.() !== false,
+    logger: deps.logger
+  })
+  const uninstallTurnCheckpoints = installTurnCheckpointService(turnCheckpoints)
   host = new StructuredAgentSessionHost({
     store,
     adapter,
@@ -68,6 +78,8 @@ export async function installOnJournal(
     probeOwners: createStructuredAgentSessionOwnerProbes(deps.hostId),
     resolveWorkspacePath: deps.resolveWorkspacePath,
     logger: deps.logger,
+    // Turn-start snapshots observe committed rows here; the service defers all git work.
+    observeJournalRows: (sessionId, rows) => turnCheckpoints.observeJournalRows(sessionId, rows),
     ...(deps.onRequestFailure ? { onRequestFailure: deps.onRequestFailure } : {}),
     ...(deps.onSessionStatusChanged ? { onSessionStatusChanged: deps.onSessionStatusChanged } : {}),
     ...(deps.statusSink ? { statusSink: deps.statusSink } : {}),
@@ -101,6 +113,20 @@ export async function installOnJournal(
       onState: delivery.reconcile
     })
   }
+  // Turn-end snapshots: every settled request edge checkpoints, so a revert can restore the
+  // state as of the turn's start or end. The feed fires only for turns with a recorded verdict.
+  host.subscribeTurnCompletions({
+    id: 'turn-checkpoints',
+    emit: (event) => {
+      if (event.type === 'completion') {
+        turnCheckpoints.captureTurnCheckpoint(
+          event.completion.sessionId,
+          event.completion.turnId,
+          'end'
+        )
+      }
+    }
+  })
   // Prewarm catalogs at runtime start for local and remote hosts.
   const modelCatalog = host.deps.modelCatalog
   void modelCatalog?.prewarm()
@@ -128,6 +154,7 @@ export async function installOnJournal(
   } catch (error) {
     unbindEnvironment()
     stopCommands()
+    uninstallTurnCheckpoints()
     throw error
   }
   return {
@@ -140,6 +167,7 @@ export async function installOnJournal(
       stopCommands()
       stopVisualsSweep?.()
       modelCatalog?.stop()
+      uninstallTurnCheckpoints()
     }
   }
 }

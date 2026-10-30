@@ -20,7 +20,10 @@ import { useStructuredPromptResponseHold } from './use-structured-prompt-respons
 import { NativeChatStructuredQuestionCard } from './NativeChatStructuredQuestionCard'
 import { NativeChatStructuredAsyncQuestion } from './NativeChatStructuredAsyncQuestion'
 import { selectNativeChatViewState, structuredChatHistoryPhase } from './native-chat-view-state'
-import { useNativeChatRootInputRouting } from './use-native-chat-root-input-routing'
+import {
+  nativeChatPaneCaptures,
+  useNativeChatRootInputRouting
+} from './use-native-chat-root-input-routing'
 import { useNativeChatFontSize } from './use-native-chat-font-size'
 import { useNativeChatFind } from './use-native-chat-find'
 import { NativeChatFindBar } from './NativeChatFindBar'
@@ -30,6 +33,7 @@ import { useNativeChatFileLinkContext } from './use-native-chat-file-link-contex
 import { useRecheckNativeChatFileLinksWhenTurnEnds } from './use-native-chat-file-link-existence'
 import { useNativeChatTabOwnerWorktreeId } from './use-native-chat-tab-owner'
 import { useStructuredAgentSession } from './use-structured-agent-session'
+import { useNativeChatTurnRevertSurface } from './use-native-chat-turn-revert-surface'
 import { useNativeChatImageRuntimeContext } from './native-chat-image-runtime-context'
 import { useStructuredNativeChatPaneCommands } from './use-structured-native-chat-pane-commands'
 import type { NativeChatStructuredViewProps } from './native-chat-view-types'
@@ -98,6 +102,8 @@ export function NativeChatStructuredSession(
     ...(provisionalLaunch.launch ? { launch: provisionalLaunch.launch } : {})
   })
   useRecheckNativeChatFileLinksWhenTurnEnds(controller.isWorking)
+  // Revert-to-turn: checkpoint refs joined to turn keys, with the confirm dialog.
+  const turnRevert = useNativeChatTurnRevertSurface(props, controller, ownerWorktreeId)
   const stopControls = nativeChatStructuredStopControls(controller, hostExecution.stopping)
   const launchDraftSignal = useNativeChatLaunchDraftSignal({
     terminalTabId: props.tabId,
@@ -205,6 +211,7 @@ export function NativeChatStructuredSession(
     isFocusedGroup: props.isFocusedGroup,
     composerReady: composerShown && install.slot.kind !== 'install'
   })
+  const captures = nativeChatPaneCaptures(paneCommands, find, rootInput)
   const questionBody = prompt?.body.kind === 'question' ? prompt.body : null
   const transport = useNativeChatStructuredComposerTransport({
     props,
@@ -258,27 +265,18 @@ export function NativeChatStructuredSession(
     composerError: composerError ?? continuation.continueError,
     claudeSignIn,
     availability,
-    hostPermission: hostSendGate.notice
+    hostPermission: hostSendGate.notice,
+    hostNotice
   })
-  if (hostNotice) {
-    notices.push(hostNotice)
-  }
   return (
     <div
       ref={rootRef}
       data-native-chat-root="true"
       data-native-chat-working={controller.isWorking ? 'true' : 'false'}
       tabIndex={-1}
-      onPointerDownCapture={(event) => {
-        paneCommands.onPointerDownCapture(event)
-        rootInput.onPointerDownCapture(event)
-      }}
-      onKeyDownCapture={(event) => {
-        find.onKeyDownCapture(event)
-        paneCommands.onKeyDownCapture(event)
-        rootInput.onKeyDownCapture(event)
-      }}
-      onContextMenuCapture={paneCommands.onContextMenuCapture}
+      onPointerDownCapture={captures.onPointerDownCapture}
+      onKeyDownCapture={captures.onKeyDownCapture}
+      onContextMenuCapture={captures.onContextMenuCapture}
       className={cn(
         NATIVE_CHAT_APPEARANCE_ROOT_CLASS,
         'flex h-full min-h-0 w-full flex-col focus:outline-none'
@@ -325,6 +323,7 @@ export function NativeChatStructuredSession(
                   {...fileLinkProps}
                   runtimeContext={imageRuntimeContext}
                   deliveryNotices={deliveryNotices}
+                  turnRevert={turnRevert.surface}
                 />
               </NativeChatClaudeSignInContext.Provider>
             </NativeChatOrcaStopContext.Provider>
@@ -410,6 +409,7 @@ export function NativeChatStructuredSession(
       {paneCommands.menu}
       {handOff.dialog}
       <LinkActionPopover request={linkActionRequest} onClose={closeLinkActions} />
+      {turnRevert.dialog}
     </div>
   )
 }

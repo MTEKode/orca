@@ -1,6 +1,9 @@
 import { memo, useContext } from 'react'
+import { History } from 'lucide-react'
 import type { CommentMarkdownLinkClickHandler } from '@/components/sidebar/CommentMarkdown'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { translate } from '@/i18n/i18n'
 import type { RuntimeFileOperationArgs } from '@/runtime/runtime-file-client-types'
 import { MessageRow, type NativeChatDeliveryNotice } from './NativeChatMessageRow'
 import { NativeChatResolutionReceipt } from './NativeChatResolutionReceipt'
@@ -17,6 +20,12 @@ import { nativeChatRowOffersRewind } from './native-chat-rewind-eligibility'
 import { isActionableStructuredAgentSessionPrompt } from '../../../../shared/structured-agent-session-live-turn'
 import { NativeChatNewRowsMarker } from './NativeChatNewRowsMarker'
 import type { NativeChatNewRowsMarkerState } from './native-chat-new-rows-marker'
+
+/** The turn bar's revert affordance; absent where the pane holds no checkpoint surface. */
+export type NativeChatTurnRevertSurface = {
+  hasStartCheckpoint: (turnKey: string) => boolean
+  requestRevert: (turnKey: string) => void
+}
 
 /** Memoize shared context so unchanged rows keep their props during transcript updates. */
 export type NativeChatTranscriptRowContext = {
@@ -36,6 +45,7 @@ export type NativeChatTranscriptRowContext = {
   subagentDisclosure: NativeChatSubagentDisclosure
   onScrollMessageToTop: (element: HTMLElement) => void
   onRevealDiff: (target: NativeChatDiffTarget) => void
+  turnRevert?: NativeChatTurnRevertSurface
 }
 
 /** Wrap message, status and rollup for one virtualized measurement; internal spacing is the row’s, inter-row gaps the window’s. */
@@ -85,7 +95,7 @@ export const NativeChatTranscriptRow = memo(function NativeChatTranscriptRow({
   const marker = newRowsMarker ? (
     <NativeChatNewRowsMarker marker={newRowsMarker} onReveal={context.onScrollMessageToTop} />
   ) : null
-  const statusRow = status ? (
+  const statusBar = status ? (
     <NativeChatWorkingStatus
       startedAt={status.startedAt}
       workedSeconds={status.workedSeconds}
@@ -96,6 +106,32 @@ export const NativeChatTranscriptRow = memo(function NativeChatTranscriptRow({
       }
     />
   ) : null
+  // Offered only on settled snapshotted turns; a running turn's files must not move.
+  const revertOffered =
+    statusBar !== null &&
+    turnKey !== undefined &&
+    !slot.activeTurnIsWorking &&
+    context.turnRevert?.hasStartCheckpoint(turnKey) === true
+  const statusRow =
+    revertOffered && turnKey !== undefined ? (
+      <div className="flex items-center gap-1">
+        <div className="min-w-0 flex-1">{statusBar}</div>
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          className="size-6 shrink-0"
+          aria-label={translate(
+            'components.native-chat.turnRevert.action',
+            'Revert to before this turn'
+          )}
+          onClick={() => context.turnRevert?.requestRevert(turnKey)}
+        >
+          <History aria-hidden className="size-3.5" />
+        </Button>
+      </div>
+    ) : (
+      statusBar
+    )
   return (
     // The negative margin shortens the measured row, which is what moves the next one up.
     <div className={cn('flex flex-col gap-5', slot.continuesTurn && '-mb-3', sectionClassName)}>

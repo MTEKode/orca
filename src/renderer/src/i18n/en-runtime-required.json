@@ -1807,6 +1807,10 @@
         "changedFiles_one": "{{count}} changed file",
         "changedFiles_other": "{{count}} changed files"
       },
+      "turnRevert": {
+        "filesChanged_one": "{{count}} file will change",
+        "filesChanged_other": "{{count}} files will change"
+      },
       "writeNotice": {
         "agentRefused": "The agent turned this down.",
         "agentStarting": "The agent is still starting.",

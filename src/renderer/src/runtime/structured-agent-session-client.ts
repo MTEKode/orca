@@ -150,6 +150,12 @@ export async function readStructuredAgentSessionItem(
   return result?.item ?? null
 }
 
+/** Turn-checkpoint reads live in their own module to keep this file under its line budget. */
+export {
+  listStructuredAgentSessionTurnCheckpoints,
+  diffStructuredAgentSessionTurnCheckpoint
+} from './structured-agent-session-turn-checkpoint-client'
+
 const STRUCTURED_AGENT_SESSION_METHOD_TIMEOUT_MS: ReadonlyMap<string, number> = new Map([
   ['agentSession.conversationCommand', AGENT_SESSION_CONVERSATION_COMMAND_TIMEOUT_MS],
   // The host may start an agent at rest before rewinding it, as it does for a command.

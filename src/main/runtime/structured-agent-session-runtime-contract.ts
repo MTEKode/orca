@@ -40,6 +40,8 @@ export type StructuredAgentSessionRuntimeDeps = StructuredAgentSessionTransportO
     /** Read this host's preference when a chat starts a provider process. */
     isEnabled: () => boolean
   }
+  /** Read the host's turn-checkpoint preference at each capture; absent means enabled. */
+  resolveTurnCheckpointsEnabled?: () => boolean
   /** Required, and asserted at install time — saved Arguments must never be silently omitted. */
   resolveLaunchArgs: (provider: AgentSessionRecord['provider']) => Promise<string[]> | string[]
   /** Required, and asserted at install time — an absent policy must not degrade to a guess. */

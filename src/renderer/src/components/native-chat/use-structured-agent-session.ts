@@ -7,6 +7,10 @@ import { useStructuredAgentSessionSends } from './use-structured-agent-session-s
 import { useStructuredAgentSessionCommandWrite } from './use-structured-agent-session-command-write'
 import { structuredAgentSessionNewSendsQueue } from './structured-agent-session-queue-request'
 import type { AgentSessionCancelResult } from '../../../../shared/agent-session-wire'
+import type {
+  AgentSessionTurnCheckpointKind,
+  AgentSessionTurnCheckpointRestoreResult
+} from '../../../../shared/agent-session-turn-checkpoints'
 import { structuredAgentLabel } from '@/lib/structured-agent-session-launch-label'
 import { useStructuredLegacyLaunchStop } from '@/lib/structured-agent-session-legacy-launch-stop'
 import {
@@ -286,6 +290,13 @@ export function useStructuredAgentSession(args: StructuredAgentSessionViewArgs) 
         scope: 'background-tasks',
         ...(taskId ? { taskId } : {})
       }),
+    /** Restore the worktree to a turn checkpoint; null (with its own toast) when refused. */
+    revertTurn: (turnId: string, kind: AgentSessionTurnCheckpointKind) =>
+      mutate<AgentSessionTurnCheckpointRestoreResult>(
+        'agentSession.restoreTurnCheckpoint',
+        'agentSession.restoreTurnCheckpoint',
+        { turnId, kind }
+      ),
     respond: (item: StructuredPromptItem, response: AgentSessionPromptResponse) =>
       respondToStructuredAgentSessionPrompt({ item, response, action: admit() }),
     optionSnapshot,

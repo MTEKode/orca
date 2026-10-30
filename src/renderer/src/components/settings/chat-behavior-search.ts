@@ -46,6 +46,21 @@ export const getChatBehaviorEntriesByKey = createLocalizedCatalog(() => ({
       translate('components.settings.nativeChat.linkPreviewsSearchHover', 'hover card')
     ]
   },
+  turnCheckpoints: {
+    targetSectionId: 'chat-turn-checkpoints',
+    title: translate(
+      'components.settings.nativeChat.turnCheckpointsTitle',
+      'Snapshot turns for revert'
+    ),
+    description: translate(
+      'components.settings.nativeChat.turnCheckpointsCopy',
+      'Orca snapshots the worktree at each chat turn so you can revert files to before a turn. Snapshots live in private git refs and never move your branch.'
+    ),
+    keywords: [
+      translate('components.settings.nativeChat.turnCheckpointsSearchRevert', 'revert'),
+      translate('components.settings.nativeChat.turnCheckpointsSearchCheckpoint', 'checkpoint')
+    ]
+  },
   shellEnvironment: {
     targetSectionId: 'chat-shell-environment',
     title: translate(
