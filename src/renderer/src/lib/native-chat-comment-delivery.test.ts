@@ -43,4 +43,20 @@ describe('composePromptWithDiffComments', () => {
     expect(prompt.startsWith('File:')).toBe(true)
     expect(prompt.endsWith('"note a"')).toBe(true)
   })
+
+  it('never delivers agent-authored comments', () => {
+    const { prompt, snapshots } = composePromptWithDiffComments('hi', [
+      comment('a'),
+      comment('agent-1', { author: 'agent', body: 'agent finding' })
+    ])
+    expect(prompt).not.toContain('agent finding')
+    expect(snapshots.map((s) => s.id)).toEqual(['a'])
+  })
+
+  it('returns the text untouched when only agent comments are passed', () => {
+    expect(composePromptWithDiffComments('hi', [comment('x', { author: 'agent' })])).toEqual({
+      prompt: 'hi',
+      snapshots: []
+    })
+  })
 })

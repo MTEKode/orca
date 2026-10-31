@@ -20444,7 +20444,12 @@
         "turnCheckpointsTitle": "Snapshot turns for revert",
         "turnCheckpointsCopy": "Orca snapshots the worktree at each chat turn so you can revert files to before a turn. Snapshots live in private git refs and never move your branch.",
         "turnCheckpointsSearchRevert": "revert",
-        "turnCheckpointsSearchCheckpoint": "checkpoint"
+        "turnCheckpointsSearchCheckpoint": "checkpoint",
+        "reviewToolsToggleLabel": "Toggle agent review tools",
+        "reviewToolsTitle": "Agent review tools",
+        "reviewToolsCopy": "Claude chats can read your queued review notes and the workspace diff, and post their own review comments into the notes list.",
+        "reviewToolsSearchReview": "review",
+        "reviewToolsSearchComments": "comments"
       }
     },
     "agentChildRow": {
@@ -20549,6 +20554,9 @@
       "stepDownload": "Download",
       "stepUnpack": "Unpack",
       "stepCheck": "Check"
+    },
+    "diffComments": {
+      "agentBadge": "AI"
     }
   },
   "dashboardPopout": {

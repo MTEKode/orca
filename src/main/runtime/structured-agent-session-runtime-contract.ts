@@ -11,6 +11,7 @@ import type { NativeChatShellEnvironmentPolicy } from '../../shared/native-chat/
 import type { ClaudeStructuredAuthPolicy } from '../claude-accounts/claude-structured-auth-policy'
 import type { RuntimeAgentAccountHomeResolver } from './structured-agent-model-catalog-wiring'
 import type { ClaudeCliFlagSupport } from '../claude/claude-cli-flag-support'
+import type { ClaudeReviewMcpRuntime } from '../claude/claude-review-mcp-server'
 import type { StructuredAgentSessionLogger } from '../native-chat/agent-session-wire/structured-agent-session-logger'
 
 export type StructuredAgentSessionRuntimeDeps = StructuredAgentSessionTransportOverrides & {
@@ -42,6 +43,8 @@ export type StructuredAgentSessionRuntimeDeps = StructuredAgentSessionTransportO
   }
   /** Read the host's turn-checkpoint preference at each capture; absent means enabled. */
   resolveTurnCheckpointsEnabled?: () => boolean
+  /** In-process review MCP tools offered to structured Claude launches; absent registers none. */
+  reviewTools?: ClaudeReviewMcpRuntime
   /** Required, and asserted at install time — saved Arguments must never be silently omitted. */
   resolveLaunchArgs: (provider: AgentSessionRecord['provider']) => Promise<string[]> | string[]
   /** Required, and asserted at install time — an absent policy must not degrade to a guess. */

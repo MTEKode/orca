@@ -4,7 +4,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import type { DiffCommentDeliverySnapshot } from '@/store/slices/diffComments'
 import { DiffCommentCard } from './DiffCommentCard'
 import { DiffCommentDraftCard } from './DiffCommentDraftCard'
-import type { DecoratedDiffComment } from './decorated-diff-comment'
+import { isAgentDecoratedDiffComment, type DecoratedDiffComment } from './decorated-diff-comment'
 
 export function getRenderSignature(
   comment: DecoratedDiffComment,
@@ -14,6 +14,7 @@ export function getRenderSignature(
     body: comment.body,
     sentAt: comment.sentAt ?? null,
     author: comment.author ?? null,
+    agentAuthored: isAgentDecoratedDiffComment(comment),
     authorAvatarUrl: comment.authorAvatarUrl ?? null,
     createdAtLabel: comment.createdAtLabel ?? null,
     url: comment.url ?? null,
@@ -43,6 +44,8 @@ export function renderDiffCommentZoneCard(
   comment: DecoratedDiffComment,
   { resizeZone, onDeleteCommentRef, onUpdateCommentRef }: DiffCommentZoneCardContext
 ): void {
+  // Agent-posted notes are received reviews: no queue semantics, so no remove-from-chat or edit.
+  const agentAuthored = isAgentDecoratedDiffComment(comment)
   root.render(
     // View zones are separate React roots outside the app root, so App.tsx context providers don't reach them.
     <TooltipProvider delayDuration={400}>
@@ -51,14 +54,17 @@ export function renderDiffCommentZoneCard(
         startLine={comment.startLine}
         body={comment.body}
         sentAt={comment.sentAt}
-        author={comment.author}
+        author={agentAuthored ? undefined : comment.author}
+        agentAuthored={agentAuthored}
         createdAtLabel={comment.createdAtLabel}
         url={comment.url}
         onDelete={
-          comment.canDelete === false ? undefined : () => onDeleteCommentRef.current(comment.id)
+          agentAuthored || comment.canDelete === false
+            ? undefined
+            : () => onDeleteCommentRef.current(comment.id)
         }
         onSubmitEdit={
-          onUpdateCommentRef.current && comment.canEdit !== false
+          !agentAuthored && onUpdateCommentRef.current && comment.canEdit !== false
             ? async (body) => {
                 const fn = onUpdateCommentRef.current
                 if (!fn) {

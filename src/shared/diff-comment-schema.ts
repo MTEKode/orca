@@ -24,6 +24,7 @@ export const DiffCommentSchema = z.object({
   worktreeId: z.string(),
   filePath: z.string(),
   source: z.enum(['diff', 'markdown']).optional(),
+  author: z.enum(['user', 'agent']).optional(),
   selectedText: z.string().optional(),
   startLine: z.number().int().positive().optional(),
   lineNumber: z.number().int().positive(),

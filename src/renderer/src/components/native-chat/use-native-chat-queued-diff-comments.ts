@@ -2,15 +2,21 @@ import { useMemo } from 'react'
 import { useAppStore } from '@/store'
 import { selectWorktreeDiffCommentsOrEmpty } from '@/store/worktree-diff-comments-selector'
 import type { DiffComment } from '../../../../shared/diff-comment-types'
+import { isAgentDiffComment } from '../../../../shared/diff-comment-types'
 
 const NO_COMMENTS: DiffComment[] = []
+
+// Agent-posted notes are received reviews; they never queue for delivery.
+function isQueuedForDelivery(comment: DiffComment): boolean {
+  return !comment.sentAt && !isAgentDiffComment(comment)
+}
 
 // Partial stores (tests, early boot) may lack diff-comment state; treat that as "no comments".
 export function readQueuedDiffCommentsSafely(
   state: unknown,
   worktreeId: string | undefined
 ): DiffComment[] {
-  return readComments(state, worktreeId).filter((comment) => !comment.sentAt)
+  return readComments(state, worktreeId).filter(isQueuedForDelivery)
 }
 
 function readComments(state: unknown, worktreeId: string | undefined): DiffComment[] {
@@ -37,7 +43,7 @@ export function useNativeChatQueuedDiffComments(worktreeId: string | undefined):
       ? (id: string | undefined) => useAppStore((s) => readComments(s, id))
       : noStoreHook
   const all = useComments(worktreeId)
-  return useMemo(() => all.filter((comment) => !comment.sentAt), [all])
+  return useMemo(() => all.filter(isQueuedForDelivery), [all])
 }
 
 export function useNativeChatHasQueuedDiffComments(worktreeId: string | undefined): boolean {

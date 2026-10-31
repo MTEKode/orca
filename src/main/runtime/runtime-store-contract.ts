@@ -187,6 +187,7 @@ export type RuntimeStore = {
     nativeChatPermissionMode?: GlobalSettings['nativeChatPermissionMode']
     nativeChatQueueFollowUps?: GlobalSettings['nativeChatQueueFollowUps']
     nativeChatTurnCheckpoints?: GlobalSettings['nativeChatTurnCheckpoints']
+    nativeChatReviewTools?: GlobalSettings['nativeChatReviewTools']
     nativeChatInlineVisuals?: GlobalSettings['nativeChatInlineVisuals']
     nativeChatInheritShellEnvironment?: GlobalSettings['nativeChatInheritShellEnvironment']
     nativeChatShellEnvironmentVariables?: GlobalSettings['nativeChatShellEnvironmentVariables']

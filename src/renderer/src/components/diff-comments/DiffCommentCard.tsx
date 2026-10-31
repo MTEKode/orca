@@ -18,6 +18,8 @@ type Props = {
   body: string
   sentAt?: number
   author?: string
+  /** Agent-posted note: show the AI badge and withhold the queued-note actions. */
+  agentAuthored?: boolean
   createdAtLabel?: string
   url?: string
   onDelete?: () => void
@@ -43,6 +45,7 @@ export function DiffCommentCard({
   body,
   sentAt,
   author,
+  agentAuthored,
   createdAtLabel,
   url,
   onDelete,
@@ -179,7 +182,14 @@ export function DiffCommentCard({
       <div className="orca-diff-comment-content-col">
         {/* Header Row */}
         <div className="orca-diff-comment-header">
-          <div className="orca-diff-comment-meta-group">{metaText}</div>
+          <div className="orca-diff-comment-meta-group">
+            {agentAuthored && (
+              <span className="mr-1 rounded bg-muted px-1 py-0.5 align-middle text-[10px] font-medium uppercase leading-none text-muted-foreground">
+                {translate('components.diffComments.agentBadge', 'AI')}
+              </span>
+            )}
+            {metaText}
+          </div>
 
           {/* Actions (only shown if not editing) */}
           {!editing && (

@@ -118,7 +118,8 @@ function createClaudeAdapter(
         ...(deps.resolveClaudeCommand ? { resolveCommand: deps.resolveClaudeCommand } : {}),
         resolveAuthPolicy: deps.resolveClaudeAuthPolicy,
         attachmentDirectory: agentSessionAttachmentStoreRoot(deps.stateDirectory),
-        ...(deps.claudeCliFlags ? { cliFlags: deps.claudeCliFlags } : {})
+        ...(deps.claudeCliFlags ? { cliFlags: deps.claudeCliFlags } : {}),
+        ...(deps.reviewTools ? { reviewTools: deps.reviewTools } : {})
       })
     ),
     ...(deps.resolveClaudeCommand ? { resolveClaudeCommand: deps.resolveClaudeCommand } : {}),

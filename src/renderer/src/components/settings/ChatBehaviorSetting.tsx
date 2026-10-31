@@ -42,6 +42,7 @@ export function ChatBehaviorSetting({
     ...(hostQueuesMessages ? [entries.queueFollowUps] : []),
     entries.linkPreviews,
     entries.turnCheckpoints,
+    entries.reviewTools,
     entries.shellEnvironment
   ]
   if (!forceVisible && !matchesSettingsSearch(query, rows)) {
@@ -51,6 +52,7 @@ export function ChatBehaviorSetting({
   const queueFollowUpsEnabled = settings.nativeChatQueueFollowUps !== false
   const linkPreviewsEnabled = settings.nativeChatLinkPreviews !== false
   const turnCheckpointsEnabled = settings.nativeChatTurnCheckpoints !== false
+  const reviewToolsEnabled = settings.nativeChatReviewTools !== false
   return (
     <section id="chat-behavior" className="space-y-3">
       <SettingsSubsectionHeader title={getChatBehaviorTitle()} />
@@ -136,6 +138,23 @@ export function ChatBehaviorSetting({
                 onChange={() =>
                   updateSettings({ nativeChatTurnCheckpoints: !turnCheckpointsEnabled })
                 }
+              />
+            </SearchableSetting>
+            <SearchableSetting
+              {...entries.reviewTools}
+              id={entries.reviewTools.targetSectionId}
+              forceVisible={forceVisible}
+              className="max-w-none"
+            >
+              <SettingsSwitchRow
+                label={entries.reviewTools.title}
+                description={entries.reviewTools.description}
+                checked={reviewToolsEnabled}
+                ariaLabel={translate(
+                  'components.settings.nativeChat.reviewToolsToggleLabel',
+                  'Toggle agent review tools'
+                )}
+                onChange={() => updateSettings({ nativeChatReviewTools: !reviewToolsEnabled })}
               />
             </SearchableSetting>
             <SearchableSetting

@@ -189,7 +189,10 @@ describe('diff comments on twin worktrees', () => {
 
     expect(rowNotes(store, 'ssh:box')).toEqual([])
     expect(updateMeta).toHaveBeenLastCalledWith(
-      expect.objectContaining({ executionHostId: 'ssh:box', updates: { diffComments: [] } })
+      expect.objectContaining({
+        executionHostId: 'ssh:box',
+        updates: expect.objectContaining({ diffComments: [] })
+      })
     )
   })
 
@@ -348,7 +351,9 @@ describe('diff comments on twin worktrees', () => {
 
     expect(updateMeta).toHaveBeenCalledWith(
       expect.objectContaining({
-        updates: { diffComments: [expect.objectContaining({ body: 'new' })] }
+        updates: expect.objectContaining({
+          diffComments: [expect.objectContaining({ body: 'new' })]
+        })
       })
     )
   })

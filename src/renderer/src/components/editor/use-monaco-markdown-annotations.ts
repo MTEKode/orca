@@ -15,6 +15,7 @@ import { selectWorktreeDiffComments } from '@/store/worktree-diff-comments-selec
 import { isMarkdownComment } from '@/lib/diff-comment-compat'
 import { formatMarkdownReviewNotes, type MarkdownReviewNote } from '@/lib/markdown-review-notes'
 import { useDiffCommentDecorator } from '../diff-comments/useDiffCommentDecorator'
+import type { DecoratedDiffComment } from '../diff-comments/decorated-diff-comment'
 import {
   getDiffCommentPopoverLeft,
   getDiffCommentPopoverTop
@@ -104,7 +105,8 @@ export function useMonacoMarkdownAnnotations(params: {
       : null
   }, [markdownComments, scrollToDiffCommentId, shouldShowMarkdownAnnotations])
   const formatMarkdownCommentPrompt = useCallback(
-    (comment: DiffComment) => formatMarkdownReviewNotes([comment as MarkdownReviewNote], content),
+    (comment: DecoratedDiffComment) =>
+      formatMarkdownReviewNotes([comment as MarkdownReviewNote], content),
     [content]
   )
 

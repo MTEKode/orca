@@ -213,6 +213,8 @@ export type GlobalSettings = GlobalSettingsBase & {
   nativeChatQueueFollowUps?: boolean
   /** Snapshot the worktree at turn boundaries so a turn can be reverted; absent means on. */
   nativeChatTurnCheckpoints?: boolean
+  /** Give structured Claude chats the in-process review tools (workspace diff + review comments); absent means on. */
+  nativeChatReviewTools?: boolean
   /** Teach newly started native chats to create inline visuals; absent means on. */
   nativeChatInlineVisuals?: boolean
   /** Hovering a web link in chat fetches the page to preview it; absent means on. GitHub cards ignore this. */
