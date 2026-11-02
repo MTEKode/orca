@@ -32,6 +32,7 @@ import type {
 } from '../../shared/worktree/create-types'
 import type { WorkspaceLineage, WorktreeLineage } from '../../shared/worktree/lineage-types'
 import type { WorktreeMeta } from '../../shared/worktree/meta-types'
+import type { DiffCommentBaseMutation } from '../../shared/diff-comment-mutation'
 import type {
   DetectedWorktreeListResult,
   GitHubPrStartPoint,
@@ -127,7 +128,7 @@ export type WorktreeApi = {
   updateMeta: (args: {
     worktreeId: string
     executionHostId?: ExecutionHostId
-    updates: Partial<WorktreeMeta>
+    updates: Partial<WorktreeMeta> & DiffCommentBaseMutation
   }) => Promise<Worktree | null>
   listLineage: () => Promise<{
     lineage: Record<string, WorktreeLineage>

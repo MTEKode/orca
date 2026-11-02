@@ -30,6 +30,7 @@ import {
 import { useNativeChatTranscriptRowContext } from './use-native-chat-transcript-row-context'
 import type { StructuredAgentSessionHostWork } from './use-structured-agent-session-transport-state'
 import type { NativeChatDeliveryNotice } from './NativeChatMessageRow'
+import type { NativeChatTurnRevertSurface } from './NativeChatTranscriptRow'
 import {
   splitNativeChatSlotsWaitingBehindLiveTurn,
   nativeChatSlotIndexOf
@@ -90,7 +91,8 @@ export function NativeChatMessageList({
   awaitingInput = null,
   turnActivity,
   stopping = false,
-  runtimeContext
+  runtimeContext,
+  turnRevert
 }: {
   ref?: Parameters<typeof useNativeChatMessageListHandle>[0]
   session: NativeChatLiveSession
@@ -121,6 +123,8 @@ export function NativeChatMessageList({
   /** A person's Stop is ending the live turn: its tail line reads "Stopping…". */
   stopping?: boolean
   runtimeContext?: RuntimeFileOperationArgs | null
+  /** Turn-bar revert affordance; absent where the pane holds no checkpoint surface. */
+  turnRevert?: NativeChatTurnRevertSurface
 }): React.JSX.Element {
   const [navigationRequest, setNavigationRequest] = useState<NavigationRequest | null>(null)
   const navigationSequence = useRef(0)
@@ -342,7 +346,8 @@ export function NativeChatMessageList({
     onToggleExpandedTurn: toggleExpandedTurn,
     subagentDisclosure,
     onScrollMessageToTop: scrollMessageToTop,
-    onRevealDiff: revealDiff
+    onRevealDiff: revealDiff,
+    turnRevert
   })
 
   return (

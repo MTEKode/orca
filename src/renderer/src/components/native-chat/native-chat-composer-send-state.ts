@@ -26,6 +26,8 @@ export function nativeChatComposerSendState(input: {
   editSession: { canSave: boolean } | undefined
   isWorking: boolean
   canStop: boolean
+  /** Queued diff comments count as a sendable draft even with an empty text field. */
+  hasQueuedComments?: boolean
 }): NativeChatComposerSendState {
   const { structuredTransport: transport } = input
   const imageBlock = nativeChatImageSendBlock(input.imageAttachments)
@@ -35,7 +37,10 @@ export function nativeChatComposerSendState(input: {
     transport?.sendOut === true ||
     imageBlock.holdsSend ||
     transport?.sendBlockedReason !== undefined
-  const hasDraft = input.draft.trim() !== '' || input.imageAttachments.length > 0
+  const hasDraft =
+    input.draft.trim() !== '' ||
+    input.imageAttachments.length > 0 ||
+    (input.hasQueuedComments ?? false)
   // Like Enter, a typed draft sends while the agent works; only an empty one offers Stop.
   const sendButtonDisabled = input.editSession
     ? sendHeld || !input.editSession.canSave

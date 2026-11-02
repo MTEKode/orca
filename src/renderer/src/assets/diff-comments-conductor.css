@@ -1,0 +1,21 @@
+/* Conductor-style inline diff comment cards. Scoped so nothing else changes. */
+.orca-diff-comment-popover,
+.orca-diff-comment-card {
+  background: var(--sheet-surface, var(--card));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.orca-diff-comment-popover .orca-diff-comment-popover-textarea,
+.orca-diff-comment-card .orca-diff-comment-popover-textarea {
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid var(--input-border, var(--input));
+  padding: 12px;
+}
+
+.orca-diff-comment-popover .orca-diff-comment-popover-footer,
+.orca-diff-comment-card .orca-diff-comment-popover-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

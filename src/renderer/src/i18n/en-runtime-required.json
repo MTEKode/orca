@@ -424,6 +424,8 @@
             "discardFailedSampleMore_other": "{{paths}}, +{{count}} more",
             "discardFailed_one": "Failed to discard {{count}} file",
             "discardFailed_other": "Failed to discard {{count}} files",
+            "filesChanged_one": "{{count}} file changed",
+            "filesChanged_other": "{{count}} files changed",
             "noteCount_one": "{{count}} note",
             "noteCount_other": "{{count}} notes"
           },
@@ -1281,10 +1283,6 @@
         "permissionDenied": "Permission denied.",
         "symlink": "Symbolic links cannot be attached.",
         "unsupported": "Unsupported file type."
-      },
-      "activateAiVaultStructuredSession": {
-        "worktreeDeleted": "The worktree was deleted.",
-        "folderWorkspaceRemoved": "The folder workspace was removed."
       }
     },
     "runtime": {
@@ -1839,6 +1837,10 @@
       "turnDiff": {
         "changedFiles_one": "{{count}} changed file",
         "changedFiles_other": "{{count}} changed files"
+      },
+      "turnRevert": {
+        "filesChanged_one": "{{count}} file will change",
+        "filesChanged_other": "{{count}} files will change"
       },
       "writeNotice": {
         "agentRefused": "The agent turned this down.",

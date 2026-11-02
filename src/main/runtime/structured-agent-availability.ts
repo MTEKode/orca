@@ -16,6 +16,10 @@ import {
   STRUCTURED_AGENT_RUNTIME_METADATA,
   structuredAgentRuntimeMetadata
 } from './structured-agent-runtime-metadata'
+import {
+  structuredAgentVisibleWithSettings,
+  installOpenCodeV2ChatGate
+} from '../opencode-v2/opencode-v2-gate'
 import type { StructuredAgentRuntimeMetadata } from './structured-agent-runtime-registration-types'
 import { recaptureHostShellEnvironment } from './structured-agent-shell-environment'
 import type { RuntimeStore } from './runtime-store-contract'
@@ -32,6 +36,7 @@ const HEALTH_SETTINGS = [
   'agentDefaultEnv',
   'nativeChatInheritShellEnvironment',
   'nativeChatShellEnvironmentVariables',
+  'experimentalOpenCodeV2Chat',
   ...SHELL_SETTINGS
 ] as const satisfies readonly (keyof GlobalSettings)[]
 
@@ -109,22 +114,35 @@ export function installStructuredAgentAvailability(
   store: Pick<RuntimeStore, 'onSettingsChanged'> | null,
   runtime: HealthRuntime
 ) {
+  installOpenCodeV2ChatGate(() => {
+    try {
+      // SAFETY: the runtime store returns full settings; the narrow launch type only names what it reads.
+      return runtime.requireStore().getSettings() as Pick<
+        GlobalSettings,
+        'experimentalOpenCodeV2Chat'
+      >
+    } catch {
+      return null
+    }
+  })
   const readers = new Set<StructuredAgentAvailabilityReader>()
   let latest: readonly AgentSessionAgentAvailability[] | undefined
   let pass = 0
   const derive = (capture = true): void => {
     const mine = ++pass
+    // SAFETY: the health runtime's store is the settings store; the narrow Pick types only what launch observation reads.
+    const settings = runtime.requireStore().getSettings() as GlobalSettings
     // Explicit Refresh already captured; first use and settings changes need fresh facts.
     void (capture ? recaptureHostShellEnvironment() : Promise.resolve())
       .catch(() => undefined)
       .then(() =>
         Promise.all(
-          STRUCTURED_AGENT_RUNTIME_METADATA.map(
-            async (agent): Promise<AgentSessionAgentAvailability> => ({
-              ...(await observeHostAgent(agent, runtime)),
-              chatProgram: await observeChatProgram(agent, runtime)
-            })
-          )
+          STRUCTURED_AGENT_RUNTIME_METADATA.filter(({ definition }) =>
+            structuredAgentVisibleWithSettings(definition.agent, settings)
+          ).map(async (agent): Promise<AgentSessionAgentAvailability> => ({
+            ...(await observeHostAgent(agent, runtime)),
+            chatProgram: await observeChatProgram(agent, runtime)
+          }))
         )
       )
       .then((agents) => {

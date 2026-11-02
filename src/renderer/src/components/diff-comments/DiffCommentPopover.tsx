@@ -41,8 +41,8 @@ export function DiffCommentPopover({
   lineHeight = 0,
   title,
   placeholder = translate(
-    'auto.components.diff.comments.DiffCommentPopover.f6c449191e',
-    'Add note for the AI'
+    'auto.components.diff.comments.DiffCommentPopover.commentPlaceholder',
+    'Add a comment for the AI'
   ),
   submitLabel = translate(
     'auto.components.diff.comments.DiffCommentPopover.5fa4bfebaa',
@@ -191,7 +191,10 @@ export function DiffCommentPopover({
     >
       {/* Content */}
       <div className="orca-diff-comment-content-col" style={{ gap: '8px' }}>
-        <div id={labelId} className="orca-diff-comment-popover-label">
+        <div
+          id={labelId}
+          className="orca-diff-comment-popover-label font-mono text-[11px] uppercase tracking-wide text-muted-foreground"
+        >
           {title ??
             (startLine && startLine !== lineNumber
               ? translate(

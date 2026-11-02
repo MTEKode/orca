@@ -13,6 +13,7 @@ export function createStructuredAgentSessionHostRequestFailures(
     sessions,
     onFailure: (failure) => deps().onRequestFailure?.(failure),
     capturePendingOutput: (input) => deps().adapter.capturePendingOutput?.(input),
+    observeCommittedRows: (sessionId, rows) => deps().observeJournalRows?.(sessionId, rows),
     wordsContext: (sessionId) =>
       structuredAgentSessionFailureWordsContext(
         deps().store.getRecord(sessionId),

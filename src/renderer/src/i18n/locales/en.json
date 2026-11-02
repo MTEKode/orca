@@ -8046,6 +8046,12 @@
             "title": "New card style",
             "toggleLabel": "Toggle new card style"
           },
+          "opencodeV2Chat": {
+            "copy": "Adds an “OpenCode v2” chat agent that talks to OpenCode 2.x over its background HTTP service, with mid-turn steering, native compaction and context usage. Requires OpenCode 2.x installed. Your existing OpenCode agents stay unchanged.",
+            "description": "Chat with OpenCode through its v2 HTTP service.",
+            "title": "OpenCode v2 chat",
+            "toggleLabel": "Toggle OpenCode v2 chat"
+          },
           "ca2219fe5e": "Shows a small animated pet pinned to the bottom-right corner. Pick a character (Claudino, OpenCode, Gremlin) or upload your own PNG, APNG, GIF, WebP, JPG, or SVG from the status-bar pet menu. Hide it any time from the same menu without disabling this setting.",
           "dd6f0a1d45": "Pet",
           "0e89a574ae": "Floating animated pet in the bottom-right corner.",
@@ -10295,6 +10301,14 @@
               "title": "New card style",
               "worktree": "worktree",
               "worktrees": "worktrees"
+            },
+            "opencodeV2Chat": {
+              "agent": "agent",
+              "chat": "chat",
+              "description": "Chat with OpenCode through its v2 HTTP service, with mid-turn steering and native compaction.",
+              "http": "http",
+              "opencode": "opencode",
+              "title": "OpenCode v2 chat"
             },
             "9af7a518db": "character",
             "791fefc0b0": "corner",
@@ -14013,6 +14027,8 @@
             "2c417432b7": "Resolved locally",
             "f3a8b2c1d0e5": "Enter a {{value0}} title.",
             "e2b7a1c0d9f4": "Failed to create {{value0}}",
+            "filesChanged_one": "{{count}} file changed",
+            "filesChanged_other": "{{count}} files changed",
             "hugeRepoIgnorePrompt": "This repository has too many active changes. Add \"{{value0}}\" to .gitignore?",
             "hugeRepoIgnoreAction": "Add to .gitignore",
             "tooManyChanges": "Too many changes detected. Only the first {{value0}} changes are shown.",
@@ -14172,6 +14188,15 @@
             }
           },
           "checks": {
+            "conductor": {
+              "comments": "Comments",
+              "createPr": "Create PR",
+              "gitStatus": "Git status",
+              "noPrOpen": "No PR open",
+              "prDescription": "PR description",
+              "prTitle": "PR title",
+              "pull": "Pull"
+            },
             "panel": {
               "loadFailedOnMachine": "Could not load from {{machine}}: {{detail}}",
               "content": {
@@ -17135,28 +17160,26 @@
             "109a791e7b": "Save",
             "bb0a55f856": "Saving…",
             "0203bed775": "Cancel",
-            "6978871a3d": "Open",
-            "cce596969e": "Delete note",
             "cad3384faa": "Edit note",
             "508ee678a5": "Open in browser",
             "noteAuthorFallback": "Note",
-            "sentMeta": "sent"
+            "sentMeta": "sent",
+            "editAction": "Edit",
+            "removeFromChat": "Remove from chat"
           },
           "DiffCommentPopover": {
             "2b3ce6d394": "Cancel",
             "e05063cfc1": "Line {{value0}}",
             "c845170b3b": "Lines {{value0}}-{{value1}}",
             "commentTooLarge": "Comment is too large to submit safely.",
-            "f6c449191e": "Add note for the AI",
             "5fa4bfebaa": "Add note",
-            "5e9b3d0c2e": "Adding..."
+            "5e9b3d0c2e": "Adding...",
+            "fileScope": "File",
+            "commentPlaceholder": "Add a comment for the AI",
+            "commentSubmit": "Comment"
           },
-          "useDiffCommentDecorator": {
-            "995fa28b50": "This note"
-          },
-          "diffCommentZoneCard": {
-            "noteAlreadySent": "Note already sent"
-          }
+          "useDiffCommentDecorator": {},
+          "diffCommentZoneCard": {}
         }
       },
       "dictation": {
@@ -19750,7 +19773,8 @@
           "medium": "Med",
           "xhigh": "XHigh"
         },
-        "imageUnavailable": "Preview unavailable"
+        "imageUnavailable": "Preview unavailable",
+        "removeDiffComment": "Remove comment on {{path}} lines {{lines}}"
       },
       "tool": {
         "exitCode": "exit {{value0}}",
@@ -20361,6 +20385,19 @@
       "webPeek": {
         "unavailable": "No preview for this page."
       },
+      "turnRevert": {
+        "success": "Reverted to before this turn",
+        "action": "Revert to before this turn",
+        "dialogTitle": "Revert to before this turn?",
+        "dialogDescription": "HEAD, staged changes and untracked files return to their state when this turn started. Ignored files are kept. This cannot be undone.",
+        "loading": "Loading changes…",
+        "loadFailed": "Could not load the changes for this turn.",
+        "noChanges": "No files will change.",
+        "filesChanged_one": "{{count}} file will change",
+        "filesChanged_other": "{{count}} files will change",
+        "cancel": "Cancel",
+        "confirm": "Revert"
+      },
       "usageLimitActions": {
         "continueNow": "Continue Now",
         "leadIn": "Continue this chat without waiting:",
@@ -20774,6 +20811,16 @@
         "linkPreviewsCopy": "Hovering a web link shows a preview card. Orca fetches the page to build it, so the site can see the request.",
         "linkPreviewsSearchUnfurl": "unfurl",
         "linkPreviewsSearchHover": "hover card",
+        "turnCheckpointsToggleLabel": "Toggle snapshot turns for revert",
+        "turnCheckpointsTitle": "Snapshot turns for revert",
+        "turnCheckpointsCopy": "Orca snapshots the worktree at each chat turn so you can revert files to before a turn. Snapshots live in private git refs and never move your branch.",
+        "turnCheckpointsSearchRevert": "revert",
+        "turnCheckpointsSearchCheckpoint": "checkpoint",
+        "reviewToolsToggleLabel": "Toggle agent review tools",
+        "reviewToolsTitle": "Agent review tools",
+        "reviewToolsCopy": "Claude chats can read your queued review notes and the workspace diff, and post their own review comments into the notes list.",
+        "reviewToolsSearchReview": "review",
+        "reviewToolsSearchComments": "comments",
         "usageLimitContinueTitle": "Continue chats automatically when a usage limit resets",
         "usageLimitContinueCopy": "Orca sends \"Continue where you left off.\" when the limit resets. Applies to all chats with a known reset time.",
         "usageLimitContinueSearchLimit": "usage limit",
@@ -20911,6 +20958,9 @@
       "stepDownload": "Download",
       "stepUnpack": "Unpack",
       "stepCheck": "Check"
+    },
+    "diffComments": {
+      "agentBadge": "AI"
     },
     "orchestrationCrew": {
       "mentionAll": "Mention all",

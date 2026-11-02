@@ -16838,8 +16838,6 @@
             "109a791e7b": "Kaydet",
             "bb0a55f856": "Kaydediliyor…",
             "0203bed775": "İptal",
-            "6978871a3d": "Aç",
-            "cce596969e": "Notu sil",
             "cad3384faa": "Notu düzenle",
             "508ee678a5": "Tarayıcıda aç",
             "noteAuthorFallback": "Not",
@@ -16850,16 +16848,11 @@
             "e05063cfc1": "Satır {{value0}}",
             "c845170b3b": "Satır {{value0}}-{{value1}}",
             "commentTooLarge": "Yorum güvenli şekilde gönderilemeyecek kadar büyük.",
-            "f6c449191e": "AI için not ekle",
             "5fa4bfebaa": "Not ekle",
             "5e9b3d0c2e": "Ekleniyor..."
           },
-          "useDiffCommentDecorator": {
-            "995fa28b50": "Bu not"
-          },
-          "diffCommentZoneCard": {
-            "noteAlreadySent": "Not zaten gönderildi"
-          }
+          "useDiffCommentDecorator": {},
+          "diffCommentZoneCard": {}
         }
       },
       "dictation": {

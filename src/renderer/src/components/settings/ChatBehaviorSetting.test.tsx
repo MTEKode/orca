@@ -233,3 +233,30 @@ it('disables the supported automatic continuation switch until host consent is k
   fireEvent.click(control)
   expect(updateSettings).not.toHaveBeenCalled()
 })
+
+describe('ChatBehaviorSetting turn checkpoints', () => {
+  const TURN_CHECKPOINTS_TOGGLE = '[aria-label="Toggle snapshot turns for revert"]'
+
+  it('renders the snapshot switch on by default and toggles it off', () => {
+    const updateSettings = vi.fn()
+    const { container } = renderSetting({}, updateSettings)
+    const toggle = container.querySelector<HTMLButtonElement>(TURN_CHECKPOINTS_TOGGLE)
+    expect(toggle).not.toBeNull()
+    expect(toggle?.getAttribute('aria-checked')).toBe('true')
+
+    fireEvent.click(toggle!)
+
+    expect(updateSettings).toHaveBeenCalledTimes(1)
+    expect(updateSettings).toHaveBeenCalledWith({ nativeChatTurnCheckpoints: false })
+  })
+
+  it('reflects an explicitly disabled setting', () => {
+    const updateSettings = vi.fn()
+    const { container } = renderSetting({ nativeChatTurnCheckpoints: false }, updateSettings)
+    const toggle = container.querySelector<HTMLButtonElement>(TURN_CHECKPOINTS_TOGGLE)
+
+    fireEvent.click(toggle!)
+
+    expect(updateSettings).toHaveBeenCalledWith({ nativeChatTurnCheckpoints: true })
+  })
+})

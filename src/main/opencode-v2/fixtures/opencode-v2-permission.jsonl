@@ -1,0 +1,4 @@
+{"id":"ev_1","created":1,"type":"session.inbox.delivered","data":{"sessionID":"ses_test","inboxID":"msg_user_1"}}
+{"id":"ev_2","created":2,"type":"session.execution.started","data":{"sessionID":"ses_test"}}
+{"id":"ev_3","created":3,"type":"permission.asked","data":{"id":"per_1","sessionID":"ses_test","action":"bash","resources":["rm -rf build"],"message":"Run this command?"}}
+{"id":"ev_4","created":4,"type":"permission.replied","data":{"sessionID":"ses_test","requestID":"per_1","reply":{"decision":"once"}}}

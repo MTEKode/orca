@@ -140,7 +140,7 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
       onClick={handleCriticalAction}
       variant={stops ? 'secondary' : 'default'}
       size="icon"
-      className="size-8 rounded-full pointer-coarse:size-10"
+      className="size-[30px] pointer-coarse:size-10"
     >
       {stops ? <Square className="size-3.5 fill-current" /> : <ArrowUp className="size-4" />}
     </Button>

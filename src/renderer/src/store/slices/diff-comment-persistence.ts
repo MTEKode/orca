@@ -155,7 +155,9 @@ export function enqueueDiffCommentPersist(
           worktreeId,
           (stateList ?? []).map(normalizeDiffComment),
           undefined,
-          writeHostId
+          writeHostId,
+          // The pre-mutation list lets main's merge keep notes another writer (an agent tool) landed mid-burst.
+          mutation.previous
         )
       }
     } catch (err) {

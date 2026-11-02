@@ -211,6 +211,30 @@ describe('NativeChatComposerActions', () => {
     }
   )
 
+  it('renders the model picker before the send button in DOM order', () => {
+    render(
+      <NativeChatComposerActions
+        attachDisabled={false}
+        dictationDisabled={false}
+        sendDisabled={false}
+        isWorking={false}
+        isDictating={false}
+        isDictationHoldMode={false}
+        onAttach={vi.fn()}
+        onDictationToggle={vi.fn()}
+        onDictationHoldStart={vi.fn()}
+        onDictationHoldEnd={vi.fn()}
+        onSend={vi.fn()}
+        sessionOptionsSurface={null}
+        sessionOptionsSnapshot={[]}
+      />
+    )
+
+    const picker = screen.getByTestId('session-option-pickers')
+    const send = screen.getByRole('button', { name: 'Send' })
+    expect(picker.compareDocumentPosition(send) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
   it('says on the disabled send button what to do to send', () => {
     render(
       <NativeChatComposerActions

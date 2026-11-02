@@ -215,7 +215,8 @@ describe('structured chat naming runtime', () => {
 
   it.each(
     STRUCTURED_AGENT_RUNTIME_CATALOG.map(({ metadata }) => metadata.definition.agent).filter(
-      (agent) => agent !== 'pi' && agent !== 'omp'
+      // Pi, OMP and the experimental opencode-v2 HTTP transport have no own-agent text-generation route.
+      (agent) => agent !== 'pi' && agent !== 'omp' && agent !== 'opencode-v2'
     )
   )('names a %s chat with its own agent regardless of global selection', async (provider) => {
     const state = rig()

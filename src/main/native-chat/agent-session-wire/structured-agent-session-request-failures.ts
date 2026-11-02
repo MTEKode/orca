@@ -48,6 +48,8 @@ export class StructuredAgentSessionRequestFailures {
       onFailure: (failure: StructuredAgentSessionRequestFailure) => void
       capturePendingOutput?: StructuredAgentSessionAdapter['capturePendingOutput']
       wordsContext?: (sessionId: string) => AgentSessionFailureWordsContext
+      /** Advisory reaction to the committed rows (turn checkpoints); a throw is contained here. */
+      observeCommittedRows?: (sessionId: string, rows: readonly JournalRow[]) => void
     }
   ) {}
 
@@ -61,6 +63,13 @@ export class StructuredAgentSessionRequestFailures {
     journal: AgentSessionJournal,
     rows?: readonly JournalRow[]
   ): void => {
+    if (rows) {
+      try {
+        this.deps.observeCommittedRows?.(sessionId, rows)
+      } catch {
+        // An advisory row reaction must never cost the failure facts their observation.
+      }
+    }
     const cursor = journal.cursor()
     let baseline = this.baselines.get(sessionId)
     const items = new Set<string>()

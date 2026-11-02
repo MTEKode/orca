@@ -18,9 +18,14 @@ const REGISTERED_AGENTS = STRUCTURED_AGENT_RUNTIME_REGISTRATIONS.map(
   ({ definition }) => definition.agent
 ).filter(isTuiAgent)
 
+/** Registered agents with no terminal launch: only the structured chat surfaces offer them. */
+const STRUCTURED_ONLY_AGENTS = ['opencode-v2']
+
 describe('a worker for a registered native-chat agent', () => {
   it('covers every registered agent, the ACP and Pi agents included', () => {
-    expect(REGISTERED_AGENTS).toHaveLength(STRUCTURED_AGENT_RUNTIME_REGISTRATIONS.length)
+    expect(REGISTERED_AGENTS).toHaveLength(
+      STRUCTURED_AGENT_RUNTIME_REGISTRATIONS.length - STRUCTURED_ONLY_AGENTS.length
+    )
     expect(REGISTERED_AGENTS).toEqual(expect.arrayContaining(['grok', 'opencode', 'omp', 'pi']))
   })
 

@@ -14,6 +14,8 @@ import {
   useNativeChatComposerRevealFocus,
   type NativeChatComposerRevealFocusArgs
 } from './use-native-chat-composer-reveal-focus'
+import type { useNativeChatFind } from './use-native-chat-find'
+import type { useStructuredNativeChatPaneCommands } from './use-structured-native-chat-pane-commands'
 
 // Floating panels can reveal a chat beside the workspace’s chat.
 const revealedChatRoots = new Set<HTMLElement>()
@@ -92,4 +94,31 @@ export function useNativeChatRootInputRouting(
     [composerRef, questionAnswerInputRef, rootRef]
   )
   return { onPointerDownCapture, onKeyDownCapture }
+}
+
+/** Compose the pane root's capture routers, preserving their order: commands, find, root input. */
+export function nativeChatPaneCaptures(
+  paneCommands: Pick<
+    ReturnType<typeof useStructuredNativeChatPaneCommands>,
+    'onPointerDownCapture' | 'onKeyDownCapture' | 'onContextMenuCapture'
+  >,
+  find: Pick<ReturnType<typeof useNativeChatFind>, 'onKeyDownCapture'>,
+  rootInput: ReturnType<typeof useNativeChatRootInputRouting>
+): {
+  onPointerDownCapture: (event: ReactPointerEvent<HTMLDivElement>) => void
+  onKeyDownCapture: (event: ReactKeyboardEvent<HTMLDivElement>) => void
+  onContextMenuCapture: typeof paneCommands.onContextMenuCapture
+} {
+  return {
+    onPointerDownCapture: (event) => {
+      paneCommands.onPointerDownCapture(event)
+      rootInput.onPointerDownCapture(event)
+    },
+    onKeyDownCapture: (event) => {
+      find.onKeyDownCapture(event)
+      paneCommands.onKeyDownCapture(event)
+      rootInput.onKeyDownCapture(event)
+    },
+    onContextMenuCapture: paneCommands.onContextMenuCapture
+  }
 }

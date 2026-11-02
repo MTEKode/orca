@@ -1,0 +1,2 @@
+{"id":"ev_1","created":1,"type":"session.compaction.started","data":{"sessionID":"ses_test","reason":"manual"}}
+{"id":"ev_2","created":2,"type":"session.compaction.ended","data":{"sessionID":"ses_test","reason":"manual","text":"summary","cost":0.001,"tokens":{"input":10,"output":5,"reasoning":0,"cache":{"read":0,"write":0}}}}

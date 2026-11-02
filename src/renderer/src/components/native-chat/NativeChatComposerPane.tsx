@@ -25,6 +25,7 @@ import { useNativeChatStructuredComposerSend } from './use-native-chat-structure
 import { useImeEnterGestureOwnership } from '@/lib/ime-composition-keyboard-event'
 import { useNativeChatComposerAppMenuSelection } from './use-native-chat-composer-app-menu-selection'
 import { useNativeChatComposerSubmit } from './use-native-chat-composer-submit'
+import { useNativeChatHasQueuedDiffComments } from './use-native-chat-queued-diff-comments'
 import { useNativeChatComposerCommandPicker } from './use-native-chat-composer-command-picker'
 
 type ComposerHandle = C.NativeChatComposerHandle
@@ -156,6 +157,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       setNotice
     })
     const { imageAttachments, attachResolvedPaths, clearImageAttachments } = attachments
+    const hasQueuedComments = useNativeChatHasQueuedDiffComments(structuredTransport?.worktreeId)
 
     const {
       pickAttachments,
@@ -300,7 +302,8 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       structuredTransport,
       editSession,
       isWorking,
-      canStop: hasPty && onStop !== undefined
+      canStop: hasPty && onStop !== undefined,
+      hasQueuedComments
     })
 
     const { send, chooseEditItem, fieldOverrides, dispatchPickerCommand } =
@@ -377,6 +380,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
           activeSuggestion={activeSuggestion}
           notices={notices}
           imageAttachments={imageAttachments}
+          worktreeId={structuredTransport?.worktreeId}
           numberImages={Boolean(structuredTransport)}
           attachmentEnvironmentId={structuredTransport?.runtimeEnvironmentId ?? undefined}
           {...sendButton}

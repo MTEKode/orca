@@ -1,0 +1,9 @@
+{"id":"ev_1","created":1,"type":"session.inbox.delivered","data":{"sessionID":"ses_test","inboxID":"msg_user_1"}}
+{"id":"ev_2","created":2,"type":"session.execution.started","data":{"sessionID":"ses_test"}}
+{"id":"ev_3","created":3,"type":"session.tool.input.started","data":{"sessionID":"ses_test","assistantMessageID":"msg_asst_1","id":"tool_1","name":"edit"}}
+{"id":"ev_4","created":4,"type":"session.tool.input.delta","data":{"sessionID":"ses_test","assistantMessageID":"msg_asst_1","id":"tool_1","delta":"{\"filePath\":\"src/a.ts\","}}
+{"id":"ev_5","created":5,"type":"session.tool.input.delta","data":{"sessionID":"ses_test","assistantMessageID":"msg_asst_1","id":"tool_1","delta":"\"oldString\":\"a\",\"newString\":\"b\"}"}}
+{"id":"ev_6","created":6,"type":"session.tool.input.ended","data":{"sessionID":"ses_test","assistantMessageID":"msg_asst_1","id":"tool_1","text":"{\"filePath\":\"src/a.ts\",\"oldString\":\"a\",\"newString\":\"b\"}"}}
+{"id":"ev_7","created":7,"type":"session.tool.called","data":{"sessionID":"ses_test","assistantMessageID":"msg_asst_1","id":"tool_1","input":{"filePath":"src/a.ts","oldString":"a","newString":"b"},"executed":true}}
+{"id":"ev_8","created":8,"type":"session.tool.success","data":{"sessionID":"ses_test","assistantMessageID":"msg_asst_1","id":"tool_1","content":[{"type":"text","text":"ok"}],"metadata":{"exit":0},"executed":true}}
+{"id":"ev_9","created":9,"type":"session.execution.succeeded","data":{"sessionID":"ses_test"}}

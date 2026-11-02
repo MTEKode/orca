@@ -634,6 +634,11 @@ import {
   QueuedMessageUpdateParams
 } from './structured-agent-session-queued-edit-params'
 import { RenameParams } from './structured-agent-session-rename-params'
+import {
+  DiffTurnCheckpointParams,
+  ListTurnCheckpointsParams,
+  RestoreTurnCheckpointParams
+} from './structured-agent-session-turn-checkpoint-params'
 import { TerminalDaemonRestartSeveredParams } from './terminal-daemon-params'
 import { TerminalLimitUpdateParams } from './terminal-limit-params'
 import { TerminalAdoptOrphans } from './terminal-orphan-params'
@@ -786,11 +791,13 @@ export const RPC_PARAMS_BY_METHOD = {
   'agentSession.create': CreateParams,
   'agentSession.createSupport': CreateSupportParams,
   'agentSession.currentRequests': CurrentRequestsParams,
+  'agentSession.diffTurnCheckpoint': DiffTurnCheckpointParams,
   'agentSession.ensure': AttachParams,
   'agentSession.handoffStatus': HandoffStatusParams,
   'agentSession.history': HistoryParams,
   'agentSession.hold': HoldParams,
   'agentSession.item': ItemParams,
+  'agentSession.listTurnCheckpoints': ListTurnCheckpointsParams,
   'agentSession.modelCatalog': ModelCatalogParams,
   'agentSession.options': OptionsParams,
   'agentSession.queuedMessageDelete': QueuedMessageActionParams,
@@ -809,6 +816,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'agentSession.restartResumable': RestartResumableParams,
   'agentSession.restartResumableDismiss': RestartResumableParams,
   'agentSession.restartResume': RestartResumeParams,
+  'agentSession.restoreTurnCheckpoint': RestoreTurnCheckpointParams,
   'agentSession.reveal': RevealParams,
   'agentSession.rewind': RewindParams,
   'agentSession.send': SendParams,

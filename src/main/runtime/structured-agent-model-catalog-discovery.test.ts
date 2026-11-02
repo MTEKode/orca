@@ -87,8 +87,9 @@ describe('the model catalog contract on every registration', () => {
       context()
     )
     // Codex's `model/list` names it. Grok's session-free `currentModelId` can differ from what a
-    // session runs, so Grok, like the rest, learns it from a chat with no pick.
-    expect([...listingNamesConfiguredModel].sort()).toEqual(['codex'])
+    // session runs, so Grok, like the rest, learns it from a chat with no pick. OpenCode v2's
+    // `model/default` names the configured model for the chat's folder.
+    expect([...listingNamesConfiguredModel].sort()).toEqual(['codex', 'opencode-v2'])
   })
 
   // OpenCode 2.x and OMP list in a session opened in the chat's folder, which a prewarm does not have.
@@ -97,7 +98,7 @@ describe('the model catalog contract on every registration', () => {
       STRUCTURED_AGENT_RUNTIME_REGISTRATIONS,
       context()
     )
-    expect([...listsInChatFolder].sort()).toEqual(['omp', 'opencode', 'opencode2'])
+    expect([...listsInChatFolder].sort()).toEqual(['omp', 'opencode', 'opencode-v2', 'opencode2'])
   })
 
   it('maps an ACP agent with no session-free listing to an unavailable registration', () => {

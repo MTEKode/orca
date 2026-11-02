@@ -32,6 +32,7 @@ import type { AgentSessionUserNameWrite } from '../../runtime/agent-session/reco
 import type { AgentSessionRecoveryCapsule } from '../../runtime/agent-session/records/agent-session-recovery-capsule'
 import type { AgentSessionSpawnTokenScan } from '../../runtime/agent-session/ownership/agent-session-spawn-token-process-scan'
 import type { JournalHostDatabase } from '../agent-session-journal/journal-host-database'
+import type { JournalRow } from '../agent-session-journal/journal-row-schema'
 import type { AgentSessionJournal } from '../agent-session-journal/journal-store'
 import type { DeferredStructuredAgentSessionEventSink } from './structured-agent-session-event-sink'
 import type { JournalStopSettle } from '../agent-session-journal/queued-message-pause'
@@ -200,6 +201,9 @@ export type StructuredAgentSessionHostDeps = {
   ) => void
   /** Publishes held sessions; absent means no structured sessions in status-store readers. */
   statusSink?: StructuredAgentSessionStatusSink
+  /** Row-level commit observation for host-side reactions (turn checkpoints); never block or
+   *  throw into the write, and never run durable side effects inline. */
+  observeJournalRows?: (sessionId: string, rows: readonly JournalRow[]) => void
   /** Absent catalog reads return unknown. */
   modelCatalog?: AgentModelCatalogService
   /** The account home a start of this chat would launch under now, read without side effects;

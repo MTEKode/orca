@@ -51,6 +51,7 @@ import { preModeChatGetsFullAccess } from '../../../shared/agent-chat-permission
 import { isTuiAgent } from '../../../shared/tui-agent-config'
 import { nativeChatShellEnvironmentPolicy } from '../../../shared/native-chat/native-chat-shell-environment'
 import { claudeStructuredAuthPolicyForSettings } from '../../claude-accounts/claude-structured-auth-policy'
+import { createClaudeReviewMcpRuntime } from '../../claude/claude-review-mcp-server'
 import { resolveStructuredAgentCommand } from '../../native-chat/structured-agent-command-resolution'
 import { structuredAgentConfiguredArgs } from '../../native-chat/structured-agent-configured-args'
 import { claudeCliFlagSupport } from '../../claude/claude-cli-flag-support'
@@ -259,6 +260,15 @@ export abstract class OrcaRuntimeWithGetWorktreePs extends OrcaRuntimeWithWorktr
       nativeChatVisuals: {
         isEnabled: () => this.requireStore().getSettings().nativeChatInlineVisuals !== false
       },
+      resolveTurnCheckpointsEnabled: () =>
+        this.requireStore().getSettings().nativeChatTurnCheckpoints !== false,
+      // In-process review MCP tools for structured Claude launches; the setting gates each launch.
+      reviewTools: createClaudeReviewMcpRuntime({
+        isEnabled: () => this.requireStore().getSettings().nativeChatReviewTools !== false,
+        getStore: () => this.requireStore(),
+        notifyWorktreesChanged: (repoId) => this.notifyWorktreesChanged(repoId),
+        notifyReposChanged: () => this.notifyReposChanged()
+      }),
       resolveShellEnvironmentPolicy: () =>
         nativeChatShellEnvironmentPolicy(this.requireStore().getSettings()),
       resolveClaudeAuthPolicy: () =>

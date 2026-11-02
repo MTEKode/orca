@@ -195,7 +195,7 @@ describe('addDiffComment', () => {
     )
     expect(updateMeta).toHaveBeenCalledWith({
       worktreeId: WT,
-      updates: {
+      updates: expect.objectContaining({
         diffComments: [
           expect.objectContaining({
             source: 'markdown',
@@ -203,7 +203,21 @@ describe('addDiffComment', () => {
             lineNumber: 4
           })
         ]
-      }
+      })
+    })
+  })
+
+  it('ships the pre-mutation list as diffCommentsBase so main merges concurrent agent notes', async () => {
+    const store = createTestStore()
+    const seeded = [makeComment({ id: 'c1' })]
+    seed(store, seeded)
+
+    await store.getState().deleteDiffComment(WT, 'c1')
+
+    // The base lets main's three-way merge keep notes another writer (an agent tool) landed mid-burst.
+    expect(updateMeta).toHaveBeenCalledWith({
+      worktreeId: WT,
+      updates: { diffComments: [], diffCommentsBase: seeded }
     })
   })
 })
@@ -286,7 +300,8 @@ describe('updateDiffComment', () => {
       method: 'worktree.set',
       params: {
         worktree: `id:${WT}`,
-        diffComments: [expect.objectContaining({ id: 'c1', body: 'remote body' })]
+        diffComments: [expect.objectContaining({ id: 'c1', body: 'remote body' })],
+        diffCommentsBase: [expect.objectContaining({ id: 'c1', body: 'old body' })]
       },
       timeoutMs: 15_000
     })
@@ -314,9 +329,9 @@ describe('updateDiffComment', () => {
     expect(ok).toBe(true)
     expect(updateMeta).toHaveBeenCalledWith({
       worktreeId: WT,
-      updates: {
+      updates: expect.objectContaining({
         diffComments: [expect.objectContaining({ id: 'c1', body: 'local body' })]
-      }
+      })
     })
     expect(runtimeEnvironmentCall).not.toHaveBeenCalled()
   })
@@ -431,9 +446,9 @@ describe('markDiffCommentsSent', () => {
     expect(updateMeta).toHaveBeenCalledTimes(1)
     expect(updateMeta).toHaveBeenCalledWith({
       worktreeId: WT,
-      updates: {
+      updates: expect.objectContaining({
         diffComments: [expect.objectContaining({ id: 'c1', sentAt: 3000 }), expect.any(Object)]
-      }
+      })
     })
     expect(store.getState().featureInteractions['review-notes']).toEqual(
       expect.objectContaining({ interactionCount: 1 })
@@ -483,7 +498,7 @@ describe('clearDeliveredDiffComments', () => {
     expect(updateMeta).toHaveBeenCalledTimes(1)
     expect(updateMeta).toHaveBeenCalledWith({
       worktreeId: WT,
-      updates: { diffComments: [pending] }
+      updates: expect.objectContaining({ diffComments: [pending] })
     })
   })
 
@@ -500,7 +515,7 @@ describe('clearDeliveredDiffComments', () => {
     expect(store.getState().getDiffComments(WT)).toEqual([edited])
     expect(updateMeta).toHaveBeenCalledWith({
       worktreeId: WT,
-      updates: { diffComments: [edited] }
+      updates: expect.objectContaining({ diffComments: [edited] })
     })
   })
 
@@ -550,7 +565,7 @@ describe('bulk clear diff comments', () => {
     expect(updateMeta).toHaveBeenCalledTimes(1)
     expect(updateMeta).toHaveBeenCalledWith({
       worktreeId: WT,
-      updates: { diffComments: [] }
+      updates: expect.objectContaining({ diffComments: [] })
     })
   })
 
@@ -574,7 +589,9 @@ describe('bulk clear diff comments', () => {
     expect(updateMeta).toHaveBeenCalledTimes(1)
     expect(updateMeta).toHaveBeenCalledWith({
       worktreeId: WT,
-      updates: { diffComments: [expect.objectContaining({ id: 'c2' })] }
+      updates: expect.objectContaining({
+        diffComments: [expect.objectContaining({ id: 'c2' })]
+      })
     })
   })
 
@@ -651,7 +668,8 @@ describe('bulk clear diff comments', () => {
       method: 'worktree.set',
       params: {
         worktree: `id:${WT}`,
-        diffComments: []
+        diffComments: [],
+        diffCommentsBase: [expect.objectContaining({ id: 'c1' })]
       },
       timeoutMs: 15_000
     })

@@ -25,7 +25,6 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
 import { getRepositoryIconSectionId } from '@/components/settings/repository/repository-settings-targets'
 import { WslMoveProjectMenuItem } from '@/components/wsl-move/WslMoveProjectMenuItem'
@@ -37,10 +36,7 @@ import {
   effectiveExternalWorktreeVisibility,
   isLegacyRepoForExternalWorktreeVisibility
 } from '../../../../../../shared/worktree/ownership'
-import {
-  REPO_HEADER_ACTION_BUTTON_CLASS,
-  REPO_HEADER_ACTION_REVEAL_CLASS
-} from '../../repo-header-action-button-class'
+import { REPO_HEADER_ACTION_BUTTON_CLASS } from '../../repo-header-action-button-class'
 import { getRepoHeaderCreateState } from '../../repo-header-create-state'
 import {
   handleRepoHeaderActionPointerDown,
@@ -216,10 +212,7 @@ export const RepoHeaderCreateWorkspaceButton = React.memo(function RepoHeaderCre
       <TooltipTrigger asChild>
         {createState?.disabled ? (
           <span
-            className={cn(
-              'inline-flex cursor-not-allowed transition-[margin,max-width,opacity]',
-              REPO_HEADER_ACTION_REVEAL_CLASS
-            )}
+            className="inline-flex cursor-not-allowed"
             data-repo-header-action=""
             tabIndex={0}
             aria-label={createState.ariaLabel}
@@ -235,7 +228,7 @@ export const RepoHeaderCreateWorkspaceButton = React.memo(function RepoHeaderCre
               aria-label={createState.ariaLabel}
               disabled
             >
-              <Plus className="size-3" />
+              <Plus className="size-3.5" />
             </Button>
           </span>
         ) : (
@@ -243,7 +236,7 @@ export const RepoHeaderCreateWorkspaceButton = React.memo(function RepoHeaderCre
             type="button"
             variant="ghost"
             size="icon-xs"
-            className={REPO_HEADER_ACTION_BUTTON_CLASS}
+            className="size-5 shrink-0"
             data-repo-header-action=""
             aria-label={createState?.ariaLabel ?? fallbackLabel}
             onKeyDown={stopRepoHeaderKeyboardToggle}
@@ -254,7 +247,7 @@ export const RepoHeaderCreateWorkspaceButton = React.memo(function RepoHeaderCre
               onCreateForRepo(repo, { pinHost })
             }}
           >
-            <Plus className="size-3" />
+            <Plus className="size-3.5" />
           </Button>
         )}
       </TooltipTrigger>

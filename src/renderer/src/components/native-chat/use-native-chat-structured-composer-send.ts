@@ -24,6 +24,9 @@ import { nativeChatAttachImagesAgainReason } from './native-chat-image-reattach'
 import { nativeChatNoticeFromError } from './native-chat-composer-notice'
 import { agentSessionWriteNoticeText } from './agent-session-write-notice-text'
 import { translate } from '@/i18n/i18n'
+import { useAppStore } from '@/store'
+import { readQueuedDiffCommentsSafely } from './use-native-chat-queued-diff-comments'
+import { composePromptWithDiffComments } from '@/lib/native-chat-comment-delivery'
 import {
   captureNativeChatComposerSubmission,
   finishNativeChatComposerSubmission,
@@ -107,6 +110,10 @@ export function useNativeChatStructuredComposerSend({
       if (hostCommand && structuredAgentSessionCommandChangesConversation(text)) {
         structuredTransport.onSubmitted?.()
       }
+      // Queued diff comments ride along with plain messages only; commands go out untouched.
+      const worktreeId = structuredTransport.worktreeId
+      const state = useAppStore.getState()
+      const queued = hostCommand ? [] : readQueuedDiffCommentsSafely(state, worktreeId)
       const isCurrent = structuredTransport.capturePresentation()
       if (
         mayHoldAgentReferences(submittedText) &&
@@ -120,6 +127,8 @@ export function useNativeChatStructuredComposerSend({
           hostCommand ? 'goal' : 'message'
         )
       }
+      // Compose after serialization so queued comments wrap the wire text, not the raw draft.
+      const { prompt: outgoing, snapshots } = composePromptWithDiffComments(text, queued)
       const submission = captureNativeChatComposerSubmission(draftScopeKey)
       let consumed = false
       let completeAddition = false
@@ -171,7 +180,7 @@ export function useNativeChatStructuredComposerSend({
       }
       return dispatchNativeChatStructuredComposerText(
         structuredTransport,
-        text,
+        outgoing,
         attachments,
         promptSkillRefs(submission.draft?.document),
         intent,
@@ -184,6 +193,9 @@ export function useNativeChatStructuredComposerSend({
           if (!accepted) {
             finishNativeChatComposerSubmission(draftScopeKey, submission, consumed)
             return false
+          }
+          if (worktreeId && snapshots.length > 0) {
+            void useAppStore.getState().clearDeliveredDiffComments(worktreeId, snapshots)
           }
           completeNativeChatStructuredUserAction(
             agent,

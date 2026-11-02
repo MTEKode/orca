@@ -63,6 +63,7 @@ import { AUTOMATIC_WORK_METHODS } from './automatic-work'
 import { AGENT_SESSION_METHODS } from './agent-session'
 import { STRUCTURED_AGENT_SESSION_METHODS } from './structured-agent-session'
 import { STRUCTURED_AGENT_SESSION_ATTACHMENT_METHODS } from './structured-agent-session-attachments'
+import { TURN_CHECKPOINT_METHODS } from './turn-checkpoint-methods'
 import { STRUCTURED_AGENT_SESSION_VISUAL_METHODS } from './structured-agent-session-visual'
 import { STRUCTURED_AGENT_SESSION_AGENTS_METHODS } from './structured-agent-session-agents'
 import { MANAGED_RUNTIME_INSTALL_METHODS } from './managed-runtime-install'
@@ -94,6 +95,7 @@ export const ALL_RPC_METHODS = [
   ...AGENT_SESSION_METHODS,
   ...STRUCTURED_AGENT_SESSION_METHODS,
   ...STRUCTURED_AGENT_SESSION_ATTACHMENT_METHODS,
+  ...TURN_CHECKPOINT_METHODS,
   ...STRUCTURED_AGENT_SESSION_VISUAL_METHODS,
   ...STRUCTURED_AGENT_SESSION_AGENTS_METHODS,
   ...MANAGED_RUNTIME_INSTALL_METHODS,

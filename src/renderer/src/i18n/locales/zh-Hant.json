@@ -16627,8 +16627,6 @@
             "109a791e7b": "儲存",
             "bb0a55f856": "儲存…",
             "0203bed775": "取消",
-            "6978871a3d": "開啟",
-            "cce596969e": "刪除備註",
             "cad3384faa": "編輯備註",
             "508ee678a5": "在瀏覽器中開啟",
             "noteAuthorFallback": "筆記",
@@ -16639,16 +16637,11 @@
             "e05063cfc1": "行 {{value0}}",
             "c845170b3b": "行 {{value0}}-{{value1}}",
             "commentTooLarge": "評論過長，無法安全提交。",
-            "f6c449191e": "為 AI 新增備註",
             "5fa4bfebaa": "新增備註",
             "5e9b3d0c2e": "新增..."
           },
-          "useDiffCommentDecorator": {
-            "995fa28b50": "此備註"
-          },
-          "diffCommentZoneCard": {
-            "noteAlreadySent": "筆記已傳送"
-          }
+          "useDiffCommentDecorator": {},
+          "diffCommentZoneCard": {}
         }
       },
       "dictation": {

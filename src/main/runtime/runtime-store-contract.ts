@@ -105,6 +105,7 @@ export type RuntimeStore = {
   getSettings(): {
     autoRenameBranchFromWork?: GlobalSettings['autoRenameBranchFromWork']
     nativeChatAutoName?: GlobalSettings['nativeChatAutoName']
+    experimentalOpenCodeV2Chat?: GlobalSettings['experimentalOpenCodeV2Chat']
     notifications?: GlobalSettings['notifications']
     claudeManagedAccounts?: GlobalSettings['claudeManagedAccounts']
     activeClaudeManagedAccountId?: GlobalSettings['activeClaudeManagedAccountId']
@@ -187,6 +188,8 @@ export type RuntimeStore = {
     nativeChatSessionOptions?: GlobalSettings['nativeChatSessionOptions']
     nativeChatPermissionMode?: GlobalSettings['nativeChatPermissionMode']
     nativeChatQueueFollowUps?: GlobalSettings['nativeChatQueueFollowUps']
+    nativeChatTurnCheckpoints?: GlobalSettings['nativeChatTurnCheckpoints']
+    nativeChatReviewTools?: GlobalSettings['nativeChatReviewTools']
     nativeChatAutoContinueAfterUsageLimit?: GlobalSettings['nativeChatAutoContinueAfterUsageLimit']
     nativeChatInlineVisuals?: GlobalSettings['nativeChatInlineVisuals']
     nativeChatInheritShellEnvironment?: GlobalSettings['nativeChatInheritShellEnvironment']

@@ -1,5 +1,5 @@
 import { ImeTextarea } from '@/lib/ime-text-field'
-import { CornerDownLeft, Pencil, Trash } from 'lucide-react'
+import { CornerDownLeft, ExternalLink, MessageSquareOff, Pencil } from 'lucide-react'
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { getDiffCommentLineMetaLabel } from './diff-comment-line-meta-label'
@@ -18,6 +18,8 @@ type Props = {
   body: string
   sentAt?: number
   author?: string
+  /** Agent-posted note: show the AI badge and withhold the queued-note actions. */
+  agentAuthored?: boolean
   createdAtLabel?: string
   url?: string
   onDelete?: () => void
@@ -43,6 +45,7 @@ export function DiffCommentCard({
   body,
   sentAt,
   author,
+  agentAuthored,
   createdAtLabel,
   url,
   onDelete,
@@ -169,93 +172,84 @@ export function DiffCommentCard({
     }
   }
 
+  const openLabel = translate(
+    'auto.components.diff.comments.DiffCommentCard.508ee678a5',
+    'Open in browser'
+  )
+
   return (
     <div ref={cardRef} className="orca-diff-comment-card">
       <div className="orca-diff-comment-content-col">
         {/* Header Row */}
         <div className="orca-diff-comment-header">
-          <div className="orca-diff-comment-meta-group">{metaText}</div>
+          <div className="orca-diff-comment-meta-group">
+            {agentAuthored && (
+              <span className="mr-1 rounded bg-muted px-1 py-0.5 align-middle text-[10px] font-medium uppercase leading-none text-muted-foreground">
+                {translate('components.diffComments.agentBadge', 'AI')}
+              </span>
+            )}
+            {metaText}
+          </div>
 
-          {/* Action buttons pill (only shown if not editing) */}
+          {/* Actions (only shown if not editing) */}
           {!editing && (
             <div
-              className="orca-diff-comment-actions-pill"
+              className="orca-diff-comment-actions ml-auto flex items-center gap-2"
               onMouseDown={(ev) => ev.stopPropagation()}
             >
               {headerActions}
-              {headerActions && (url || onSubmitEdit || onDelete) && (
-                <span className="orca-diff-comment-pill-divider" />
-              )}
               {url && (
-                <>
-                  <button
-                    type="button"
-                    className="orca-diff-comment-pill-btn"
-                    title={translate(
-                      'auto.components.diff.comments.DiffCommentCard.508ee678a5',
-                      'Open in browser'
-                    )}
-                    aria-label={translate(
-                      'auto.components.diff.comments.DiffCommentCard.508ee678a5',
-                      'Open in browser'
-                    )}
-                    onClick={(ev) => {
-                      ev.preventDefault()
-                      ev.stopPropagation()
-                      openAppHttpLink(url, { event: ev })
-                    }}
-                  >
-                    {translate('auto.components.diff.comments.DiffCommentCard.6978871a3d', 'Open')}
-                  </button>
-                  {(onSubmitEdit || onDelete) && (
-                    <span className="orca-diff-comment-pill-divider" />
-                  )}
-                </>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  title={openLabel}
+                  aria-label={openLabel}
+                  onClick={(ev) => {
+                    ev.preventDefault()
+                    ev.stopPropagation()
+                    openAppHttpLink(url, { event: ev })
+                  }}
+                >
+                  <ExternalLink className="size-3.5" />
+                </Button>
               )}
               {onSubmitEdit && (
-                <>
-                  <button
-                    type="button"
-                    className="orca-diff-comment-pill-btn"
-                    title={translate(
-                      'auto.components.diff.comments.DiffCommentCard.cad3384faa',
-                      'Edit note'
-                    )}
-                    aria-label={translate(
-                      'auto.components.diff.comments.DiffCommentCard.cad3384faa',
-                      'Edit note'
-                    )}
-                    onClick={(ev) => {
-                      ev.preventDefault()
-                      ev.stopPropagation()
-                      handleStartEdit()
-                    }}
-                  >
-                    <Pencil className="size-3" />
-                  </button>
-                  {onDelete && <span className="orca-diff-comment-pill-divider" />}
-                </>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  aria-label={translate(
+                    'auto.components.diff.comments.DiffCommentCard.cad3384faa',
+                    'Edit note'
+                  )}
+                  onClick={(ev) => {
+                    ev.preventDefault()
+                    ev.stopPropagation()
+                    handleStartEdit()
+                  }}
+                >
+                  <Pencil className="size-3.5" />
+                  {translate('auto.components.diff.comments.DiffCommentCard.editAction', 'Edit')}
+                </Button>
               )}
               {onDelete && (
-                <button
+                <Button
                   type="button"
-                  className="orca-diff-comment-pill-btn orca-diff-comment-pill-btn-danger"
-                  title={translate(
-                    'auto.components.diff.comments.DiffCommentCard.cce596969e',
-                    'Delete note'
-                  )}
-                  aria-label={translate(
-                    'auto.components.diff.comments.DiffCommentCard.cce596969e',
-                    'Delete note'
-                  )}
+                  variant="secondary"
+                  size="sm"
                   onClick={(ev) => {
                     ev.preventDefault()
                     ev.stopPropagation()
                     onDelete()
                   }}
                 >
-                  <Trash className="size-3" />
-                </button>
+                  <MessageSquareOff className="size-3.5" />
+                  {translate(
+                    'auto.components.diff.comments.DiffCommentCard.removeFromChat',
+                    'Remove from chat'
+                  )}
+                </Button>
               )}
             </div>
           )}
