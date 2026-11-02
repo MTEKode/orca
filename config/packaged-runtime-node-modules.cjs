@@ -25,6 +25,8 @@ const PACKAGED_RUNTIME_PACKAGE_ROOTS = [
   '@linear/sdk',
   '@orca/process-host',
   '@parcel/watcher',
+  // Why: ESM-only OpenCode v2 HTTP client, lazy-imported by the main bundle at runtime.
+  '@opencode/client',
   'electron-updater',
   'i18next',
   'jsonc-parser',
