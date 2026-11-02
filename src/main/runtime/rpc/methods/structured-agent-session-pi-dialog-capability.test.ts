@@ -77,6 +77,8 @@ describe('Pi dialog-shape client capability', () => {
     const registered = STRUCTURED_AGENT_RUNTIME_REGISTRATIONS.map(
       ({ definition }) => definition.agent
     )
+    // The experimental opencode-v2 agent stays hidden while its setting is off, as here.
+    const visible = registered.filter((agent) => agent !== 'opencode-v2')
     const listing = (agents: string[]) => ({
       ok: true,
       result: { agents: agents.map((agent) => ({ agent })) }
@@ -85,10 +87,10 @@ describe('Pi dialog-shape client capability', () => {
 
     expect(
       await call('agentSession.agents', {}, OLD_CLIENT, {}, STRUCTURED_AGENT_SESSION_AGENTS_METHODS)
-    ).toMatchObject(listing(registered.filter((agent) => agent !== 'pi')))
+    ).toMatchObject(listing(visible.filter((agent) => agent !== 'pi')))
     expect(
       await call('agentSession.agents', {}, PI_CLIENT, {}, STRUCTURED_AGENT_SESSION_AGENTS_METHODS)
-    ).toMatchObject(listing(registered))
+    ).toMatchObject(listing(visible))
   })
 
   it('refuses Pi create support before asking the runtime, while other agents keep their path', async () => {

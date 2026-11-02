@@ -1,0 +1,11 @@
+{"id":"ev_1","created":1,"type":"session.inbox.delivered","data":{"sessionID":"ses_test","inboxID":"msg_user_1"}}
+{"id":"ev_2","created":2,"type":"session.execution.started","data":{"sessionID":"ses_test"}}
+{"id":"ev_3","created":3,"type":"session.step.started","data":{"sessionID":"ses_test","assistantMessageID":"msg_asst_1","agent":"build","model":{"id":"claude-sonnet-4-5","providerID":"anthropic"},"started":3}}
+{"id":"ev_4","created":4,"type":"session.text.started","data":{"sessionID":"ses_test","assistantMessageID":"msg_asst_1","ordinal":0}}
+{"id":"ev_5","created":5,"type":"session.text.delta","data":{"sessionID":"ses_test","assistantMessageID":"msg_asst_1","ordinal":0,"delta":"Hello"}}
+{"id":"ev_6","created":6,"type":"session.text.delta","data":{"sessionID":"ses_test","assistantMessageID":"msg_asst_1","ordinal":0,"delta":" world"}}
+{"id":"ev_7","created":7,"type":"session.text.ended","data":{"sessionID":"ses_test","assistantMessageID":"msg_asst_1","ordinal":0,"text":"Hello world"}}
+{"id":"ev_8","created":8,"type":"session.step.ended","data":{"sessionID":"ses_test","assistantMessageID":"msg_asst_1","finish":"stop","cost":0.01,"tokens":{"input":100,"output":20,"reasoning":5,"cache":{"read":50,"write":10}}}}
+{"id":"ev_9","created":9,"type":"session.usage.updated","data":{"sessionID":"ses_test","cost":0.01,"tokens":{"input":100,"output":20,"reasoning":5,"cache":{"read":50,"write":10}}}}
+{"id":"ev_10","created":10,"type":"session.execution.succeeded","data":{"sessionID":"ses_test"}}
+{"id":"ev_11","created":11,"type":"session.idle","data":{"sessionID":"ses_test"}}

@@ -11,8 +11,14 @@ const ensureStructuredAgentSessionHost = vi.fn(async () => {
 })
 
 function context(overrides: Partial<RpcContext>): RpcContext {
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the handler reads only the caller's capabilities; the runtime stub proves it never installs the host.
-  return { runtime: { ensureStructuredAgentSessionHost }, ...overrides } as unknown as RpcContext
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the handler reads only the caller's capabilities and the settings gate; the runtime stub proves it never installs the host.
+  return {
+    runtime: {
+      ensureStructuredAgentSessionHost,
+      requireStore: () => ({ getSettings: () => ({}) })
+    },
+    ...overrides
+  } as unknown as RpcContext
 }
 
 describe('agentSession.agents', () => {

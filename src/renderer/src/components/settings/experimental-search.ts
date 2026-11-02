@@ -182,6 +182,38 @@ export const getExperimentalPaneSearchEntries = createLocalizedCatalog(
       ]
     },
     getNewWorktreeCardStyleSearchEntry(),
+    {
+      title: translate(
+        'auto.components.settings.experimental.search.opencodeV2Chat.title',
+        'OpenCode v2 chat'
+      ),
+      description: translate(
+        'auto.components.settings.experimental.search.opencodeV2Chat.description',
+        'Chat with OpenCode through its v2 HTTP service, with mid-turn steering and native compaction.'
+      ),
+      keywords: [
+        ...translateSearchKeyword(
+          'auto.components.settings.experimental.search.0d24759f14',
+          'experimental'
+        ),
+        ...translateSearchKeyword(
+          'auto.components.settings.experimental.search.opencodeV2Chat.opencode',
+          'opencode'
+        ),
+        ...translateSearchKeyword(
+          'auto.components.settings.experimental.search.opencodeV2Chat.chat',
+          'chat'
+        ),
+        ...translateSearchKeyword(
+          'auto.components.settings.experimental.search.opencodeV2Chat.http',
+          'http'
+        ),
+        ...translateSearchKeyword(
+          'auto.components.settings.experimental.search.opencodeV2Chat.agent',
+          'agent'
+        )
+      ]
+    },
     getEphemeralVmsSearchEntry(),
     getBrowserExtensionsExperimentalSearchEntry(),
     // Index WSL toggles only on Windows desktops that expose them.
@@ -225,6 +257,12 @@ export function getExperimentalSearchEntry() {
       translate(
         'auto.components.settings.experimental.search.newWorktreeCardStyle.title',
         'New card style'
+      )
+    ),
+    opencodeV2Chat: findEntry(
+      translate(
+        'auto.components.settings.experimental.search.opencodeV2Chat.title',
+        'OpenCode v2 chat'
       )
     ),
     ephemeralVms: findEntry(

@@ -19,6 +19,7 @@ import { createOpenCodeAcpConnection } from '../opencode/opencode-acp-connection
 import { acpStructuredLaunchPart } from '../acp/acp-structured-launch-resolution'
 import { AcpStructuredSessionAdapter } from '../acp/acp-structured-session-adapter'
 import { PI_RPC_RUNTIME_REGISTRATION } from '../pi/rpc-runtime-registration'
+import { OPENCODE_V2_RUNTIME_REGISTRATION } from '../opencode-v2/opencode-v2-runtime-registration'
 import {
   claudeLaunchEnvOverlay,
   claudeListingDeps
@@ -205,6 +206,8 @@ function registrationWithAdapter(
   switch (entry.kind) {
     case 'pi':
       return PI_RPC_RUNTIME_REGISTRATION
+    case 'opencode-v2':
+      return OPENCODE_V2_RUNTIME_REGISTRATION
     case 'codex':
       return Object.assign(entry.metadata, { createAdapter: createCodexAdapter })
     case 'claude':

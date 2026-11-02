@@ -105,6 +105,7 @@ export type RuntimeStore = {
   getSettings(): {
     autoRenameBranchFromWork?: GlobalSettings['autoRenameBranchFromWork']
     nativeChatAutoName?: GlobalSettings['nativeChatAutoName']
+    experimentalOpenCodeV2Chat?: GlobalSettings['experimentalOpenCodeV2Chat']
     notifications?: GlobalSettings['notifications']
     claudeManagedAccounts?: GlobalSettings['claudeManagedAccounts']
     activeClaudeManagedAccountId?: GlobalSettings['activeClaudeManagedAccountId']

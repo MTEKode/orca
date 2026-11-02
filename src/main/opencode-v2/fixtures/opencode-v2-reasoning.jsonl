@@ -1,0 +1,5 @@
+{"id":"ev_1","created":1,"type":"session.inbox.delivered","data":{"sessionID":"ses_test","inboxID":"msg_user_1"}}
+{"id":"ev_2","created":2,"type":"session.reasoning.started","data":{"sessionID":"ses_test","assistantMessageID":"msg_asst_1","ordinal":0}}
+{"id":"ev_3","created":3,"type":"session.reasoning.delta","data":{"sessionID":"ses_test","assistantMessageID":"msg_asst_1","ordinal":0,"delta":"think"}}
+{"id":"ev_4","created":4,"type":"session.reasoning.delta","data":{"sessionID":"ses_test","assistantMessageID":"msg_asst_1","ordinal":0,"delta":"ing"}}
+{"id":"ev_5","created":5,"type":"session.reasoning.ended","data":{"sessionID":"ses_test","assistantMessageID":"msg_asst_1","ordinal":0,"text":"thinking"}}

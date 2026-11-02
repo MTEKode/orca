@@ -1,5 +1,5 @@
 import type { AgentSessionRecord } from '../../shared/agent-session-record'
-import { requireLegacyAgentSessionAccountHome } from '../../shared/agent-session-account-home'
+import { isLegacyAgentSessionAccountHome } from '../../shared/agent-session-account-home'
 import { resolveTuiAgentLaunchEnv } from '../../shared/tui-agent-launch-defaults'
 import { acpLaunchSpecFor } from '../acp/acp-launch-specs'
 import { getClaudeProfileRouter } from '../claude-accounts/claude-profile-installed-router'
@@ -28,7 +28,11 @@ export async function chatNamingAgentTarget(
     }
     return { kind: 'local', cwd, env: targetEnv }
   }
-  const home = requireLegacyAgentSessionAccountHome(record.accountHome)
+  const home = record.accountHome
+  if (!isLegacyAgentSessionAccountHome(home)) {
+    // A locator home pins no launch variable; managed binding belongs to the launch itself.
+    return { kind: 'local', cwd, env }
+  }
   if (record.provider === 'claude') {
     env = {
       ...withoutInheritedClaudeConfigDir(env),

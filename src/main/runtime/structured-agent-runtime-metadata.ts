@@ -11,6 +11,7 @@ import { supportsCodexStructuredLocation } from '../codex/codex-structured-locat
 import { supportsClaudeStructuredLocation } from '../claude/claude-structured-location-support'
 import { supportsAcpStructuredLocation } from '../acp/acp-structured-location-support'
 import { PI_RPC_RUNTIME_METADATA } from '../pi/rpc-runtime-metadata'
+import { OPENCODE_V2_RUNTIME_METADATA } from '../opencode-v2/opencode-v2-runtime-metadata'
 import {
   resolveStructuredClaudeAccountHomePath,
   resolveStructuredCodexAccountHomePath
@@ -30,7 +31,7 @@ import type {
 } from './structured-agent-runtime-registration-types'
 
 export type StructuredAgentRuntimeCatalogEntry =
-  | { kind: 'pi' | 'codex' | 'claude'; metadata: StructuredAgentRuntimeMetadata }
+  | { kind: 'pi' | 'codex' | 'claude' | 'opencode-v2'; metadata: StructuredAgentRuntimeMetadata }
   | { kind: 'acp'; metadata: StructuredAgentRuntimeMetadata; spec: AcpLaunchSpec }
 
 // Why the host's data folder: a start runs Orca's installed release before PATH.
@@ -148,7 +149,9 @@ export const STRUCTURED_AGENT_RUNTIME_CATALOG: readonly StructuredAgentRuntimeCa
     kind: 'acp',
     metadata: acpMetadata(spec),
     spec
-  }))
+  })),
+  // A new agent goes last: it shifts no configured agent's position.
+  { kind: 'opencode-v2', metadata: OPENCODE_V2_RUNTIME_METADATA }
 ]
 
 export const STRUCTURED_AGENT_RUNTIME_METADATA: readonly StructuredAgentRuntimeMetadata[] =

@@ -11,6 +11,7 @@ import type { PluginSystemSettings } from './plugins/plugin-system-settings'
 import type { WorktreeDeletionPreferences } from './worktree-deletion-preferences'
 import type { AgentPermissionGlobalSettings } from './tui-agent-permission-choice'
 import type { OrchestrationHeartbeatSettings } from './orchestration-heartbeat'
+import type { OpenCodeV2ChatSettings } from './opencode-v2-chat-settings'
 
 /** Settings groups owned by their feature modules and composed into GlobalSettings. */
 export type GlobalSettingsBase = ClaudeAgentViewSettings &
@@ -21,6 +22,7 @@ export type GlobalSettingsBase = ClaudeAgentViewSettings &
   ExternalConversationSettings &
   BrowserLinkOpeningSettings &
   OrchestrationHeartbeatSettings &
+  OpenCodeV2ChatSettings &
   BrowserExtensionGlobalSettings &
   PluginAppearanceSettings &
   PluginFileTypeSuggestionSettings &

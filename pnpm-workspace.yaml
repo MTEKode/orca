@@ -11,6 +11,10 @@ minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   # Security fix for compressed-request crashes (GHSA-27r3-jxmh-p828).
   - 'body-parser@2.4.0'
+  # Explicitly selected OpenCode v2 HTTP client release (T-0014 transport).
+  - '@opencode/client@2.2.3'
+  - '@opencode/protocol@2.2.3'
+  - '@opencode/schema@2.2.3'
   - 'bun@1.4.4'
   - '@oven/bun-darwin-aarch64@1.4.4'
   - '@oven/bun-darwin-x64@1.4.4'

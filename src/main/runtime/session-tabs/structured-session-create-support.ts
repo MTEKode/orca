@@ -19,6 +19,7 @@ import {
   resolveHostStructuredAgentLaunchEnvironment
 } from '../structured-agent-launch-support'
 import { structuredAgentRuntimeMetadata } from '../structured-agent-runtime-metadata'
+import { structuredAgentVisibleWithSettings } from '../../opencode-v2/opencode-v2-gate'
 import { structuredAgentChatProgramNeedsInstall } from '../structured-agent-availability'
 import { structuredLaunchSeedOptions } from '../../../shared/native-chat/input/native-chat-session-option-defaults'
 import { hasPersistedStructuredAgentSessionStore as hasPersistedStructuredAgentSessionStoreOnDisk } from '../structured-agent-session-runtime'
@@ -62,7 +63,10 @@ export abstract class OrcaRuntimeWithGetStructuredAgentSessionCreateSupport exte
   /** Use this runtime's registered definition to pin account home; reads/create must not install the host just to inspect it. */
   protected requireRegisteredStructuredAgent(agent: StructuredAgentId) {
     const definition = structuredAgentRuntimeMetadata(agent)?.definition
-    if (!definition) {
+    if (
+      !definition ||
+      !structuredAgentVisibleWithSettings(agent, this.requireStore().getSettings())
+    ) {
       throw agentSessionRefusalError('structured_agent_session_unsupported', {
         reason: 'hostUnsupported'
       })
