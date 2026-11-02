@@ -1,4 +1,4 @@
-import type { Store } from '../persistence'
+import type { Store } from '../persistence/loading-store/store'
 import { resolveRegisteredWorktreePathForRepo } from '../ipc/registered-worktree-path-for-repo'
 import { LspSession } from './lsp-session'
 import { LspSessionManager } from './lsp-session-manager'

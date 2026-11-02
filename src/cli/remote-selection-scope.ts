@@ -12,6 +12,9 @@ export function ignoresRemoteSelection(commandPath: readonly string[]): boolean 
     commandPath[0] === 'agent-context' ||
     commandPath[0] === 'profile' ||
     // The MCP stdio server is strictly local; remote selection must never precede the handshake.
-    commandPath[0] === 'mte'
+    commandPath[0] === 'mte' ||
+    // Authoring works on local files; the handler refuses explicit remote flags.
+    (commandPath[0] === 'plugin' &&
+      ['create', 'validate', 'inspect'].includes(commandPath[1] ?? ''))
   )
 }

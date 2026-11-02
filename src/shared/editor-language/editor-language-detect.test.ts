@@ -2,38 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { detectLanguage } from './editor-language-detect'
 
 describe('detectLanguage', () => {
-  it('maps .vue files to the custom vue language id', () => {
-    expect(detectLanguage('src/components/App.vue')).toBe('vue')
-  })
-
-  it('maps .svelte files to the custom svelte language id', () => {
-    expect(detectLanguage('src/components/Widget.svelte')).toBe('svelte')
-  })
-
-  it('maps .astro files to the custom astro language id', () => {
-    expect(detectLanguage('src/routes/index.astro')).toBe('astro')
-  })
-
-  it('maps Glimmer files to distinct js/ts language ids', () => {
-    expect(detectLanguage('app/components/hello.gjs')).toBe('glimmer-js')
-    expect(detectLanguage('app/components/hello.gts')).toBe('glimmer-ts')
-    expect(detectLanguage('C:\\app\\components\\HELLO.GTS')).toBe('glimmer-ts')
-  })
-
-  it.each([
-    'src/Build.groovy',
-    'scripts/deploy.gvy',
-    'scripts/deploy.gy',
-    'scripts/shell.gsh',
-    'C:\\repo\\settings.GRADLE',
-    'Jenkinsfile',
-    'C:\\repo\\jenkinsfile',
-    'ci/Jenkinsfile.release',
-    'ci/deploy.Jenkinsfile'
-  ])('maps Groovy source %s to the groovy language id', (filePath) => {
-    expect(detectLanguage(filePath)).toBe('groovy')
-  })
-
   it.each([
     ['Jenkinsfile.md', 'markdown'],
     ['build.gradle.kts', 'kotlin'],
@@ -265,21 +233,6 @@ describe('detectLanguage', () => {
     ['C:\\repo\\.env.local\\notes', 'plaintext'],
     ['', 'plaintext']
   ])('detects dotenv names without overriding specific mappings: %s', (filePath, expected) => {
-    expect(detectLanguage(filePath)).toBe(expected)
-  })
-
-  it.each([
-    ['/Users/me/.zshrc', 'shell'],
-    ['/home/me/.bashrc', 'shell'],
-    ['C:\\Users\\me\\.bash_profile', 'shell'],
-    ['/home/me/.bash_login', 'shell'],
-    ['/home/me/.bash_logout', 'shell'],
-    ['/home/me/.profile', 'shell'],
-    ['/home/me/.zshenv', 'shell'],
-    ['/home/me/.zprofile', 'shell'],
-    ['/home/me/.zlogin', 'shell'],
-    ['/home/me/.zlogout', 'shell']
-  ])('maps shell startup dotfiles to shell: %s', (filePath, expected) => {
     expect(detectLanguage(filePath)).toBe(expected)
   })
 

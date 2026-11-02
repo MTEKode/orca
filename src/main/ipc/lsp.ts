@@ -5,7 +5,7 @@ import {
   type LspOpenArgs,
   type LspOpenResult
 } from '../../shared/language-server-types'
-import type { Store } from '../persistence'
+import type { Store } from '../persistence/loading-store/store'
 import type { LspPort } from '../lsp/lsp-session'
 import type { LspSessionManager } from '../lsp/lsp-session-manager'
 import { probeRepoLanguageServers } from '../lsp/lsp-probe'
