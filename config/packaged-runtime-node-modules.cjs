@@ -113,6 +113,19 @@ function resolvePackageJsonPath(packageName, fromDir = projectDir) {
   if (existsSync(nested)) {
     return nested
   }
+  // Why: realpath resolves a dependency's package dir into the pnpm store, where its own
+  // dependencies are linked as siblings of that directory instead of nested node_modules.
+  if (fromDir !== projectDir) {
+    const packageBase = packageName.split('/').pop()
+    for (const sibling of [
+      join(fromDir, '..', packageBase, 'package.json'),
+      join(fromDir, '..', '..', packageName, 'package.json')
+    ]) {
+      if (existsSync(sibling)) {
+        return sibling
+      }
+    }
+  }
   // serve-sim exports middleware/state but no root; resolve package.json directly instead of require.resolve("serve-sim").
   if (packageName === 'serve-sim') {
     const direct = join(projectDir, 'node_modules', 'serve-sim', 'package.json')
