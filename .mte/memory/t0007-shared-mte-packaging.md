@@ -1,0 +1,7 @@
+---
+name: t0007-shared-mte-packaging
+type: project
+date: 2026-10-29T11:56:29Z
+---
+
+T-0007 CLOSED 2026-10-29 VALIDATION_PASSED (orca repo): CLI-consumed MTE modules moved src/main/mte-flow -> src/shared/mte (commit b9b4f63202). ROOT CAUSE worth remembering for any CLI feature in orca: build:desktop:assets order is build:cli -> build:electron-vite -> verify:built-skills-cli; electron-vite EMPTIES out/main and re-emits only main-reachable modules, while out/cli and out/shared survive. So src/cli code must NOT import src/main modules unless they are main-reachable (chunk filenames in out/main are a rollup side-effect, not a contract — out/main/sqlite/ is absent despite main-reachability). Correct home for CLI+main shared code = src/shared (which never imports src/main — layering rule). Escape hatch when the logic needs main-only helpers: vendor the minimal PURE subset into src/shared with a provenance header citing the source commit (done for codex TOML helpers and orchestration cli-command); never move upstream files (merge-conflict magnet). Second lesson: verify-skills-cli-runtime danglers arrive in WAVES — the first failure masks the next; re-run the verifier after each fix, or pre-scan out/cli + out/shared for '../../main/' requires. Also: node:sqlite wrapper for shared code = src/shared/mte/sqlite-connection.ts (Electron-free, pragma(sql,{simple}) + isTransaction parity with SyncDatabase).

@@ -41,7 +41,10 @@ function advanceOwner(owner: RegisteredOwner): void {
   registeredWorktreeRootsRevisionByRepo.set(owner.repoId, owner.revision)
 }
 
-function resolveOwnerForRepo(store: RepoSource, repo: Repo | string): RegisteredOwner | undefined {
+export function resolveRegisteredOwnerForRepo(
+  store: RepoSource,
+  repo: Repo | string
+): RegisteredOwner | undefined {
   const repos = synchronizeOwners(store)
   const key = resolveWorktreeRootOwner(repos, repo, currentOwners)
   return key === undefined ? undefined : registeredOwners.get(key)
@@ -145,7 +148,7 @@ export async function rebuildAuthorizedRootsCache(store: Store, onlyDirty = fals
 
 /** Dirty one known owner without advancing the global token fence; untouched owners keep their in-flight tokens. */
 export function markAuthorizedRootsOwnerDirty(store: RepoSource, repo: Repo | string): boolean {
-  const owner = resolveOwnerForRepo(store, repo)
+  const owner = resolveRegisteredOwnerForRepo(store, repo)
   if (!owner) {
     return false
   }
@@ -160,7 +163,7 @@ export function registerWorktreeRootsForRepo(
   worktreeRoots: string[],
   listing: { wslDistro?: string } = {}
 ): void {
-  const owner = resolveOwnerForRepo(store, repo)
+  const owner = resolveRegisteredOwnerForRepo(store, repo)
   if (!owner) {
     return
   }
@@ -178,7 +181,7 @@ export function registerCreatedWorktreeRoot(
   repo: Repo | string,
   worktreeRoot: string
 ): void {
-  const owner = resolveOwnerForRepo(store, repo)
+  const owner = resolveRegisteredOwnerForRepo(store, repo)
   if (!owner) {
     return
   }

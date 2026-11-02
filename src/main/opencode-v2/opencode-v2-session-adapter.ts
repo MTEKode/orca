@@ -2,8 +2,8 @@ import { randomUUID } from 'node:crypto'
 import type {
   AgentSessionExecutionLocation,
   AgentSessionRecord
-} from '../../shared/agent-session-record'
-import type { AgentSessionPromptResponse } from '../../shared/agent-session-question-answer'
+} from '../../shared/agent-session/lifecycle/agent-session-record'
+import type { AgentSessionPromptResponse } from '../../shared/agent-session/agent-session-question-answer'
 import { LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host'
 import {
   AgentSessionPreSpawnError,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { decodeAgentSessionAgentsResult } from '../../shared/agent-session/agent-session-registered-agents'
-import { isStructuredAgentId } from '../../shared/agent-session-provider-handle-encoding'
+import { isStructuredAgentId } from '../../shared/agent-session/lifecycle/agent-session-provider-handle-encoding'
 import { formatAgentTypeLabel } from '../../shared/agent-type-label'
 import { STRUCTURED_AGENT_RUNTIME_CATALOG } from '../runtime/structured-agent-runtime-metadata'
 import {

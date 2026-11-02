@@ -7,6 +7,7 @@ import type { GitRemoteIdentity } from './git-remote-identity'
 import type { RepoSourceControlAiOverrides } from './source-control-ai-types'
 import type { RepoProjectHostSetupMethod } from './project-types'
 import type { JiraProjectReference } from './jira/jira-project-reference'
+import type { RepoLanguageServerSettings } from './language-server-types'
 import type { OrcadRetainedMarker } from './orcad-retained-marker'
 
 export type RepoKind = 'git' | 'folder'
@@ -88,6 +89,8 @@ export type Repo = {
   externalWorktreeDiscoverySuppressedAt?: number
   /** Relative paths to APFS-clone on macOS when possible, otherwise symlink, into new worktrees. Absent/empty creates none. */
   symlinkPaths?: string[]
+  /** Per-project language servers; absent = all off. Enabling one trusts the repo's code. */
+  languageServers?: RepoLanguageServerSettings
   /** Durable sidebar-only repo organization. Execution remains repo-scoped. */
   projectGroupId?: string | null
   /** User-authored ordering inside the project group or ungrouped bucket. */

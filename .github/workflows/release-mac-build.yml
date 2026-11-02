@@ -29,6 +29,9 @@ permissions:
   actions: read
   contents: write
 
+env:
+  ORCA_RELEASE_REPOSITORY: ${{ github.repository }}
+
 concurrency:
   # Why: a qualification run that reuses a live tag must never queue behind or replace its release build.
   group: release-mac-build-${{ inputs.tag }}${{ inputs.qualification_only && '-qualification' || '' }}
@@ -46,9 +49,9 @@ jobs:
 
   build-mac:
     needs: qualification-template
-    if: ${{ !cancelled() && (!inputs.qualification_only || needs.qualification-template.result == 'success') && github.repository == 'stablyai/orca' }}
-    # Keep Blacksmith mac notarization outside SignPath’s GitHub-hosted Windows provenance.
-    runs-on: blacksmith-6vcpu-macos-15
+    if: ${{ !cancelled() && (!inputs.qualification_only || needs.qualification-template.result == 'success') && (github.repository == 'stablyai/orca' || github.repository == 'MTEkode/orca') }}
+    # Use GitHub-hosted macOS for the fork; Orca's Blacksmith pool is private to the upstream org.
+    runs-on: ${{ github.repository == 'MTEkode/orca' && 'macos-15' || 'blacksmith-6vcpu-macos-15' }}
     timeout-minutes: 60
     # actions: read fetches the release-cut run's artifacts.
     permissions:

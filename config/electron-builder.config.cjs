@@ -103,6 +103,16 @@ const devChannelRepo = isHourlyChannel
       ? 'orca-adhoc'
       : null
 const appId = 'com.stablyai.orca'
+const releaseRepository =
+  process.env.ORCA_RELEASE_REPOSITORY ?? process.env.GITHUB_REPOSITORY ?? 'stablyai/orca'
+const releaseRepositoryParts = releaseRepository.split('/')
+if (
+  releaseRepositoryParts.length !== 2 ||
+  releaseRepositoryParts.some((part) => !/^[\w.-]+$/.test(part))
+) {
+  throw new Error(`Invalid ORCA_RELEASE_REPOSITORY: ${releaseRepository}`)
+}
+const [releaseOwner, releaseRepo] = releaseRepositoryParts
 const featureWallResources = {
   from: 'resources/onboarding/feature-wall',
   to: 'onboarding/feature-wall'
@@ -231,7 +241,7 @@ const macUsageDescriptions = {
   ...MACOS_FOLDER_USAGE_DESCRIPTIONS
 }
 // Developer ID team that signs every release-channel mac build.
-const ORCA_MAC_TEAM_ID = '6CX3WHS9HZ'
+const ORCA_MAC_TEAM_ID = process.env.APPLE_TEAM_ID ?? '6CX3WHS9HZ'
 
 /** @type {import('electron-builder').Configuration} */
 module.exports = {
@@ -334,6 +344,12 @@ module.exports = {
     'out/main/macos-tree-clone.js',
     'out/main/orca-profiles/profile-index-store.js',
     'out/main/persistence/profile-state/**',
+    'out/main/plugins/plugin-authoring-checks.js',
+    // `orca plugin types` copies the author typings from here in Node mode.
+    'resources/plugins/declarative/orca*.d.ts',
+    // `orca plugin test` and `orca plugin check` load the runtime, kit and hooks in Node.
+    'resources/plugins/declarative/*.mjs',
+    'resources/plugins/types/*.d.ts',
     'out/main/skills/bundled-skill-install/cli-entry.js',
     'out/main/startup/http1-compatibility-marker.js',
     'out/main/daemon-entry.js',
@@ -351,6 +367,9 @@ module.exports = {
     'out/mobile-web/**',
     'resources/**',
     'node_modules/ws/**',
+    // Why: spawned as separate Node processes (ELECTRON_RUN_AS_NODE), which cannot read inside app.asar reliably.
+    'node_modules/typescript-language-server/**',
+    'node_modules/typescript-6/**',
     'node_modules/tweetnacl/**',
     'node_modules/zod/**',
     'node_modules/yaml/**'
@@ -514,7 +533,9 @@ module.exports = {
     // Sign hook signs nothing: it relays transient NSIS uninstaller files to CI SignPath; unset relay env leaves local/dev builds inert.
     signtoolOptions: {
       sign: signWindowsUninstallerViaSignPath,
-      ...(isWinDevChannel ? {} : { publisherName: 'SignPath Foundation' })
+      ...(isWinDevChannel
+        ? {}
+        : { publisherName: process.env.ORCA_WINDOWS_PUBLISHER_NAME ?? 'SignPath Foundation' })
     },
     ...(isWinDevChannel ? { verifyUpdateCodeSignature: false } : {}),
     extraResources: [
@@ -733,8 +754,8 @@ module.exports = {
   npmRebuild: true,
   publish: {
     provider: 'github',
-    owner: 'stablyai',
-    repo: devChannelRepo ?? 'orca',
+    owner: devChannelRepo ? 'stablyai' : releaseOwner,
+    repo: devChannelRepo ?? releaseRepo,
     // Keep main-repo releases draft until release-cut verifies all assets; early --publish always would expose missing Windows installers.
     releaseType: devChannelRepo ? 'prerelease' : 'draft'
   }

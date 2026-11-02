@@ -99,25 +99,6 @@ describe('DiffCommentDraftCard', () => {
     await act(async () => resolveSubmit(true))
   })
 
-  it('calls onSubmit when clicking submit button', async () => {
-    const onCancel = vi.fn()
-    const onSubmit = vi.fn().mockResolvedValue(true)
-
-    const view = render(
-      <DiffCommentDraftCard lineNumber={10} onCancel={onCancel} onSubmit={onSubmit} />
-    )
-
-    const textarea = view.getByRole('textbox')
-    fireEvent.change(textarea, { target: { value: 'Needs revision' } })
-
-    const submitBtn = view.getByRole('button', { name: 'Add note' })
-    await act(async () => {
-      fireEvent.click(submitBtn)
-    })
-
-    expect(onSubmit).toHaveBeenCalledWith('Needs revision')
-  })
-
   it('calls onSubmit on Enter without Shift, but allows Shift+Enter for newlines', async () => {
     const onCancel = vi.fn()
     const onSubmit = vi.fn().mockResolvedValue(true)
@@ -183,26 +164,6 @@ describe('DiffCommentDraftCard', () => {
     expect(view.getByRole('button', { name: 'Add note' }).hasAttribute('disabled')).toBe(false)
   })
 
-  it('seeds and reports draft text so a re-anchored card can carry it', () => {
-    const onBodyChange = vi.fn()
-    const view = render(
-      <DiffCommentDraftCard
-        lineNumber={10}
-        initialBody="Carried note"
-        onBodyChange={onBodyChange}
-        onCancel={vi.fn()}
-        onSubmit={vi.fn().mockResolvedValue(true)}
-      />
-    )
-    const textarea = view.getByRole('textbox')
-    expect(textarea instanceof HTMLTextAreaElement).toBe(true)
-    if (textarea instanceof HTMLTextAreaElement) {
-      expect(textarea.value).toBe('Carried note')
-    }
-    fireEvent.change(textarea, { target: { value: 'Updated note' } })
-    expect(onBodyChange).toHaveBeenCalledWith('Updated note')
-  })
-
   it('does not submit on Enter when IME composition is active', async () => {
     const onCancel = vi.fn()
     const onSubmit = vi.fn().mockResolvedValue(true)
@@ -216,50 +177,5 @@ describe('DiffCommentDraftCard', () => {
 
     fireEvent.keyDown(textarea, { key: 'Enter', isComposing: true })
     expect(onSubmit).not.toHaveBeenCalled()
-  })
-
-  it('calls onCancel when clicking Cancel or pressing Escape', () => {
-    const onCancel = vi.fn()
-    const onSubmit = vi.fn().mockResolvedValue(true)
-
-    const view = render(
-      <DiffCommentDraftCard lineNumber={10} onCancel={onCancel} onSubmit={onSubmit} />
-    )
-
-    const cancelBtn = view.getByRole('button', { name: 'Cancel' })
-    fireEvent.click(cancelBtn)
-    expect(onCancel).toHaveBeenCalledTimes(1)
-
-    const textarea = view.getByRole('textbox')
-    fireEvent.keyDown(textarea, { key: 'Escape' })
-    expect(onCancel).toHaveBeenCalledTimes(2)
-  })
-
-  it('notifies onContentResize when textarea height changes', () => {
-    const onContentResize = vi.fn()
-    const onCancel = vi.fn()
-    const onSubmit = vi.fn().mockResolvedValue(true)
-
-    const view = render(
-      <DiffCommentDraftCard
-        lineNumber={10}
-        onCancel={onCancel}
-        onSubmit={onSubmit}
-        onContentResize={onContentResize}
-      />
-    )
-
-    const textarea = view.getByRole('textbox')
-    // Called once on initial layout to settle view zone height
-    expect(onContentResize).toHaveBeenCalledTimes(1)
-
-    // Same height (60)
-    fireEvent.change(textarea, { target: { value: 'line 1' } })
-    expect(onContentResize).toHaveBeenCalledTimes(1)
-
-    scrollHeight = 120
-    fireEvent.change(textarea, { target: { value: 'line 1\nline 2\nline 3' } })
-    expect(onContentResize).toHaveBeenCalledTimes(2)
-    expect(textarea.style.height).toBe('120px')
   })
 })

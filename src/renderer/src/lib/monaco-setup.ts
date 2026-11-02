@@ -19,6 +19,7 @@ import { registerLeanLanguage } from './monaco-languages/register-lean'
 import { registerMarkdownLanguage } from './monaco-languages/register-markdown'
 import { registerNimLanguage } from './monaco-languages/register-nim'
 import { registerQuartoLanguage } from './monaco-languages/register-quarto'
+import { registerRubyLanguage } from './monaco-languages/register-ruby'
 import { registerShellMarkdownAliases } from './monaco-languages/register-shell-markdown-aliases'
 import { registerSvelteLanguage } from './monaco-languages/register-svelte'
 import { registerTypstLanguage } from './monaco-languages/register-typst'
@@ -28,6 +29,8 @@ import { installMonacoDelayerCancellationGuard } from './monaco-delayer-cancella
 import { installMonacoDiffEditorDisposalGuard } from './monaco-diff-editor-disposal'
 import { installMonacoPeekReferencesPreviewOptions } from './monaco-peek-preview-options'
 import { installMonacoContextMenuPaste } from '@/components/editor/install-monaco-context-menu-paste'
+import { installLspBridge } from './lsp/install-lsp-bridge'
+import { defineOrcaMonacoThemes } from './monaco-orca-themes'
 import { runMonacoSetupSteps } from './monaco-setup-steps'
 import { installMonacoTsWorkerIdleStop } from './monaco-ts-worker-idle-stop'
 
@@ -73,6 +76,7 @@ monacoTS.javascriptDefaults.setCompilerOptions({
 })
 
 runMonacoSetupSteps([
+  ['Orca editor themes', () => defineOrcaMonacoThemes(monaco)],
   ['Vue language registration', () => registerVueLanguage(monaco)],
   ['Svelte language registration', () => registerSvelteLanguage(monaco)],
   ['Astro language registration', () => registerAstroLanguage(monaco)],
@@ -80,6 +84,7 @@ runMonacoSetupSteps([
   ['CUDA language registration', () => registerCudaLanguage(monaco)],
   ['Nim language registration', () => registerNimLanguage(monaco)],
   ['Lean language registration', () => registerLeanLanguage(monaco)],
+  ['Ruby TextMate tokenizer', () => registerRubyLanguage(monaco)],
   ['Typst language registration', () => registerTypstLanguage(monaco)],
   ['Zig language registration', () => registerZigLanguage(monaco)],
   ['Groovy language registration', () => registerGroovyLanguage(monaco)],
@@ -94,7 +99,8 @@ runMonacoSetupSteps([
   ['peek references preview options', installMonacoPeekReferencesPreviewOptions],
   // Sandboxed navigator.clipboard blocks Monaco Paste; use trusted IPC as native Cmd+V does.
   ['context-menu paste', () => installMonacoContextMenuPaste(monaco)],
-  ['TS worker idle stop', () => installMonacoTsWorkerIdleStop(monaco)]
+  ['TS worker idle stop', () => installMonacoTsWorkerIdleStop(monaco)],
+  ['LSP navigation bridge', () => installLspBridge(monaco)]
 ])
 
 loader.config({ monaco })

@@ -11,6 +11,10 @@ const COMMAND_SCOPED_FLAG_HELP: Record<string, Record<string, string>> = {
     url: '--url <url>            Full review or issue URL; pass all URLs positionally or all as repeated --url',
     key: '--key <key>            Opaque key from reference list; repeat for several'
   },
+  'computer get-app-state': {
+    query:
+      '--query <text>        Show only elements whose line contains this text, with their ancestors'
+  },
   'reference find': {
     query: '--query <url-or-key>   Full URL or native issue key such as STA-1234',
     repo: '--repo <selector>      Filter by workspace repository membership',
@@ -30,6 +34,12 @@ const COMMAND_SCOPED_FLAG_HELP: Record<string, Record<string, string>> = {
     full: '--full                 Print the full guide with bundled references',
     reference: '--reference <name>     Print one bundled reference by name',
     references: '--references           List the bundled reference names for a topic'
+  },
+  'plugin create': {
+    template: '--template <name>      Template to scaffold from (see Usage)',
+    publisher: '--publisher <name>     Repository owner; only for Orca older than 1.4.246',
+    id: '--id <id>              Plugin id (default: the folder name)',
+    name: '--name <display name>  Plugin name shown in Orca'
   },
   'environment update': {
     force: '--force                Restart over running terminals instead of deferring the update'
@@ -79,6 +89,58 @@ const COMMAND_SCOPED_FLAG_HELP: Record<string, Record<string, string>> = {
   },
   ports: {
     all: '--all                  List every listener on the workspace host, not just this workspace'
+  },
+  'mte memory': {
+    role: '--role <role>          Memory role gate: orchestrator, coder, or validator',
+    workspace:
+      '--workspace <path>     Workspace root holding .mte/memory.db (default: nearest .git/.mte ancestor)'
+  },
+  'mte start': {
+    agent: '--agent <id>           Planner chat agent id, such as claude, codex, or opencode',
+    goal: '--goal <text>          Goal embedded in the kickoff prompt (default: ask the user in chat)',
+    adapter: '--adapter <name>       MCP config target: claude (default), opencode, or codex',
+    workspace:
+      '--workspace <path>     Workspace root for the MCP config and planner chat (default: nearest .git/.mte ancestor)'
+  },
+  'mte check': {
+    workspace:
+      '--workspace <path>     Workspace root to check (default: nearest .git/.mte ancestor)',
+    timeout: '--timeout <seconds>    Per-group timeout in seconds (default 600)',
+    tail: '--tail <lines>         Failure tail lines per failing group (default 50)',
+    only: '--only <group>         Run just this group (lint, typecheck, or test); repeat for several',
+    detect:
+      '--detect               Print the detected LINT=/TYPECHECK=/TEST= commands without running'
+  },
+  snapshot: {
+    interactive:
+      '--interactive          Only interactive elements (buttons, inputs, links); no page text',
+    compact: '--compact              Drop empty structural nodes',
+    depth: '--depth <n>            Limit the tree to n levels',
+    selector: '--selector <css>       Snapshot only the element matching this CSS selector',
+    urls: '--urls                 Include link URLs',
+    delta: '--delta                Return only what changed since the last --delta snapshot',
+    full: '--full                 Return the whole tree and reset the --delta baseline'
+  },
+  screenshot: {
+    'if-changed':
+      '--if-changed           Skip saving when the page looks the same as the last capture',
+    annotate: '--annotate             Label interactive elements; label [N] is ref @eN'
+  },
+  exec: {
+    command: '--command <text>       agent-browser command and arguments, e.g. "get text @e3"'
+  },
+  wait: {
+    selector: '--selector <sel>       Wait for an element by ref or CSS selector',
+    timeout: '--timeout <ms>         How long to wait for the condition, or a plain pause',
+    text: '--text <text>          Wait until this text appears on the page',
+    url: '--url <pattern>        Wait until the page URL contains this text or matches a glob',
+    load: '--load <state>         Wait for load or domcontentloaded (networkidle only on quiet pages)',
+    fn: '--fn <js>              Wait until this JavaScript expression is truthy',
+    state: '--state <state>        With --selector, wait for hidden or visible'
+  },
+  download: {
+    selector: '--selector <ref>       Element ref or CSS selector of the download link',
+    path: '--path <path>          File path to save the download to'
   }
 }
 

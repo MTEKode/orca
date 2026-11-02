@@ -1,5 +1,5 @@
 import type { OpenCodeEvent } from '@opencode/client'
-import type { AgentJournalTurnOutcome } from '../../shared/agent-session-journal-types'
+import type { AgentJournalTurnOutcome } from '../../shared/agent-turn-outcome'
 import type { ProviderTimelineEvent } from '../native-chat/agent-session-timeline/provider-timeline-event'
 import { OpenCodeV2ToolTimeline } from './opencode-v2-tool-translation'
 import {

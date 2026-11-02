@@ -1,7 +1,7 @@
 // Provider-agnostic review tool handlers bound to one session workspace target. The Claude
 // in-process MCP server wraps these; a future Codex/ACP host wraps the same handlers.
 
-import type { AgentSessionExecutionLocation } from '../../shared/agent-session-record'
+import type { AgentSessionExecutionLocation } from '../../shared/agent-session/lifecycle/agent-session-record'
 import { isAgentDiffComment, type DiffComment } from '../../shared/diff-comment-types'
 import { LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host'
 import { parseWorkspaceKey } from '../../shared/workspace-scope'

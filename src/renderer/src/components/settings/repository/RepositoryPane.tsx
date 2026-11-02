@@ -27,11 +27,18 @@ import { RepositoryForkSyncSection } from './identity/RepositoryForkSyncSection'
 import { RepositoryGitHubAccountSection } from './RepositoryGitHubAccountSection'
 import { translate } from '@/i18n/i18n'
 import { RepositoryWindowsRuntimeSection } from './execution/RepositoryWindowsRuntimeSection'
-import { matchesRepositoryIdentitySearch } from './identity/repository-identity-search'
 import { RepositoryWorktreeDefaultsSection } from './execution/RepositoryWorktreeDefaultsSection'
 import { RepositoryJiraProjectSection } from './RepositoryJiraProjectSection'
 import { getProjectRuntimeSessionSummary } from './execution/repository-runtime-session-summary'
 import { getRepoOwnerWorktreeVisibilityDefaults } from '../../../store/worktree-visibility-defaults-by-host'
+import {
+  getRepositoryIdentitySearchEntries,
+  matchesRepositoryIdentitySearch
+} from './identity/repository-identity-search'
+import { getRepositoryLanguageServersSearchEntries } from '../repository-language-servers-search-entries'
+import { RepositoryLanguageServersSection } from '../RepositoryLanguageServersSection'
+export { getRepositoryPaneSearchEntries }
+export { matchesRepositoryIdentitySearch } from './identity/repository-identity-search'
 
 type RepositoryPaneRepoUpdate = Omit<
   Partial<Repo>,
@@ -166,22 +173,7 @@ export function RepositoryPane({
   }
 
   const allEntries = getRepositoryPaneSearchEntries(repo, { isLocalWindowsProject })
-  const identityEntryTitles = new Set([
-    translate('auto.components.settings.repository.search.7e1e456a95', 'Display Name'),
-    translate('auto.components.settings.repository.search.b24f00294a', 'Project Icon'),
-    translate('components.RepositoryJiraProjectSection.title', 'Default Jira project'),
-    translate('auto.components.settings.repository.search.githubAccount', 'GitHub Account'),
-    translate(
-      'auto.components.settings.repository.search.keepForkUpToDate',
-      'Keep Fork Up to Date'
-    ),
-    translate('auto.components.settings.repository.search.094adbe930', 'Default Worktree Base'),
-    translate('auto.components.settings.repository.search.443d127b5a', 'Worktree Location'),
-    translate('auto.components.settings.repository.search.externalWorktrees', 'External worktrees'),
-    translate('auto.components.settings.repository.search.projectRuntime', 'Project Runtime'),
-    translate('auto.components.settings.repository.search.c5266c2c9d', 'Remove Project')
-  ])
-  const identityEntries = allEntries.filter((entry) => identityEntryTitles.has(entry.title))
+  const identityEntries = getRepositoryIdentitySearchEntries(allEntries)
   const sparsePresetEntries = allEntries.filter((entry) =>
     ['Sparse Checkout Presets'].includes(entry.title)
   )
@@ -358,6 +350,14 @@ export function RepositoryPane({
             />
           </>
         ) : null}
+
+        <RepositoryLanguageServersSection
+          repo={repo}
+          updateRepo={updateSelectedRepo}
+          forceVisible={forceFullPaneForRepoMatch}
+          searchQuery={searchQuery}
+          searchEntries={getRepositoryLanguageServersSearchEntries(repo)}
+        />
       </section>
     ) : null,
     hooksSection,

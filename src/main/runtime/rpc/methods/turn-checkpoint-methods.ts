@@ -1,16 +1,14 @@
 // Turn checkpoints: list/diff reads and the revert mutation. Restoring under a working agent is
 // forbidden, so the mutation refuses while the session's projected status has an open request.
 
-import type {
-  AgentSessionMutationResult,
-  AgentSessionWireRefusal
-} from '../../../../shared/agent-session-wire'
+import type { AgentSessionMutationResult } from '../../../../shared/agent-session/agent-session-wire'
+import type { AgentSessionWireRefusal } from '../../../../shared/agent-session/failures/agent-session-wire-refusals'
 import type {
   AgentSessionTurnCheckpointDiffResult,
   AgentSessionTurnCheckpointListResult,
   AgentSessionTurnCheckpointRestoreResult
 } from '../../../../shared/agent-session-turn-checkpoints'
-import { agentSessionRefusalError } from '../../../../shared/agent-session-wire-refusals'
+import { agentSessionRefusalError } from '../../../../shared/agent-session/failures/agent-session-wire-refusals'
 import { readTurnCheckpointService } from '../../../git/checkpoints/turn-checkpoint-service'
 import { structuredAgentSessionConversationFence } from '../../../native-chat/agent-session-wire/structured-agent-session-provider-child'
 import { defineMethod } from '../core'

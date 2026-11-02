@@ -30,6 +30,8 @@ export const FLAG_HELP_TEXT: Record<string, string> = {
   help: '--help                 Show this help message',
   'include-visual-layouts': '--include-visual-layouts Include tab and pane topology in JSON output',
   interrupt: '--interrupt            Send as an interrupt-style input when supported',
+  'keep-open': '--keep-open            Keep the worker open after it finishes',
+  'spec-file': '--spec-file <path|->  Read the spec from a file or stdin',
   id: '--id <id>             Identifier for a target item or permission',
   issue: '--issue <number|null>  Linked GitHub issue number',
   'gitlab-issue':
@@ -43,6 +45,7 @@ export const FLAG_HELP_TEXT: Record<string, string> = {
   limit: '--limit <n>            Maximum number of rows to return',
   local: '--local                Target the current project instead of the global install',
   skill: '--skill <name>         Bundled skill to act on; repeat for several',
+  'max-elements': '--max-elements <n>    Show at most n elements of the accessibility tree',
   mode: '--mode <mode>          Mode such as edit, diff, or both',
   model: '--model <id>          Provider model id for a new agent launch',
   effort: '--effort <level>      Reasoning effort for the selected model',
@@ -60,6 +63,7 @@ export const FLAG_HELP_TEXT: Record<string, string> = {
   query: '--query <text>        Search text for matching refs',
   ref: '--ref <ref>            Base ref to persist for the repo',
   repo: '--repo <selector>      Repo selector such as id:<id>, name:<name>, or path:<path>',
+  role: '--role <role>          Memory role gate: orchestrator, coder, or validator',
   'restore-window': '--restore-window     Bring the target app/window forward before the operation',
   session: '--session <id>        Snapshot namespace for a related computer-use workflow',
   setup: '--setup run|skip|inherit Setup policy for repo-defined setup hooks',
@@ -103,6 +107,8 @@ export const FLAG_HELP_TEXT: Record<string, string> = {
   relations: '--relations            Include blocking, related, and duplicate links',
   activity: '--activity             Include issue field-change history',
   full: '--full                 Include all supported V1 issue context within caps',
+  'full-tree':
+    '--full-tree           Return the whole accessibility tree instead of changes since the last snapshot',
   'reuse-session':
     '--reuse-session        Reuse the previous live session for existing-workspace runs',
   'fresh-session': '--fresh-session        Disable session reuse for future runs',

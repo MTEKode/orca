@@ -1,0 +1,97 @@
+name: Sync Orca upstream and release MTEkode build
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+    inputs:
+      force_release:
+        description: Release the current fork commit even when upstream has not moved
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  actions: write
+  contents: write
+
+concurrency:
+  group: mtekode-upstream-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.repository == 'MTEkode/orca'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      release_requested: ${{ steps.sync.outputs.release_requested }}
+      source_sha: ${{ steps.sync.outputs.source_sha }}
+    steps:
+      - name: Checkout fork main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Merge upstream main into the fork
+        id: sync
+        env:
+          FORCE_RELEASE: ${{ inputs.force_release }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git remote add upstream https://github.com/stablyai/orca.git
+          git fetch --no-tags upstream main
+
+          fork_sha="$(git rev-parse HEAD)"
+          upstream_sha="$(git rev-parse refs/remotes/upstream/main)"
+          changed=false
+
+          if ! git merge-base --is-ancestor "$upstream_sha" "$fork_sha"; then
+            if git merge-base --is-ancestor "$fork_sha" "$upstream_sha"; then
+              git merge --ff-only "$upstream_sha"
+            else
+              git merge --no-edit "$upstream_sha"
+            fi
+            git push origin HEAD:main
+            changed=true
+          fi
+
+          source_sha="$(git rev-parse HEAD)"
+          release_requested=false
+          if [[ "$changed" == true || "$FORCE_RELEASE" == true ]]; then
+            release_requested=true
+          fi
+
+          echo "release_requested=$release_requested" >> "$GITHUB_OUTPUT"
+          echo "source_sha=$source_sha" >> "$GITHUB_OUTPUT"
+          echo "Fork main: $source_sha"
+          echo "Upstream main: $upstream_sha"
+          echo "Release requested: $release_requested"
+
+      - name: Disable upstream CI workflows
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # The fork only runs this sync and manual releases; upstream PR/push/schedule workflows stay off.
+          for f in .github/workflows/*.y*ml; do
+            name="$(basename "$f")"
+            [[ "$name" == mtekode-upstream-sync.yml ]] && continue
+            grep -qE '^  (pull_request|pull_request_target|push|schedule|workflow_run):' "$f" || continue
+            gh workflow disable "$name" >/dev/null 2>&1 || true
+          done
+
+      - name: Dispatch release build for the synced commit
+        if: steps.sync.outputs.release_requested == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE_SHA: ${{ steps.sync.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          gh workflow run mtekode-release.yml --ref main -f ref="$SOURCE_SHA"
+
+      - name: Report idle check
+        if: steps.sync.outputs.release_requested != 'true'
+        run: echo 'Upstream main has not advanced; no release was requested.' >> "$GITHUB_STEP_SUMMARY"

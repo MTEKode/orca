@@ -57,9 +57,6 @@ const EXPECTED_MATRIX = {
   [`${RELEASE_WORKFLOW}#dependency-security -> .github/workflows/dependency-security.yml#rust`]: {
     contents: 'read'
   },
-  [`${RELEASE_WORKFLOW}#dependency-security -> .github/workflows/dependency-security.yml#notify`]: {
-    contents: 'read'
-  },
   [`${RELEASE_WORKFLOW}#docs-production-dispatch`]: { actions: 'write' },
   [`${RELEASE_WORKFLOW}#homebrew-bump`]: { contents: 'read' },
   [`${RELEASE_WORKFLOW}#homebrew-bump -> .github/workflows/homebrew-bump.yml#bump-cask`]: {
@@ -278,7 +275,9 @@ describe('release-cut token permissions', () => {
   })
 
   it('keeps fork, tag, and reusable-workflow boundaries explicit', () => {
-    expect(workflow.jobs.cut.if).toBe("github.repository == 'stablyai/orca'")
+    expect(workflow.jobs.cut.if).toBe(
+      "github.repository == 'stablyai/orca' || github.repository == 'MTEkode/orca'"
+    )
     expect(checkoutRef(workflow.jobs.cut)).toBe(
       "${{ github.event_name == 'schedule' && 'main' || inputs.ref }}"
     )
@@ -296,7 +295,7 @@ describe('release-cut token permissions', () => {
 
     const macWorkflow = readWorkflow('.github/workflows/release-mac-build.yml')
     expect(macWorkflow.jobs['build-mac'].if).toBe(
-      "${{ !cancelled() && (!inputs.qualification_only || needs.qualification-template.result == 'success') && github.repository == 'stablyai/orca' }}"
+      "${{ !cancelled() && (!inputs.qualification_only || needs.qualification-template.result == 'success') && (github.repository == 'stablyai/orca' || github.repository == 'MTEkode/orca') }}"
     )
     expect(checkoutRef(macWorkflow.jobs['build-mac'])).toBe(
       "${{ inputs.qualification_only && github.sha || format('refs/tags/{0}', inputs.tag) }}"

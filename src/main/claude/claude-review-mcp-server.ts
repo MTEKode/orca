@@ -5,7 +5,7 @@
 
 import { z } from 'zod'
 import type { McpServerConfig } from '@anthropic-ai/claude-agent-sdk'
-import type { AgentSessionRecord } from '../../shared/agent-session-record'
+import type { AgentSessionRecord } from '../../shared/agent-session/lifecycle/agent-session-record'
 import { loadClaudeAgentSdk } from './claude-stream-json-connection'
 import {
   createReviewTools,

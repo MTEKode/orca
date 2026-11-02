@@ -1,4 +1,4 @@
-import type { AgentSessionModelOption } from '../../shared/agent-session-wire'
+import type { AgentSessionModelOption } from '../../shared/agent-session/agent-session-wire'
 import type { OpenCodeV2ModelRef } from './opencode-v2-connection'
 
 /** The listing fields this transport reads; the client's ModelInfo carries more. */

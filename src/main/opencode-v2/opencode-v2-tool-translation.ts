@@ -1,5 +1,5 @@
 import type { OpenCodeEvent } from '@opencode/client'
-import type { AgentJournalToolCallItem } from '../../shared/agent-session-journal-types'
+import type { AgentJournalToolCallItem } from '../../shared/agent-session/journal/agent-session-journal-types'
 import {
   boundToolInput,
   JOURNAL_RUNNING_PREVIEW_LIMITS,

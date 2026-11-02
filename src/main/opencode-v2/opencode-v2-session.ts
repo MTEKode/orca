@@ -1,5 +1,8 @@
 import type { OpenCodeEvent } from '@opencode/client'
-import { agentSessionFailureFact, providerDiagnosticOf } from '../../shared/agent-session-failure'
+import {
+  agentSessionFailureFact,
+  providerDiagnosticOf
+} from '../../shared/agent-session/failures/agent-session-failure'
 import type {
   AgentSessionDispatchOutcome,
   StructuredAgentSessionAcquireInput,
