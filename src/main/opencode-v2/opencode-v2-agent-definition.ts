@@ -20,7 +20,7 @@ export const OPENCODE_V2_STRUCTURED_AGENT: StructuredAgentDefinition = {
     approvalEnforcement: 'provider'
   },
   restingOptions: {
-    acceptsKey: (key) => key === 'model',
+    acceptsKey: (key) => key === 'model' || key === 'agent' || key === 'effort',
     fallbackModels: () => null,
     effortDefaultsToModel: false
   }

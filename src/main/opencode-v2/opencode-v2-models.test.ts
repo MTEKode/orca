@@ -129,4 +129,15 @@ describe('createOpenCodeV2ModelCatalogProbe', () => {
     expect(list?.url.searchParams.get('types')).toBe('chat')
     installOpenCodeV2ChatGate(() => null)
   })
+
+  it('maps model variants to efforts', () => {
+    const listing = openCodeV2ModelListing(
+      [{ ...MODELS[0]!, variants: [{ id: 'low' }, { id: 'high' }] }],
+      null
+    )
+    expect(listing.models[0]?.efforts).toEqual([
+      { value: 'low', label: 'low' },
+      { value: 'high', label: 'high' }
+    ])
+  })
 })

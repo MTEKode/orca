@@ -34,7 +34,11 @@ export const OPENCODE_V2_CHAT_EVENT_TYPES = [
   'session.compaction.failed',
   'session.model.selected',
   'permission.asked',
-  'permission.replied'
+  'permission.replied',
+  'session.agent.selected',
+  'form.created',
+  'form.replied',
+  'form.cancelled'
 ] as const
 
 export type OpenCodeV2ChatEventType = (typeof OPENCODE_V2_CHAT_EVENT_TYPES)[number]
@@ -55,6 +59,10 @@ export function openCodeV2EventSessionId(event: OpenCodeEvent): string | null {
     return null
   }
   const data: unknown = 'data' in event ? event.data : undefined
+  if (event.type === 'form.created') {
+    const form = (data as { form?: { sessionID?: unknown } } | undefined)?.form
+    return typeof form?.sessionID === 'string' ? form.sessionID : null
+  }
   if (typeof data === 'object' && data !== null && 'sessionID' in data) {
     const id = (data as { sessionID?: unknown }).sessionID
     return typeof id === 'string' ? id : null

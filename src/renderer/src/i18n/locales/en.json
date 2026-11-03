@@ -1046,6 +1046,19 @@
       "iconPickErrors": {
         "notPng": "Repo icons must be PNG files.",
         "tooLarge": "Repo icon image must be 256KB or smaller."
+      },
+      "mteFlowPrompt": {
+        "title": "Ask to use MTE orchestration on new chats",
+        "description": "When you start a Claude, Codex or OpenCode chat in this project, offer to let the MTE planner drive coder and validator agents.",
+        "keywordMte": "mte",
+        "keywordOrchestration": "orchestration",
+        "keywordPlanner": "planner"
+      },
+      "quickCommandsFloating": {
+        "title": "Run quick commands in the floating terminal",
+        "description": "Shell quick commands open in the floating terminal and run inside this project instead of a new workspace tab.",
+        "keywordQuick": "quick commands",
+        "keywordFloating": "floating terminal"
       }
     },
     "windowMaterial": {
@@ -8049,7 +8062,7 @@
           "opencodeV2Chat": {
             "copy": "Adds an “OpenCode v2” chat agent that talks to OpenCode 2.x over its background HTTP service, with mid-turn steering, native compaction and context usage. Requires OpenCode 2.x installed. Your existing OpenCode agents stay unchanged.",
             "description": "Chat with OpenCode through its v2 HTTP service.",
-            "title": "OpenCode v2 chat",
+            "title": "OpenCode v2 chat (HTTP transport)",
             "toggleLabel": "Toggle OpenCode v2 chat"
           },
           "ca2219fe5e": "Shows a small animated pet pinned to the bottom-right corner. Pick a character (Claudino, OpenCode, Gremlin) or upload your own PNG, APNG, GIF, WebP, JPG, or SVG from the status-bar pet menu. Hide it any time from the same menu without disabling this setting.",
@@ -21216,6 +21229,9 @@
     "scanTooLarge": "Quick Open scan too large ({{reason}})."
   },
   "checksPanel": {
+    "comments": {
+      "addedToChat": "Added {{count}} comment groups to the chat input"
+    },
     "unlinked": {
       "title": "Pull request unlinked",
       "description": "PR #{{number}} is hidden for this workspace. Link it again to restore checks and review details.",
@@ -23638,6 +23654,20 @@
       "cancel": "Cancel",
       "message": "{{plugin}} wants to open {{host}}",
       "alwaysAllow": "Always allow {{host}} for this plugin"
+    }
+  },
+  "mte": {
+    "prompt": {
+      "title": "Use MTE orchestration for this chat?",
+      "description": "The MTE planner will interview you about the goal, then drive coder and validator agents through the plan. Orca writes the MTE tool config into this workspace.",
+      "confirm": "Use MTE",
+      "cancel": "Plain chat"
+    },
+    "prepare": {
+      "failed": "Could not prepare MTE: {{message}}"
+    },
+    "planner": {
+      "started": "MTE planner started in {{agent}}"
     }
   }
 }

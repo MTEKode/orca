@@ -18,14 +18,17 @@ import type { JsonlRpcTimelineLane } from '../jsonl-rpc/timeline-lane'
 import type { AgentChatPermissionChoice } from '../../shared/agent-chat-permission-mode'
 import { OpenCodeV2Connection } from './opencode-v2-connection'
 import type { OpenCodeV2Client } from './opencode-v2-client'
+import { EMPTY_OPENCODE_V2_AGENT_LISTING, type OpenCodeV2AgentListing } from './opencode-v2-agents'
+import type { OpenCodeV2FormRequests } from './opencode-v2-forms'
 import type { OpenCodeV2EventHub } from './opencode-v2-events'
 import { openCodeV2OptionIdForRef, type OpenCodeV2ModelListing } from './opencode-v2-models'
 import type { OpenCodeV2PermissionRequests } from './opencode-v2-permissions'
 import {
-  buildOpenCodeV2Link,
+  openCodeV2OpenResult,
   catchUpOpenCodeV2History,
   createOpenCodeV2SessionRuntime,
-  readOpenCodeV2Models,
+  loadOpenCodeV2Listings,
+  settleOpenCodeV2Requests,
   resyncOpenCodeV2Session
 } from './opencode-v2-session-open'
 import { openOpenCodeV2Session } from './opencode-v2-session-store'
@@ -56,6 +59,11 @@ export class OpenCodeV2Session {
   lane: JsonlRpcTimelineLane | null = null
   translator: OpenCodeV2TurnTranslator | null = null
   permissions: OpenCodeV2PermissionRequests | null = null
+  forms: OpenCodeV2FormRequests | null = null
+  agents: OpenCodeV2AgentListing = EMPTY_OPENCODE_V2_AGENT_LISTING
+  currentAgent: string | null = null
+  /** The variant (effort) the session's model runs; null follows the provider default. */
+  currentEffort: string | null = null
   connection: OpenCodeV2Connection | null = null
   providerSessionId: string | null = null
   listing: OpenCodeV2ModelListing = {
@@ -118,6 +126,10 @@ export class OpenCodeV2Session {
         this.currentModelId ? (this.listing.contextWindows.get(this.currentModelId) ?? null) : null,
       connection: () => this.connection,
       permissions: () => this.permissions,
+      forms: () => this.forms,
+      onAgentSelected: (agent) => {
+        this.currentAgent = agent
+      },
       onInputAccepted: (clientMessageId) => this.settleAccepted(clientMessageId),
       onFailed: (reason) => this.fail(new Error(reason)),
       onModelSelected: (ref) => {
@@ -125,12 +137,14 @@ export class OpenCodeV2Session {
         if (optionId) {
           this.currentModelId = optionId
         }
+        this.currentEffort = ref.variant ?? null
       },
       now: () => this.now()
     })
     this.lane = runtime.lane
     this.translator = runtime.translator
     this.permissions = runtime.permissions
+    this.forms = runtime.forms
     if (opened.kind === 'resumed') {
       await catchUpOpenCodeV2History({
         client,
@@ -145,51 +159,36 @@ export class OpenCodeV2Session {
       event: (event) => this.receive(event),
       resync: () => void this.resync()
     })
-    await readOpenCodeV2Models(client, directory, signal)
-      .then((listing) => {
-        this.listing = listing
-      })
-      .catch((error: unknown) =>
-        this.deps.logger.warn('OpenCode v2 model listing failed at open', {
-          scope: 'opencode-v2-models',
-          sessionId: this.sessionId,
-          error
-        })
-      )
+    const listings = await loadOpenCodeV2Listings({
+      client,
+      directory,
+      signal,
+      logger: this.deps.logger,
+      sessionId: this.sessionId
+    })
+    this.listing = listings.models
+    this.agents = listings.agents
+    this.currentAgent = opened.info.agent ?? this.agents.defaultAgent
+    this.currentEffort = opened.info.model?.variant ?? null
     this.currentModelId =
       openCodeV2OptionIdForRef(this.listing, opened.info.model ?? null) ??
       this.listing.defaultModelId
-    return {
-      link: buildOpenCodeV2Link({
-        fence: this.input.fence,
-        nativeId: providerSessionId,
-        kind: opened.kind,
-        replacedNativeId: opened.replacedNativeId ?? null,
-        observedAt: this.now()
-      }),
-      reportedOptions: {
-        model: this.currentModelId ?? '',
-        ...(this.currentModelId ? { confirmed: ['model'] as readonly string[] } : {})
-      },
-      catalogListing: {
-        models: this.listing.models,
-        configuredDefault: this.listing.defaultModelId
-          ? { modelId: this.listing.defaultModelId }
-          : null
-      }
-    }
+    return openCodeV2OpenResult({
+      fence: this.input.fence,
+      nativeId: providerSessionId,
+      kind: opened.kind,
+      replacedNativeId: opened.replacedNativeId ?? null,
+      observedAt: this.now(),
+      currentModelId: this.currentModelId,
+      listing: this.listing
+    })
   }
 
   receive(event: OpenCodeEvent): void {
     if (!this.lane || this.publishedExit) {
       return
     }
-    if (event.type === 'permission.replied') {
-      const data = event.data as { requestID?: unknown }
-      if (typeof data.requestID === 'string') {
-        this.permissions?.replied(data.requestID)
-      }
-    }
+    settleOpenCodeV2Requests(event, this.permissions, this.forms)
     this.lane.apply(this.translator?.receive(event) ?? [])
   }
 
@@ -260,6 +259,7 @@ export class OpenCodeV2Session {
     this.input.events?.observeExit?.(this.heldSends, observedAt)
     this.heldSends.clear()
     this.permissions?.cancelAll(cause === 'requested-close')
+    this.forms?.cancelAll(cause === 'requested-close')
     // An unrequested loss proves nothing about the shared service; a close ends a proven session.
     const verdict =
       cause === 'requested-close'

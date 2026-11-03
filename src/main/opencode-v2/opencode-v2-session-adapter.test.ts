@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
+import type { OpenCodeEvent } from '@opencode/client'
 import type { AgentJournalMessageItem } from '../../shared/agent-session/journal/agent-session-journal-types'
 import type { StructuredAgentSessionLifecycleEvent } from '../native-chat/agent-session-wire/structured-agent-session-adapter'
 import {
@@ -11,7 +12,12 @@ import { createOpenCodeV2Client } from './opencode-v2-client'
 import { disposeOpenCodeV2EventHubs } from './opencode-v2-events'
 import { OpenCodeV2SessionAdapter } from './opencode-v2-session-adapter'
 import type { ResolvedOpenCodeV2Endpoint } from './opencode-v2-service'
-import { createFetchFake, createSseStream, type FetchFakeRoute } from './opencode-v2.test-support'
+import {
+  loadOpenCodeV2Fixture,
+  createFetchFake,
+  createSseStream,
+  type FetchFakeRoute
+} from './opencode-v2.test-support'
 
 const BASE = 'http://127.0.0.1:4321'
 const PROVIDER_SESSION = 'ses_p'
@@ -23,6 +29,18 @@ const MODEL = {
   name: 'Claude Sonnet 4.5',
   limit: { context: 200_000 }
 }
+
+const AGENTS = [
+  { id: 'build', name: 'build', description: 'Default agent', mode: 'primary', hidden: false },
+  {
+    id: 'plan',
+    name: 'plan',
+    description: 'Plans without editing',
+    mode: 'primary',
+    hidden: false
+  },
+  { id: 'explore', name: 'explore', mode: 'subagent', hidden: false }
+]
 
 function userMessage(text: string): AgentJournalMessageItem {
   return { kind: 'message', role: 'user', blocks: [{ type: 'text', text }] }
@@ -95,6 +113,18 @@ async function openAdapter(
           status: 200,
           json: { data: { id: body.id, sessionID: PROVIDER_SESSION, type: 'user' } }
         }
+      }
+      if (call.method === 'GET' && path === '/api/agent') {
+        return { status: 200, json: { location: {}, data: AGENTS } }
+      }
+      if (call.method === 'POST' && path === `/api/session/${PROVIDER_SESSION}/agent`) {
+        return { status: 204 }
+      }
+      if (call.method === 'POST' && path === `/api/session/${PROVIDER_SESSION}/model`) {
+        return { status: 204 }
+      }
+      if (call.method === 'POST' && path === `/api/session/${PROVIDER_SESSION}/form/form_1/reply`) {
+        return { status: 204 }
       }
       if (call.method === 'POST' && path === `/api/session/${PROVIDER_SESSION}/interrupt`) {
         return { status: 200, json: { interrupted: true } }
@@ -309,5 +339,52 @@ describe('OpenCodeV2SessionAdapter integration', () => {
     await new Promise((resolve) => setTimeout(resolve, 250))
     const rows = await rig.rows()
     expect(JSON.stringify(rows.map((row) => row.body))).toContain('earlier answer')
+  })
+
+  it('switches the agent through POST /session/{id}/agent', async () => {
+    const { adapter, calls } = await openAdapter()
+    const applied = await adapter.setOption({
+      sessionId: SESSION,
+      fence: 1,
+      key: 'agent',
+      value: 'plan'
+    })
+    expect(applied).toEqual({ agent: 'plan' })
+    const call = calls.find(
+      (entry) => entry.method === 'POST' && entry.url.pathname.endsWith('/agent')
+    )
+    expect(call?.body).toMatchObject({ agent: 'plan' })
+    await expect(
+      adapter.setOption({ sessionId: SESSION, fence: 1, key: 'agent', value: 'explore' })
+    ).rejects.toThrow()
+  })
+
+  it('renders a form.created question and posts the reply on answer', async () => {
+    const { rig, sse, adapter, calls } = await openAdapter()
+    // The first three events only: the fixture's last event is the provider-side reply.
+    for (const event of loadOpenCodeV2Fixture('opencode-v2-form').slice(0, 3)) {
+      sse.push(
+        JSON.parse(JSON.stringify(event).replaceAll('ses_test', PROVIDER_SESSION)) as OpenCodeEvent
+      )
+    }
+    await settle()
+    const row = (await rig.rows()).find((entry) => entry.body.kind === 'question')
+    expect(row?.body).toMatchObject({ kind: 'question' })
+    await adapter.answerPrompt({
+      sessionId: SESSION,
+      fence: 1,
+      itemId: row!.itemId,
+      kind: 'question',
+      response: {
+        kind: 'answers',
+        answers: [
+          { questionId: 'framework', optionIds: ['react'] },
+          { questionId: 'strict', optionIds: ['true'] }
+        ]
+      },
+      commit: async () => {}
+    })
+    const reply = calls.find((entry) => entry.url.pathname.endsWith('/form/form_1/reply'))
+    expect(reply?.body).toMatchObject({ answer: { framework: 'react', strict: true } })
   })
 })

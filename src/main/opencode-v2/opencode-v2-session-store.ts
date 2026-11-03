@@ -3,6 +3,7 @@ import type { OpenCodeV2HistoryMessage } from './opencode-v2-history-translation
 
 export type OpenCodeV2SessionInfo = {
   id: string
+  agent?: string
   model?: { id: string; providerID: string; variant?: string }
   outcome?: 'succeeded' | 'failed' | 'interrupted'
   title?: string
@@ -20,6 +21,7 @@ const MAX_HISTORY_PAGES = 8
 
 function toInfo(value: {
   id: string
+  agent?: unknown
   model?: unknown
   outcome?: unknown
   title?: unknown
@@ -27,6 +29,7 @@ function toInfo(value: {
   const model = value.model as { id?: string; providerID?: string; variant?: string } | undefined
   return {
     id: value.id,
+    ...(typeof value.agent === 'string' ? { agent: value.agent } : {}),
     ...(model?.id && model.providerID
       ? {
           model: {
