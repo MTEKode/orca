@@ -13,6 +13,22 @@ vi.mock('@/lib/syntax-highlighting/oniguruma', async () => ({
 
 afterEach(cleanup)
 
+describe('tool tone', () => {
+  it.each([
+    ['Read', { file_path: '/repo/a.ts' }, 'read'],
+    ['Bash', { command: 'pnpm test' }, 'run'],
+    ['Edit', { file_path: '/repo/a.ts' }, 'edit']
+  ])('renders %s with the %s tone classes', (name, input, tone) => {
+    const { container } = render(
+      <NativeChatToolLine block={{ type: 'tool-call', name, input, state: 'completed' }} />
+    )
+    expect(container.firstElementChild).toHaveClass(
+      `bg-chat-action-${tone}-surface`,
+      `border-chat-action-${tone}-border`
+    )
+  })
+})
+
 describe('tool sentence rows', () => {
   it.each([
     ['Bash', { command: 'pnpm test' }, 'Ran', 'pnpm test', false],

@@ -70,6 +70,18 @@
   --color-chat-inline-code-surface: var(--chat-inline-code-surface);
   --color-chat-inline-code-border: var(--chat-inline-code-border);
   --color-chat-composer-surface: var(--chat-composer-surface);
+  --color-chat-action-read-surface: var(--chat-action-read-surface);
+  --color-chat-action-read-border: var(--chat-action-read-border);
+  --color-chat-action-edit-surface: var(--chat-action-edit-surface);
+  --color-chat-action-edit-border: var(--chat-action-edit-border);
+  --color-chat-action-run-surface: var(--chat-action-run-surface);
+  --color-chat-action-run-border: var(--chat-action-run-border);
+  --color-chat-action-web-surface: var(--chat-action-web-surface);
+  --color-chat-action-web-border: var(--chat-action-web-border);
+  --color-chat-action-agent-surface: var(--chat-action-agent-surface);
+  --color-chat-action-agent-border: var(--chat-action-agent-border);
+  --color-chat-action-neutral-surface: var(--chat-action-neutral-surface);
+  --color-chat-action-neutral-border: var(--chat-action-neutral-border);
   --color-chat-composer-border: var(--chat-composer-border);
   --color-chat-warning: var(--chat-warning);
   --color-chat-diff-added: var(--chat-diff-added);
@@ -186,6 +198,20 @@
 }
 
 :root {
+  /* Action tones. WCAG contrast of --chat-foreground (light: 82% fg over white; dark: 78% fg over 5% canvas)
+     over each surface: read 7.36, edit 7.49, run 7.51, web 7.15, agent 7.24, neutral 7.40. All >= 4.5. */
+  --chat-action-read-surface: #eef4fd;
+  --chat-action-read-border: #d5e4f8;
+  --chat-action-edit-surface: #eef8f1;
+  --chat-action-edit-border: #d2ebdc;
+  --chat-action-run-surface: #fdf5e6;
+  --chat-action-run-border: #f3e2bd;
+  --chat-action-web-surface: #f3eefc;
+  --chat-action-web-border: #e1d6f6;
+  --chat-action-agent-surface: #fceef4;
+  --chat-action-agent-border: #f6d5e3;
+  --chat-action-neutral-surface: #f4f4f5;
+  --chat-action-neutral-border: #e4e4e7;
   --app-font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-sans: var(--app-font-family);
   --font-mono:
@@ -403,6 +429,20 @@
 }
 
 .dark {
+  /* Action tones. WCAG contrast of --chat-foreground over each surface:
+     read 8.29, edit 7.86, run 7.97, web 8.32, agent 8.26, neutral 8.31. All >= 4.5. */
+  --chat-action-read-surface: #1a2330;
+  --chat-action-read-border: #26364d;
+  --chat-action-edit-surface: #1a2a22;
+  --chat-action-edit-border: #264232;
+  --chat-action-run-surface: #2b2518;
+  --chat-action-run-border: #43381f;
+  --chat-action-web-surface: #251f33;
+  --chat-action-web-border: #3a3054;
+  --chat-action-agent-surface: #301d27;
+  --chat-action-agent-border: #4a2a39;
+  --chat-action-neutral-surface: #222225;
+  --chat-action-neutral-border: #333338;
   --orca-security-background: #0a0a0a;
   --orca-security-foreground: #f0f0f0;
   --orca-security-card: #171717;
