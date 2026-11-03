@@ -59,7 +59,7 @@ jobs:
             publish: node config/scripts/ensure-native-runtime.mjs --runtime=electron && pnpm exec electron-builder --config config/electron-builder.config.cjs --win --publish always -c.publish.releaseType=draft -c.win.verifyUpdateCodeSignature=false
           - os: macos-15
             install: pnpm install --frozen-lockfile
-            publish: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON config/scripts/pinned-node-downloads.mjs darwin-arm64 && node config/scripts/ensure-native-runtime.mjs --runtime=electron && pnpm exec electron-builder --config config/electron-builder.config.cjs --mac dmg --arm64 -c.mac.identity=- --publish always -c.publish.releaseType=draft
+            publish: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON config/scripts/pinned-node-downloads.mjs darwin-arm64 && node config/scripts/ensure-native-runtime.mjs --runtime=electron && pnpm exec electron-builder --config config/electron-builder.config.cjs --mac dmg zip --arm64 -c.mac.identity=- --publish always -c.publish.releaseType=draft
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     defaults:
