@@ -435,7 +435,11 @@ import {
   ManagedServerSelector,
   ManagedServerUpdate
 } from './managed-server-params'
-import { MtePrepareWorkspaceParams } from './mte-params'
+import {
+  MteDeployCheckConfigParams,
+  MteDeployCheckReportParams,
+  MtePrepareWorkspaceParams
+} from './mte-params'
 import { NativeChatSession, NativeChatUnsubscribe } from './native-chat-params'
 import {
   NotificationGetMissedSinceParams,
@@ -1264,6 +1268,8 @@ export const RPC_PARAMS_BY_METHOD = {
   'mobileWeb.bundle.chunk': MobileWebBundleChunkParamsSchema,
   'mobileWeb.bundle.manifest': null,
   'mobileWeb.bundle.range': MobileWebBundleChunkParamsSchema,
+  'mte.deployCheckConfig': MteDeployCheckConfigParams,
+  'mte.deployCheckReport': MteDeployCheckReportParams,
   'mte.prepareWorkspace': MtePrepareWorkspaceParams,
   'nativeChat.readSession': NativeChatSession,
   'nativeChat.subscribe': NativeChatSession,

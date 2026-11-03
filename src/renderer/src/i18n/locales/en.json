@@ -1054,6 +1054,21 @@
         "keywordOrchestration": "orchestration",
         "keywordPlanner": "planner"
       },
+      "deployCheck": {
+        "title": "Deploy check",
+        "description": "Where the MTE flow tests the deployed feature after the last task passes, and which Linear state to move the issue to.",
+        "url": "URL",
+        "username": "Username",
+        "password": "Password",
+        "save": "Save password",
+        "clear": "Clear",
+        "passwordSaved": "Password saved",
+        "passwordError": "Could not save the password: secure storage is unavailable on this system.",
+        "doneState": "Linear state after a passing check",
+        "keywordDeploy": "deploy",
+        "keywordStaging": "staging",
+        "keywordLinear": "linear"
+      },
       "quickCommandsFloating": {
         "title": "Run quick commands in the floating terminal",
         "description": "Shell quick commands open in the floating terminal and run inside this project instead of a new workspace tab.",

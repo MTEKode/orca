@@ -38,9 +38,9 @@ Goal item 6 of batch 2 (lock: `.mte/memory/requirements-lock-batch2.md`).
 
 ## Run log
 
-| attempt | role  | result                    | notes                                                                                                                                                                                                                       |
-| ------- | ----- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1       | coder | TASK_READY_FOR_VALIDATION | Added binary/fallback/timeoutMs to AcpModelDiscovery command; fallback origin stays 'probe'; server (1.4.1 fixture) uses base ids + thinking_level, no dialect change; live selection unverified (ACP server not installed) |
-| 1 | validator | VALIDATION_FAILED | duplicated parser; origin 'fallback' (waived); discovery test :77 needs update |
-| 2 | coder | TASK_READY_FOR_VALIDATION | parser deduped (wrapper), discovery test updated; 223 tests green, tc:node clean |
-| 2 | validator | VALIDATION_PASSED | 151 tests, lint/format/tc clean; live selection unverified (no ACP server installed) |
+| attempt | role      | result                    | notes                                                                                                                                                                                                                       |
+| ------- | --------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1       | coder     | TASK_READY_FOR_VALIDATION | Added binary/fallback/timeoutMs to AcpModelDiscovery command; fallback origin stays 'probe'; server (1.4.1 fixture) uses base ids + thinking_level, no dialect change; live selection unverified (ACP server not installed) |
+| 1       | validator | VALIDATION_FAILED         | duplicated parser; origin 'fallback' (waived); discovery test :77 needs update                                                                                                                                              |
+| 2       | coder     | TASK_READY_FOR_VALIDATION | parser deduped (wrapper), discovery test updated; 223 tests green, tc:node clean                                                                                                                                            |
+| 2       | validator | VALIDATION_PASSED         | 151 tests, lint/format/tc clean; live selection unverified (no ACP server installed)                                                                                                                                        |

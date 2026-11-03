@@ -753,6 +753,21 @@
         "keywordOrchestration": "orchestration",
         "keywordPlanner": "planificateur"
       },
+      "deployCheck": {
+        "title": "Vérification du déploiement",
+        "description": "Où le flux MTE teste la fonctionnalité déployée une fois la dernière tâche validée, et vers quel état Linear déplacer le ticket.",
+        "url": "URL",
+        "username": "Nom d'utilisateur",
+        "password": "Mot de passe",
+        "save": "Enregistrer le mot de passe",
+        "clear": "Effacer",
+        "passwordSaved": "Mot de passe enregistré",
+        "passwordError": "Impossible d'enregistrer le mot de passe : le stockage sécurisé n'est pas disponible sur ce système.",
+        "doneState": "État Linear après une vérification réussie",
+        "keywordDeploy": "déploiement",
+        "keywordStaging": "staging",
+        "keywordLinear": "linear"
+      },
       "quickCommandsFloating": {
         "title": "Exécuter les commandes rapides dans le terminal flottant",
         "description": "Les commandes rapides shell s'ouvrent dans le terminal flottant et s'exécutent dans ce projet au lieu d'un nouvel onglet de l'espace de travail.",

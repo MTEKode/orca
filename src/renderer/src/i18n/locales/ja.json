@@ -527,6 +527,21 @@
         "keywordOrchestration": "オーケストレーション",
         "keywordPlanner": "プランナー"
       },
+      "deployCheck": {
+        "title": "デプロイチェック",
+        "description": "最後のタスクが検証に合格した後、MTEフローがデプロイ済みの機能をテストする場所と、Linearイシューを移動する状態を指定します。",
+        "url": "URL",
+        "username": "ユーザー名",
+        "password": "パスワード",
+        "save": "パスワードを保存",
+        "clear": "クリア",
+        "passwordSaved": "パスワードを保存済み",
+        "passwordError": "パスワードを保存できませんでした。このシステムでは安全なストレージを利用できません。",
+        "doneState": "チェック合格後のLinear状態",
+        "keywordDeploy": "デプロイ",
+        "keywordStaging": "ステージング",
+        "keywordLinear": "linear"
+      },
       "quickCommandsFloating": {
         "title": "クイックコマンドをフローティングターミナルで実行",
         "description": "シェルのクイックコマンドは、新しいワークスペースタブではなくフローティングターミナルで、このプロジェクト内で実行されます。",

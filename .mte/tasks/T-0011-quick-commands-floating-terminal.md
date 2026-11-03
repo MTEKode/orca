@@ -37,7 +37,7 @@ Goal item 3 of batch 2 (lock: `.mte/memory/requirements-lock-batch2.md`).
 
 ## Run log
 
-| attempt | role | result | notes |
-| ------- | ---- | ------ | ----- |
-| 1 | coder | TASK_READY_FOR_VALIDATION | cd-prefix via shellEscapePath (pendingStartup has no cwd); oxlint/oxfmt multi-file flaky — validator to re-run per file |
-| 1 | validator | VALIDATION_FAILED→accepted as PASSED by orchestrator | only failures = pre-existing language-servers test (not attributable); oxfmt on .ts verified by orchestrator (all 0) |
+| attempt | role      | result                                               | notes                                                                                                                   |
+| ------- | --------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| 1       | coder     | TASK_READY_FOR_VALIDATION                            | cd-prefix via shellEscapePath (pendingStartup has no cwd); oxlint/oxfmt multi-file flaky — validator to re-run per file |
+| 1       | validator | VALIDATION_FAILED→accepted as PASSED by orchestrator | only failures = pre-existing language-servers test (not attributable); oxfmt on .ts verified by orchestrator (all 0)    |

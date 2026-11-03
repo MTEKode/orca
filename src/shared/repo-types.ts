@@ -67,6 +67,8 @@ export type Repo = {
   ghAccount?: GhAccountBinding
   /** Controls Orca's fork-default-branch sync offer for repos with upstream metadata. */
   forkSyncMode?: ForkSyncMode
+  /** Optional MTE end-of-flow deploy check target; the password lives only in the secret store. */
+  deployCheck?: { url: string; username: string; linearDoneState?: string }
   /** Whether new chats offer the native MTE orchestration flow; undefined means 'ask'. */
   mteFlowPrompt?: 'ask' | 'never'
   /** Run shell quick commands in the floating terminal (inside the repo); undefined means true. */

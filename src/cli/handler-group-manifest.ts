@@ -4,6 +4,7 @@ import { JIRA_HANDLER_GROUP } from './jira-handler-group'
 import { LINEAR_HANDLER_GROUP } from './linear-handler-group'
 import { REFERENCE_HANDLER_GROUP } from './reference-handler-group'
 import { PLUGIN_HANDLER_GROUPS } from './plugin-handler-groups'
+import { MTE_HANDLER_GROUP } from './mte-handler-group'
 
 export type HandlerGroup = {
   name: string
@@ -296,9 +297,5 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
     keys: ['ports'],
     load: async () => (await import('./handlers/ports.js')).PORTS_HANDLERS
   },
-  {
-    name: 'mte',
-    keys: ['mte memory', 'mte start', 'mte check'],
-    load: async () => (await import('./handlers/mte.js')).MTE_HANDLERS
-  }
+  MTE_HANDLER_GROUP
 ]

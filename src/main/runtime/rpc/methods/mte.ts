@@ -1,4 +1,5 @@
 import { defineMethod } from '../core'
+import { MTE_DEPLOY_CHECK_METHODS } from './mte-deploy-check'
 import { MtePrepareWorkspaceParams } from '../../../../shared/rpc-contract/mte-params'
 import { resolveMteStartCliCommand } from '../../../../shared/mte/cli-command'
 import {
@@ -23,5 +24,6 @@ export const MTE_METHODS = [
       await applyWorkspaceMcpConfig(plan)
       return { configPath: plan.configPath, status }
     }
-  })
+  }),
+  ...MTE_DEPLOY_CHECK_METHODS
 ]

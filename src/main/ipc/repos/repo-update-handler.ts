@@ -26,6 +26,19 @@ import {
   isWslMoveSourceHost
 } from '../../persistence/moving-wsl-projects/wsl-move-scope-guard'
 
+function isValidDeployCheck(value: unknown): boolean {
+  if (value === undefined) {
+    return true
+  }
+  const v = value as { url?: unknown; username?: unknown } | null
+  return (
+    v !== null &&
+    typeof v === 'object' &&
+    typeof v.url === 'string' &&
+    typeof v.username === 'string'
+  )
+}
+
 export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Store): void {
   ipcMain.handle(
     'repos:update',
@@ -50,6 +63,7 @@ export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Stor
             | 'issueSourcePreference'
             | 'forkSyncMode'
             | 'mteFlowPrompt'
+            | 'deployCheck'
             | 'quickCommandsInFloatingTerminal'
             | 'externalWorktreeVisibilityPromptDismissedAt'
             | 'externalWorktreeInboxBaselinePaths'
@@ -100,6 +114,9 @@ export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Stor
         updates.mteFlowPrompt !== 'never'
       ) {
         delete updates.mteFlowPrompt
+      }
+      if ('deployCheck' in updates && !isValidDeployCheck(updates.deployCheck)) {
+        delete updates.deployCheck
       }
       // Null clears the binding; malformed values must not become account selections.
       if ('ghAccount' in updates) {

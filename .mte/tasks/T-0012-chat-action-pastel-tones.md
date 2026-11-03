@@ -36,9 +36,9 @@ Goal item 4 of batch 2 (lock: `.mte/memory/requirements-lock-batch2.md`).
 
 ## Run log
 
-| attempt | role  | result                    | notes                                                                                                          |
-| ------- | ----- | ------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| 1       | coder | TASK_READY_FOR_VALIDATION | Tone applied to run header row only (deviation); vitest needs --config config/vitest.config.ts; no screenshots |
-| 1 | validator | VALIDATION_FAILED | oxfmt --check fails on NativeChatToolLine.tsx:127-136; contrast ratios not noted in diff (report: .mte/tasks/T-0012.validation.md) |
-| 2 | coder | TASK_READY_FOR_VALIDATION | oxfmt fixed; contrast table in main.css (≥7.1 light, ≥7.8 dark for chat-foreground; faint text pre-existing <4.5 on light) |
-| 2 | validator | VALIDATION_PASSED | 406 tests, lint/format/tc clean |
+| attempt | role      | result                    | notes                                                                                                                              |
+| ------- | --------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| 1       | coder     | TASK_READY_FOR_VALIDATION | Tone applied to run header row only (deviation); vitest needs --config config/vitest.config.ts; no screenshots                     |
+| 1       | validator | VALIDATION_FAILED         | oxfmt --check fails on NativeChatToolLine.tsx:127-136; contrast ratios not noted in diff (report: .mte/tasks/T-0012.validation.md) |
+| 2       | coder     | TASK_READY_FOR_VALIDATION | oxfmt fixed; contrast table in main.css (≥7.1 light, ≥7.8 dark for chat-foreground; faint text pre-existing <4.5 on light)         |
+| 2       | validator | VALIDATION_PASSED         | 406 tests, lint/format/tc clean                                                                                                    |

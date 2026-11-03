@@ -527,6 +527,21 @@
         "keywordOrchestration": "오케스트레이션",
         "keywordPlanner": "플래너"
       },
+      "deployCheck": {
+        "title": "배포 확인",
+        "description": "마지막 작업이 검증을 통과한 뒤 MTE 플로우가 배포된 기능을 테스트할 위치와 Linear 이슈를 이동할 상태를 지정합니다.",
+        "url": "URL",
+        "username": "사용자 이름",
+        "password": "비밀번호",
+        "save": "비밀번호 저장",
+        "clear": "지우기",
+        "passwordSaved": "비밀번호 저장됨",
+        "passwordError": "비밀번호를 저장할 수 없습니다. 이 시스템에서는 보안 저장소를 사용할 수 없습니다.",
+        "doneState": "확인 통과 후 Linear 상태",
+        "keywordDeploy": "배포",
+        "keywordStaging": "스테이징",
+        "keywordLinear": "linear"
+      },
       "quickCommandsFloating": {
         "title": "빠른 명령을 플로팅 터미널에서 실행",
         "description": "셸 빠른 명령이 새 워크스페이스 탭 대신 플로팅 터미널에서 이 프로젝트 안에서 실행됩니다.",

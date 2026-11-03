@@ -72,6 +72,14 @@ export function createRepoUpdateSchema<T extends Readonly<Record<string, z.ZodTy
         }),
       forkSyncMode: z.enum(['ask', 'safe-auto', 'off']).optional(),
       mteFlowPrompt: z.enum(['ask', 'never']).optional(),
+      deployCheck: z
+        .object({
+          url: z.string().max(2_048),
+          username: z.string().max(512),
+          linearDoneState: z.string().max(128).optional()
+        })
+        .strict()
+        .optional(),
       quickCommandsInFloatingTerminal: z.boolean().optional(),
       externalWorktreeVisibility: z.enum(['hide', 'show']).nullable().optional(),
       externalWorktreeVisibilityPromptDismissedAt: z.number().finite().optional(),

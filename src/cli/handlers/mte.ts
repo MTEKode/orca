@@ -25,6 +25,7 @@ import {
   type MteStartLaunchOutcome
 } from './mte-start-launch'
 import { runMteCheck } from './mte-check'
+import { MTE_DEPLOY_CHECK_HANDLERS } from './mte-deploy-check'
 
 const MEMORY_ROLE_FLAGS = ['orchestrator', 'coder', 'validator'] as const
 
@@ -255,5 +256,6 @@ export const MTE_HANDLERS: Record<string, CommandHandler> = {
   'mte check': async (ctx) => {
     // Stderr tails keep agent-readable reports on stdout and failure detail on stderr.
     await runMteCheck({ flags: ctx.flags, cwd: ctx.cwd, json: ctx.json })
-  }
+  },
+  ...MTE_DEPLOY_CHECK_HANDLERS
 }

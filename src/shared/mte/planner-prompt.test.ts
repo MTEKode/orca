@@ -74,6 +74,29 @@ describe('MTE_PLANNER_PROMPT', () => {
   })
 })
 
+describe('deploy check section', () => {
+  it('ends the prompt with the optional deploy check flow', () => {
+    expect(MTE_PLANNER_PROMPT).toContain('## Deploy check (optional)')
+    for (const fragment of [
+      'orca mte deploy-check config --json',
+      'orca goto --url <url>',
+      'orca snapshot',
+      'orca fill',
+      'orca click',
+      'orca screenshot',
+      'orca mte deploy-check validated --summary',
+      '--failed',
+      '10 minutes',
+      '30 seconds'
+    ]) {
+      expect(MTE_PLANNER_PROMPT).toContain(fragment)
+    }
+    expect(MTE_PLANNER_PROMPT.indexOf('## Deploy check (optional)')).toBeGreaterThan(
+      MTE_PLANNER_PROMPT.indexOf('## Git safety')
+    )
+  })
+})
+
 describe('plannerKickoffPrompt', () => {
   it('embeds the persona and the goal', () => {
     const kickoff = plannerKickoffPrompt('Ship the import refactor end to end')

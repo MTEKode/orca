@@ -27,3 +27,5 @@
 - [opencode-v2-agent-picker-deferred](opencode-v2-agent-picker-deferred.md) - T-0013 (2026-11-03): OpenCode v2 chat on by default; agent/variant/forms backend done. Composer Agen
 
 - [native-chat-draft-insert-scope](native-chat-draft-insert-scope.md) - To insert text into the visible structured chat composer from outside native-chat: use insertNativeC
+
+- [repo-setting-plumbing-files](repo-setting-plumbing-files.md) - Adding a per-repo (project) setting in orca touches: src/shared/repo-types.ts, src/renderer/src/stor

@@ -46,7 +46,8 @@ Tests: `npx vitest run --config config/vitest.config.ts src/main/opencode-v2`; g
 | attempt | role  | result                    | notes                                   |
 | ------- | ----- | ------------------------- | --------------------------------------- |
 | 1       | coder | ASK_ORCHESTRATOR→answered | backend done, picker deferred to T-0016 |
+
 > Follow-up T-0016 (not in this batch): composer Agent (build/plan) picker — extend AgentSessionOptionsResult.current + descriptor builder.
-| 1 | validator | VALIDATION_FAILED | opencode-v2-session.ts 316 lines (>300). Everything else green. |
-| 2 | coder | TASK_READY_FOR_VALIDATION | session.ts 296 lines via extractions into session-open.ts; picker question already answered (deferred to T-0016) |
-| 2 | validator | VALIDATION_PASSED | 99 tests, lint/format/tc clean |
+> | 1 | validator | VALIDATION_FAILED | opencode-v2-session.ts 316 lines (>300). Everything else green. |
+> | 2 | coder | TASK_READY_FOR_VALIDATION | session.ts 296 lines via extractions into session-open.ts; picker question already answered (deferred to T-0016) |
+> | 2 | validator | VALIDATION_PASSED | 99 tests, lint/format/tc clean |

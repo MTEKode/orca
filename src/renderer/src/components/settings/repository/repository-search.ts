@@ -10,6 +10,7 @@ import { translateSearchKeyword } from '../settings-search-keywords'
 import { getRepositoryGitAuthorSearchEntries } from './repository-git-author-search-entries'
 import { getRepositoryGitHooksSearchEntries } from './execution/repository-git-hooks-search-entries'
 import { getRepositoryGitWorktreeSearchEntries } from './execution/repository-git-worktree-search-entries'
+import { getRepositoryDeployCheckSearchEntries } from './repository-deploy-check-search-entries'
 import { getRepositoryMteFlowPromptSearchEntries } from './repository-mte-flow-prompt-search-entries'
 import { getRepositoryLanguageServersSearchEntries } from '../repository-language-servers-search-entries'
 
@@ -135,6 +136,7 @@ export function getRepositoryPaneSearchEntries(
         ]
       : []),
     ...(!isFolder ? getRepositoryMteFlowPromptSearchEntries(repo) : []),
+    ...(!isFolder ? getRepositoryDeployCheckSearchEntries(repo) : []),
     ...(!isFolder
       ? [
           {

@@ -42,4 +42,4 @@ Goal item 7 of batch 2 (lock: `.mte/memory/requirements-lock-batch2.md`).
 | 2       | coder     | TASK_READY_FOR_VALIDATION | scope = structuredAgentSessionDraftScopeKey(sessionId) (verified: no aliasing); oxfmt clean                                                                                         |
 | 2       | validator | VALIDATION_FAILED         | oxlint consistent-type-imports in use-checks-panel-ai-queue.test.tsx:31 (import() type annotation). 2nd strike → escalate to mte-coder-hi                                           |
 | 3       | coder-hi  | TASK_READY_FOR_VALIDATION | replaced inline `typeof import(...)` with `import type * as DraftStoreModule`; 5 files oxlint/anti-slop/oxfmt clean; vitest 26 files/264 tests pass; tc:web clean                   |
-| 3 | validator | VALIDATION_PASSED | 264 tests, lint/format/tc clean |
+| 3       | validator | VALIDATION_PASSED         | 264 tests, lint/format/tc clean                                                                                                                                                     |

@@ -50,5 +50,11 @@ Same as T-0009. Never print the password in text mode or in logs. Do not commit.
 
 ## Run log
 
-| attempt | role | result | notes |
-| ------- | ---- | ------ | ----- |
+| attempt | role      | result                    | notes                                                                                                                                                |
+| ------- | --------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1       | coder     | TASK_READY_FOR_VALIDATION | 148 tests; src/main/runtime/rpc dir red at HEAD (stash-verified)                                                                                     |
+| 1       | validator | VALIDATION_FAILED         | RepositoryPane.test mock lacks deployCheckPassword; oxfmt fails on 7 files; plaintext fallback rejected                                              |
+| 2       | coder     | TASK_READY_FOR_VALIDATION | defensive bridge read; oxfmt per file via node_modules/.bin; plaintext fallback removed (typed error + UI passwordError)                             |
+| 2       | validator | VALIDATION_FAILED         | handler-group-manifest.ts 306 lines (>300, 304 at HEAD); consistent-type-imports in deploy-check-password-store.test.ts:8. 2nd strike → mte-coder-hi |
+| 3       | coder-hi  | TASK_READY_FOR_VALIDATION | mte group moved to src/cli/mte-handler-group.ts (linear/jira pattern); import type * as NodeOs                                                       |
+| 3       | validator | VALIDATION_PASSED         | 546/548 (2 pre-existing); lint/format/tc/catalogs clean                                                                                              |
