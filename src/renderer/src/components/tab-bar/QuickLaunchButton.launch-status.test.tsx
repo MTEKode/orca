@@ -69,6 +69,8 @@ vi.mock('@/runtime/structured-chat-name-observation', () => ({
   getStructuredChatTabNames: () => new Map()
 }))
 vi.mock('@/hooks/use-now', () => ({ useNow: () => 0 }))
+// The MTE start dialog has its own tests; these launches must stay synchronous.
+vi.mock('./use-mte-flow-launch-prompt', () => ({ useMteFlowLaunchPrompt: () => () => false }))
 
 import {
   DropdownMenu,

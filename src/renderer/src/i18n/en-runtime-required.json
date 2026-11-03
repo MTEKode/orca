@@ -2068,6 +2068,14 @@
   "menu": {
     "quitApp": "Quit {{appName}}"
   },
+  "mte": {
+    "prompt": {
+      "cancel": "Plain chat",
+      "confirm": "Use MTE",
+      "description": "The MTE planner will interview you about the goal, then drive coder and validator agents through the plan. Orca writes the MTE tool config into this workspace.",
+      "title": "Use MTE orchestration for this chat?"
+    }
+  },
   "pet": {
     "defaultLabels": {
       "bundle": "Pet bundle",
