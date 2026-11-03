@@ -7,6 +7,10 @@ on:
         description: Commit SHA or branch to release (default main)
         required: false
         default: main
+      platforms:
+        description: Comma-separated platforms to build in CI (mac, windows). Build mac locally with config/scripts/mtekode-release-local-mac.sh when runners are scarce.
+        required: false
+        default: mac,windows
 
 permissions:
   contents: write
@@ -25,6 +29,7 @@ jobs:
       tag: ${{ steps.next.outputs.tag }}
       version: ${{ steps.next.outputs.version }}
       sha: ${{ steps.next.outputs.sha }}
+      matrix: ${{ steps.matrix.outputs.include }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -47,19 +52,26 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tag=v$version" >> "$GITHUB_OUTPUT"
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
+      - id: matrix
+        env:
+          PLATFORMS: ${{ inputs.platforms }}
+        run: |
+          set -euo pipefail
+          include='[]'
+          if [[ ",$PLATFORMS," == *",windows,"* ]]; then
+            include="$(jq -c '. + [{"os":"windows-2022","install":"pnpm install --frozen-lockfile","publish":"node config/scripts/ensure-native-runtime.mjs --runtime=electron && pnpm exec electron-builder --config config/electron-builder.config.cjs --win --publish always -c.publish.releaseType=draft -c.win.verifyUpdateCodeSignature=false"}]' <<<"$include")"
+          fi
+          if [[ ",$PLATFORMS," == *",mac,"* ]]; then
+            include="$(jq -c '. + [{"os":"macos-15","install":"pnpm install --frozen-lockfile","publish":"node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON config/scripts/pinned-node-downloads.mjs darwin-arm64 && node config/scripts/ensure-native-runtime.mjs --runtime=electron && pnpm exec electron-builder --config config/electron-builder.config.cjs --mac dmg zip --arm64 -c.mac.identity=- --publish always -c.publish.releaseType=draft"}]' <<<"$include")"
+          fi
+          echo "include=$include" >> "$GITHUB_OUTPUT"
 
   build:
     needs: prepare
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: windows-2022
-            install: pnpm install --frozen-lockfile
-            publish: node config/scripts/ensure-native-runtime.mjs --runtime=electron && pnpm exec electron-builder --config config/electron-builder.config.cjs --win --publish always -c.publish.releaseType=draft -c.win.verifyUpdateCodeSignature=false
-          - os: macos-15
-            install: pnpm install --frozen-lockfile
-            publish: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON config/scripts/pinned-node-downloads.mjs darwin-arm64 && node config/scripts/ensure-native-runtime.mjs --runtime=electron && pnpm exec electron-builder --config config/electron-builder.config.cjs --mac dmg zip --arm64 -c.mac.identity=- --publish always -c.publish.releaseType=draft
+        include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     defaults:
