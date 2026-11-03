@@ -519,6 +519,19 @@
       "iconPickErrors": {
         "notPng": "저장소 아이콘은 PNG 파일이어야 합니다.",
         "tooLarge": "저장소 아이콘 이미지는 256 KB 이하여야 합니다."
+      },
+      "mteFlowPrompt": {
+        "title": "새 채팅에서 MTE 오케스트레이션 사용 여부 묻기",
+        "description": "이 프로젝트에서 Claude, Codex 또는 OpenCode 채팅을 시작할 때 MTE 플래너가 coder와 validator 에이전트를 진행하도록 제안합니다.",
+        "keywordMte": "mte",
+        "keywordOrchestration": "오케스트레이션",
+        "keywordPlanner": "플래너"
+      },
+      "quickCommandsFloating": {
+        "title": "빠른 명령을 플로팅 터미널에서 실행",
+        "description": "셸 빠른 명령이 새 워크스페이스 탭 대신 플로팅 터미널에서 이 프로젝트 안에서 실행됩니다.",
+        "keywordQuick": "빠른 명령",
+        "keywordFloating": "플로팅 터미널"
       }
     }
   },
@@ -20479,6 +20492,9 @@
     "scanTooLarge": "Quick Open 스캔 범위가 너무 큽니다({{reason}})."
   },
   "checksPanel": {
+    "comments": {
+      "addedToChat": "Added {{count}} comment groups to the chat input"
+    },
     "unlinked": {
       "title": "PR 연결 해제됨",
       "description": "이 워크스페이스에서는 PR #{{number}}이(가) 숨겨져 있습니다. 검사와 리뷰 세부정보를 복원하려면 다시 연결하세요.",
@@ -22838,5 +22854,19 @@
   "wslDistroHold": {
     "terminalStopped": "WSL 배포판 {{distro}}이(가) 중지되어 Orca가 이 터미널을 시작하지 않았습니다. 배포판을 시작한 후 다시 시도하세요.",
     "terminalUnverifiable": "WSL 배포판 {{distro}}이(가) 실행 중인지 확인할 수 없어 Orca가 이 터미널을 시작하지 않았습니다. 배포판을 시작한 후 다시 시도하세요."
+  },
+  "mte": {
+    "prompt": {
+      "title": "이 채팅에서 MTE 오케스트레이션을 사용할까요?",
+      "description": "MTE 플래너가 목표에 대해 질문한 뒤 계획에 따라 coder와 validator 에이전트를 진행합니다. Orca는 이 작업 공간에 MTE 도구 설정을 기록합니다.",
+      "confirm": "MTE 사용",
+      "cancel": "일반 채팅"
+    },
+    "prepare": {
+      "failed": "MTE를 준비하지 못했습니다: {{message}}"
+    },
+    "planner": {
+      "started": "{{agent}}에서 MTE 플래너를 시작했습니다"
+    }
   }
 }

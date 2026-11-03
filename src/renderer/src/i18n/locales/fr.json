@@ -745,6 +745,19 @@
       "iconPickErrors": {
         "notPng": "Les icônes de dépôt doivent être des fichiers PNG.",
         "tooLarge": "L’image de l’icône du dépôt doit faire 256 Ko maximum."
+      },
+      "mteFlowPrompt": {
+        "title": "Proposer l’orchestration MTE sur les nouveaux chats",
+        "description": "Quand vous démarrez un chat Claude, Codex ou OpenCode dans ce projet, proposer que le planificateur MTE pilote les agents coder et validator.",
+        "keywordMte": "mte",
+        "keywordOrchestration": "orchestration",
+        "keywordPlanner": "planificateur"
+      },
+      "quickCommandsFloating": {
+        "title": "Exécuter les commandes rapides dans le terminal flottant",
+        "description": "Les commandes rapides shell s'ouvrent dans le terminal flottant et s'exécutent dans ce projet au lieu d'un nouvel onglet de l'espace de travail.",
+        "keywordQuick": "commandes rapides",
+        "keywordFloating": "terminal flottant"
       }
     }
   },
@@ -21113,6 +21126,9 @@
     }
   },
   "checksPanel": {
+    "comments": {
+      "addedToChat": "Added {{count}} comment groups to the chat input"
+    },
     "unlinked": {
       "title": "Demande de tirage non liée",
       "description": "PR #{{number}} est masqué pour cet espace de travail. Liez-le à nouveau pour restaurer les vérifications et examiner les détails.",
@@ -23528,5 +23544,19 @@
   "wslDistroHold": {
     "terminalStopped": "La distribution WSL {{distro}} est arrêtée, donc Orca n'a pas démarré ce terminal. Démarrez la distribution, puis réessayez.",
     "terminalUnverifiable": "Orca n'a pas pu vérifier si la distribution WSL {{distro}} est en cours d'exécution, donc il n'a pas démarré ce terminal. Démarrez la distribution, puis réessayez."
+  },
+  "mte": {
+    "prompt": {
+      "title": "Utiliser l’orchestration MTE pour ce chat ?",
+      "description": "Le planificateur MTE vous interrogera sur l’objectif, puis pilotera les agents coder et validator selon le plan. Orca écrit la configuration des outils MTE dans cet espace de travail.",
+      "confirm": "Utiliser MTE",
+      "cancel": "Chat simple"
+    },
+    "prepare": {
+      "failed": "Impossible de préparer MTE : {{message}}"
+    },
+    "planner": {
+      "started": "Planificateur MTE démarré dans {{agent}}"
+    }
   }
 }

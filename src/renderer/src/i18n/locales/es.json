@@ -525,6 +525,19 @@
       "iconPickErrors": {
         "notPng": "Los iconos del repositorio deben ser archivos PNG.",
         "tooLarge": "La imagen del icono del repositorio debe tener un tamaño máximo de 256 KB."
+      },
+      "mteFlowPrompt": {
+        "title": "Preguntar si usar la orquestación MTE en chats nuevos",
+        "description": "Al iniciar un chat de Claude, Codex u OpenCode en este proyecto, ofrece que el planificador MTE dirija a los agentes coder y validator.",
+        "keywordMte": "mte",
+        "keywordOrchestration": "orquestación",
+        "keywordPlanner": "planificador"
+      },
+      "quickCommandsFloating": {
+        "title": "Ejecutar comandos rápidos en el terminal flotante",
+        "description": "Los comandos rápidos de shell se abren en el terminal flotante y se ejecutan dentro de este proyecto en lugar de en una pestaña nueva del espacio de trabajo.",
+        "keywordQuick": "comandos rápidos",
+        "keywordFloating": "terminal flotante"
       }
     }
   },
@@ -21561,6 +21574,9 @@
     "scanTooLarge": "El escaneo de Apertura rápida es demasiado amplio ({{reason}})."
   },
   "checksPanel": {
+    "comments": {
+      "addedToChat": "Se añadieron {{count}} grupos de comentarios a la entrada del chat"
+    },
     "unlinked": {
       "title": "Pull request desvinculada",
       "description": "La PR #{{number}} está oculta para este espacio de trabajo. Vuelve a vincularla para restaurar las verificaciones y los detalles de revisión.",
@@ -23528,5 +23544,19 @@
   "wslDistroHold": {
     "terminalStopped": "La distribución WSL {{distro}} está detenida, así que Orca no inició esta terminal. Inicia la distribución y vuelve a intentarlo.",
     "terminalUnverifiable": "Orca no pudo comprobar si la distribución WSL {{distro}} está en ejecución, así que no inició esta terminal. Inicia la distribución y vuelve a intentarlo."
+  },
+  "mte": {
+    "prompt": {
+      "title": "¿Usar la orquestación MTE en este chat?",
+      "description": "El planificador MTE te preguntará por el objetivo y después dirigirá a los agentes coder y validator a lo largo del plan. Orca escribe la configuración de herramientas de MTE en este espacio de trabajo.",
+      "confirm": "Usar MTE",
+      "cancel": "Chat normal"
+    },
+    "prepare": {
+      "failed": "No se pudo preparar MTE: {{message}}"
+    },
+    "planner": {
+      "started": "Planificador MTE iniciado en {{agent}}"
+    }
   }
 }
