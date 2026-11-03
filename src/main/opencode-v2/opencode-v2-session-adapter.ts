@@ -187,6 +187,7 @@ export class OpenCodeV2SessionAdapter implements StructuredAgentSessionAdapter {
       }
     }
 
+  /** A cancelled approval or form card is dismissed (denied/cancelled) without stopping the turn. */
   routePromptCancel(): { kind: 'dismiss' } {
     return { kind: 'dismiss' }
   }
@@ -205,7 +206,11 @@ export class OpenCodeV2SessionAdapter implements StructuredAgentSessionAdapter {
     commit: () => Promise<void>,
     answer: boolean
   ): Promise<void> {
-    const permissions = this.session(sessionId, fence).permissions
+    const session = this.session(sessionId, fence)
+    if (session.forms?.owns(itemId)) {
+      return session.forms.answer(itemId, response, commit, answer)
+    }
+    const permissions = session.permissions
     if (!permissions) {
       throw new Error('OpenCode v2 session is not live under this fence')
     }

@@ -3,7 +3,7 @@ import { readOrcaCliVersion } from '../cli-version'
 import type { CommandHandler } from '../dispatch'
 import type { RuntimeClient } from '../runtime-client'
 import { errorMessage } from '../../shared/error-message'
-import { plannerKickoffPrompt } from '../../shared/mte/planner-prompt'
+import { MTE_START_DEFAULT_GOAL, plannerKickoffPrompt } from '../../shared/mte/planner-prompt'
 import {
   applyWorkspaceMcpConfig,
   planWorkspaceMcpConfig,
@@ -15,7 +15,7 @@ import {
   realMemoryWorkspacePath,
   resolveMemoryWorkspaceRoot
 } from '../../shared/mte/memory-workspace-root'
-import { runtimeOrchestrationCliCommand } from '../../shared/mte/cli-command'
+import { resolveMteStartCliCommand } from '../../shared/mte/cli-command'
 import type { MemoryRole } from '../../shared/mte/memory-store'
 import {
   isWorkspaceRegistrationError,
@@ -25,6 +25,7 @@ import {
   type MteStartLaunchOutcome
 } from './mte-start-launch'
 import { runMteCheck } from './mte-check'
+import { MTE_DEPLOY_CHECK_HANDLERS } from './mte-deploy-check'
 
 const MEMORY_ROLE_FLAGS = ['orchestrator', 'coder', 'validator'] as const
 
@@ -75,9 +76,7 @@ function refuseUsage(message: string): void {
 
 const MTE_START_ADAPTERS = ['claude', 'opencode', 'codex'] as const
 
-/** Goal embedded in the kickoff prompt when --goal is omitted: the planner asks the user first. */
-export const MTE_START_DEFAULT_GOAL =
-  'Ask the user for the goal of this MTE run, then run the requirement interview on it.'
+export { MTE_START_DEFAULT_GOAL }
 
 function parseStartAdapterFlag(value: string | boolean | undefined): WorkspaceMcpAdapter | null {
   if (typeof value !== 'string') {
@@ -142,19 +141,7 @@ export function resolveMteStartInvocation(
   return { ok: true, agent, workspaceRoot, goal, adapter }
 }
 
-/** Absolute path of the orca CLI entry that the MCP config will spawn; env first, then self-reference. */
-export function resolveMteStartCliCommand(
-  env: NodeJS.ProcessEnv = process.env,
-  argv1: string | undefined = process.argv[1],
-  appCliCommand: string | undefined = runtimeOrchestrationCliCommand()
-): string {
-  const configured = env.ORCA_CLI_COMMAND?.trim()
-  if (configured) {
-    return configured
-  }
-  // Dev builds with an app environment say orca-dev; packaged and plain CLI runs use their own entry.
-  return appCliCommand ?? argv1 ?? 'orca'
-}
+export { resolveMteStartCliCommand }
 
 export type MteStartDeps = {
   applyConfig?: (plan: WorkspaceMcpPlan) => Promise<void>
@@ -269,5 +256,6 @@ export const MTE_HANDLERS: Record<string, CommandHandler> = {
   'mte check': async (ctx) => {
     // Stderr tails keep agent-readable reports on stdout and failure detail on stderr.
     await runMteCheck({ flags: ctx.flags, cwd: ctx.cwd, json: ctx.json })
-  }
+  },
+  ...MTE_DEPLOY_CHECK_HANDLERS
 }

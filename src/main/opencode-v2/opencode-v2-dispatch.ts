@@ -184,32 +184,57 @@ export async function compactOpenCodeV2Session(
   }
 }
 
+function optionRejected(error: unknown): AgentSessionOptionRejectedError {
+  return new AgentSessionOptionRejectedError(
+    error,
+    'optionRejected',
+    providerErrorFact(errorMessage(error))
+  )
+}
+
 export async function applyOpenCodeV2SessionOption(
   session: OpenCodeV2Session,
   input: StructuredAgentSessionSetOptionInput
 ): Promise<Record<string, string>> {
-  if (input.key !== 'model') {
+  if (input.key !== 'model' && input.key !== 'agent' && input.key !== 'effort') {
     throw new AgentSessionOptionRejectedError(new Error(`OpenCode v2 has no ${input.key} option`))
   }
   const connection = session.connection
   if (!connection) {
     throw new AgentSessionOptionRejectedError(new Error('OpenCode v2 session is not open'))
   }
-  const ref = session.listing.refs.get(input.value)
-  if (!ref) {
+  if (input.key === 'agent') {
+    if (!session.agents.names.has(input.value)) {
+      throw new AgentSessionOptionRejectedError(new Error('Unknown OpenCode agent'))
+    }
+    try {
+      await connection.setAgent(input.value, input.signal)
+    } catch (error) {
+      throw optionRejected(error)
+    }
+    session.currentAgent = input.value
+    return { agent: input.value }
+  }
+  const modelId = input.key === 'model' ? input.value : session.currentModelId
+  const ref = modelId ? session.listing.refs.get(modelId) : undefined
+  if (!modelId || !ref) {
     throw new AgentSessionOptionRejectedError(new Error('Unknown OpenCode model'))
   }
-  try {
-    await connection.setModel(ref, input.signal)
-  } catch (error) {
-    throw new AgentSessionOptionRejectedError(
-      error,
-      'optionRejected',
-      providerErrorFact(errorMessage(error))
-    )
+  const efforts = session.listing.models.find((model) => model.id === modelId)?.efforts ?? []
+  // A variant survives a model switch only when the new model lists it.
+  const variant = input.key === 'effort' ? input.value : session.currentEffort
+  if (input.key === 'effort' && !efforts.some((effort) => effort.value === variant)) {
+    throw new AgentSessionOptionRejectedError(new Error('Unknown OpenCode model variant'))
   }
-  session.currentModelId = input.value
-  return { model: input.value }
+  const kept = variant && efforts.some((effort) => effort.value === variant) ? variant : null
+  try {
+    await connection.setModel({ ...ref, ...(kept ? { variant: kept } : {}) }, input.signal)
+  } catch (error) {
+    throw optionRejected(error)
+  }
+  session.currentModelId = modelId
+  session.currentEffort = kept
+  return input.key === 'effort' ? { effort: input.value } : { model: input.value }
 }
 
 export function readOpenCodeV2SessionOptions(
@@ -226,6 +251,7 @@ export function readOpenCodeV2SessionOptions(
     listedModelIds: session.listing.models.map((model) => model.id),
     current: {
       model: session.currentModelId ?? '',
+      ...(session.currentEffort ? { effort: session.currentEffort } : {}),
       ...(session.currentModelId ? { confirmed: ['model'] as readonly string[] } : {})
     }
   }

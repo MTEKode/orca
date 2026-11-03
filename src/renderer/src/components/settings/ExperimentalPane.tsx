@@ -267,7 +267,7 @@ export function ExperimentalPane({
         <SearchableSetting
           title={translate(
             'auto.components.settings.ExperimentalPane.opencodeV2Chat.title',
-            'OpenCode v2 chat'
+            'OpenCode v2 chat (HTTP transport)'
           )}
           description={translate(
             'auto.components.settings.ExperimentalPane.opencodeV2Chat.description',
@@ -282,7 +282,7 @@ export function ExperimentalPane({
               <Label>
                 {translate(
                   'auto.components.settings.ExperimentalPane.opencodeV2Chat.title',
-                  'OpenCode v2 chat'
+                  'OpenCode v2 chat (HTTP transport)'
                 )}
               </Label>
               <p className="text-xs text-muted-foreground">

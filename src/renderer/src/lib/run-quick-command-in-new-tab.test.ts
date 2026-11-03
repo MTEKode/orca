@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../shared/constants'
 import { runQuickCommandInNewTab } from './run-quick-command-in-new-tab'
 
 type MockStoreState = {
@@ -18,7 +19,8 @@ type MockStoreState = {
 }
 
 const mocks = vi.hoisted(() => ({
-  launchAgentInNewTab: vi.fn()
+  launchAgentInNewTab: vi.fn(),
+  reveal: vi.fn()
 }))
 
 let mockState: MockStoreState
@@ -27,6 +29,10 @@ vi.mock('@/store', () => ({
   useAppStore: {
     getState: () => mockState
   }
+}))
+
+vi.mock('@/lib/floating-workspace-panel-reveal', () => ({
+  revealFloatingWorkspacePanel: mocks.reveal
 }))
 
 vi.mock('@/lib/launch-agent-in-new-tab', () => ({
@@ -54,6 +60,7 @@ describe('runQuickCommandInNewTab', () => {
   beforeEach(() => {
     mockState = createStoreState()
     mocks.launchAgentInNewTab.mockReset()
+    mocks.reveal.mockReset()
   })
 
   it('flattens multiline quick commands before queuing', () => {
@@ -328,5 +335,47 @@ describe('runQuickCommandInNewTab', () => {
     expect(result).toBeNull()
     expect(mocks.launchAgentInNewTab).not.toHaveBeenCalled()
     expect(mockState.createTab).not.toHaveBeenCalled()
+  })
+
+  describe('floating terminal routing', () => {
+    const shellCommand = {
+      id: 'build',
+      label: 'Build',
+      action: 'terminal-command' as const,
+      command: 'pnpm build',
+      appendEnter: true
+    }
+    function withRepo(flag?: boolean): void {
+      Object.assign(mockState, {
+        repos: [{ id: 'wt', quickCommandsInFloatingTerminal: flag }],
+        worktreesByRepo: { wt: [{ id: 'wt::/my repo', path: '/my repo' }] }
+      })
+    }
+
+    it('runs shell commands in the floating terminal inside the repo by default', () => {
+      withRepo(undefined)
+      const result = runQuickCommandInNewTab({ command: shellCommand, worktreeId: 'wt::/my repo' })
+      expect(result).toEqual({ tabId: 'tab-new' })
+      expect(mockState.createTab).toHaveBeenCalledWith(
+        FLOATING_TERMINAL_WORKTREE_ID,
+        undefined,
+        undefined,
+        {
+          quickCommandLabel: 'Build',
+          pendingStartup: { command: "cd '/my repo' && pnpm build" }
+        }
+      )
+      expect(mocks.reveal).toHaveBeenCalledTimes(1)
+    })
+
+    it('keeps the workspace tab when the setting is off', () => {
+      withRepo(false)
+      runQuickCommandInNewTab({ command: shellCommand, worktreeId: 'wt::/my repo' })
+      expect(mockState.createTab).toHaveBeenCalledWith('wt::/my repo', undefined, undefined, {
+        quickCommandLabel: 'Build',
+        pendingStartup: { command: 'pnpm build' }
+      })
+      expect(mocks.reveal).not.toHaveBeenCalled()
+    })
   })
 })

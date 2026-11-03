@@ -95,6 +95,31 @@ export class OpenCodeV2Connection {
     )
   }
 
+  async setAgent(agent: string, signal?: AbortSignal) {
+    return this.client.session.switchAgent(
+      { sessionID: this.sessionID, agent },
+      signal ? { signal } : undefined
+    )
+  }
+
+  async replyForm(
+    formID: string,
+    answer: Record<string, string | number | boolean | string[]>,
+    signal?: AbortSignal
+  ) {
+    return this.client.session.form.reply(
+      { sessionID: this.sessionID, formID, answer },
+      signal ? { signal } : undefined
+    )
+  }
+
+  async cancelForm(formID: string, signal?: AbortSignal) {
+    return this.client.session.form.cancel(
+      { sessionID: this.sessionID, formID },
+      signal ? { signal } : undefined
+    )
+  }
+
   async compact(signal?: AbortSignal) {
     return this.client.session.compact(
       { sessionID: this.sessionID },

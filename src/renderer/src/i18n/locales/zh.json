@@ -519,6 +519,34 @@
       "iconPickErrors": {
         "notPng": "仓库图标必须是 PNG 文件。",
         "tooLarge": "仓库图标图片不得超过 256 KB。"
+      },
+      "mteFlowPrompt": {
+        "title": "在新聊天中询问是否使用 MTE 编排",
+        "description": "在此项目中启动 Claude、Codex 或 OpenCode 聊天时，询问是否让 MTE 规划器驱动 coder 和 validator 智能体。",
+        "keywordMte": "mte",
+        "keywordOrchestration": "编排",
+        "keywordPlanner": "规划器"
+      },
+      "deployCheck": {
+        "title": "部署检查",
+        "description": "最后一个任务通过验证后，MTE 流程在何处测试已部署的功能，以及将 Linear 工单移动到哪个状态。",
+        "url": "URL",
+        "username": "用户名",
+        "password": "密码",
+        "save": "保存密码",
+        "clear": "清除",
+        "passwordSaved": "密码已保存",
+        "passwordError": "无法保存密码：此系统上的安全存储不可用。",
+        "doneState": "检查通过后的 Linear 状态",
+        "keywordDeploy": "部署",
+        "keywordStaging": "预发布",
+        "keywordLinear": "linear"
+      },
+      "quickCommandsFloating": {
+        "title": "在悬浮终端中运行快捷命令",
+        "description": "Shell 快捷命令将在悬浮终端中于此项目内运行，而不是在新的工作区标签页中。",
+        "keywordQuick": "快捷命令",
+        "keywordFloating": "悬浮终端"
       }
     }
   },
@@ -20480,6 +20508,9 @@
     "scanTooLarge": "“快速打开”的扫描范围过大（{{reason}}）。"
   },
   "checksPanel": {
+    "comments": {
+      "addedToChat": "Added {{count}} comment groups to the chat input"
+    },
     "unlinked": {
       "title": "拉取请求已取消链接",
       "description": "PR #{{number}} 对此工作区隐藏。再次链接以恢复检查并查看详细信息。",
@@ -22839,5 +22870,19 @@
   "wslDistroHold": {
     "terminalStopped": "WSL 发行版 {{distro}} 已停止，因此 Orca 没有启动此终端。请启动该发行版后重试。",
     "terminalUnverifiable": "Orca 无法确认 WSL 发行版 {{distro}} 是否正在运行，因此没有启动此终端。请启动该发行版后重试。"
+  },
+  "mte": {
+    "prompt": {
+      "title": "在此聊天中使用 MTE 编排吗？",
+      "description": "MTE 规划器会先询问目标，然后按计划驱动 coder 和 validator 智能体。Orca 会把 MTE 工具配置写入此工作区。",
+      "confirm": "使用 MTE",
+      "cancel": "普通聊天"
+    },
+    "prepare": {
+      "failed": "无法准备 MTE：{{message}}"
+    },
+    "planner": {
+      "started": "已在 {{agent}} 中启动 MTE 规划器"
+    }
   }
 }

@@ -1,3 +1,7 @@
+/** Goal embedded in the kickoff prompt when none is given: the planner asks the user first. */
+export const MTE_START_DEFAULT_GOAL =
+  'Ask the user for the goal of this MTE run, then run the requirement interview on it.'
+
 /** Stable planner persona + operating manual (English). */
 export const MTE_PLANNER_PROMPT = [
   '# MTE Planner — Lead Architect',
@@ -38,7 +42,18 @@ export const MTE_PLANNER_PROMPT = [
   '## Git safety',
   '',
   '- Never delete or rewrite git history; never force-push.',
-  "- Never push without the user's explicit say-so."
+  "- Never push without the user's explicit say-so.",
+  '',
+  '## Deploy check (optional)',
+  '',
+  'After the last task passes validation, ask the user (question tool) whether to monitor and test the deploy. If they decline, finish normally. If they accept:',
+  '',
+  '1. Run `orca mte deploy-check config --json`. If it returns `{"configured": false}`, tell the user to fill Deploy check in the project settings (URL, username, password) and stop.',
+  '2. Otherwise poll `orca goto --url <url>` followed by `orca snapshot` until the page responds — at most 10 minutes, one attempt every 30 seconds.',
+  '3. Log in with the username and password from the config output, using `orca fill` / `orca click` on the login form found in the snapshot. Never echo the password in chat or in memory notes.',
+  '4. Exercise the feature(s) delivered in this flow in the embedded browser and take an `orca screenshot` as evidence.',
+  '5. Run `orca mte deploy-check validated --summary "<how it was validated>"` (or add `--failed` when the checks failed) to report to the linked Linear issue.',
+  '6. Report the result to the user.'
 ].join('\n')
 
 /** First-message kickoff: persona + goal. */

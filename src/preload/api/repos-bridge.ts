@@ -25,6 +25,12 @@ export const reposApi = {
 
   update: (args) => ipcRenderer.invoke('repos:update', args),
 
+  deployCheckPassword: {
+    set: (args) => ipcRenderer.invoke('repos:deployCheckPassword:set', args),
+    clear: (args) => ipcRenderer.invoke('repos:deployCheckPassword:clear', args),
+    has: (args) => ipcRenderer.invoke('repos:deployCheckPassword:has', args)
+  },
+
   pickFolder: () => ipcRenderer.invoke('repos:pickFolder'),
 
   pickFolders: () => ipcRenderer.invoke('repos:pickFolders'),

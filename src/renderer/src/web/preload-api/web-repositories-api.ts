@@ -43,6 +43,12 @@ export function createReposApi(): NonNullable<Partial<PreloadApi>['repos']> {
       })
       return withRuntimeRepoOwner(owned.result.repo, owned.hostId)
     },
+    // Why: the secret store is desktop-owned; paired web clients cannot store deploy-check passwords.
+    deployCheckPassword: {
+      set: () => Promise.resolve({ ok: false, reason: 'encryption-unavailable' }),
+      clear: () => Promise.resolve(),
+      has: () => Promise.resolve(false)
+    },
     pickFolder: () => Promise.resolve(null),
     pickFolders: () => Promise.resolve([]),
     pickDirectory: () => Promise.resolve(null),

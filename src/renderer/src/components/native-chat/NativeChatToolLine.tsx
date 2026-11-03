@@ -26,6 +26,14 @@ import {
   diffFromText,
   diffFromToolCall
 } from '../../../../shared/native-chat/tools/native-chat-diff'
+import {
+  isShellActivityToolCall,
+  nativeChatToolCategory
+} from '../../../../shared/native-chat/tools/native-chat-tool-icon'
+import {
+  NATIVE_CHAT_TOOL_TONE_CLASSES,
+  nativeChatToolTone
+} from '../../../../shared/native-chat/tools/native-chat-tool-tone'
 import { NativeChatExpandable } from './NativeChatExpandable'
 import { useNativeChatDisclosure } from './native-chat-disclosure-store'
 import { NativeChatToolOutput } from './NativeChatToolOutput'
@@ -116,8 +124,18 @@ export function NativeChatToolLine({
   const fullCommand = label?.commandDetail ?? null
   const commandAlone = label?.command === true && label.verb !== null && label.target.length > 0
 
+  const toneClasses =
+    NATIVE_CHAT_TOOL_TONE_CLASSES[
+      isCall
+        ? nativeChatToolTone(
+            nativeChatToolCategory(block.name, block.mcpIdentity, block.input) ?? 'other',
+            isShellActivityToolCall(block)
+          )
+        : 'neutral'
+    ]
+
   return (
-    <div>
+    <div className={cn('rounded-md border', toneClasses)}>
       <button
         type="button"
         onClick={() => hasDetail && setExpanded(!expanded)}

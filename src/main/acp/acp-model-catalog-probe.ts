@@ -107,17 +107,30 @@ export function createAcpModelCatalogProbe(
     const run = { label: spec.agent, signal: options?.signal }
     let models: AgentSessionModelOption[]
     if (listing.kind === 'command') {
-      const stdout = await (deps.runListing ?? runAgentModelCatalogListing)(
-        {
-          command,
-          args: [...prefixArgs, ...listing.args],
-          cwd: workspace ?? cwd,
-          env,
-          envToDelete
-        },
-        { site: `${spec.agent}-model-catalog-probe`, signal: options?.signal }
-      )
-      models = listing.parse(stdout)
+      const listingLaunch = {
+        command: listing.binary ?? command,
+        args: [...(listing.binary ? [] : prefixArgs), ...listing.args],
+        cwd: workspace ?? cwd,
+        env,
+        envToDelete
+      }
+      try {
+        const stdout = await (deps.runListing ?? runAgentModelCatalogListing)(listingLaunch, {
+          site: `${spec.agent}-model-catalog-probe`,
+          signal: options?.signal,
+          ...(listing.timeoutMs ? { timeoutMs: listing.timeoutMs } : {})
+        })
+        models = listing.parse(stdout)
+        if (models.length === 0 && listing.fallback) {
+          models = listing.fallback()
+        }
+      } catch (error) {
+        // Cancellation is not a listing failure.
+        if (!listing.fallback || options?.signal?.aborted) {
+          throw error
+        }
+        models = listing.fallback()
+      }
     } else if (listing.kind === 'session') {
       if (!workspace) {
         throw folderlessListing(spec)

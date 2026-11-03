@@ -48,5 +48,28 @@ export const MTE_COMMAND_SPECS: CommandSpec[] = [
       'orca mte check --detect',
       'orca mte check --only lint --only test --timeout 300 --json'
     ]
+  },
+  {
+    path: ['mte', 'deploy-check', 'config'],
+    summary: 'Print the project deploy-check target (URL, login, Linear done state)',
+    usage: 'orca mte deploy-check config [--workspace <path>] [--json]',
+    allowedFlags: [...LOCAL_COMMAND_FLAGS, 'workspace'],
+    notes: [
+      'Reads the Deploy check section of the project settings. --json returns {configured, url, username, password, linearDoneState} or {configured:false}.',
+      'Text mode never prints the password.'
+    ],
+    examples: ['orca mte deploy-check config --json']
+  },
+  {
+    path: ['mte', 'deploy-check', 'validated'],
+    summary: 'Report the deploy-check result to the linked Linear issue',
+    usage:
+      'orca mte deploy-check validated --summary <text> [--failed] [--workspace <path>] [--json]',
+    allowedFlags: [...LOCAL_COMMAND_FLAGS, 'summary', 'failed', 'workspace'],
+    notes: [
+      'Comments on the worktree linked Linear issue and, unless --failed, moves it to the configured done state.',
+      'Prints linear: commented+moved | commented | skipped-no-issue | failed:<reason>; a workspace without a linked issue exits 0 with skipped-no-issue.'
+    ],
+    examples: ['orca mte deploy-check validated --summary "Login and checkout verified on staging"']
   }
 ]

@@ -26,6 +26,14 @@ import type {
   NativeChatSubagentDisclosure,
   NativeChatSubagentRosterState
 } from './native-chat-subagent-sections'
+import {
+  isShellActivityToolCall,
+  nativeChatToolRunCategory
+} from '../../../../shared/native-chat/tools/native-chat-tool-icon'
+import {
+  NATIVE_CHAT_TOOL_TONE_CLASSES,
+  nativeChatToolTone
+} from '../../../../shared/native-chat/tools/native-chat-tool-tone'
 import { NativeChatToolRunIcon } from './NativeChatToolIcon'
 import { NativeChatToolRunCallCounts } from './NativeChatToolRunCallCounts'
 import { NativeChatToolRunMembers, revealNativeChatToolRunMember } from './NativeChatToolRunMembers'
@@ -148,6 +156,11 @@ export function NativeChatToolRun({
     [activeTurnIsWorking, blocks, trailing]
   )
   const viewedImages = useMemo(() => nativeChatToolRunViewedImages(headerBlocks), [headerBlocks])
+  const headerCalls = headerBlocks.filter(isToolCallBlock)
+  const runTone = nativeChatToolTone(
+    nativeChatToolRunCategory(headerCalls) ?? 'other',
+    headerCalls.length > 0 && headerCalls.every(isShellActivityToolCall)
+  )
   const hasAskCall = asks.length > 0
   const askSubject = hasAskCall ? nativeChatAskRunSubject(asks) : null
   const showsHeader = !hasAskCall || callCount > 0
@@ -187,7 +200,12 @@ export function NativeChatToolRun({
         />
       ) : null}
       {!showsHeader ? null : (
-        <div className="flex items-start gap-1">
+        <div
+          className={cn(
+            'flex items-start gap-1 rounded-md border px-1',
+            NATIVE_CHAT_TOOL_TONE_CLASSES[runTone]
+          )}
+        >
           {/* Keep one header across live/settled states; summary line-height aligns marks and wrapped text. */}
           <button
             type="button"
@@ -234,7 +252,7 @@ export function NativeChatToolRun({
               </span>
             ) : null}
           </button>
-          <NativeChatBrowserRunPageButton calls={headerBlocks.filter(isToolCallBlock)} />
+          <NativeChatBrowserRunPageButton calls={headerCalls} />
         </div>
       )}
       {/* A read's result is the image the agent saw, so it shows without opening the run. */}

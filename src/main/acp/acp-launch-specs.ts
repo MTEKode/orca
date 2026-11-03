@@ -50,6 +50,10 @@ import {
   answerAntigravityChatAuth,
   antigravityChatAccount
 } from '../antigravity/antigravity-chat-account'
+import {
+  antigravityFallbackModelOptions,
+  parseAntigravityModelOptions
+} from '../../shared/antigravity/antigravity-model-listing'
 import { readAntigravitySignInLine } from '../antigravity/antigravity-sign-in-url'
 import type { AcpSignInWatch } from './acp-agent-connection'
 import type { AcpLaunchGate } from './acp-launch-gate'
@@ -68,8 +72,14 @@ export type AcpModelDiscovery =
     }
   | {
       kind: 'command'
+      /** Runs this program instead of the chat server (e.g. the user's CLI). */
+      binary?: string
       args: readonly string[]
       parse(stdout: string): AgentSessionModelOption[]
+      /** Catalog used when the listing command fails or times out. */
+      fallback?(): AgentSessionModelOption[]
+      /** Overrides the default listing timeout. */
+      timeoutMs?: number
       listingNamesConfiguredModel: boolean
       /** Unsupported releases use session discovery when enabled, otherwise live-chat catalogs. */
       supportsVersion?(version: string): boolean
@@ -268,6 +278,15 @@ export const ANTIGRAVITY_LAUNCH_SPEC = {
   env: ANTIGRAVITY_ACP_ENV,
   scrubEnvironment: scrubAntigravityAcpEnvironment,
   dialect: ANTIGRAVITY_ACP_DIALECT,
+  modelDiscovery: {
+    kind: 'command',
+    binary: 'agy',
+    args: ['models'],
+    parse: parseAntigravityModelOptions,
+    fallback: antigravityFallbackModelOptions,
+    timeoutMs: 10_000,
+    listingNamesConfiguredModel: false
+  },
   loginCommand: agentSessionSignInFor('antigravity')?.loginCommand ?? [],
   authMethod: ({ advertised }) =>
     advertised.includes('oauth-personal') ? 'oauth-personal' : undefined,
@@ -281,10 +300,6 @@ export const ANTIGRAVITY_LAUNCH_SPEC = {
   // Yolo still requests questions and administrative reviews.
   permissionModeConfig: {
     values: { ask: 'default', 'accept-edits': 'auto_edit', 'full-access': 'yolo' }
-  },
-  modelDiscovery: {
-    kind: 'unavailable',
-    reason: 'the Antigravity server lists its models only in a signed-in session'
   },
   transcriptImport: null,
   sessionHistory: ANTIGRAVITY_SESSION_HISTORY,

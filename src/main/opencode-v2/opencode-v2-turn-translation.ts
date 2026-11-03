@@ -12,6 +12,11 @@ import {
   type OpenCodeV2TokenUsage
 } from './opencode-v2-timeline-events'
 import {
+  openCodeV2FormCreatedEvents,
+  openCodeV2FormWithdrawnEvents,
+  type OpenCodeV2FormInfo
+} from './opencode-v2-forms'
+import {
   openCodeV2PermissionAskedEvents,
   openCodeV2PermissionWithdrawnEvents
 } from './opencode-v2-permissions'
@@ -47,6 +52,8 @@ export type OpenCodeV2TurnTranslatorDeps = {
   autoApprovePermissions?: () => boolean
   onPermissionAsked?: (request: { id: string; autoApproved: boolean }) => void
   onModelSelected?: (model: { id: string; providerID: string; variant?: string }) => void
+  onAgentSelected?: (agent: string) => void
+  onFormOpened?: (form: OpenCodeV2FormInfo) => void
   now?: () => number
 }
 
@@ -158,6 +165,24 @@ export class OpenCodeV2TurnTranslator {
         }
         return []
       }
+      case 'session.agent.selected': {
+        const agent = str(data(event).agent)
+        if (agent) {
+          this.deps.onAgentSelected?.(agent)
+        }
+        return []
+      }
+      case 'form.created': {
+        const form = (data(event) as { form?: OpenCodeV2FormInfo }).form
+        return form
+          ? openCodeV2FormCreatedEvents(form, this.join, (opened) =>
+              this.deps.onFormOpened?.(opened)
+            )
+          : []
+      }
+      case 'form.replied':
+      case 'form.cancelled':
+        return openCodeV2FormWithdrawnEvents(data(event).id)
       case 'permission.asked':
         return openCodeV2PermissionAskedEvents(data(event), this.join, {
           autoApprove: this.deps.autoApprovePermissions?.() === true,

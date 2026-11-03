@@ -1,0 +1,4 @@
+{"id":"ev_1","created":1,"type":"session.inbox.delivered","data":{"sessionID":"ses_test","inboxID":"msg_user_1"}}
+{"id":"ev_2","created":2,"type":"session.execution.started","data":{"sessionID":"ses_test"}}
+{"id":"ev_3","created":3,"type":"form.created","data":{"form":{"id":"form_1","sessionID":"ses_test","title":"Project setup","fields":[{"key":"framework","type":"string","title":"Framework","options":[{"value":"react","label":"React"},{"value":"vue","label":"Vue"}]},{"key":"strict","type":"boolean","title":"Strict mode"},{"key":"login","type":"external","url":"https://example.com"}]}}}
+{"id":"ev_4","created":4,"type":"form.replied","data":{"id":"form_1","sessionID":"ses_test","answer":{"framework":"react","strict":true}}}

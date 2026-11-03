@@ -102,6 +102,18 @@ const COMMAND_SCOPED_FLAG_HELP: Record<string, Record<string, string>> = {
     workspace:
       '--workspace <path>     Workspace root for the MCP config and planner chat (default: nearest .git/.mte ancestor)'
   },
+  'mte deploy-check config': {
+    workspace:
+      '--workspace <path>     Workspace root of the project (default: nearest .git/.mte ancestor)'
+  },
+  'mte deploy-check validated': {
+    summary:
+      '--summary <text>       How the deploy was validated (posted to the linked Linear issue)',
+    failed:
+      '--failed               Report a failed validation: comment only, do not move the issue',
+    workspace:
+      '--workspace <path>     Workspace root of the project (default: nearest .git/.mte ancestor)'
+  },
   'mte check': {
     workspace:
       '--workspace <path>     Workspace root to check (default: nearest .git/.mte ancestor)',

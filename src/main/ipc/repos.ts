@@ -8,6 +8,7 @@ import { registerProjectGroupHandlers } from './repos/project-group-handlers'
 import { registerFolderWorkspaceHandlers } from './repos/folder-workspace-handlers'
 import { registerNestedRepoImportHandler } from './repos/nested-repo-import-handler'
 import { registerRepoUpdateHandler } from './repos/repo-update-handler'
+import { registerDeployCheckPasswordHandlers } from './repos/deploy-check-password-handler'
 import { registerSparsePresetHandlers } from './repos/sparse-preset-handlers'
 import { registerRepoFolderPickerHandlers } from './repos/repo-folder-picker-handlers'
 import { registerRepoCloneHandlers } from './repos/repo-clone-lifecycle'
@@ -69,6 +70,7 @@ export function registerRepoHandlers(
   registerFolderWorkspaceHandlers(mainWindow, store, runtime)
   registerNestedRepoImportHandler(mainWindow, store)
   registerRepoUpdateHandler(mainWindow, store)
+  registerDeployCheckPasswordHandlers()
   registerSparsePresetHandlers(mainWindow, store)
   registerRepoFolderPickerHandlers(mainWindow)
   registerRepoCloneHandlers(mainWindow, store)

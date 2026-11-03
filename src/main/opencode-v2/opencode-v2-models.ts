@@ -10,6 +10,7 @@ export type OpenCodeV2ModelInfo = {
   enabled?: boolean
   status?: string
   limit?: { context?: number; output?: number }
+  variants?: readonly { id: string }[]
 }
 
 export type OpenCodeV2ModelListing = {
@@ -35,7 +36,7 @@ export function openCodeV2ModelListing(
       id: optionId,
       label: info.name?.trim() || info.id,
       isDefault: defaultInfo !== null && defaultInfo.id === info.id,
-      efforts: []
+      efforts: (info.variants ?? []).map((variant) => ({ value: variant.id, label: variant.id }))
     })
     refs.set(optionId, { id: info.modelID ?? info.id, providerID: info.providerID })
     const context = info.limit?.context

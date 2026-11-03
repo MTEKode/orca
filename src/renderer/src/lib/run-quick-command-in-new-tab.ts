@@ -7,7 +7,14 @@ import {
   isTerminalAgentQuickCommand,
   supportsTerminalAgentQuickCommand
 } from '../../../shared/terminal-quick-commands'
-import type { TerminalQuickCommand } from '../../../shared/terminal-quick-command-types'
+import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../shared/constants'
+import { shellEscapePath } from '../../../shared/shell-path-quoting'
+import { findWorktreeById, getRepoIdFromWorktreeId } from '@/store/slices/worktree-helpers'
+import { revealFloatingWorkspacePanel } from '@/lib/floating-workspace-panel-reveal'
+import type {
+  TerminalCommandQuickCommand,
+  TerminalQuickCommand
+} from '../../../shared/terminal-quick-command-types'
 
 export type RunQuickCommandInNewTabArgs = {
   command: TerminalQuickCommand
@@ -39,6 +46,50 @@ function resolveQuickCommandLaunchGroupId(
   requestedGroupId: string | null | undefined
 ): string | null {
   return requestedGroupId ?? useAppStore.getState().activeGroupIdByWorktree[worktreeId] ?? null
+}
+
+/** Returns the repo path to `cd` into when the owning repo runs quick commands in the floating terminal. */
+function quickCommandFloatingCwd(
+  state: ReturnType<typeof useAppStore.getState>,
+  worktreeId: string
+): string | null {
+  const repo = state.repos?.find((entry) => entry.id === getRepoIdFromWorktreeId(worktreeId))
+  if (!repo || (repo.quickCommandsInFloatingTerminal ?? true) === false) {
+    return null
+  }
+  return findWorktreeById(state.worktreesByRepo ?? {}, worktreeId)?.path ?? null
+}
+
+function cdPrefixedCommand(cwd: string, command: string): string {
+  const windows = /^[a-zA-Z]:[\\/]/.test(cwd)
+  return `cd ${shellEscapePath(cwd, windows ? 'windows' : 'posix')} && ${command}`
+}
+
+function runQuickCommandInFloatingTerminal(
+  command: TerminalCommandQuickCommand,
+  cwd: string,
+  historyId: string
+): { tabId: string } {
+  const store = useAppStore.getState()
+  const floatingGroupId = store.activeGroupIdByWorktree[FLOATING_TERMINAL_WORKTREE_ID] ?? undefined
+  const tab = store.createTab(FLOATING_TERMINAL_WORKTREE_ID, floatingGroupId, undefined, {
+    quickCommandLabel: command.label,
+    pendingStartup: {
+      command: cdPrefixedCommand(cwd, flattenTerminalQuickCommand(command).command)
+    }
+  })
+  store.setActiveTabType('terminal', FLOATING_TERMINAL_WORKTREE_ID)
+  persistAgentLaunchTabOrder(FLOATING_TERMINAL_WORKTREE_ID, tab.id)
+  const launchedGroupId = resolveQuickCommandGroupId(
+    FLOATING_TERMINAL_WORKTREE_ID,
+    tab.id,
+    floatingGroupId
+  )
+  if (launchedGroupId) {
+    useAppStore.getState().setRecentQuickCommandForGroup(launchedGroupId, historyId)
+  }
+  revealFloatingWorkspacePanel(useAppStore.getState())
+  return { tabId: tab.id }
 }
 
 /** Queue terminal commands until shell readiness and always append Enter (run differs from right-click Insert). Agent prompts use their launch path; OpenCode2 submits after TUI readiness because --prompt can remain unsent. */
@@ -89,6 +140,10 @@ export function runQuickCommandInNewTab({
     return null
   }
   const store = useAppStore.getState()
+  const floatingCwd = quickCommandFloatingCwd(store, worktreeId)
+  if (floatingCwd) {
+    return runQuickCommandInFloatingTerminal(command, floatingCwd, historyId)
+  }
   const tab = store.createTab(worktreeId, targetGroupId, undefined, {
     quickCommandLabel: command.label,
     pendingStartup: { command: flattenTerminalQuickCommand(command).command }

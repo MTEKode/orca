@@ -73,11 +73,11 @@ describe('the model catalog contract on every registration', () => {
       (registration) => registration.modelCatalog(context()).kind === 'probe'
     ).map((registration) => registration.definition.agent)
     expect(Object.keys(probes).sort()).toEqual([...listing].sort())
-    // Every agent registered today but Antigravity lists its models before a chat.
+    // Every registered agent lists its models before a chat (Antigravity via `agy models`).
     expect(listing.sort()).toEqual(
-      STRUCTURED_AGENT_RUNTIME_REGISTRATIONS.map((registration) => registration.definition.agent)
-        .filter((agent) => agent !== 'antigravity')
-        .sort()
+      STRUCTURED_AGENT_RUNTIME_REGISTRATIONS.map(
+        (registration) => registration.definition.agent
+      ).sort()
     )
   })
 

@@ -519,6 +519,34 @@
       "iconPickErrors": {
         "notPng": "リポジトリアイコンには PNG ファイルを使用してください。",
         "tooLarge": "リポジトリアイコンの画像は 256 KB 以下にしてください。"
+      },
+      "mteFlowPrompt": {
+        "title": "新しいチャットでMTEオーケストレーションの使用を確認する",
+        "description": "このプロジェクトでClaude、Codex、OpenCodeのチャットを開始するとき、MTEプランナーにcoderとvalidatorのAgentを任せるか確認します。",
+        "keywordMte": "mte",
+        "keywordOrchestration": "オーケストレーション",
+        "keywordPlanner": "プランナー"
+      },
+      "deployCheck": {
+        "title": "デプロイチェック",
+        "description": "最後のタスクが検証に合格した後、MTEフローがデプロイ済みの機能をテストする場所と、Linearイシューを移動する状態を指定します。",
+        "url": "URL",
+        "username": "ユーザー名",
+        "password": "パスワード",
+        "save": "パスワードを保存",
+        "clear": "クリア",
+        "passwordSaved": "パスワードを保存済み",
+        "passwordError": "パスワードを保存できませんでした。このシステムでは安全なストレージを利用できません。",
+        "doneState": "チェック合格後のLinear状態",
+        "keywordDeploy": "デプロイ",
+        "keywordStaging": "ステージング",
+        "keywordLinear": "linear"
+      },
+      "quickCommandsFloating": {
+        "title": "クイックコマンドをフローティングターミナルで実行",
+        "description": "シェルのクイックコマンドは、新しいワークスペースタブではなくフローティングターミナルで、このプロジェクト内で実行されます。",
+        "keywordQuick": "クイックコマンド",
+        "keywordFloating": "フローティングターミナル"
       }
     }
   },
@@ -20479,6 +20507,9 @@
     "scanTooLarge": "クイックオープンのスキャン対象が大きすぎます（{{reason}}）。"
   },
   "checksPanel": {
+    "comments": {
+      "addedToChat": "Added {{count}} comment groups to the chat input"
+    },
     "unlinked": {
       "title": "PR のリンクが解除されました",
       "description": "このワークスペースでは PR #{{number}} が非表示になっています。再度リンクしてチェックを復元し、詳細を確認します。",
@@ -22838,5 +22869,19 @@
   "wslDistroHold": {
     "terminalStopped": "WSL ディストリビューション {{distro}} が停止しているため、Orca はこのターミナルを起動しませんでした。ディストリビューションを起動してから、もう一度お試しください。",
     "terminalUnverifiable": "WSL ディストリビューション {{distro}} が実行中か確認できなかったため、Orca はこのターミナルを起動しませんでした。ディストリビューションを起動してから、もう一度お試しください。"
+  },
+  "mte": {
+    "prompt": {
+      "title": "このチャットでMTEオーケストレーションを使用しますか？",
+      "description": "MTEプランナーが目標についてヒアリングし、計画に沿ってcoderとvalidatorのAgentを動かします。OrcaはこのワークスペースにMTEツールの設定を書き込みます。",
+      "confirm": "MTEを使用",
+      "cancel": "通常のチャット"
+    },
+    "prepare": {
+      "failed": "MTEを準備できませんでした: {{message}}"
+    },
+    "planner": {
+      "started": "{{agent}}でMTEプランナーを開始しました"
+    }
   }
 }

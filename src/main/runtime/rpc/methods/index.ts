@@ -70,6 +70,7 @@ import { MANAGED_RUNTIME_INSTALL_METHODS } from './managed-runtime-install'
 import { ARTIFACT_METHODS } from './artifacts'
 import { AGENT_HOOK_METHODS } from './agent-hooks'
 import { AGENT_LAUNCH_METHODS } from './agent-launch'
+import { MTE_METHODS } from './mte'
 import { CONNECTOR_METHODS } from './connector'
 import {
   LAYOUT_APPLY_METHODS,
@@ -86,6 +87,7 @@ export const ALL_RPC_METHODS = [
   ...ORCAD_MIGRATION_METHODS,
   ...SESSION_TERMINAL_SCROLLBACK_METHODS,
   ...AGENT_HOOK_METHODS,
+  ...MTE_METHODS,
   ...AI_VAULT_METHODS,
   ...ARTIFACT_METHODS,
   ...AUTOMATION_METHODS,
