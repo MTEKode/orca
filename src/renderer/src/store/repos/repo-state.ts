@@ -50,6 +50,8 @@ export type RepoUpdate = Partial<
     | 'issueSourcePreference'
     | 'defaultJiraProject'
     | 'forkSyncMode'
+    | 'mteFlowPrompt'
+    | 'quickCommandsInFloatingTerminal'
     | 'externalWorktreeVisibilityPromptDismissedAt'
     | 'externalWorktreeInboxBaselinePaths'
     | 'importedExternalWorktreePaths'

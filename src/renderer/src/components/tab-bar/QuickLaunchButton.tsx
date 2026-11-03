@@ -1,8 +1,7 @@
 import { SubscribedAgentLaunchPickerMenu } from '@/components/agent/AgentLaunchPickerMenu'
 import {
   agentPickerLaunchInputs,
-  type AgentPickerEntry,
-  type AgentPickerDraft
+  type AgentPickerEntry
 } from '../../../../shared/agent-launch-picker'
 import React, { useCallback, useRef } from 'react'
 import { toast } from 'sonner'
@@ -31,6 +30,7 @@ import { cn } from '@/lib/utils'
 import type { NewTabAgentMenuRow } from '@/lib/new-tab-agent-menu-rows'
 import { useNewTabAgentMenuRows, type NewTabAgentMenuModel } from './use-new-tab-agent-menu-rows'
 import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
+import { useMteFlowLaunchPrompt, type RunLaunchArgs } from './use-mte-flow-launch-prompt'
 import { chatUnavailableLabel, rowTitle, rowLabel, rowId } from './tab-agent-row-presentation'
 
 export type QuickLaunchAgentMenuItemsProps = {
@@ -77,10 +77,18 @@ export function useTabAgentMenuLaunch({
   /** A New Chat opened at once: its composer takes the focus the menu gives back. */
   onFocusChat?: (tabId: string) => void
 }) {
+  const tryMte = useMteFlowLaunchPrompt(worktreeId)
   const runLaunch = useCallback(
-    (row: NewTabAgentMenuRow, draft?: AgentPickerDraft, pickerEntry?: AgentPickerEntry) => {
+    (...[row, draft, pickerEntry, mte]: RunLaunchArgs): boolean | Promise<boolean> => {
       if (disabled || row.kind === 'chat-unavailable') {
         return false
+      }
+      const held = prompt !== undefined || !!onPromptHandedOff
+      if (
+        !mte &&
+        tryMte([row, draft, pickerEntry], held, (o) => runLaunch(row, draft, pickerEntry, o))
+      ) {
+        return true
       }
       const { agent } = row
       const entry = getCatalogEntry(agent)
@@ -101,6 +109,7 @@ export function useTabAgentMenuLaunch({
         // A caller's prompt (notes) owns the launch; otherwise the picker panel's typed one.
         ...(prompt !== undefined ? { prompt } : draft?.prompt ? { prompt: draft.prompt } : {}),
         ...(promptDelivery !== undefined ? { promptDelivery } : {}),
+        ...mte,
         ...(launchSource !== undefined ? { launchSource } : {}),
         ...(onPromptDelivered !== undefined ? { onPromptDelivered } : {}),
         // Notes keep their text until it goes out, so the new chat's composer never gets a copy.
@@ -157,7 +166,8 @@ export function useTabAgentMenuLaunch({
       onPromptHandedOff,
       disabled,
       onFocusHostTerminal,
-      onFocusChat
+      onFocusChat,
+      tryMte
     ]
   )
 

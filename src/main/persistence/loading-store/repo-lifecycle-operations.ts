@@ -176,6 +176,8 @@ export class RepoLifecycleOperations {
         | 'languageServers'
         | 'issueSourcePreference'
         | 'forkSyncMode'
+        | 'mteFlowPrompt'
+        | 'quickCommandsInFloatingTerminal'
         | 'externalWorktreeVisibilityPromptDismissedAt'
         | 'externalWorktreeInboxBaselinePaths'
         | 'importedExternalWorktreePaths'

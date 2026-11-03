@@ -67,6 +67,10 @@ export type Repo = {
   ghAccount?: GhAccountBinding
   /** Controls Orca's fork-default-branch sync offer for repos with upstream metadata. */
   forkSyncMode?: ForkSyncMode
+  /** Whether new chats offer the native MTE orchestration flow; undefined means 'ask'. */
+  mteFlowPrompt?: 'ask' | 'never'
+  /** Run shell quick commands in the floating terminal (inside the repo); undefined means true. */
+  quickCommandsInFloatingTerminal?: boolean
   /** Canonical identity for the repo remote Orca should use for provider-level grouping. */
   gitRemoteIdentity?: GitRemoteIdentity | null
   /** Controls whether worktrees Orca did not create appear in the sidebar. */

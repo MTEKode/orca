@@ -49,6 +49,8 @@ export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Stor
             | 'languageServers'
             | 'issueSourcePreference'
             | 'forkSyncMode'
+            | 'mteFlowPrompt'
+            | 'quickCommandsInFloatingTerminal'
             | 'externalWorktreeVisibilityPromptDismissedAt'
             | 'externalWorktreeInboxBaselinePaths'
             | 'importedExternalWorktreePaths'
@@ -90,6 +92,14 @@ export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Stor
         updates.forkSyncMode !== 'off'
       ) {
         delete updates.forkSyncMode
+      }
+      if (
+        'mteFlowPrompt' in updates &&
+        updates.mteFlowPrompt !== undefined &&
+        updates.mteFlowPrompt !== 'ask' &&
+        updates.mteFlowPrompt !== 'never'
+      ) {
+        delete updates.mteFlowPrompt
       }
       // Null clears the binding; malformed values must not become account selections.
       if ('ghAccount' in updates) {

@@ -10,6 +10,7 @@ import { translateSearchKeyword } from '../settings-search-keywords'
 import { getRepositoryGitAuthorSearchEntries } from './repository-git-author-search-entries'
 import { getRepositoryGitHooksSearchEntries } from './execution/repository-git-hooks-search-entries'
 import { getRepositoryGitWorktreeSearchEntries } from './execution/repository-git-worktree-search-entries'
+import { getRepositoryMteFlowPromptSearchEntries } from './repository-mte-flow-prompt-search-entries'
 import { getRepositoryLanguageServersSearchEntries } from '../repository-language-servers-search-entries'
 
 type RepositoryPaneSearchOptions = {
@@ -129,6 +130,32 @@ export function getRepositoryPaneSearchEntries(
                 'login'
               ),
               ...translateSearchKeyword('auto.components.settings.repository.search.token', 'token')
+            ]
+          }
+        ]
+      : []),
+    ...(!isFolder ? getRepositoryMteFlowPromptSearchEntries(repo) : []),
+    ...(!isFolder
+      ? [
+          {
+            title: translate(
+              'settings.repository.quickCommandsFloating.title',
+              'Run quick commands in the floating terminal'
+            ),
+            description: translate(
+              'settings.repository.quickCommandsFloating.description',
+              'Shell quick commands open in the floating terminal and run inside this project instead of a new workspace tab.'
+            ),
+            keywords: [
+              repo.displayName,
+              ...translateSearchKeyword(
+                'settings.repository.quickCommandsFloating.keywordQuick',
+                'quick commands'
+              ),
+              ...translateSearchKeyword(
+                'settings.repository.quickCommandsFloating.keywordFloating',
+                'floating terminal'
+              )
             ]
           }
         ]

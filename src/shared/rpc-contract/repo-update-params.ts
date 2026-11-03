@@ -71,6 +71,8 @@ export function createRepoUpdateSchema<T extends Readonly<Record<string, z.ZodTy
           return normalizeGhAccountBinding(value) ?? undefined
         }),
       forkSyncMode: z.enum(['ask', 'safe-auto', 'off']).optional(),
+      mteFlowPrompt: z.enum(['ask', 'never']).optional(),
+      quickCommandsInFloatingTerminal: z.boolean().optional(),
       externalWorktreeVisibility: z.enum(['hide', 'show']).nullable().optional(),
       externalWorktreeVisibilityPromptDismissedAt: z.number().finite().optional(),
       externalWorktreeInboxBaselinePaths: z.array(z.string()).optional(),

@@ -17,3 +17,13 @@
 - [t0007-shared-mte-packaging](t0007-shared-mte-packaging.md) - T-0007 CLOSED 2026-10-29 VALIDATION_PASSED (orca repo): CLI-consumed MTE modules moved src/main/mte-
 
 - [t0008-legacy-deleted-epic-complete](t0008-legacy-deleted-epic-complete.md) - T-0008 CLOSED 2026-10-29 VALIDATION_PASSED (commit 1003198bb2 on fork:main): legacy standalone MTE f
+
+- [requirements-lock-batch2](requirements-lock-batch2.md) - 2026-11-03 lock (goal: 7 items batch 2): flow=native MTE planner (orca mte start); item1=UI dialog o
+
+- [native-chat-tone-tokens](native-chat-tone-tokens.md) - T-0012: tool/action tones live in src/shared/native-chat/tools/native-chat-tool-tone.ts + --chat-act
+
+- [antigravity-chat-models](antigravity-chat-models.md) - T-0014: Antigravity chat is ACP against agy_acp_server.par (not the agy CLI); the picker list now co
+
+- [opencode-v2-agent-picker-deferred](opencode-v2-agent-picker-deferred.md) - T-0013 (2026-11-03): OpenCode v2 chat on by default; agent/variant/forms backend done. Composer Agen
+
+- [native-chat-draft-insert-scope](native-chat-draft-insert-scope.md) - To insert text into the visible structured chat composer from outside native-chat: use insertNativeC

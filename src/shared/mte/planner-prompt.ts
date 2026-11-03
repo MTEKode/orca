@@ -1,3 +1,7 @@
+/** Goal embedded in the kickoff prompt when none is given: the planner asks the user first. */
+export const MTE_START_DEFAULT_GOAL =
+  'Ask the user for the goal of this MTE run, then run the requirement interview on it.'
+
 /** Stable planner persona + operating manual (English). */
 export const MTE_PLANNER_PROMPT = [
   '# MTE Planner — Lead Architect',

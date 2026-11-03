@@ -2198,6 +2198,11 @@
       "iconPickErrors": {
         "notPng": "Repo icons must be PNG files.",
         "tooLarge": "Repo icon image must be 256KB or smaller."
+      },
+      "mteFlowPrompt": {
+        "keywordMte": "mte",
+        "keywordOrchestration": "orchestration",
+        "keywordPlanner": "planner"
       }
     },
     "shortcuts": {
