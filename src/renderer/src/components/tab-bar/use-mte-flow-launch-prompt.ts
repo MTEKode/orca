@@ -1,7 +1,5 @@
-import { useCallback, useContext } from 'react'
+import { useCallback } from 'react'
 import { toast } from 'sonner'
-import { ConfirmationDialogContext } from '@/components/confirmation-dialog-context'
-import type { ConfirmationDialogContextValue } from '@/components/confirmation-dialog-context'
 import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
 import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-target'
 import { runtimeEnvironmentIdOrLocalUnlessTwin } from '@/lib/worktree-runtime-owner'
@@ -13,7 +11,11 @@ import { translate } from '@/i18n/i18n'
 import { workspaceKindForWorktreeId } from '../../../../shared/workspace-launch-kind'
 import { isFolderRepo } from '../../../../shared/repo-kind'
 import { mteAdapterForAgent } from '../../../../shared/mte/adapter-for-agent'
-import { MTE_START_DEFAULT_GOAL, plannerKickoffPrompt } from '../../../../shared/mte/planner-prompt'
+import { plannerKickoffPrompt } from '../../../../shared/mte/planner-prompt'
+import { mteStartGoal } from '../../../../shared/mte/start-goal'
+import type { WorkspaceAttachment } from '../../../../shared/worktree/types'
+import { useMteStartDialogStore } from './mte-start-dialog-store'
+import type { MteStartChoice, MteStartRequest } from './mte-start-dialog-store'
 import type { WorkspaceMcpAdapter } from '../../../../shared/mte/mcp/workspace-mcp-config'
 import type { AgentPickerDraft, AgentPickerEntry } from '../../../../shared/agent-launch-picker'
 import type { Repo } from '../../../../shared/repo-types'
@@ -25,10 +27,12 @@ export type RunLaunchArgs = [
   MteLaunchOverride?
 ]
 
-export type MteLaunchOverride = { prompt: string; promptDelivery: 'submit-after-ready' }
+/** `'plain'` skips the MTE dialog on the re-entrant launch after the user picks a plain chat. */
+export type MteLaunchOverride = { prompt: string; promptDelivery: 'submit-after-ready' } | 'plain'
 
 export type MteFlowPromptDeps = {
-  confirm: ConfirmationDialogContextValue | null
+  openDialog: (request: MteStartRequest) => Promise<MteStartChoice>
+  linkedItems: readonly WorkspaceAttachment[]
   worktreeId: string
   agent: string
   agentLabel: string
@@ -45,10 +49,9 @@ export type MteFlowPromptDeps = {
 
 /** Returns true when the MTE dialog took over the launch (it will call `launch` itself). */
 export function promptMteFlowLaunch(deps: MteFlowPromptDeps): boolean {
-  const { confirm, repo, workspaceRoot } = deps
+  const { repo, workspaceRoot } = deps
   const adapter = mteAdapterForAgent(deps.agent)
   if (
-    !confirm ||
     !adapter ||
     !repo ||
     !workspaceRoot ||
@@ -60,19 +63,15 @@ export function promptMteFlowLaunch(deps: MteFlowPromptDeps): boolean {
     return false
   }
   void (async () => {
-    const accepted = await confirm({
-      title: translate('mte.prompt.title', 'Use MTE orchestration for this chat?'),
-      description: translate(
-        'mte.prompt.description',
-        'The MTE planner will interview you about the goal, then drive coder and validator agents through the plan. Orca writes the MTE tool config into this workspace.'
-      ),
-      confirmLabel: translate('mte.prompt.confirm', 'Use MTE'),
-      cancelLabel: translate('mte.prompt.cancel', 'Plain chat'),
-      dontAskAgain: { onConfirmed: () => deps.disableForRepo(repo.id) }
-    }).catch(() => false)
-    if (!accepted) {
-      deps.launch()
+    const choice = await deps
+      .openDialog({ agentLabel: deps.agentLabel, linkedItems: deps.linkedItems })
+      .catch((): MteStartChoice => ({ mode: 'plain' }))
+    if (choice.mode === 'plain') {
+      deps.launch('plain')
       return
+    }
+    if (choice.dontAskAgain) {
+      deps.disableForRepo(repo.id)
     }
     try {
       await deps.prepareWorkspace({ workspaceRoot, adapter })
@@ -82,11 +81,11 @@ export function promptMteFlowLaunch(deps: MteFlowPromptDeps): boolean {
           message: error instanceof Error ? error.message : String(error)
         })
       )
-      deps.launch()
+      deps.launch('plain')
       return
     }
     const opened = await deps.launch({
-      prompt: plannerKickoffPrompt(MTE_START_DEFAULT_GOAL),
+      prompt: plannerKickoffPrompt(mteStartGoal(choice.goal, choice.items)),
       promptDelivery: 'submit-after-ready'
     })
     if (opened) {
@@ -108,10 +107,9 @@ export function useMteFlowLaunchPrompt(
   callerOwnsPrompt: boolean,
   launch: (override?: MteLaunchOverride) => boolean | Promise<boolean>
 ) => boolean {
-  const confirm = useContext(ConfirmationDialogContext)
   return useCallback(
     ([row, draft], callerOwnsPrompt, launch) => {
-      if (!confirm || callerOwnsPrompt || draft?.prompt || row.kind !== 'chat') {
+      if (callerOwnsPrompt || draft?.prompt || row.kind !== 'chat') {
         return false
       }
       const agentLabel = getAgentCatalog().find((a) => a.id === row.agent)?.label ?? row.agent
@@ -119,7 +117,8 @@ export function useMteFlowLaunchPrompt(
       const worktree = findWorktreeById(state.worktreesByRepo, worktreeId)
       const repo = worktree ? state.repos.find((r) => r.id === worktree.repoId) : undefined
       return promptMteFlowLaunch({
-        confirm,
+        openDialog: useMteStartDialogStore.getState().open,
+        linkedItems: worktree?.linkedItems ?? [],
         worktreeId,
         agent: row.agent,
         agentLabel,
@@ -138,6 +137,6 @@ export function useMteFlowLaunchPrompt(
         launch
       })
     },
-    [confirm, worktreeId]
+    [worktreeId]
   )
 }

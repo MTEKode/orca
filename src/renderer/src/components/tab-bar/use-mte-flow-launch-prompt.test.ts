@@ -8,14 +8,18 @@ vi.mock('@/lib/worktree-runtime-owner', () => ({ runtimeEnvironmentIdOrLocalUnle
 vi.mock('@/store/slices/worktree-helpers', () => ({ findWorktreeById: vi.fn() }))
 
 import { toast } from 'sonner'
-import { plannerKickoffPrompt, MTE_START_DEFAULT_GOAL } from '../../../../shared/mte/planner-prompt'
+import { plannerKickoffPrompt } from '../../../../shared/mte/planner-prompt'
+import { mteStartGoal } from '../../../../shared/mte/start-goal'
 import { promptMteFlowLaunch, type MteFlowPromptDeps } from './use-mte-flow-launch-prompt'
 
 const flush = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0))
 
 function makeDeps(overrides: Partial<MteFlowPromptDeps> = {}): MteFlowPromptDeps {
   return {
-    confirm: vi.fn().mockResolvedValue(true),
+    openDialog: vi
+      .fn()
+      .mockResolvedValue({ mode: 'mte', goal: 'Ship X', items: [], dontAskAgain: false }),
+    linkedItems: [],
     worktreeId: 'repo1::/tmp/wt',
     agent: 'claude',
     agentLabel: 'Claude',
@@ -34,7 +38,7 @@ describe('promptMteFlowLaunch', () => {
   it('does not show a dialog when the repo opted out', () => {
     const deps = makeDeps({ repo: { id: 'repo1', mteFlowPrompt: 'never' } })
     expect(promptMteFlowLaunch(deps)).toBe(false)
-    expect(deps.confirm).not.toHaveBeenCalled()
+    expect(deps.openDialog).not.toHaveBeenCalled()
   })
 
   it('skips non-MTE agents and folder repos', () => {
@@ -43,11 +47,11 @@ describe('promptMteFlowLaunch', () => {
   })
 
   it('launches a plain chat when the user cancels', async () => {
-    const deps = makeDeps({ confirm: vi.fn().mockResolvedValue(false) })
+    const deps = makeDeps({ openDialog: vi.fn().mockResolvedValue({ mode: 'plain' }) })
     expect(promptMteFlowLaunch(deps)).toBe(true)
     await flush()
     expect(deps.prepareWorkspace).not.toHaveBeenCalled()
-    expect(deps.launch).toHaveBeenCalledWith()
+    expect(deps.launch).toHaveBeenCalledWith('plain')
   })
 
   it('prepares the workspace then launches with the planner prompt on confirm', async () => {
@@ -59,10 +63,22 @@ describe('promptMteFlowLaunch', () => {
       adapter: 'claude'
     })
     expect(deps.launch).toHaveBeenCalledWith({
-      prompt: plannerKickoffPrompt(MTE_START_DEFAULT_GOAL),
+      prompt: plannerKickoffPrompt(mteStartGoal('Ship X', [])),
       promptDelivery: 'submit-after-ready'
     })
     expect(toast.message).toHaveBeenCalled()
+    expect(deps.disableForRepo).not.toHaveBeenCalled()
+  })
+
+  it('opts the repo out when the user ticks do-not-ask-again', async () => {
+    const deps = makeDeps({
+      openDialog: vi
+        .fn()
+        .mockResolvedValue({ mode: 'mte', goal: '', items: [], dontAskAgain: true })
+    })
+    promptMteFlowLaunch(deps)
+    await flush()
+    expect(deps.disableForRepo).toHaveBeenCalledWith('repo1')
   })
 
   it('reports an RPC failure and still launches a plain chat', async () => {
@@ -70,6 +86,6 @@ describe('promptMteFlowLaunch', () => {
     promptMteFlowLaunch(deps)
     await flush()
     expect(toast.error).toHaveBeenCalled()
-    expect(deps.launch).toHaveBeenCalledWith()
+    expect(deps.launch).toHaveBeenCalledWith('plain')
   })
 })

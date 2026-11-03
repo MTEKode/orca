@@ -23672,6 +23672,18 @@
     }
   },
   "mte": {
+    "start": {
+      "title": "Start this chat with MTE orchestration?",
+      "description": "MTE is a planner → coder → validator loop. The planner interviews you about the goal, locks the requirements, writes task specs, dispatches coder agents and validates each result before merging. Orca writes the MTE tool config into this workspace first.",
+      "goalLabel": "Goal",
+      "goalPlaceholder": "What should this run deliver? Leave empty and the planner will ask.",
+      "linksLabel": "Linked Linear issues and pull requests",
+      "noLinks": "Nothing linked to this workspace yet.",
+      "linkPlaceholder": "Add by identifier or URL: ENG-123, #45, https://…",
+      "dontAskAgain": "Don't ask again for this project",
+      "plainChat": "Plain chat",
+      "useMte": "MTE orchestration"
+    },
     "prompt": {
       "title": "Use MTE orchestration for this chat?",
       "description": "The MTE planner will interview you about the goal, then drive coder and validator agents through the plan. Orca writes the MTE tool config into this workspace.",

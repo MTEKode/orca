@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { ConfirmationDialogProvider } from './components/confirmation-dialog'
+import { MteStartDialog } from './components/tab-bar/MteStartDialog'
 import { BrowserWebAuthnAccountDialog } from './components/browser-webauthn-account-dialog'
 import { BrowserExtensionInstallDialog } from './components/browser-extension-install-dialog'
 import { BrowserPagePrompts } from './components/browser-pane/browser-page-prompts'
@@ -104,6 +105,7 @@ function App(): React.JSX.Element {
       <TooltipProvider delayDuration={400}>
         <ConfirmationDialogProvider>
           <BrowserPagePrompts />
+          <MteStartDialog />
           <LinkRoutingPreferenceDialogProvider>
             <AppBackgroundServices />
             <SpaceWindowStatePublisher />

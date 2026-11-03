@@ -23561,6 +23561,18 @@
     "terminalUnverifiable": "Orca no pudo comprobar si la distribución WSL {{distro}} está en ejecución, así que no inició esta terminal. Inicia la distribución y vuelve a intentarlo."
   },
   "mte": {
+    "start": {
+      "title": "¿Iniciar este chat con orquestación MTE?",
+      "description": "MTE es un bucle planner → coder → validator. El planner te entrevista sobre el objetivo, fija los requisitos, escribe las specs de las tareas, despacha agentes coder y valida cada resultado antes de mergear. Orca escribe primero la configuración de herramientas MTE en este workspace.",
+      "goalLabel": "Objetivo",
+      "goalPlaceholder": "¿Qué debe entregar esta ejecución? Déjalo vacío y el planner te preguntará.",
+      "linksLabel": "Issues de Linear y pull requests vinculados",
+      "noLinks": "Todavía no hay nada vinculado a este workspace.",
+      "linkPlaceholder": "Añade por identificador o URL: ENG-123, #45, https://…",
+      "dontAskAgain": "No volver a preguntar en este proyecto",
+      "plainChat": "Chat normal",
+      "useMte": "Orquestación MTE"
+    },
     "prompt": {
       "title": "¿Usar la orquestación MTE en este chat?",
       "description": "El planificador MTE te preguntará por el objetivo y después dirigirá a los agentes coder y validator a lo largo del plan. Orca escribe la configuración de herramientas de MTE en este espacio de trabajo.",
