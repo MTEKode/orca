@@ -102,6 +102,8 @@ export type NativeChatComposerFieldProps = {
   agent?: string
   /** The worker pinned on an MTE planner chat; labels the pill beside the orchestrator. */
   mteWorker?: MteWorkerPin
+  /** The composer's Worker selector, on an MTE planner chat. */
+  mteWorkerPicker?: React.ReactNode
   launchPrompt?: { placeholder: string }
 }
 
@@ -173,6 +175,7 @@ export function NativeChatComposerField({
   goalMode,
   agent,
   mteWorker,
+  mteWorkerPicker,
   launchPrompt
 }: NativeChatComposerFieldProps): React.JSX.Element {
   const draftNotSaved = useNativeChatComposerDraftUnsaved(draftScopeKey)
@@ -423,6 +426,7 @@ export function NativeChatComposerField({
                 launchPrompt={launch}
                 {...(agent ? { agent } : {})}
                 {...(mteWorker ? { mteWorker } : {})}
+                {...(mteWorkerPicker ? { mteWorkerPicker } : {})}
               />
             </div>
           </div>

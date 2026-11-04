@@ -20,7 +20,10 @@ import {
   nativeChatSessionOptionDisabledReason
 } from '../../../../shared/native-chat-session-option-labels'
 import type { MteWorkerPin } from '../../../../shared/mte/worker-pin'
-import { composerAgentPillLabel } from './native-chat-composer-agent-label-text'
+import {
+  composerAgentPillLabel,
+  composerSidePillLabel
+} from './native-chat-composer-agent-label-text'
 import { sayNativeChatSessionOptionTranslated as say } from './native-chat-session-option-labels-text'
 import type { NativeChatOptionPickerRequest } from './native-chat-composer-types'
 import { runSessionOptionSurfaceCall } from './native-chat-session-option-surface-call'
@@ -38,7 +41,7 @@ export type NativeChatSessionOptionPickersProps = {
   focusComposer?: () => void
   /** The chat's agent: with it, the pill reads "Agent: Claude · Model · Effort" instead of model · effort. */
   agent?: string
-  /** The worker pinned on an MTE planner chat: the pill then reads "Orchestrator: … | Worker: …". */
+  /** Set on an MTE planner chat: this pill then reads "Orchestrator: …" (the worker has its own selector). */
   mteWorker?: MteWorkerPin
 }
 
@@ -188,17 +191,20 @@ function SessionOptionPopover(props: {
   const optionsTitle = nativeChatOptionsPillTitle(options, say)
   const optionsLabel = nativeChatOptionValuesLabel(options, say)
   // The live pick, so the label follows model and effort changes; an unreported model is left out.
-  const agentLabel = props.agent
-    ? composerAgentPillLabel({
-        orchestrator: {
-          agent: props.agent,
-          ...(model.valueSource !== 'unknown' && modelLabel !== modelTitle
-            ? { model: modelLabel }
-            : {}),
-          ...(optionsLabel ? { effort: optionsLabel } : {})
-        },
-        ...(props.mteWorker ? { worker: props.mteWorker } : {})
-      })
+  const agentSide = props.agent
+    ? {
+        agent: props.agent,
+        ...(model.valueSource !== 'unknown' && modelLabel !== modelTitle
+          ? { model: modelLabel }
+          : {}),
+        ...(optionsLabel ? { effort: optionsLabel } : {})
+      }
+    : null
+  // On an MTE chat the worker has its own selector, so this pill names the orchestrator only.
+  const agentLabel = agentSide
+    ? props.mteWorker
+      ? composerSidePillLabel('orchestrator', agentSide)
+      : composerAgentPillLabel({ orchestrator: agentSide })
     : null
   const modelReason = nativeChatSessionOptionDisabledReason(model.disabledReason, say)
   const optionsReason =
@@ -371,7 +377,15 @@ function NativeChatSessionOptionPickersInner({
   }
 
   return (
-    <div className="flex min-w-0 items-center text-chat-foreground-faint">
+    <div
+      role={mteWorker ? 'group' : undefined}
+      aria-label={
+        mteWorker
+          ? translate('components.native-chat.composer.agentLabel.orchestrator', 'Orchestrator')
+          : undefined
+      }
+      className="flex min-w-0 items-center text-chat-foreground-faint"
+    >
       <SessionOptionPopover
         demandModelCatalog={surface.demandModelCatalog}
         model={model}

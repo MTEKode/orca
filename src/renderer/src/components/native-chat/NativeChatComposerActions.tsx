@@ -54,6 +54,7 @@ export type NativeChatComposerActionsProps = {
   agent?: string
   /** The worker pinned on an MTE planner chat; labels the pill beside the orchestrator. */
   mteWorker?: MteWorkerPin
+  mteWorkerPicker?: React.ReactNode
   /** A launch prompt: Attach and dictation are its only controls; launching is the panel's. */
   launchPrompt?: boolean
 }
@@ -86,6 +87,7 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
   focusComposer,
   agent,
   mteWorker,
+  mteWorkerPicker,
   launchPrompt = false
 }: NativeChatComposerActionsProps): React.JSX.Element {
   useUiLanguageRevision()
@@ -243,6 +245,7 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
           {...(agent ? { agent } : {})}
           {...(mteWorker ? { mteWorker } : {})}
         />
+        {mteWorkerPicker}
         {contextUsage ? <NativeChatContextUsageRing usage={contextUsage} /> : null}
         {dictation}
         <DraftNotSavedIcon shown={draftNotSaved === true} />

@@ -14,6 +14,16 @@ export type ComposerAgentLabelSay = (
 
 const DEFAULTS = { orchestrator: 'Orchestrator', worker: 'Worker', agent: 'Agent' } as const
 
+/** One labelled side: "Worker: Codex · gpt-5 · High". */
+export function composerSideLabel(
+  role: keyof typeof DEFAULTS,
+  s: ComposerAgentSide,
+  say: ComposerAgentLabelSay,
+  harness: (agent: string) => string = (agent) => agent
+): string {
+  return side(role, s, say, harness)
+}
+
 function side(
   role: keyof typeof DEFAULTS,
   { agent, model, effort }: ComposerAgentSide,

@@ -91,7 +91,7 @@ describe('NativeChatSessionOptionPickers agent label', () => {
     )
   })
 
-  it('reads "Orchestrator | Worker" when the chat has a pinned worker', () => {
+  it('reads "Orchestrator: …" in its own group when the chat has a pinned worker', () => {
     render(
       <NativeChatSessionOptionPickers
         surface={surface}
@@ -102,8 +102,9 @@ describe('NativeChatSessionOptionPickers agent label', () => {
       />
     )
     expect(screen.getByRole('button', { name: /^Model Orchestrator:/ }).textContent).toBe(
-      'Orchestrator: Claude · Opus 4.8 · High | Worker: Codex · gpt-5 · low'
+      'Orchestrator: Claude · Opus 4.8 · High'
     )
+    expect(screen.getByRole('group', { name: 'Orchestrator' })).toBeTruthy()
   })
 
   it('keeps the model · effort pill when no agent is given', () => {

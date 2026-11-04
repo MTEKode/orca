@@ -16,7 +16,8 @@ function pinnedSessionStart(w: MteWorkerPin): string[] {
   return [
     '## Session start (worker pinned)',
     '',
-    `Workers for this session run on agent \`${w.agent}\`${model}${effort}. Never ask which agent runs the workers. Pass ${flags} to every \`orca orchestration worker-start\`.`
+    `Workers for this session run on agent \`${w.agent}\`${model}${effort}. Never ask which agent runs the workers. Pass ${flags} to every \`orca orchestration worker-start\`.`,
+    'The user may change the worker from the composer at any time; flags you omit resolve to the current pin at dispatch time.'
   ]
 }
 
