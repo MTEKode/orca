@@ -91,12 +91,18 @@ export const ORCHESTRATION_GATE_HANDLERS: Record<string, CommandHandler> = {
 
 function linkHandler(method: 'orchestration.link' | 'orchestration.unlink'): CommandHandler {
   return async ({ flags, client, cwd, json }) => {
+    const run = getOptionalStringFlag(flags, 'run')
+    // Named runs can be linked without resolving a pane identity.
+    const from = run
+      ? runScopedSessionCaller(flags)
+      : await resolveCoordinatorTerminalHandle(flags, cwd, client)
     const result = await client.call<{ a: string; b: string; linked: boolean; runId: string }>(
       method,
       {
         a: getRequiredStringFlag(flags, 'a'),
         b: getRequiredStringFlag(flags, 'b'),
-        from: await resolveCoordinatorTerminalHandle(flags, cwd, client)
+        run,
+        from
       }
     )
     printResult(result, json, (value) =>

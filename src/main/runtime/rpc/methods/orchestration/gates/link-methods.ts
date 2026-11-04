@@ -27,7 +27,10 @@ function requireRunDispatch(db: OrchestrationDb, runId: string, id: string, must
   return dispatch
 }
 
-function defineLinkMethod(name: string, link: boolean) {
+function defineLinkMethod<TName extends 'orchestration.link' | 'orchestration.unlink'>(
+  name: TName,
+  link: boolean
+) {
   return defineMethod({
     name,
     permission: 'workspace',

@@ -29,17 +29,21 @@ export const ORCHESTRATION_GATE_COMMAND_SPECS: CommandSpec[] = [
   {
     path: ['orchestration', 'link'],
     summary: 'Let two Dispatches of this Run message each other directly',
-    usage: 'orca orchestration link --a <dispatch:id> --b <dispatch:id> [--from <handle>] [--json]',
-    allowedFlags: [...GLOBAL_FLAGS, 'a', 'b', 'from'],
+    usage:
+      'orca orchestration link --a <dispatch:id> --b <dispatch:id> [--run <run_id>] [--from <handle>] [--json]',
+    allowedFlags: [...GLOBAL_FLAGS, 'a', 'b', 'run', 'from'],
     identityFlagRoles: { from: 'caller' },
-    notes: ['Coordinator only. Workers otherwise reach only their orchestrator.']
+    notes: [
+      'Coordinator only. Workers otherwise reach only their orchestrator.',
+      '--run names the Run without resolving a pane identity.'
+    ]
   },
   {
     path: ['orchestration', 'unlink'],
     summary: 'Revoke a link between two Dispatches',
     usage:
-      'orca orchestration unlink --a <dispatch:id> --b <dispatch:id> [--from <handle>] [--json]',
-    allowedFlags: [...GLOBAL_FLAGS, 'a', 'b', 'from'],
+      'orca orchestration unlink --a <dispatch:id> --b <dispatch:id> [--run <run_id>] [--from <handle>] [--json]',
+    allowedFlags: [...GLOBAL_FLAGS, 'a', 'b', 'run', 'from'],
     identityFlagRoles: { from: 'caller' }
   }
 ]

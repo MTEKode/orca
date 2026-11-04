@@ -9,6 +9,11 @@ import { testOrcaSessionId } from '../../../shared/orca-session-address-test-fix
 import { chatWorkerTurnStopReporter } from './chat-worker-turn-stops'
 import { OrchestrationDb } from './db'
 import { createRootDispatch } from './db/root-dispatch-test-fixture'
+import type {
+  AgentJournalQuestionItem,
+  AgentJournalResolution
+} from '../../../shared/agent-session/journal/agent-session-journal-types'
+import type { MessageType } from './types'
 import { routeWorkerPromptToCoordinator, resolveWorkerPromptReply } from './worker-prompt-routing'
 
 const CHAT_SESSION = testOrcaSessionId('9a4e7c1b-3d2f-4b6a-8e5c-7f1d0b2a6c93')
@@ -18,7 +23,12 @@ const state = vi.hoisted(() => ({
   host: null as {
     journalSnapshot: (sessionId: string) => Promise<{ items: unknown[] }>
     deps: {
-      store: { getRecord: (sessionId: string) => { lease: { runtimeFence: number } } | undefined }
+      store: {
+        getRecord: (sessionId: string) => { lease: { runtimeFence: number } } | undefined
+        getConversation: (sessionId: string) => undefined
+        listConversations: () => unknown[]
+        getVisibleSessionTabIndex: (sessionId: string) => undefined
+      }
     }
     respondToPrompt: (...args: unknown[]) => Promise<unknown>
   } | null
@@ -41,8 +51,8 @@ function journalItem(body: AgentJournalRenderItem['body']): AgentJournalRenderIt
   }
 }
 
-const pending = {
-  state: 'pending' as const,
+const pending: AgentJournalResolution = {
+  state: 'pending',
   selectedOptionId: null,
   resolvedBy: null,
   resolvedAt: null
@@ -63,8 +73,8 @@ function approval(resolution = pending): AgentJournalRenderItem['body'] {
 }
 
 function question(
-  body: Partial<AgentJournalRenderItem['body']> = {},
-  resolution = pending
+  body: Partial<AgentJournalQuestionItem> = {},
+  resolution: AgentJournalResolution = pending
 ): AgentJournalRenderItem['body'] {
   return {
     kind: 'question',
@@ -104,7 +114,7 @@ function setup() {
   const dispatch = createRootDispatch(db, task.id, FROM)
   const notify = vi.fn()
   const deps = { getDb: () => db, isWaitingForMail: () => false, notify }
-  const mail = (types: string[] = ['question']) => db.getUnreadRunMailbox(run.id, 100, types)
+  const mail = (types: MessageType[] = ['question']) => db.getUnreadRunMailbox(run.id, 100, types)
   return { db, run, dispatch, notify, deps, mail }
 }
 
@@ -232,7 +242,7 @@ describe('resolveWorkerPromptReply', () => {
     items = [journalItem(approval())]
     await routeWorkerPromptToCoordinator(ctx.deps, promptEvent())
     const [message] = ctx.mail()
-    return { ctx, original: ctx.db.getMessageById(message.id) }
+    return { ctx, original: ctx.db.getMessageById(message.id)! }
   }
 
   it('answers an approval by keyword, mapping allow-always onto the provider option', async () => {
@@ -262,7 +272,7 @@ describe('resolveWorkerPromptReply', () => {
     items = [journalItem(question())]
     await routeWorkerPromptToCoordinator(ctx.deps, promptEvent())
     const [message] = ctx.mail()
-    await resolveWorkerPromptReply(ctx.db, ctx.db.getMessageById(message.id), 'Postgres')
+    await resolveWorkerPromptReply(ctx.db, ctx.db.getMessageById(message.id)!, 'Postgres')
     expect(respondToPrompt.mock.calls[0][1]).toMatchObject({
       kind: 'question',
       answers: [{ questionId: expect.any(String), optionIds: ['opt-postgres'] }]
@@ -274,7 +284,7 @@ describe('resolveWorkerPromptReply', () => {
     const [freeMail] = free.mail()
     await resolveWorkerPromptReply(
       free.db,
-      free.db.getMessageById(freeMail.id),
+      free.db.getMessageById(freeMail.id)!,
       'sqlite on the edge'
     )
     expect(respondToPrompt.mock.calls[1][1]).toMatchObject({
@@ -328,7 +338,7 @@ describe('resolveWorkerPromptReply', () => {
     })
     await resolveWorkerPromptReply(
       ordinary.db,
-      ordinary.db.getMessageById(ordinaryQuestion.message.id),
+      ordinary.db.getMessageById(ordinaryQuestion.message.id)!,
       'main.ts'
     )
     expect(respondToPrompt).not.toHaveBeenCalled()

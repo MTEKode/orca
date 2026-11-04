@@ -22,7 +22,7 @@ export async function answerQuestionReply(args: {
   params: { body: string; from?: string; run?: string }
   callerSession?: OrchestrationSessionCaller
   callerEvidence?: OrchestrationCompatibilityEvidence
-  legacyCoordinatorRunId?: string | null
+  legacyCoordinatorRunId?: string
   recordMutationReceipt?: (receipt: unknown) => void
 }): Promise<unknown> {
   const { runtime, db, question, original, params, recordMutationReceipt } = args
