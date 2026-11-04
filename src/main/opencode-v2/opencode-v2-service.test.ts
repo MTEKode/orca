@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { OrchestrationError } from '../runtime/orchestration/orchestration-error'
 import {
   createOpenCodeV2Service,
+  OPENCODE_V2_CLI_MISSING_REFUSAL,
   OPENCODE_V2_ENSURE_REFUSAL,
   OPENCODE_V2_INCOMPATIBLE_REFUSAL,
   type OpenCodeV2ServiceModule
@@ -131,5 +132,36 @@ describe('createOpenCodeV2Service', () => {
       readFile: async () => JSON.stringify({ pid: 3, version: '2.2.3' })
     })
     await expect(resolver.endpoint()).resolves.toMatchObject({ headers: {} })
+  })
+})
+
+describe('createOpenCodeV2Service launch', () => {
+  it('starts the service with the resolved command and env, resolving once', async () => {
+    const { service, ensure } = fakeService()
+    const launch = vi.fn(async () => ({ command: '/nvm/bin/opencode', env: { PATH: '/nvm/bin' } }))
+    const resolver = createOpenCodeV2Service({ service, launch, readFile: async () => '{}' })
+    await resolver.endpoint()
+    resolver.reset()
+    await resolver.endpoint()
+    resolver.reset()
+    expect(ensure).toHaveBeenCalledWith(
+      expect.objectContaining({
+        command: ['/nvm/bin/opencode', 'serve', '--service'],
+        env: { PATH: '/nvm/bin' }
+      })
+    )
+  })
+
+  it('refuses with a typed error when the CLI cannot be resolved, without calling ensure', async () => {
+    const { service, ensure } = fakeService()
+    const launch = vi.fn(async () => null)
+    const resolver = createOpenCodeV2Service({ service, launch })
+    await expect(resolver.endpoint()).rejects.toMatchObject({
+      code: 'capability_unsupported',
+      message: OPENCODE_V2_CLI_MISSING_REFUSAL
+    })
+    await expect(resolver.endpoint()).rejects.toBeInstanceOf(OrchestrationError)
+    expect(ensure).not.toHaveBeenCalled()
+    expect(launch).toHaveBeenCalledTimes(1)
   })
 })
