@@ -15,10 +15,25 @@ describe('ensureGraphify', () => {
       a[1] === 'list' ? 'graphifyy v0.9.49\n' : ''
     )
     await ensureGraphify(old)
-    expect(old).toHaveBeenCalledWith('uv', ['tool', 'install', '--upgrade', 'graphifyy[mcp]'])
-    const ok = vi.fn(async () => 'graphifyy v0.9.102\n- graphify\n')
+    expect(old).toHaveBeenCalledWith('uv', [
+      'tool',
+      'install',
+      '--upgrade',
+      'graphifyy[mcp,gemini]'
+    ])
+    const ok = vi.fn(async () => 'graphifyy v0.9.102 [extras: mcp, gemini]\n- graphify\n')
     await ensureGraphify(ok)
     expect(ok).toHaveBeenCalledTimes(1)
+    const noExtra = vi.fn(async (_c: string, a: string[]) =>
+      a[1] === 'list' ? 'graphifyy v0.9.102 [extras: mcp]\n' : ''
+    )
+    await ensureGraphify(noExtra)
+    expect(noExtra).toHaveBeenCalledWith('uv', [
+      'tool',
+      'install',
+      '--upgrade',
+      'graphifyy[mcp,gemini]'
+    ])
     const none = vi.fn(async (_c: string, a: string[]) => (a[1] === 'list' ? 'comfy-cli v1\n' : ''))
     await ensureGraphify(none)
     expect(none).toHaveBeenCalledTimes(2)
