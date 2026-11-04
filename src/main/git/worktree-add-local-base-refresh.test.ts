@@ -273,48 +273,30 @@ describe('addWorktree', () => {
     ])
   })
 
-  it('skips update when the owning worktree is dirty', async () => {
+  it('resets tracked edits in the owning worktree, then fast-forwards without a warning', async () => {
     const worktreeListOutput = 'worktree /repo\nHEAD abc123\nbranch refs/heads/main\n'
     queueBehindInspection()
       .mockResolvedValueOnce({ stdout: worktreeListOutput })
       .mockResolvedValueOnce({ stdout: ' M package.json\n' })
+      .mockResolvedValueOnce({ stdout: 'refs/heads/main\n' })
+      .mockResolvedValueOnce({ stdout: '' }) // reset --hard
+      .mockResolvedValueOnce({ stdout: '' }) // merge
+      .mockResolvedValueOnce({ stdout: 'remote-main\n' })
 
     const result = await addWorktree('/repo', '/repo-feature', 'feature/test', 'origin/main', true)
 
     expect(result.localBaseRefRefresh).toEqual({
-      status: 'skipped_dirty_worktree',
+      status: 'updated',
       baseRef: 'origin/main',
       localBranch: 'main',
       ownerWorktreePath: '/repo'
     })
-
-    expect(refreshGitMock.mock.calls).toHaveLength(6)
-    expect(refreshGitMock.mock.calls[0]?.[0]).toEqual([
-      'rev-parse',
-      '--verify',
-      '--quiet',
-      'refs/remotes/origin/main^{commit}'
-    ])
-    expect(checkoutGitMock.mock.calls.map((call) => call[0])).toEqual([
-      [
-        'worktree',
-        'add',
-        '--no-track',
-        '-b',
-        'feature/test',
-        '/repo-feature',
-        'refs/remotes/origin/main'
-      ],
-      [
-        'config',
-        '--local',
-        '--replace-all',
-        'branch.feature/test.base',
-        'refs/remotes/origin/main'
-      ],
-      ['config', '--get', 'push.autoSetupRemote'],
-      ['config', '--local', 'push.autoSetupRemote', 'true']
-    ])
+    const commands = refreshGitMock.mock.calls.map(([args]) => args)
+    expect(commands).toContainEqual(['reset', '--hard'])
+    expect(commands.map((args) => args[0])).not.toContain('clean')
+    expect(commands.indexOf(commands.find((args) => args[0] === 'reset')!)).toBeLessThan(
+      commands.findIndex((args) => args.includes('merge'))
+    )
   })
 
   it('skips updating the local branch when its drift probe fails but the branch exists', async () => {

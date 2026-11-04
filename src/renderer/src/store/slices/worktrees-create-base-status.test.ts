@@ -359,7 +359,7 @@ describe('createWorktree base status merge', () => {
   it.each([
     {
       status: 'skipped_dirty_worktree',
-      expectedReason: 'uncommitted changes'
+      expectedReason: 'untracked files that block the update'
     },
     {
       status: 'skipped_not_fast_forward',
@@ -487,7 +487,7 @@ describe('createWorktree base status merge', () => {
     await store.getState().createWorktree('repo1', 'feature', 'origin/main')
 
     const description = lastWarningDescriptionText()
-    expect(description).toContain('uncommitted changes')
+    expect(description).toContain('untracked files that block the update')
     expect(description).toContain('where local main is checked out')
     expect(description).not.toContain('The worktree at')
   })

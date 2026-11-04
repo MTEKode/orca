@@ -48,6 +48,7 @@ function createFakeGit(
     'rev-list': () => ({ stdout: '0\t3\n' }),
     status: () => ({ stdout: '' }),
     'symbolic-ref': () => ({ stdout: 'refs/heads/main\n' }),
+    reset: () => ({ stdout: '' }),
     merge: () => ({ stdout: '' }),
     'update-ref': () => ({ stdout: '' }),
     'show-ref': () => ({ stdout: '' }),
@@ -145,14 +146,62 @@ describe('inspectLocalBaseBranch', () => {
 })
 
 describe('fastForwardLocalBaseBranch', () => {
-  it('leaves a dirty owner checkout alone', async () => {
+  it('resets tracked edits in a dirty owner checkout, then fast-forwards without a warning', async () => {
     const fake = createFakeGit({ status: () => ({ stdout: ' M package.json\n' }) })
+
+    await expect(fastForwardLocalBaseBranch(fake.git, REFS)).resolves.toEqual({
+      status: 'updated',
+      ownerWorktreePath: '/repo-main'
+    })
+    expect(fake.mutations().map(({ args, cwd }) => [commandOf(args), cwd])).toEqual([
+      ['reset', '/repo-main'],
+      ['merge', '/repo-main']
+    ])
+    expect(fake.calls.find(({ args }) => commandOf(args) === 'reset')?.args).toEqual([
+      'reset',
+      '--hard'
+    ])
+    expect(fake.commands()).not.toContain('clean')
+  })
+
+  it('keeps the warning when untracked files block the fast-forward after the reset', async () => {
+    const fake = createFakeGit({
+      status: () => ({ stdout: ' M package.json\n' }),
+      merge: () =>
+        Object.assign(new Error('Command failed: git merge'), {
+          stderr:
+            'error: The following untracked working tree files would be overwritten by merge:\n\tnew.txt'
+        })
+    })
 
     await expect(fastForwardLocalBaseBranch(fake.git, REFS)).resolves.toEqual({
       status: 'skipped_dirty_worktree',
       ownerWorktreePath: '/repo-main'
     })
-    expect(fake.mutations()).toEqual([])
+    expect(fake.commands()).toContain('reset')
+  })
+
+  it('does not reset a clean owner checkout', async () => {
+    const fake = createFakeGit()
+
+    await expect(fastForwardLocalBaseBranch(fake.git, REFS)).resolves.toEqual({
+      status: 'updated',
+      ownerWorktreePath: '/repo-main'
+    })
+    expect(fake.commands()).not.toContain('reset')
+  })
+
+  it('stays an error and skips the merge when the reset fails', async () => {
+    const fake = createFakeGit({
+      status: () => ({ stdout: ' M package.json\n' }),
+      reset: () => new Error('fatal: unable to write new index file')
+    })
+
+    await expect(fastForwardLocalBaseBranch(fake.git, REFS)).resolves.toEqual({
+      status: 'skipped_error',
+      ownerWorktreePath: '/repo-main'
+    })
+    expect(fake.commands()).not.toContain('merge')
   })
 
   it('moves a branch no worktree has checked out with a compare-and-swap update-ref', async () => {
