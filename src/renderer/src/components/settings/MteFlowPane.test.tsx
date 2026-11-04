@@ -10,8 +10,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getDefaultSettings } from '../../../../shared/constants'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
 import { useAppStore } from '../../store'
-import { OrchestrationPane } from './OrchestrationPane'
-import { getOrchestrationPaneSearchEntries } from './orchestration-search'
+import { MteFlowPane } from './MteFlowPane'
+import { getMteFlowPaneSearchEntries } from './mte-flow-search'
 import { matchesSettingsSearch } from './settings-search'
 
 const mocks = vi.hoisted(() => ({
@@ -33,12 +33,12 @@ vi.mock('./AgentSkillSetupPanel', () => ({
         {typeof props.footer === 'function'
           ? props.footer(
               planOf([
-                planEntry('orchestration', [
-                  planOp('keep', '/home/u/.claude/skills/orchestration', {
-                    observed: { kind: 'link', target: '/home/u/.agents/skills/orchestration' }
+                planEntry('mte', [
+                  planOp('keep', '/home/u/.claude/skills/mte', {
+                    observed: { kind: 'link', target: '/home/u/.agents/skills/mte' }
                   }),
-                  planOp('write', '/home/u/.agents/skills/orchestration', { agents: ['codex'] }),
-                  planOp('link', '/home/u/.gemini/skills/orchestration', { agents: ['gemini'] })
+                  planOp('write', '/home/u/.agents/skills/mte', { agents: ['codex'] }),
+                  planOp('link', '/home/u/.gemini/skills/mte', { agents: ['gemini'] })
                 ])
               ])
             )
@@ -57,14 +57,14 @@ vi.mock('@/hooks/useInstalledAgentSkills', () => ({
     skills: [
       {
         id: 'claude',
-        name: 'orchestration',
+        name: 'mte',
         description: null,
         providers: ['claude'],
         sourceKind: 'home',
         sourceLabel: 'Claude Code home',
         rootPath: '/Users/test/.claude/skills',
-        directoryPath: '/Users/test/.claude/skills/orchestration',
-        skillFilePath: '/Users/test/.claude/skills/orchestration/SKILL.md',
+        directoryPath: '/Users/test/.claude/skills/mte',
+        skillFilePath: '/Users/test/.claude/skills/mte/SKILL.md',
         installed: true,
         updatedAt: null
       }
@@ -114,12 +114,12 @@ async function renderPane(
   document.body.appendChild(container)
   root = createRoot(container)
   await act(async () => {
-    root?.render(<OrchestrationPane {...getPaneProps(settings)} />)
+    root?.render(<MteFlowPane {...getPaneProps(settings)} />)
   })
   return container
 }
 
-describe('OrchestrationPane', () => {
+describe('MteFlowPane', () => {
   beforeEach(() => {
     useAppStore.setState({ settingsSearchQuery: '' })
     Object.defineProperty(window, 'api', {
@@ -161,10 +161,10 @@ describe('OrchestrationPane', () => {
     delete (globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__
   })
 
-  it('keeps the nested depth row visible when settings search routes to Orchestration', () => {
+  it('keeps the nested depth row visible when settings search routes to MTE flow', () => {
     useAppStore.setState({ settingsSearchQuery: 'Nested worker' })
 
-    const markup = renderToStaticMarkup(<OrchestrationPane {...getPaneProps()} />)
+    const markup = renderToStaticMarkup(<MteFlowPane {...getPaneProps()} />)
 
     expect(markup).toContain('Nested worker depth')
     expect(markup).toContain('aria-label="Nested worker depth"')
@@ -196,22 +196,37 @@ describe('OrchestrationPane', () => {
     expect(input.value).toBe('1')
   })
 
+  it('renders both settings and toggles worker auto-release', async () => {
+    const rendered = await renderPane()
+    expect(rendered.querySelector('input[aria-label="Nested worker depth"]')).not.toBeNull()
+    const toggle = rendered.querySelector<HTMLElement>('[aria-label="Auto-close finished workers"]')
+    if (!toggle) {
+      throw new Error('Worker auto-release switch was not rendered')
+    }
+    await act(async () => {
+      toggle.click()
+    })
+    expect(mocks.updateSettings).toHaveBeenCalledWith({
+      orchestrationWorkerAutoReleaseEnabled: false
+    })
+  })
+
   it('keeps host-only runtime settings out of paired web clients', () => {
     ;(globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__ = true
-    const markup = renderToStaticMarkup(<OrchestrationPane {...getPaneProps()} />)
+    const markup = renderToStaticMarkup(<MteFlowPane {...getPaneProps()} />)
 
     expect(markup).not.toContain('Nested worker depth')
     expect(markup).not.toContain('Tell the coordinator about chat errors')
     expect(
       matchesSettingsSearch(
         'nested worker',
-        getOrchestrationPaneSearchEntries({ includeLocalRuntimeSettings: false })
+        getMteFlowPaneSearchEntries({ includeLocalRuntimeSettings: false })
       )
     ).toBe(false)
     expect(
       matchesSettingsSearch(
         'chat errors',
-        getOrchestrationPaneSearchEntries({ includeLocalRuntimeSettings: false })
+        getMteFlowPaneSearchEntries({ includeLocalRuntimeSettings: false })
       )
     ).toBe(false)
   })

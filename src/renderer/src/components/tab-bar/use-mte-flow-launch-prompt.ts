@@ -18,7 +18,30 @@ import { useMteStartDialogStore } from './mte-start-dialog-store'
 import type { MteStartChoice, MteStartRequest } from './mte-start-dialog-store'
 import type { WorkspaceMcpAdapter } from '../../../../shared/mte/mcp/workspace-mcp-config'
 import type { AgentPickerDraft, AgentPickerEntry } from '../../../../shared/agent-launch-picker'
+import type { StructuredAgentLaunchSettlement } from '@/lib/structured-agent-launch-settlement'
 import type { Repo } from '../../../../shared/repo-types'
+
+/** Marks the dialog-launched chat as an MTE planner once its record exists; a failure leaves it a plain chat. */
+export async function markMtePlannerSession(
+  mte: MteLaunchOverride | undefined,
+  settlement: Promise<StructuredAgentLaunchSettlement> | undefined,
+  worktreeId: string
+): Promise<void> {
+  if (!mte || mte === 'plain') {
+    return
+  }
+  const settled = await settlement?.catch(() => null)
+  if (settled?.kind !== 'structured') {
+    return
+  }
+  await callRuntimeRpc(
+    runtimeTargetForOwnerEnvironment(
+      runtimeEnvironmentIdOrLocalUnlessTwin(useAppStore.getState(), worktreeId)
+    ),
+    'mte.markPlanner',
+    { sessionId: settled.sessionId }
+  ).catch(() => undefined)
+}
 
 export type RunLaunchArgs = [
   NewTabAgentMenuRow,

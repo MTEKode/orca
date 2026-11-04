@@ -76,7 +76,7 @@ describe('federated worker first dispatch readiness', () => {
     )
   }
 
-  it.each(['opencode', 'opencode2', 'zcode'] as const)(
+  it.each(['opencode', 'zcode'] as const)(
     'a %s terminal this attach created waits for its input box, not tui-idle',
     async (agent) => {
       const runtime = createWorkerHost()

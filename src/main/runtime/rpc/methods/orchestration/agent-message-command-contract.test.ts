@@ -104,7 +104,9 @@ it.each([
     expect(await current.host.attach(QUEUED_RIG_CALLER, attach)).toMatchObject({ ok: true })
     let { db, runtime } = h.setup(
       false,
-      partialRuntimeStore({ getSettings: () => ({ agentDefaultSurface: 'terminal' }) }),
+      partialRuntimeStore({
+        getSettings: () => ({ agentDefaultSurface: 'terminal', mteGateOrchestration: false })
+      }),
       join(current.root, 'home-orchestration.db')
     )
     if (federated) {

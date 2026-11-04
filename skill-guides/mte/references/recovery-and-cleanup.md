@@ -24,7 +24,7 @@ Report the failure and stop automatic retries; never route around the breaker
 with a new Run or Task, or reset its count, including on restart.
 
 Only when the user explicitly asks to retry or reassign this Task may its Run's
-current coordinator reopen the **same Task**. Use `worker-list` above to find
+current planner reopen the **same Task**. Use `worker-list` above to find
 every retained attempt, then inspect each:
 
 ```text

@@ -76,7 +76,9 @@ it.each([
     ).toMatchObject({ ok: true })
     const { runtime, db } = h.setup(
       false,
-      partialRuntimeStore({ getSettings: () => ({ agentDefaultSurface: 'terminal' }) })
+      partialRuntimeStore({
+        getSettings: () => ({ agentDefaultSurface: 'terminal', mteGateOrchestration: false })
+      })
     )
     if (scenario === 'federated-metadata-fails') {
       db.db.exec(

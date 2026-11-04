@@ -4,7 +4,7 @@ import { AgentsPane } from './AgentsPane'
 import { AgentDefaultSurfaceSection } from './AgentDefaultSurfaceSection'
 import { ComputerUsePane } from './ComputerUsePane'
 import { LinearAgentSkillPane } from './LinearAgentSkillPane'
-import { OrchestrationPane } from './OrchestrationPane'
+import { MteFlowPane } from './MteFlowPane'
 import { VoicePane } from './VoicePane'
 import { SettingsSection } from './SettingsSection'
 import { SettingsHostScopeUnavailableNotice } from './SettingsHostScopePicker'
@@ -107,15 +107,15 @@ export function renderOrchestrationSettingsSection(
   return (
     <SettingsSection
       id="orchestration"
-      title={translate('auto.components.settings.Settings.00c3a7950d', 'Orchestration')}
+      title={translate('auto.components.settings.Settings.mteFlowTitle', 'MTE flow')}
       description={translate(
-        'auto.components.settings.Settings.475980f53d',
-        'Coordinate multiple coding agents through Orca.'
+        'auto.components.settings.Settings.mteFlowDescription',
+        'Settings for MTE orchestration runs: planner, workers and validation.'
       )}
       searchEntries={navigation.getSectionSearchEntries('orchestration')}
     >
       {view.isSectionMounted('orchestration') ? (
-        <OrchestrationPane settings={model.settings} updateSettings={model.updateSettings} />
+        <MteFlowPane settings={model.settings} updateSettings={model.updateSettings} />
       ) : null}
     </SettingsSection>
   )

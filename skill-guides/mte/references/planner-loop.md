@@ -1,4 +1,4 @@
-# Coordinator loop
+# Planner loop
 
 ## Task DAGs
 

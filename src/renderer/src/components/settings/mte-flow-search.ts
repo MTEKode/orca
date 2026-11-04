@@ -12,7 +12,7 @@ import {
   getWorkerAutoReleaseTitle
 } from './worker-auto-release-copy'
 
-type OrchestrationPaneSearchOptions = {
+type MteFlowPaneSearchOptions = {
   includeLocalRuntimeSettings?: boolean
 }
 
@@ -23,17 +23,17 @@ const LOCAL_RUNTIME_SEARCH_ENTRY_IDS: ReadonlySet<string | undefined> = new Set(
   WORKER_AUTO_RELEASE_SEARCH_ENTRY_ID
 ])
 
-const getAllOrchestrationPaneSearchEntries = createLocalizedCatalog(() => [
+const getAllMteFlowPaneSearchEntries = createLocalizedCatalog(() => [
   {
-    title: translate(
-      'auto.components.settings.orchestration.search.c34045764e',
-      'Agent Orchestration'
-    ),
+    title: translate('auto.components.settings.mteFlow.search.title', 'MTE flow'),
     description: translate(
-      'auto.components.settings.orchestration.search.e05ff36753',
-      'Coordinate multiple coding agents via messaging, task DAGs, dispatch, and decision gates.'
+      'auto.components.settings.mteFlow.search.description',
+      'Settings for MTE orchestration runs: planner, workers and validation.'
     ),
     keywords: [
+      ...translateSearchKeyword('auto.components.settings.mteFlow.search.mte', 'MTE'),
+      ...translateSearchKeyword('auto.components.settings.mteFlow.search.planner', 'planner'),
+      ...translateSearchKeyword('auto.components.settings.mteFlow.search.validation', 'validation'),
       ...translateSearchKeyword(
         'auto.components.settings.orchestration.search.a7f76b4ca7',
         'orchestration'
@@ -104,10 +104,10 @@ const getAllOrchestrationPaneSearchEntries = createLocalizedCatalog(() => [
   }
 ])
 
-export function getOrchestrationPaneSearchEntries({
+export function getMteFlowPaneSearchEntries({
   includeLocalRuntimeSettings = true
-}: OrchestrationPaneSearchOptions = {}) {
-  const entries = getAllOrchestrationPaneSearchEntries()
+}: MteFlowPaneSearchOptions = {}) {
+  const entries = getAllMteFlowPaneSearchEntries()
   return includeLocalRuntimeSettings
     ? entries
     : entries.filter((entry) => !('id' in entry) || !LOCAL_RUNTIME_SEARCH_ENTRY_IDS.has(entry.id))

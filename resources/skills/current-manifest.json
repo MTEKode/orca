@@ -18,6 +18,22 @@
       ]
     },
     {
+      "name": "graphify",
+      "sourcePath": "skills/graphify",
+      "packageDigest": "5a255d60a16c30983c02c48725452f513836c8b6312fb118138880be5d6fed49",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 2194,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "a772dcbee1c3cef7e093178e5cdd59177dd4f5a56af5c22baaa8baf95415004d",
+          "textNormalizedSha256": "a772dcbee1c3cef7e093178e5cdd59177dd4f5a56af5c22baaa8baf95415004d",
+          "identitySha256": "a772dcbee1c3cef7e093178e5cdd59177dd4f5a56af5c22baaa8baf95415004d"
+        }
+      ]
+    },
+    {
       "name": "jira-tickets",
       "sourcePath": "skills/jira-tickets",
       "packageDigest": "48ca2a93818e17bf1e942452e835800e8f967a935d3082e1e9c03fff9ddb3d19",
@@ -46,6 +62,22 @@
           "exactSha256": "e181f86073da65c492361469d504fe15e7ae61bc99990bc41bea47aa13455619",
           "textNormalizedSha256": "e181f86073da65c492361469d504fe15e7ae61bc99990bc41bea47aa13455619",
           "identitySha256": "e181f86073da65c492361469d504fe15e7ae61bc99990bc41bea47aa13455619"
+        }
+      ]
+    },
+    {
+      "name": "mte",
+      "sourcePath": "skills/mte",
+      "packageDigest": "271d75322f115d9e20a10f18fb65e63bf9c44db92af16f9d5e55794f8f5ad40d",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 4026,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "5e17f9e20c138539ee2b9a5f6205c87ea1641cacc05eb7d707c3db3b3ea6bea6",
+          "textNormalizedSha256": "5e17f9e20c138539ee2b9a5f6205c87ea1641cacc05eb7d707c3db3b3ea6bea6",
+          "identitySha256": "5e17f9e20c138539ee2b9a5f6205c87ea1641cacc05eb7d707c3db3b3ea6bea6"
         }
       ]
     },
@@ -158,22 +190,6 @@
           "exactSha256": "633d9b8dd17a7406a77541633e10391d95dfe10a0c25fcd0e04d6a248ea2f597",
           "textNormalizedSha256": "633d9b8dd17a7406a77541633e10391d95dfe10a0c25fcd0e04d6a248ea2f597",
           "identitySha256": "633d9b8dd17a7406a77541633e10391d95dfe10a0c25fcd0e04d6a248ea2f597"
-        }
-      ]
-    },
-    {
-      "name": "orchestration",
-      "sourcePath": "skills/orchestration",
-      "packageDigest": "306d65c6742f5061179646e467b92a8e5d5c659842f079883ee2ef983f890112",
-      "files": [
-        {
-          "path": "SKILL.md",
-          "size": 4348,
-          "executable": false,
-          "classification": "text",
-          "exactSha256": "66d4c60a3ead54eb063a57341278cccaf28e016c2847a6f1808a0d4d2d163606",
-          "textNormalizedSha256": "66d4c60a3ead54eb063a57341278cccaf28e016c2847a6f1808a0d4d2d163606",
-          "identitySha256": "66d4c60a3ead54eb063a57341278cccaf28e016c2847a6f1808a0d4d2d163606"
         }
       ]
     }

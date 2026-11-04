@@ -5,7 +5,7 @@ keywords:
   - Orca skills
   - npx skills add
   - orca-cli skill
-  - orchestration skill
+  - mte skill
   - computer-use skill
   - orca-linear skill
   - orca-emulator skill
@@ -22,7 +22,7 @@ Use `npx skills add` with the public Orca repo and the skill name. Default agent
 | Skill                                               | Install                                                                                   | Use it for                                                    |
 | --------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
 | [`orca-cli`](#orca-cli)                             | `npx skills add https://github.com/stablyai/orca --skill orca-cli --global`               | Worktrees, terminals, files, automations, embedded browser.   |
-| [`orchestration`](#orchestration)                   | `npx skills add https://github.com/stablyai/orca --skill orchestration --global`          | Multi-agent Runs, tasks, supervised workers, messages, gates. |
+| [`mte`](#mte)                                       | `npx skills add https://github.com/stablyai/orca --skill mte --global`                    | Multi-agent Runs, tasks, supervised workers, messages, gates. |
 | [`computer-use`](#computer-use)                     | `npx skills add https://github.com/stablyai/orca --skill computer-use --global`           | Desktop apps via accessibility trees and safe UI actions.     |
 | [`orca-linear`](#orca-linear)                       | `npx skills add https://github.com/stablyai/orca --skill orca-linear --global`            | Linear ticket read/write through `orca linear`.               |
 | [`orca-emulator`](#orca-emulator)                   | `npx skills add https://github.com/stablyai/orca --skill orca-emulator --global`          | iOS Simulator control.                                        |
@@ -41,9 +41,9 @@ After `npx skills add`, agents see a short stub that says:
 ```bash
 orca skills list
 orca skills get orca-cli
-orca skills get orchestration --references
-orca skills get orchestration --reference recovery-and-cleanup
-orca skills get orchestration --full
+orca skills get mte --references
+orca skills get mte --reference recovery-and-cleanup
+orca skills get mte --full
 orca skills get orca-linear --json
 ```
 
@@ -68,7 +68,7 @@ On headless hosts (SSH, containers, CI, `orca serve`) use the CLI. It runs the s
 
 ```bash
 orca skills install                                      # list installable names
-orca skills install --skill orca-cli --skill orchestration
+orca skills install --skill orca-cli --skill mte
 orca skills install --skill orca-cli --agent claude,codex
 orca skills update --all --dry-run                       # what would change, and the plan digest
 orca skills update --all
@@ -110,13 +110,13 @@ npx skills add https://github.com/stablyai/orca --skill orca-cli --global
 
 After install, load the version-matched command guide with `orca skills get orca-cli`. See [Orca CLI](/docs/cli/overview).
 
-## orchestration
+## mte
 
 ```bash
-npx skills add https://github.com/stablyai/orca --skill orchestration --global
+npx skills add https://github.com/stablyai/orca --skill mte --global
 ```
 
-Use this when an agent should coordinate other agents through Runs, tasks, supervised workers, and decision gates. See [Orchestration](/docs/cli/orchestration). Always load `orca skills get orchestration --full` before mutating orchestration state — the legacy `orchestration run` command is retired.
+Use this when an agent should run MTE: a planner, coder and validator working through Runs, tasks, supervised workers, and decision gates. A plain chat starts the planner with `orca mte start --goal "<goal>" --json`. See [Orchestration](/docs/cli/orchestration). Always load `orca skills get mte --full` before mutating orchestration state — the legacy `orchestration run` command is retired, and `orca skills get mte` is an alias of `mte`.
 
 ## computer-use
 

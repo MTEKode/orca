@@ -25,6 +25,7 @@ import { buildOrchestrationTaskDisplayMetadata } from '../../../../../../shared/
 import { assertWorkerStartTaskSpecWithinPromptBudget } from './worker-start-prompt-budget'
 import { ORCA_SESSION_ADDRESS_PREFIX } from '../../../../../../shared/orca-session-address'
 import { ORCHESTRATION_SESSION_CALLER_ERROR_CODES as SESSION_CODES } from '../../../../../../shared/orchestration-session-caller-codes'
+import { assertMtePlannerCaller } from '../runs/mte-planner-gate'
 import { resolveDispatchCreator } from '../runs/dispatch-creator'
 
 type WorkerStartContext = Pick<
@@ -66,6 +67,10 @@ export async function startWorker(
       `${params.terminal} names a chat by its Orca session ID, which identifies it only on the host that runs it. Run worker-start on that host. No effects were applied.`,
       { effectsApplied: false }
     )
+  }
+  // Follow-ups to a finished worker are worker verbs, never gated.
+  if (!followUp) {
+    assertMtePlannerCaller(runtime, orchestrationCaller)
   }
   const readinessTimeoutMs = resolveWorkerStartReadinessTimeoutMs(params.timeoutMs)
   const db = runtime.getOrchestrationDb()
