@@ -12578,6 +12578,26 @@
           "keywordUnlisted": "unlisted",
           "keywordRevoke": "revoke"
         },
+        "skillsImport": {
+          "title": "Import skills from other harnesses",
+          "description": "Link skills from Claude, Codex, OpenCode, Cursor, Antigravity, and plugins into ~/.agents/skills so every chat sees them. Turning this off keeps existing links. Not available for WSL.",
+          "searchDescription": "Link skills from Claude, Codex, OpenCode, Cursor, and Antigravity into ~/.agents/skills.",
+          "sync": "Sync",
+          "empty": "No skills found in other harnesses.",
+          "conflict": "A different skill with this name already exists in ~/.agents/skills.",
+          "broken": "The source skill is missing. Uncheck to clean up the link.",
+          "originClaude": "Claude home",
+          "originCodex": "Codex",
+          "originOpenCode": "OpenCode",
+          "originCursor": "Cursor",
+          "originAntigravity": "Antigravity",
+          "originPlugins": "Plugins",
+          "originOther": "Other",
+          "keywordImport": "import",
+          "keywordSkills": "skills",
+          "keywordSymlink": "symlink",
+          "keywordHarness": "harness"
+        },
         "bitbucket": {
           "credentials": {
             "dialog": {

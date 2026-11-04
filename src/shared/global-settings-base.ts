@@ -13,6 +13,7 @@ import type { WorktreeDeletionPreferences } from './worktree-deletion-preference
 import type { AgentPermissionGlobalSettings } from './tui-agent-permission-choice'
 import type { TerminalColorOverrideGlobalSettings } from './terminal-color-overrides'
 import type { WindowMaterialSettings } from './window-material'
+import type { ImportedHarnessSkillsSettings } from './skills/imported-harness-skills-settings'
 
 /** Registers the orca-tools MCP bridge in agent launches; absent means on. */
 export type McpIntegrationsSettings = {
@@ -39,4 +40,5 @@ export type GlobalSettingsBase = ClaudeAgentViewSettings &
   PluginSystemSettings &
   TerminalColorOverrideGlobalSettings &
   WindowMaterialSettings &
+  ImportedHarnessSkillsSettings &
   McpIntegrationsSettings

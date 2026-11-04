@@ -85,6 +85,11 @@ export function updateSettings(
   if ('agentSkillSharingEnabled' in updates) {
     sanitizedUpdates.agentSkillSharingEnabled = updates.agentSkillSharingEnabled === true
   }
+  if ('importedHarnessSkills' in updates) {
+    sanitizedUpdates.importedHarnessSkills = sanitizeImportedHarnessSkills(
+      updates.importedHarnessSkills
+    )
+  }
   if ('nestedWorkerMaxDepth' in updates) {
     sanitizedUpdates.nestedWorkerMaxDepth = resolveNestedWorkerMaxDepth({
       nestedWorkerMaxDepth: updates.nestedWorkerMaxDepth
@@ -277,4 +282,20 @@ export function updateSettings(
   }
   publishSettingsUpdate(operations, updates, sanitizedUpdates, previousSettings, options)
   return operations.state.settings
+}
+
+export function sanitizeImportedHarnessSkills(value: unknown): {
+  enabled: boolean
+  selected: string[]
+} {
+  const input = (value && typeof value === 'object' ? value : {}) as {
+    enabled?: unknown
+    selected?: unknown
+  }
+  const selected = Array.isArray(input.selected)
+    ? input.selected.filter(
+        (id): id is string => typeof id === 'string' && id.length > 0 && id.length <= 256
+      )
+    : []
+  return { enabled: input.enabled === true, selected: [...new Set(selected)].slice(0, 2000) }
 }

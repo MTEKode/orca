@@ -165,6 +165,7 @@ export function buildDefaultSettings(args: {
     artifactsEnabled: true,
     artifactSharingEnabled: false,
     agentSkillSharingEnabled: false,
+    importedHarnessSkills: { enabled: false, selected: [] },
     nestedWorkerMaxDepth: 1,
     orchestrationWorkerAutoReleaseEnabled: true,
     showArtifactsButton: false,
