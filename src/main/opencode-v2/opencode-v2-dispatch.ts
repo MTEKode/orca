@@ -91,6 +91,16 @@ export async function dispatchOpenCodeV2Message(
         ...(input.signal ? { signal: input.signal } : {})
       })
     }
+    const agent = input.executionOptions?.agent
+    if (agent && agent !== session.currentAgent) {
+      await applyOpenCodeV2SessionOption(session, {
+        sessionId: input.sessionId,
+        key: 'agent',
+        value: agent,
+        fence: input.fence,
+        ...(input.signal ? { signal: input.signal } : {})
+      })
+    }
     input.signal?.throwIfAborted()
     if (!isCurrent() || session.closed) {
       return rejection(agentSessionFailureFact('providerExited'))

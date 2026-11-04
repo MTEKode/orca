@@ -71,10 +71,8 @@ export class OpenCodeV2SessionAdapter implements StructuredAgentSessionAdapter {
   rewind = this.rewinding.rewind
   recoverRewind = this.rewinding.recoverRewind
 
-  supportsCreate: NonNullable<StructuredAgentSessionAdapter['supportsCreate']> = (
-    location,
-    agent
-  ) => agent === OPENCODE_V2_AGENT_ID && this.supportsLocation(location)
+  supportsCreate: NonNullable<StructuredAgentSessionAdapter['supportsCreate']> = (loc, agent) =>
+    agent === OPENCODE_V2_AGENT_ID && this.supportsLocation(loc)
 
   async acquire(input: StructuredAgentSessionAcquireInput): Promise<AgentSessionAcquisition> {
     const id = input.identity.sessionId
@@ -136,10 +134,7 @@ export class OpenCodeV2SessionAdapter implements StructuredAgentSessionAdapter {
 
   private async resolveDirectory(input: StructuredAgentSessionAcquireInput): Promise<string> {
     const pinned = input.launch?.launchDirectory?.trim()
-    if (pinned) {
-      return pinned
-    }
-    return this.deps.resolveWorkspacePath(input.identity.workspaceId)
+    return pinned || this.deps.resolveWorkspacePath(input.identity.workspaceId)
   }
 
   open: NonNullable<StructuredAgentSessionAdapter['open']> = async (input) => {
@@ -225,6 +220,10 @@ export class OpenCodeV2SessionAdapter implements StructuredAgentSessionAdapter {
 
   setOption: StructuredAgentSessionAdapter['setOption'] = (input) =>
     applyOpenCodeV2SessionOption(this.session(input.sessionId, input.fence), input)
+
+  // Only the agent pick is pushed while idle; model/effort ride the next prompt.
+  canSetOptionWhileIdle: StructuredAgentSessionAdapter['canSetOptionWhileIdle'] = (i) =>
+    i.key === 'agent' && this.sessions.get(i.sessionId)?.input.fence === i.fence
 
   readOptions: NonNullable<StructuredAgentSessionAdapter['readOptions']> = async (input) =>
     readOpenCodeV2SessionOptions(this.session(input.sessionId, input.fence))

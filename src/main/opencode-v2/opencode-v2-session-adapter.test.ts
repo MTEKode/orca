@@ -377,6 +377,29 @@ describe('OpenCodeV2SessionAdapter integration', () => {
     ).rejects.toThrow()
   })
 
+  it('applies only the agent pick while idle and carries the agent with the next prompt', async () => {
+    const { adapter, calls } = await openAdapter()
+    const idle = (key: string) =>
+      adapter.canSetOptionWhileIdle?.({ sessionId: SESSION, fence: 1, key, value: 'plan' })
+    expect(idle('agent')).toBe(true)
+    expect(idle('model')).toBe(false)
+    expect(
+      adapter.canSetOptionWhileIdle?.({ sessionId: SESSION, fence: 2, key: 'agent', value: 'plan' })
+    ).toBe(false)
+    await adapter.dispatch({
+      sessionId: SESSION,
+      clientMessageId: 'cm-agent',
+      body: userMessage('hi'),
+      fence: 1,
+      executionOptions: { agent: 'plan' }
+    })
+    const switched = calls.find(
+      (entry) => entry.method === 'POST' && entry.url.pathname.endsWith('/agent')
+    )
+    expect(switched?.body).toMatchObject({ agent: 'plan' })
+    expect((await adapter.readOptions({ sessionId: SESSION, fence: 1 })).current.agent).toBe('plan')
+  })
+
   it('renders a form.created question and posts the reply on answer', async () => {
     const { rig, sse, adapter, calls } = await openAdapter()
     // The first three events only: the fixture's last event is the provider-side reply.
