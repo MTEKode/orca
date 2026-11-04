@@ -24,14 +24,14 @@ If it reports a built graph, answer architecture and relationship questions from
 before reading files or grepping. Use the `graphify_*` tools from the `orca-tools` MCP server
 (routed automatically to the graph of the repo you are working in; never pass `project_path`):
 
-| Question | Tool |
-|----------|------|
-| What is X connected to? (broad) | `graphify_query_graph` (BFS); add `mode: "dfs"` to trace a chain |
-| How does X reach Y? | `graphify_shortest_path` |
-| What is X? | `graphify_get_node`, then `graphify_get_neighbors` |
-| What are the main areas? | `graphify_god_nodes`, `graphify_get_community` |
-| How big is the graph? | `graphify_graph_stats` |
-| PR impact | `graphify_list_prs`, `graphify_get_pr_impact`, `graphify_triage_prs` |
+| Question                        | Tool                                                                 |
+| ------------------------------- | -------------------------------------------------------------------- |
+| What is X connected to? (broad) | `graphify_query_graph` (BFS); add `mode: "dfs"` to trace a chain     |
+| How does X reach Y?             | `graphify_shortest_path`                                             |
+| What is X?                      | `graphify_get_node`, then `graphify_get_neighbors`                   |
+| What are the main areas?        | `graphify_god_nodes`, `graphify_get_community`                       |
+| How big is the graph?           | `graphify_graph_stats`                                               |
+| PR impact                       | `graphify_list_prs`, `graphify_get_pr_impact`, `graphify_triage_prs` |
 
 Read `references/query.md` for how to phrase queries and cite results.
 
