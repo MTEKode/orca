@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { createOpenCodeV2Client } from './opencode-v2-client'
-import { OpenCodeV2Connection, OpenCodeV2PromptConflictError } from './opencode-v2-connection'
+import {
+  OpenCodeV2Connection,
+  OpenCodeV2PromptConflictError,
+  toOpenCodeMessageId
+} from './opencode-v2-connection'
 import { createFetchFake, routeByPath, type FetchFakeCall } from './opencode-v2.test-support'
 
 const BASE = 'http://127.0.0.1:4321'
@@ -26,13 +30,13 @@ function bodyOf(calls: FetchFakeCall[], path: string): Record<string, unknown> {
 describe('OpenCodeV2Connection.send', () => {
   const path = `/api/session/${SESSION}/prompt`
 
-  it('defaults delivery to steer and posts the orca id as the prompt id', async () => {
+  it('defaults delivery to steer and posts a msg_-shaped provider id', async () => {
     const { connection, calls } = await connectionFor({ [`POST ${path}`]: PROMPT_OK })
     await connection.send({ text: 'hi', id: 'client-msg-1' })
     const call = calls.find((entry) => entry.url.pathname === path)
     expect(call?.method).toBe('POST')
     expect(bodyOf(calls, path)).toMatchObject({
-      id: 'client-msg-1',
+      id: expect.stringMatching(/^msg_[0-9a-f]{12}[0-9a-z]{14}$/),
       text: 'hi',
       delivery: 'steer'
     })
@@ -63,6 +67,33 @@ describe('OpenCodeV2Connection.send', () => {
     await expect(connection.send({ text: 'hi', id: 'dup' })).rejects.toBeInstanceOf(
       OpenCodeV2PromptConflictError
     )
+  })
+})
+
+describe('toOpenCodeMessageId', () => {
+  it('produces a msg_ id from a timestamp and a hash', () => {
+    expect(toOpenCodeMessageId('client-msg-1')).toMatch(/^msg_[0-9a-f]{12}[0-9a-z]{14}$/)
+    expect(toOpenCodeMessageId('x', 255)).toMatch(/^msg_0000000000ff[0-9a-z]{14}$/)
+  })
+
+  it('differs per client id and passes msg_-shaped ids through', () => {
+    expect(toOpenCodeMessageId('a', 1)).not.toBe(toOpenCodeMessageId('b', 1))
+    const shaped = 'msg_0123456789abcdefghijklmnop'
+    expect(toOpenCodeMessageId(shaped)).toBe(shaped)
+  })
+
+  it('reuses one provider id across retries of the same client id', async () => {
+    const path = `/api/session/${SESSION}/prompt`
+    const fake = createFetchFake([routeByPath({ [`POST ${path}`]: PROMPT_OK })])
+    const client = await createOpenCodeV2Client({ url: BASE, headers: {} }, fake.fetch)
+    const connection = new OpenCodeV2Connection(client, SESSION)
+    await connection.send({ text: 'hi', id: 'same' })
+    await new Promise((resolve) => setTimeout(resolve, 5))
+    await connection.send({ text: 'hi', id: 'same' })
+    await connection.send({ text: 'hi', id: 'other' })
+    const ids = fake.calls.map((call) => (call.body as { id: string }).id)
+    expect(ids[0]).toBe(ids[1])
+    expect(ids[2]).not.toBe(ids[0])
   })
 })
 
