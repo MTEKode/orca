@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { mocks, request, detection } from './AgentSessionContinuationDialog.test-fixture'
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import { useAppStore } from '@/store'
 import { getAgentCatalog, getAgentLabel } from '@/lib/agent-catalog'
@@ -499,6 +499,37 @@ it('keeps the no-agents explanation when host preferences disable the desktop-en
     clearHostAgentMenuSettingsForTests()
     replaceRuntimeEnvironmentRevisions([])
   }
+})
+
+it('carries the model and effort the chat handoff will use', async () => {
+  const settings = useAppStore.getState().settings!
+  const [repo] = useAppStore.getState().repos
+  useAppStore.setState({
+    settings: { ...settings, defaultTuiAgent: 'codex' },
+    repos: [
+      {
+        ...repo!,
+        newChatDefaults: {
+          orchestration: false,
+          chat: { agent: 'codex', model: 'gpt-5.5', effort: 'xhigh' }
+        }
+      }
+    ]
+  })
+  mocks.detection.mockReturnValue({ ...detection, detectedIds: ['codex'] })
+  render(<AgentSessionContinuationDialog open request={request} onOpenChange={vi.fn()} />, {
+    wrapper: TooltipProvider
+  })
+  await waitFor(() =>
+    expect(document.querySelector('#agent-session-continuation-model')).not.toBeNull()
+  )
+  expect(document.querySelector('#agent-session-continuation-model')?.textContent).toContain(
+    'GPT-5.5'
+  )
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Start New Session' })))
+  expect(mocks.launch).toHaveBeenCalledWith(
+    expect.objectContaining({ launchOptions: { model: 'gpt-5.5', effort: 'xhigh' } })
+  )
 })
 
 // Last: the host's published chat availability outlives these tests.

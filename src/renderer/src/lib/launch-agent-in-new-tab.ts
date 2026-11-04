@@ -85,6 +85,8 @@ export function launchAgentInNewTabWithOutcome(
     promptDelivery: routePromptDelivery,
     tuiCustomization: { cwd: initialCwd },
     ...(sessionOptions ? { launchOptions: sessionOptions } : {}),
+    ...(args.mteRole ? { mteRole: args.mteRole } : {}),
+    ...(args.mteWorker ? { mteWorker: args.mteWorker } : {}),
     onPromptDelivered,
     ...(args.promptKeptByCaller ? { promptKeptByCaller: true as const } : {})
   })

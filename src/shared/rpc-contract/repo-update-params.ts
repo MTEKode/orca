@@ -8,6 +8,7 @@ import {
   normalizeCustomWorktreeVisibilitySources,
   normalizeWorktreeVisibilitySourcePreferences
 } from '../worktree/visibility-sources'
+import { NewChatDefaultsSchema } from '../new-chat-defaults'
 import { OptionalFiniteNumber, OptionalString } from './rpc-param-primitives'
 
 export const RepoSourceControlAiOverrides = z
@@ -72,6 +73,7 @@ export function createRepoUpdateSchema<T extends Readonly<Record<string, z.ZodTy
         }),
       forkSyncMode: z.enum(['ask', 'safe-auto', 'off']).optional(),
       mteFlowPrompt: z.enum(['ask', 'never']).optional(),
+      newChatDefaults: NewChatDefaultsSchema.optional(),
       deployCheck: z
         .object({
           url: z.string().max(2_048),

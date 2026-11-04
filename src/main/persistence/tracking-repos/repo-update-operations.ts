@@ -104,6 +104,7 @@ export class RepoUpdatePersistenceOperations {
         | 'defaultJiraProject'
         | 'forkSyncMode'
         | 'mteFlowPrompt'
+        | 'newChatDefaults'
         | 'deployCheck'
         | 'quickCommandsInFloatingTerminal'
         | 'externalWorktreeVisibilityPromptDismissedAt'

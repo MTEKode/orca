@@ -31,6 +31,8 @@ type LaunchAgentSessionContinuationArgs = {
   groupId?: string | null
   initialCwd?: string | null
   launchChoice?: AgentLaunchChoice
+  /** Chat options the picker chose for this handoff, over the saved defaults. */
+  launchOptions?: Readonly<Record<string, string>>
   launchSource: LaunchSource
   signal?: AbortSignal
 }
@@ -100,6 +102,7 @@ export async function launchAgentSessionContinuation({
   groupId,
   initialCwd,
   launchChoice,
+  launchOptions,
   launchSource,
   signal
 }: LaunchAgentSessionContinuationArgs): Promise<boolean> {
@@ -144,7 +147,8 @@ export async function launchAgentSessionContinuation({
     ...delivery,
     requestId: newAgentLaunchRequestId(),
     workspace: worktreeLaunchWorkspace(worktreeId),
-    tuiCustomization: { cwd: initialCwd }
+    tuiCustomization: { cwd: initialCwd },
+    ...(launchOptions ? { launchOptions } : {})
   }
   // Capture preference routes before detection awaits; only deliberate picks demand a surface.
   const plan = launchChoice

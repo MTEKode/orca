@@ -3,7 +3,7 @@ import {
   agentPickerLaunchInputs,
   type AgentPickerEntry
 } from '../../../../shared/agent-launch-picker'
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback } from 'react'
 import { toast } from 'sonner'
 import { launchAgentInNewTab } from '@/lib/launch-agent-in-new-tab'
 import { newAgentLaunchRequestId } from '@/lib/agent-launch-request-id'
@@ -11,7 +11,6 @@ import { captureNativeChatComposerFocusIntent } from '@/components/native-chat/u
 import { agentLaunchPromptOwnership, newAgentPromptOutcome } from '@/lib/new-agent-prompt-outcome'
 import { activeAgentNotesSendFailureMessage } from '@/lib/active-agent-note-send-result'
 import { Settings as SettingsIcon } from 'lucide-react'
-import { AgentSurfaceLaunchButton } from '@/components/agent/AgentSurfaceLaunchButton'
 import {
   DropdownMenuItem,
   DropdownMenuSeparator,
@@ -30,12 +29,9 @@ import { cn } from '@/lib/utils'
 import type { NewTabAgentMenuRow } from '@/lib/new-tab-agent-menu-rows'
 import { useNewTabAgentMenuRows, type NewTabAgentMenuModel } from './use-new-tab-agent-menu-rows'
 import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
-import {
-  markMtePlannerSession,
-  useMteFlowLaunchPrompt,
-  type RunLaunchArgs
-} from './use-mte-flow-launch-prompt'
+import { markMtePlannerSession, useNewChatLaunch, type RunLaunchArgs } from './use-new-chat-launch'
 import { chatUnavailableLabel, rowTitle, rowLabel, rowId } from './tab-agent-row-presentation'
+import { SurfaceChoiceRow } from './SurfaceChoiceRow'
 
 export type QuickLaunchAgentMenuItemsProps = {
   worktreeId: string
@@ -55,8 +51,6 @@ export type QuickLaunchAgentMenuItemsProps = {
   /** Nothing to send: e.g. every note is already on its way, so no agent is started. */
   disabled?: boolean
 }
-
-const ROW_NAVIGATION_KEYS = new Set(['ArrowLeft', 'ArrowUp', 'ArrowDown', 'Home', 'End'])
 
 const PLACEHOLDER_WIDTHS = ['w-3/5', 'w-1/2', 'w-2/3', 'w-2/5', 'w-3/4', 'w-1/3', 'w-4/5', 'w-1/4']
 
@@ -81,17 +75,14 @@ export function useTabAgentMenuLaunch({
   /** A New Chat opened at once: its composer takes the focus the menu gives back. */
   onFocusChat?: (tabId: string) => void
 }) {
-  const tryMte = useMteFlowLaunchPrompt(worktreeId)
+  const tryNewChat = useNewChatLaunch(worktreeId)
   const runLaunch = useCallback(
-    (...[row, draft, pickerEntry, mte]: RunLaunchArgs): boolean | Promise<boolean> => {
+    (...[row, draft, pickerEntry, override]: RunLaunchArgs): boolean | Promise<boolean> => {
       if (disabled || row.kind === 'chat-unavailable') {
         return false
       }
       const held = prompt !== undefined || !!onPromptHandedOff
-      if (
-        !mte &&
-        tryMte([row, draft, pickerEntry], held, (o) => runLaunch(row, draft, pickerEntry, o))
-      ) {
+      if (!override && tryNewChat([row, draft, pickerEntry], held, (next) => runLaunch(...next))) {
         return true
       }
       const { agent } = row
@@ -113,7 +104,7 @@ export function useTabAgentMenuLaunch({
         // A caller's prompt (notes) owns the launch; otherwise the picker panel's typed one.
         ...(prompt !== undefined ? { prompt } : draft?.prompt ? { prompt: draft.prompt } : {}),
         ...(promptDelivery !== undefined ? { promptDelivery } : {}),
-        ...(mte && mte !== 'plain' ? mte : {}),
+        ...(override && override !== 'plain' ? override : {}),
         ...(launchSource !== undefined ? { launchSource } : {}),
         ...(onPromptDelivered !== undefined ? { onPromptDelivered } : {}),
         // Notes keep their text until it goes out, so the new chat's composer never gets a copy.
@@ -129,7 +120,7 @@ export function useTabAgentMenuLaunch({
         )
         return false
       }
-      void markMtePlannerSession(mte, result.structuredSettlement, worktreeId)
+      void markMtePlannerSession(override, result.structuredSettlement, worktreeId)
       if (onPromptHandedOff && result.promptDeliveryResult) {
         const outcome = newAgentPromptOutcome({ delivery: result.promptDeliveryResult })
         onPromptHandedOff(outcome)
@@ -172,7 +163,7 @@ export function useTabAgentMenuLaunch({
       disabled,
       onFocusHostTerminal,
       onFocusChat,
-      tryMte
+      tryNewChat
     ]
   )
 
@@ -346,88 +337,6 @@ function otherSurfaceRow(
     return detectedIds?.includes(agent) ? { kind: 'cli', agent, executionHostId } : null
   }
   return row.kind === 'cli' && row.chat ? { kind: 'chat', agent, executionHostId } : null
-}
-
-// Why: the row starts its own surface; its trailing button (or ArrowRight, then Enter) opens the other.
-function SurfaceChoiceRow({
-  row,
-  other,
-  label,
-  disabled,
-  runLaunch,
-  children
-}: {
-  row: NewTabAgentMenuRow
-  other: NewTabAgentMenuRow
-  label: string
-  disabled: boolean
-  runLaunch: (row: NewTabAgentMenuRow) => void
-  children: React.ReactNode
-}): React.JSX.Element {
-  const otherButton = useRef<HTMLButtonElement>(null)
-  const releaseTarget = useRef<{ event: PointerEvent; target: EventTarget } | null>(null)
-  const title = rowTitle(row, label)
-  return (
-    <DropdownMenuItem
-      variant="launch"
-      disabled={disabled}
-      title={title}
-      aria-label={title}
-      onPointerUp={(event) => {
-        // Radix synchronously clicks the row on drag release, discarding the release target.
-        const release = { event: event.nativeEvent, target: event.target }
-        releaseTarget.current = release
-        queueMicrotask(() => {
-          if (releaseTarget.current === release) {
-            releaseTarget.current = null
-          }
-        })
-      }}
-      onClick={(event) => {
-        const release = releaseTarget.current
-        releaseTarget.current = null
-        if (disabled) {
-          return
-        }
-        const target =
-          event.target === event.currentTarget && release && release.event.eventPhase !== Event.NONE
-            ? release.target
-            : event.target
-        runLaunch(target instanceof Node && otherButton.current?.contains(target) ? other : row)
-      }}
-      onKeyDown={(event) => {
-        if (event.key === 'ArrowRight') {
-          event.preventDefault()
-          otherButton.current?.focus()
-        }
-      }}
-    >
-      {children}
-      <AgentSurfaceLaunchButton
-        ref={otherButton}
-        surface={other.kind === 'chat' ? 'chat' : 'terminal'}
-        title={rowTitle(other, label)}
-        className="hover:bg-accent focus-visible:bg-accent [[data-highlighted]_&]:opacity-100"
-        onKeyDown={(event) => {
-          // Stopped so the row's own Enter handling does not start the row's surface instead.
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault()
-            event.stopPropagation()
-            event.currentTarget.click()
-          } else if (ROW_NAVIGATION_KEYS.has(event.key)) {
-            event.preventDefault()
-            event.stopPropagation()
-            const item = event.currentTarget.closest<HTMLElement>('[role="menuitem"]')
-            item?.focus()
-            // Why: roving focus ignores keys from inside an item, so the row replays the move.
-            if (event.key !== 'ArrowLeft') {
-              item?.dispatchEvent(new KeyboardEvent('keydown', { key: event.key, bubbles: true }))
-            }
-          }
-        }}
-      />
-    </DropdownMenuItem>
-  )
 }
 
 function AgentSettingsMenuItem({ onSelect }: { onSelect: () => void }): React.JSX.Element {

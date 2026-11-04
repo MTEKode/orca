@@ -11,6 +11,7 @@ import { normalizeRepoLanguageServerSettings } from '../../../shared/repo-langua
 import { sanitizeRepoIcon } from '../../../shared/repo-icon'
 import { normalizeGhAccountBinding } from '../../../shared/github/account-binding'
 import type { GhAccountBinding } from '../../../shared/github/account-binding'
+import { sanitizeNewChatDefaults } from '../../../shared/new-chat-defaults'
 import { normalizeRepoSourceControlAiOverrides } from '../../../shared/source-control-ai'
 import {
   normalizeCustomWorktreeVisibilitySources,
@@ -63,6 +64,7 @@ export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Stor
             | 'issueSourcePreference'
             | 'forkSyncMode'
             | 'mteFlowPrompt'
+            | 'newChatDefaults'
             | 'deployCheck'
             | 'quickCommandsInFloatingTerminal'
             | 'externalWorktreeVisibilityPromptDismissedAt'
@@ -115,6 +117,7 @@ export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Stor
       ) {
         delete updates.mteFlowPrompt
       }
+      sanitizeNewChatDefaults(updates)
       if ('deployCheck' in updates && !isValidDeployCheck(updates.deployCheck)) {
         delete updates.deployCheck
       }

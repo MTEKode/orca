@@ -4,6 +4,7 @@ import type { LaunchSource } from '../../../shared/telemetry-events'
 import type { StructuredLaunchTerminal } from '@/lib/agent-session/launch/structured-agent-session-launch-admission'
 import type { LaunchAgentInNewTabRequest } from '@/lib/launch-agent-in-new-tab-host-agents'
 import type { NativeChatComposerFocusIntent } from '@/components/native-chat/use-native-chat-composer-reveal-focus'
+import type { MteWorkerPin } from '../../../shared/mte/worker-pin'
 
 export type LaunchAgentInNewTabArgs = LaunchAgentInNewTabRequest & {
   requestedSurface?: AgentSessionLaunchRequest['requestedSurface']
@@ -22,6 +23,10 @@ export type LaunchAgentInNewTabArgs = LaunchAgentInNewTabRequest & {
   sessionOptions?: Readonly<Record<string, string>>
   /** On terminals, a flag `agentArgs` sets itself wins over the inherited saved choice. */
   sessionOptionsYieldToAgentArgs?: true
+  /** MTE: mark the chat created by this launch as a planner. Chat routes only. */
+  mteRole?: 'planner'
+  /** Set with `mteRole`: the worker agent/model/effort the planner must pin. */
+  mteWorker?: MteWorkerPin
   initialCwd?: string | null
   /** How to deliver the prompt: `draft` leaves it editable, `submit-after-ready` sends it once the TUI is ready. */
   promptDelivery?: 'auto-submit' | 'draft' | 'submit-after-ready'

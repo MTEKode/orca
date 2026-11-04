@@ -38,6 +38,8 @@ import {
   chooseInitialContinuationAgent,
   isContinuationAgentAllowed
 } from './agent-session-continuation-selection'
+import { ContinuationChatPickFields } from './ContinuationChatPickFields'
+import { useContinuationModelPick } from './use-continuation-model-pick'
 
 type AgentSessionContinuationDialogProps = {
   open: boolean
@@ -64,6 +66,8 @@ export function AgentSessionContinuationDialog({
     request: AgentSessionContinuationRequest | null
     agent: TuiAgent
     surface?: AgentLaunchSurface
+    model?: string
+    effort?: string
   } | null>(null)
   const detectionTarget = useAgentDetectionTargetForWorktree(request?.worktreeId ?? null)
   const [contextPick, setContextPick] = useState<{
@@ -153,6 +157,16 @@ export function AgentSessionContinuationDialog({
       defaultAgent: settings?.defaultTuiAgent
     })
   const selection = observation.selectionFor(selectedAgent, currentPick?.surface)
+  // Only a chat carries model and effort; a terminal runs whatever the CLI's saved profile says.
+  const chatRoute = selection.choice?.route === 'structured-native-chat'
+  const chatPick = useContinuationModelPick({
+    worktreeId: request?.worktreeId,
+    model: destinationModel,
+    open: open && Boolean(request),
+    agent: selectedAgent,
+    picked: currentPick,
+    chat: chatRoute
+  })
 
   useEffect(() => {
     if (!starting) {
@@ -172,6 +186,7 @@ export function AgentSessionContinuationDialog({
     if (!prompt) {
       return
     }
+    const launchOptions = chatPick.launchOptions
     setStarting(true)
     const launched = await launchAgentSessionContinuation({
       agent: selectedAgent,
@@ -180,6 +195,7 @@ export function AgentSessionContinuationDialog({
       groupId: request.groupId,
       initialCwd: request.initialCwd,
       launchChoice: selection.choice,
+      ...(launchOptions ? { launchOptions } : {}),
       launchSource: request.launchSource,
       signal: abortRef.current?.signal
     })
@@ -298,6 +314,16 @@ export function AgentSessionContinuationDialog({
               ) : null}
             </div>
           </div>
+
+          {chatRoute ? (
+            <ContinuationChatPickFields
+              entry={chatPick.entry}
+              value={chatPick.pick}
+              surface={currentPick?.surface}
+              disabled={controlsDisabled}
+              onChange={(next) => setPick({ request, ...next })}
+            />
+          ) : null}
 
           <div className="min-w-0 space-y-1.5">
             <label className="text-xs font-medium">

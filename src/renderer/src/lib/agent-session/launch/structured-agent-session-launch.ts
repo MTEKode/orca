@@ -206,6 +206,8 @@ function structuredAgentLaunchState(
     options.activate
   )
   intent.explicitLaunchOptions = options.launchOptions ? { ...options.launchOptions } : undefined
+  intent.params.mteRole = options.mteRole
+  intent.params.mteWorker = options.mteWorker
   intent.beforeCreate = options.beforeCreate
   intent.createAfter = options.createAfter
   intent.surfaceAddress = options.surfaceAddress
