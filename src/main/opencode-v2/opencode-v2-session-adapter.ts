@@ -22,6 +22,7 @@ import {
   dispatchOpenCodeV2Message,
   readOpenCodeV2SessionOptions
 } from './opencode-v2-dispatch'
+import { openCodeV2RewindOps } from './opencode-v2-rewind'
 import { OpenCodeV2EventHub, openCodeV2EventHub } from './opencode-v2-events'
 import { OpenCodeV2Session, type OpenCodeV2SessionDeps } from './opencode-v2-session'
 import type { OpenCodeV2Service, ResolvedOpenCodeV2Endpoint } from './opencode-v2-service'
@@ -64,6 +65,11 @@ export class OpenCodeV2SessionAdapter implements StructuredAgentSessionAdapter {
   constructor(private readonly deps: OpenCodeV2SessionAdapterDeps) {}
 
   supportsLocation = supportsOpenCodeV2Location
+
+  private readonly rewinding = openCodeV2RewindOps((id) => this.sessions.get(id))
+  rewindSupport = this.rewinding.rewindSupport
+  rewind = this.rewinding.rewind
+  recoverRewind = this.rewinding.recoverRewind
 
   supportsCreate: NonNullable<StructuredAgentSessionAdapter['supportsCreate']> = (
     location,

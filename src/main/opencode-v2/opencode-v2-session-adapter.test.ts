@@ -193,6 +193,12 @@ describe('OpenCodeV2SessionAdapter integration', () => {
     expect(create?.body).toMatchObject({ location: { directory: '/work/tree' } })
   })
 
+  it('declares rewind support for a live session only', async () => {
+    const { adapter } = await openAdapter()
+    expect(adapter.rewindSupport(SESSION)).toEqual({ supported: true })
+    expect(adapter.rewindSupport('unknown')).toMatchObject({ supported: false })
+  })
+
   it('runs a dispatched prompt to a completed turn with assistant text', async () => {
     const { rig, sse, adapter, settled } = await openAdapter()
     const outcome = await adapter.dispatch({
@@ -339,6 +345,18 @@ describe('OpenCodeV2SessionAdapter integration', () => {
     await new Promise((resolve) => setTimeout(resolve, 250))
     const rows = await rig.rows()
     expect(JSON.stringify(rows.map((row) => row.body))).toContain('earlier answer')
+  })
+
+  it('exposes the listed agents and the selected one in the options snapshot', async () => {
+    const { adapter } = await openAdapter()
+    const before = await adapter.readOptions({ sessionId: SESSION, fence: 1 })
+    expect(before.agents).toEqual([
+      { id: 'build', label: 'build', description: 'Default agent', default: true },
+      expect.objectContaining({ id: 'plan', label: 'plan' })
+    ])
+    expect(before.current.agent).toBe('build')
+    await adapter.setOption({ sessionId: SESSION, fence: 1, key: 'agent', value: 'plan' })
+    expect((await adapter.readOptions({ sessionId: SESSION, fence: 1 })).current.agent).toBe('plan')
   })
 
   it('switches the agent through POST /session/{id}/agent', async () => {

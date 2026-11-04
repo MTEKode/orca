@@ -27,11 +27,11 @@ export type OpenCodeV2SendInput = {
 
 export type OpenCodeV2ModelRef = { id: string; providerID: string; variant?: string }
 
-function isTaggedError(error: unknown, tag: string): boolean {
+export function isTaggedError(error: unknown, tag: string): boolean {
   return typeof error === 'object' && error !== null && (error as { _tag?: unknown })._tag === tag
 }
 
-function clientStatus(error: unknown): number | null {
+export function clientStatus(error: unknown): number | null {
   const cause = error instanceof Error ? (error as { cause?: unknown }).cause : undefined
   const status =
     typeof cause === 'object' && cause !== null ? (cause as { status?: unknown }).status : undefined

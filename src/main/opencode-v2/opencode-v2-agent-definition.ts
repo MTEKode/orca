@@ -11,7 +11,7 @@ export const OPENCODE_V2_STRUCTURED_AGENT: StructuredAgentDefinition = {
   handleTransport: OPENCODE_V2_HANDLE_TRANSPORT,
   accountLocatorKind: 'opencode',
   capabilities: {
-    rewind: false,
+    rewind: true,
     compact: true,
     threadGoal: false,
     contextUsage: true,

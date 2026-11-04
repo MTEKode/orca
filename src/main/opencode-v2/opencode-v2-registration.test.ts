@@ -33,7 +33,7 @@ describe('opencode-v2 registration', () => {
   it('declares the phase-1 capabilities', () => {
     const registration = structuredAgentRuntimeRegistration(OPENCODE_V2_AGENT_ID)
     expect(registration?.definition.capabilities).toEqual({
-      rewind: false,
+      rewind: true,
       compact: true,
       threadGoal: false,
       contextUsage: true,
@@ -54,7 +54,7 @@ describe('opencode-v2 registered-agent decoding', () => {
   const row = {
     agent: OPENCODE_V2_AGENT_ID,
     capabilities: {
-      rewind: false,
+      rewind: true,
       compact: true,
       threadGoal: false,
       contextUsage: true,

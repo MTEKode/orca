@@ -96,6 +96,10 @@ export class OpenCodeV2Session {
     return this.input.identity.sessionId
   }
 
+  get client(): OpenCodeV2Client {
+    return this.deps.client
+  }
+
   get closed(): boolean {
     return this.publishedExit
   }
