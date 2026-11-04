@@ -35,6 +35,8 @@ export type NativeChatPickerItem =
 export type NativeChatSkillDiscoverySnapshot = {
   status: 'idle' | 'loading' | 'ready' | 'error'
   skills: readonly DiscoveredSkill[]
+  /** Unified catalog shared by every agent; listed whatever the harness reports. */
+  unifiedSkills?: readonly DiscoveredSkill[]
   errorKind?: 'unavailable' | 'timeout' | 'host' | 'unknown'
 }
 
@@ -84,14 +86,21 @@ export function buildNativeChatPickerItems(
   limit = PICKER_RESULT_LIMIT,
   /** `$` matches skill names only, so a shell word like `$CODEX_HOME` never hits a description. */
   trigger: '/' | '$' = '/',
-  commandAvailable?: (name: string) => boolean
+  commandAvailable?: (name: string) => boolean,
+  unifiedSkills: readonly DiscoveredSkill[] = []
 ): NativeChatPickerItem[] {
   // Only shared sigils collide: /review and $review remain separate.
   const sharedSigil = skillSigil === '/'
   const unclassifiedNames = new Set(
     commands.filter((command) => command.kindUnspecified).map((command) => command.name)
   )
-  const mergedSkills = mergeNativeChatSkills(skills, sessionSkills, unclassifiedNames, skillSigil)
+  const mergedSkills = mergeNativeChatSkills(
+    skills,
+    sessionSkills,
+    unclassifiedNames,
+    skillSigil,
+    unifiedSkills
+  )
   const skillNames = new Set(mergedSkills.map((skill) => skill.name))
   const available = commandAvailable
     ? commands.filter(({ name }) => commandAvailable(name))
@@ -143,7 +152,8 @@ function mergeNativeChatSkills(
   skills: readonly DiscoveredSkill[],
   sessionSkills: readonly NativeChatSessionSkill[] | undefined,
   unclassifiedNames: ReadonlySet<string>,
-  skillSigil: '/' | '$'
+  skillSigil: '/' | '$',
+  unifiedSkills: readonly DiscoveredSkill[]
 ): Extract<NativeChatPickerItem, { kind: 'skill' }>[] {
   const exactPaths = new Map<string, DiscoveredSkill>()
   for (const skill of skills) {
@@ -200,6 +210,11 @@ function mergeNativeChatSkills(
           ...[...discovered.keys()].filter((name) => unclassifiedNames.has(name))
         ]
       : [...discovered.keys()]
+  // The unified entry wins the label over a same-named scanned or reported row; a pick still sends `/name`.
+  const unified = unifiedSkills.flatMap((skill) => {
+    const name = getSafeSkillName(skill)
+    return name ? [pickerSkill(name, [{ ...skill, name }], skillSigil)] : []
+  })
   return [
     ...located,
     ...[...new Set(names)].map((name) => {
@@ -209,7 +224,10 @@ function mergeNativeChatSkills(
         ? { ...skill, description: sanitizePickerText(reported, 240) }
         : skill
     })
-  ].sort(comparePickerSkills)
+  ]
+    .filter((item) => !unified.some((entry) => entry.name === item.name))
+    .concat(unified)
+    .sort(comparePickerSkills)
 }
 
 function pickerSkill(

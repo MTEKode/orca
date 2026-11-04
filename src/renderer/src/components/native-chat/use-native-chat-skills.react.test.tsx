@@ -9,6 +9,7 @@ import { isSkillPickerTriggered } from '../../../../shared/native-chat-composer-
 
 const mocks = vi.hoisted(() => ({
   callRuntimeRpc: vi.fn(),
+  unifiedCatalog: { skills: [] } as { skills: unknown[] },
   state: {} as Record<string, unknown>,
   snapshots: [] as NativeChatSkillDiscovery[]
 }))
@@ -63,12 +64,16 @@ function DraftProbe({ draft }: { draft: string }): React.JSX.Element {
   return <Probe enabled={isSkillPickerTriggered(draft, getNativeChatAgentProfile('codex'))} />
 }
 
+const discoverCalls = (): unknown[][] =>
+  mocks.callRuntimeRpc.mock.calls.filter((call) => call[1] === 'skills.discover')
+
 describe('useNativeChatSkills', () => {
   beforeEach(() => {
     mocks.state = stateForHost('local')
     mocks.snapshots = []
     mocks.callRuntimeRpc.mockReset()
-    mocks.callRuntimeRpc.mockResolvedValue({
+    mocks.unifiedCatalog = { skills: [] }
+    const discovery = {
       skills: [
         {
           id: 'browser',
@@ -96,7 +101,10 @@ describe('useNativeChatSkills', () => {
         }
       ],
       scannedAt: 1
-    })
+    }
+    mocks.callRuntimeRpc.mockImplementation(async (_target: unknown, method: string) =>
+      method === 'skills.unifiedCatalog' ? mocks.unifiedCatalog : discovery
+    )
     resetNativeChatSkillDiscoveryCacheForTests()
   })
 
@@ -172,7 +180,7 @@ describe('useNativeChatSkills', () => {
     view.rerender(<DraftProbe draft="/" />)
     await waitFor(() => expect(mocks.snapshots.at(-1)?.status).toBe('ready'))
     view.rerender(<DraftProbe draft="/bro" />)
-    expect(mocks.callRuntimeRpc).toHaveBeenCalledTimes(1)
+    expect(discoverCalls()).toHaveLength(1)
   })
 
   it('surfaces discovery failure instead of remaining loading', async () => {
@@ -237,7 +245,41 @@ describe('useNativeChatSkills', () => {
       </>
     )
     await waitFor(() => expect(mocks.snapshots.at(-1)?.status).toBe('ready'))
-    expect(mocks.callRuntimeRpc).toHaveBeenCalledTimes(1)
+    expect(discoverCalls()).toHaveLength(1)
+  })
+
+  it('exposes the unified catalog next to the scanned skills', async () => {
+    mocks.unifiedCatalog = {
+      skills: [
+        {
+          name: 'deploy',
+          description: 'Ship',
+          directoryPath: '/repo/.agents/skills/deploy',
+          source: 'project'
+        }
+      ]
+    }
+    render(<Probe enabled />)
+    await waitFor(() => expect(mocks.snapshots.at(-1)?.status).toBe('ready'))
+    expect(mocks.snapshots.at(-1)?.unifiedSkills?.map((skill) => skill.name)).toEqual(['deploy'])
+    expect(mocks.callRuntimeRpc).toHaveBeenCalledWith(
+      { kind: 'local' },
+      'skills.unifiedCatalog',
+      { repoPath: '/repo/worktree' },
+      { timeoutMs: 10_000 }
+    )
+  })
+
+  it('still lists scanned skills when the unified catalog is unavailable', async () => {
+    mocks.callRuntimeRpc.mockImplementation(async (_target: unknown, method: string) => {
+      if (method === 'skills.unifiedCatalog') {
+        throw new Error('unknown method')
+      }
+      return { skills: [], sources: [], scannedAt: 1 }
+    })
+    render(<Probe enabled />)
+    await waitFor(() => expect(mocks.snapshots.at(-1)?.status).toBe('ready'))
+    expect(mocks.snapshots.at(-1)?.unifiedSkills).toEqual([])
   })
 
   it('marks SSH discovery unavailable without scanning another host', async () => {
@@ -250,25 +292,25 @@ describe('useNativeChatSkills', () => {
   it('makes Retry reach disk instead of the host shared scan', async () => {
     render(<Probe enabled />)
     await waitFor(() => expect(mocks.snapshots.at(-1)?.status).toBe('ready'))
-    expect(mocks.callRuntimeRpc).toHaveBeenLastCalledWith(
+    expect(discoverCalls().at(-1)).toEqual([
       { kind: 'local' },
       'skills.discover',
       { cwd: '/repo/worktree', worktreeId: 'worktree-1' },
       { timeoutMs: 10_000 }
-    )
+    ])
 
     act(() => {
       mocks.snapshots.at(-1)?.retry()
     })
-    await waitFor(() => expect(mocks.callRuntimeRpc).toHaveBeenCalledTimes(2))
+    await waitFor(() => expect(discoverCalls()).toHaveLength(2))
 
     // Explicit Retry must bypass the scan cache the user is trying to refresh.
-    expect(mocks.callRuntimeRpc).toHaveBeenLastCalledWith(
+    expect(discoverCalls().at(-1)).toEqual([
       { kind: 'local' },
       'skills.discover',
       { cwd: '/repo/worktree', worktreeId: 'worktree-1', refresh: true },
       { timeoutMs: 10_000 }
-    )
+    ])
   })
 
   it('routes runtime-owned panes through their saved environment', async () => {

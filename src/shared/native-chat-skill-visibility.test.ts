@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import type { DiscoveredSkill, SkillDiscoveryResult } from './skills'
-import { isNativeChatSkillForAgent } from './native-chat-skill-visibility'
+import {
+  isNativeChatSkillForAgent,
+  unifiedCatalogPickerSkills
+} from './native-chat-skill-visibility'
 
 function skill(overrides: Partial<DiscoveredSkill>): DiscoveredSkill {
   return {
@@ -79,5 +82,30 @@ describe('isNativeChatSkillForAgent', () => {
       rootPaths: ['/Users/test/.codex/skills']
     })
     expect(isNativeChatSkillForAgent('claude', codexOnly, result)).toBe(false)
+  })
+})
+
+describe('unifiedCatalogPickerSkills', () => {
+  it('turns catalog rows into installed scanned-shaped skills for every agent', () => {
+    const [project, bundled, installed] = unifiedCatalogPickerSkills([
+      { name: 'a', description: 'A', directoryPath: '/repo/.agents/skills/a', source: 'project' },
+      { name: 'b', description: null, directoryPath: '/home/.agents/skills/b/', source: 'bundled' },
+      { name: 'c', description: null, directoryPath: 'C:\\h\\skills\\c', source: 'installed' }
+    ])
+    expect(project).toMatchObject({
+      name: 'a',
+      sourceKind: 'repo',
+      installed: true,
+      skillFilePath: '/repo/.agents/skills/a/SKILL.md',
+      rootPath: '/repo/.agents/skills'
+    })
+    expect(bundled).toMatchObject({
+      sourceKind: 'bundled',
+      skillFilePath: '/home/.agents/skills/b/SKILL.md'
+    })
+    expect(installed).toMatchObject({
+      sourceKind: 'home',
+      skillFilePath: 'C:\\h\\skills\\c\\SKILL.md'
+    })
   })
 })

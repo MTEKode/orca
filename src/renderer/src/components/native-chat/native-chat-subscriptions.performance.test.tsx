@@ -449,7 +449,8 @@ describe('native chat store subscription performance', () => {
 
       view.rerender(probes(true))
       expect(snapshots.get(lastChatId)?.status).toBe('loading')
-      expect(rpc).toHaveBeenCalledExactlyOnceWith(
+      expect(rpc.mock.calls.filter((call) => call[1] === 'skills.discover')).toHaveLength(1)
+      expect(rpc).toHaveBeenCalledWith(
         { kind: 'local' },
         'skills.discover',
         expect.objectContaining({ cwd: `/repo/${data.workspaces - 2}`, worktreeId: destination }),
@@ -473,12 +474,12 @@ describe('native chat store subscription performance', () => {
       expect(snapshots.get(lastChatId)?.status).toBe('idle')
       view.rerender(probes(true))
       await waitFor(() => expect(snapshots.get(lastChatId)?.status).toBe('ready'))
-      expect(rpc).toHaveBeenLastCalledWith(
+      expect(rpc.mock.calls.findLast((call) => call[1] === 'skills.discover')).toEqual([
         { kind: 'environment', environmentId: 'latest' },
         'skills.discover',
         { cwd: '/latest-owner-path', worktreeId: destination },
         { timeoutMs: 10_000 }
-      )
+      ])
       await act(async () => pending.reject(new Error('Old owner request failed')))
       expect(snapshots.get(lastChatId)?.status).toBe('ready')
       view.unmount()

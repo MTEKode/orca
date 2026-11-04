@@ -7,6 +7,12 @@ import {
   McpIntegrationSetConfigParams
 } from '../../../../shared/rpc-contract/mcp-integrations-params'
 import { bindMcpIntegrationSettings, getMcpIntegrationHub } from '../../../mcp-integrations'
+import {
+  SKILL_READ_TOOL,
+  SKILL_READ_TOOL_NAME,
+  callSkillReadTool
+} from '../../../mcp-integrations/tools-server'
+import { listUnifiedSkillCatalog } from '../../../skills/unified-skill-catalog'
 import type { OrcaRuntimeService } from '../../orca-runtime'
 
 // Why: the hub is a process singleton; binding the store here gives stdio config a persistence home.
@@ -65,15 +71,25 @@ export const MCP_INTEGRATION_METHODS = [
     name: 'mcpIntegrations.listTools',
     permission: 'workspace',
     params: McpIntegrationListToolsParams,
-    handler: async (_params, { runtime }) => hubFor(runtime).listTools()
+    handler: async (_params, { runtime }) => {
+      const listed = await hubFor(runtime).listTools()
+      return { ...listed, tools: [...listed.tools, SKILL_READ_TOOL] }
+    }
   }),
   defineMethod({
     name: 'mcpIntegrations.callTool',
     permission: 'workspace',
     params: McpIntegrationCallToolParams,
-    handler: async (params, { runtime }) =>
-      hubFor(runtime).callTool(params.name, params.arguments, {
+    handler: async (params, { runtime }) => {
+      if (params.name === SKILL_READ_TOOL_NAME) {
+        return callSkillReadTool(
+          params.arguments,
+          params.workspaceRoot ? await listUnifiedSkillCatalog(params.workspaceRoot) : []
+        )
+      }
+      return hubFor(runtime).callTool(params.name, params.arguments, {
         repoId: await repoIdOfWorkspace(runtime, params.workspaceRoot)
       })
+    }
   })
 ]

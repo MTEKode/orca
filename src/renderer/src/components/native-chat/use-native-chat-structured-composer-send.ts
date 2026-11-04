@@ -47,6 +47,7 @@ export type UseNativeChatStructuredComposerSendArgs = {
   structuredTransport?: NativeChatStructuredComposerTransport
   isComposing: () => boolean
   clearSkillOrigin: () => void
+  withSkillInstruction?: (text: string) => string
   setDraft: (value: string) => void
   setCaret: (caret: number) => void
 }
@@ -65,6 +66,7 @@ export function useNativeChatStructuredComposerSend({
   structuredTransport,
   isComposing,
   clearSkillOrigin,
+  withSkillInstruction,
   setDraft,
   setCaret
 }: UseNativeChatStructuredComposerSendArgs): NativeChatStructuredComposerSend {
@@ -126,6 +128,9 @@ export function useNativeChatStructuredComposerSend({
           submitted.pastedTextFiles,
           hostCommand ? 'goal' : 'message'
         )
+      }
+      if (!hostCommand && withSkillInstruction) {
+        text = withSkillInstruction(text)
       }
       // Compose after serialization so queued comments wrap the wire text, not the raw draft.
       const { prompt: outgoing, snapshots } = composePromptWithDiffComments(text, queued)
@@ -236,7 +241,8 @@ export function useNativeChatStructuredComposerSend({
       isComposing,
       setCaret,
       setDraft,
-      structuredTransport
+      structuredTransport,
+      withSkillInstruction
     ]
   )
 }
