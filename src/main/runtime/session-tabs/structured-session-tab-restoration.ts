@@ -132,8 +132,11 @@ export abstract class OrcaRuntimeWithRestoreStructuredAgentSessionTabsOnce exten
 
   /** The caller owns the store write; this publishes only its current raw surface. */
   projectStructuredAgentSessionTab(input: StructuredSessionRawPublicationInput): void {
-    projectStructuredSessionTab(this, input, (snapshot) =>
-      this.emitMobileSessionTabsSnapshot(snapshot)
+    projectStructuredSessionTab(
+      this,
+      input,
+      (snapshot) => this.emitMobileSessionTabsSnapshot(snapshot),
+      this.getOrchestrationDbIfAvailable()
     )
   }
 

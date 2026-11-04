@@ -1,10 +1,11 @@
+import type { OrchestrationDb } from '../orchestration/db'
 import type { OrcaRuntimeService } from '../orca-runtime'
 import type {
   RuntimeMobileSessionAgentTab,
   RuntimeMobileSessionTabsSnapshot
 } from '../../../shared/runtime-types'
 import { defaultAgentChatLabel } from '../../../shared/agent-session/agent-session-chat-label'
-import { structuredWorkerIdentities } from '../structured-worker-identity'
+import { resolveStructuredWorkerIdentityForSession } from '../structured-worker-authority'
 import { getHeadlessMobileSessionGroupId } from '../mobile-session-layout-projection'
 import type { StructuredSessionSurface } from '../agent-session/structured-agent-session-close'
 import type { StructuredAgentId } from '../../../shared/agent-session/lifecycle/agent-session-provider-handle'
@@ -120,11 +121,23 @@ export type StructuredSessionRawPublicationInput = Pick<
 export function projectStructuredSessionTab(
   runtime: Pick<OrcaRuntimeService, 'mobileSessionTabsByWorktree' | 'storeMobileSessionSnapshot'>,
   input: StructuredSessionRawPublicationInput,
-  emit: (snapshot: RuntimeMobileSessionTabsSnapshot) => void
+  emit: (snapshot: RuntimeMobileSessionTabsSnapshot) => void,
+  db?: OrchestrationDb | null
 ): void {
-  const existing = runtime.mobileSessionTabsByWorktree.get(input.workspaceId)
+  let existing = runtime.mobileSessionTabsByWorktree.get(input.workspaceId)
+  // Why: after a restart the registry is cold; the durable row still says this chat is a worker.
+  const isWorker = Boolean(resolveStructuredWorkerIdentityForSession(input.sessionId, db))
   const id =
     input.tabId && isReopenedChatTabId(input.tabId) ? input.tabId : mobileChatTabId(input.sessionId)
+  if (isWorker && existing?.tabs.some((tab) => tab.id === id && tab.role !== 'worker')) {
+    // Reused tab that never got the marker (restored before the identity was known): mark it in place.
+    existing = {
+      ...existing,
+      snapshotVersion: existing.snapshotVersion + 1,
+      tabs: existing.tabs.map((tab) => (tab.id === id ? { ...tab, role: 'worker' as const } : tab))
+    }
+    emit(runtime.storeMobileSessionSnapshot(input.workspaceId, existing))
+  }
   if (existing?.tabs.some((tab) => tab.id === id)) {
     // Background republish does not write/emit; healing missing client mirrors needs activate or explicit republish.
     if (!input.activate) {
@@ -165,9 +178,7 @@ export function projectStructuredSessionTab(
     title: defaultAgentChatLabel(input.agent),
     sessionId: input.sessionId,
     agent: input.agent,
-    ...(structuredWorkerIdentities.getBySessionId(input.sessionId)
-      ? { role: 'worker' as const }
-      : {}),
+    ...(isWorker ? { role: 'worker' as const } : {}),
     isActive: input.activate
   }
   const tabs = [...(existing?.tabs ?? [])].map((candidate) => ({

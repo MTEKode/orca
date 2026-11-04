@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import type { OrchestrationDb } from '../orchestration/db'
 import type { RuntimeMobileSessionTabsSnapshot } from '../../../shared/runtime-types'
 import {
   mintStructuredWorkerHandle,
@@ -102,5 +103,32 @@ describe('structured session tab publication', () => {
 
     const tab = byWorktree.get(WORKSPACE)?.tabs[0]
     expect(tab).toMatchObject({ sessionId: 's-worker', role: 'worker', isActive: false })
+  })
+
+  it('marks a restored worker tab in place when the registry is cold and only the DB knows it', () => {
+    const { byWorktree, runtime } = publicationRuntime()
+    publish(runtime, () => {}, 's-worker') // restored tab, no identity yet
+    expect('role' in (byWorktree.get(WORKSPACE)!.tabs[0] ?? {})).toBe(false)
+    const row = {
+      handle: mintStructuredWorkerHandle(),
+      session_id: 's-worker',
+      process_incarnation: structuredWorkerProcessIncarnation('s-worker')
+    }
+    const db = {
+      getWorkerTerminalResourceByProcessIncarnation: () => row
+    } as unknown as OrchestrationDb
+    const rehydrated = vi
+      .spyOn(structuredWorkerIdentities, 'rehydrate')
+      .mockReturnValue({ sessionId: 's-worker' } as never)
+
+    projectStructuredSessionTab(
+      runtime,
+      { workspaceId: WORKSPACE, sessionId: 's-worker', agent: 'claude', activate: false },
+      () => {},
+      db
+    )
+
+    rehydrated.mockRestore()
+    expect(byWorktree.get(WORKSPACE)?.tabs[0]).toMatchObject({ role: 'worker' })
   })
 })
