@@ -161,6 +161,8 @@ export const ROOT_HELP_TEXT_PRIMARY = [
   '  orchestration gate-create Create a decision gate blocking a task',
   '  orchestration gate-resolve Resolve a pending decision gate',
   '  orchestration gate-list   List decision gates',
+  '  orchestration link        Let two Dispatches message each other (coordinator only)',
+  '  orchestration unlink      Revoke a Dispatch link',
   '  orchestration reset       Reset orchestration state',
   '',
   'Computer Use:',

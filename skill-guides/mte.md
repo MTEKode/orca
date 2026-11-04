@@ -77,9 +77,11 @@ validate and drive merging. You never edit code outside `.mte/`.
 
 Worker commands: `ORCA orchestration send --to dispatch:<dispatch_id> --subject
 "<topic>" --body "<message>"` works in any state; a finished worker gets it as a
-follow-up Task. Use `--worktree current` unless the user asks for another or
-sharing would conflict. If `worker-start` fails, do not rerun it; read
-`failedStage` and load `references/recovery-and-cleanup.md`. Lost track?
+follow-up Task. Workers only reach you; `link` two dispatches to let them
+coordinate directly (e.g. front/back); `unlink` revokes. Use `--worktree
+current` unless the user asks for another or sharing would conflict. If
+`worker-start` fails, do not rerun it; read `failedStage` and load
+`references/recovery-and-cleanup.md`. Lost track?
 `ORCA orchestration inbox --terminal run:<run_id> --limit 50`.
 
 Git safety: never rewrite history or force-push; never push without the user's

@@ -486,6 +486,7 @@ import {
   RunParams,
   RunStopParams
 } from './orchestration-gates-params'
+import { DispatchLinkParams } from './orchestration-link-params'
 import {
   AskParams,
   CheckParams,
@@ -1343,6 +1344,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'orchestration.gateList': GateListParams,
   'orchestration.gateResolve': GateResolveParams,
   'orchestration.inbox': InboxParams,
+  'orchestration.link': DispatchLinkParams,
   'orchestration.partyLocation': PartyLocationParams,
   'orchestration.reply': ReplyParams,
   'orchestration.requestShow': RequestShowParams,
@@ -1357,6 +1359,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'orchestration.sessionAddress': SessionAddressParams,
   'orchestration.taskCreate': TaskCreateParams,
   'orchestration.taskList': TaskListParams,
+  'orchestration.unlink': DispatchLinkParams,
   'orchestration.workerAbandon': WorkerDispatchParams,
   'orchestration.workerAutoClose': OrchestrationWorkerSubjectParams,
   'orchestration.workerChatTouch': OrchestrationWorkerSubjectParams,

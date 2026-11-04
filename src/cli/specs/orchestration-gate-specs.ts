@@ -25,5 +25,21 @@ export const ORCHESTRATION_GATE_COMMAND_SPECS: CommandSpec[] = [
     allowedFlags: [...GLOBAL_FLAGS, 'task', 'status', 'run', 'from'],
     identityFlagRoles: { from: 'caller' },
     notes: ['--run inspects a named Run without binding; otherwise gates are scoped to the caller.']
+  },
+  {
+    path: ['orchestration', 'link'],
+    summary: 'Let two Dispatches of this Run message each other directly',
+    usage: 'orca orchestration link --a <dispatch:id> --b <dispatch:id> [--from <handle>] [--json]',
+    allowedFlags: [...GLOBAL_FLAGS, 'a', 'b', 'from'],
+    identityFlagRoles: { from: 'caller' },
+    notes: ['Coordinator only. Workers otherwise reach only their orchestrator.']
+  },
+  {
+    path: ['orchestration', 'unlink'],
+    summary: 'Revoke a link between two Dispatches',
+    usage:
+      'orca orchestration unlink --a <dispatch:id> --b <dispatch:id> [--from <handle>] [--json]',
+    allowedFlags: [...GLOBAL_FLAGS, 'a', 'b', 'from'],
+    identityFlagRoles: { from: 'caller' }
   }
 ]

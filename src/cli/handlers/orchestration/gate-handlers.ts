@@ -6,6 +6,9 @@ import { callOrchestrationMutation } from './mutation-request'
 import { resolveCoordinatorTerminalHandle, runScopedSessionCaller } from './terminal-identity'
 
 export const ORCHESTRATION_GATE_HANDLERS: Record<string, CommandHandler> = {
+  'orchestration link': linkHandler('orchestration.link'),
+  'orchestration unlink': linkHandler('orchestration.unlink'),
+
   'orchestration gate-create': async ({ flags, client, cwd, json }) => {
     const result = await callOrchestrationMutation<{
       gate: { id: string; task_id: string; status: string }
@@ -83,6 +86,22 @@ export const ORCHESTRATION_GATE_HANDLERS: Record<string, CommandHandler> = {
         .map((gate) => `${gate.id} task=${gate.task_id} [${gate.status}] "${gate.question}"`)
         .join('\n')
     })
+  }
+}
+
+function linkHandler(method: 'orchestration.link' | 'orchestration.unlink'): CommandHandler {
+  return async ({ flags, client, cwd, json }) => {
+    const result = await client.call<{ a: string; b: string; linked: boolean; runId: string }>(
+      method,
+      {
+        a: getRequiredStringFlag(flags, 'a'),
+        b: getRequiredStringFlag(flags, 'b'),
+        from: await resolveCoordinatorTerminalHandle(flags, cwd, client)
+      }
+    )
+    printResult(result, json, (value) =>
+      value.linked ? `Linked ${value.a} <-> ${value.b}` : `Unlinked ${value.a} <-> ${value.b}`
+    )
   }
 }
 

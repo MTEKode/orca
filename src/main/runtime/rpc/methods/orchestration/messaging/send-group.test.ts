@@ -148,18 +148,23 @@ describe('orchestration.send group addresses', () => {
     expect(result.messages.map((m) => m.to_handle)).toEqual([`dispatch:${started.dispatch.id}`])
   })
 
-  it('lets a worker address its Run siblings with @all, excluding itself', async () => {
+  it('refuses a worker group ping; a coordinator link authorizes direct sibling mail', async () => {
     setupWithTerminals([makeSummary('term_coord'), makeSummary('term_a'), makeSummary('term_b')])
-    dispatchWorker('term_a')
+    const own = dispatchWorker('term_a')
     const sibling = dispatchWorker('term_b')
 
-    const result = (await call('orchestration.send', {
-      from: 'term_a',
-      to: '@all',
-      subject: 'sibling ping'
-    })) as GroupReceipt
+    await expect(
+      call('orchestration.send', { from: 'term_a', to: '@all', subject: 'sibling ping' })
+    ).rejects.toMatchObject({ code: 'not_allowed' })
 
-    expect(result.messages.map((m) => m.to_handle)).toEqual([`dispatch:${sibling}`])
+    db.linkDispatches({ runId: activeRunId!, a: own, b: sibling, createdBy: 'term_coord' })
+    await expect(
+      call('orchestration.send', {
+        from: 'term_a',
+        to: `dispatch:${sibling}`,
+        subject: 'linked ping'
+      })
+    ).resolves.toBeDefined()
   })
 
   it.each([false, true])(
@@ -555,7 +560,7 @@ describe('orchestration.send group addresses', () => {
     })
   })
   it.each(['@all', '@idle', '@codex'])(
-    'excludes an owning coordinator with a self-Dispatch from %s',
+    'refuses a worker group send toward an audience holding an owning coordinator with a self-Dispatch',
     async (to) => {
       setupWithTerminals(
         [
@@ -572,13 +577,11 @@ describe('orchestration.send group addresses', () => {
         coordinatorPaneKey
       )
       dispatchWorker('term_a')
-      const sibling = dispatchWorker('term_b')
-      const result = (await call('orchestration.send', {
-        from: 'term_a',
-        to,
-        subject: 'siblings only'
-      })) as GroupReceipt
-      expect(result.messages.map((m) => m.to_handle)).toEqual([`dispatch:${sibling}`])
+      dispatchWorker('term_b')
+      // Why: the ACL classifies the sender (a delegated worker), not the self-dispatch coordinator in the audience.
+      await expect(
+        call('orchestration.send', { from: 'term_a', to, subject: 'siblings only' })
+      ).rejects.toMatchObject({ code: 'not_allowed' })
       expect(db.getUnreadMessages(`run:${activeRunId}`)).toHaveLength(0)
     }
   )

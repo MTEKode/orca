@@ -26,6 +26,7 @@ import {
 } from '../../../orchestration-mutation-receipt'
 import { replayMutationNudge } from './mutation-replay-nudge'
 import { handBackReplayTargets } from '../../../../orchestration/db/messages/helper-mailbox-hand-back'
+import { assertWorkerMayAddress } from './worker-send-acl'
 import { sendRemoteMessage } from './send-remote'
 import { mayNameSession } from './session-recipient'
 import { sendPointToPointMessage } from './send-point-to-point'
@@ -190,6 +191,10 @@ export const ORCHESTRATION_SEND_METHODS = [
         if (recipient.warning) {
           sendWarnings.push(recipient.warning)
         }
+      }
+      // Only explicit recipients are policed; derived ones are lifecycle reports to the coordinator.
+      if (params.to) {
+        assertWorkerMayAddress(db, sender, to)
       }
       const withSendWarnings = <T extends object>(
         receipt: T
