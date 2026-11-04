@@ -188,6 +188,7 @@ export type RuntimeStore = {
     activeRuntimeEnvironmentId?: GlobalSettings['activeRuntimeEnvironmentId']
     showPinnedWorktreesInGroups?: GlobalSettings['showPinnedWorktreesInGroups']
     agentSkillSharingEnabled?: GlobalSettings['agentSkillSharingEnabled']
+    importedHarnessSkills?: GlobalSettings['importedHarnessSkills']
     nativeChatSessionOptions?: GlobalSettings['nativeChatSessionOptions']
     nativeChatPermissionMode?: GlobalSettings['nativeChatPermissionMode']
     nativeChatQueueFollowUps?: GlobalSettings['nativeChatQueueFollowUps']

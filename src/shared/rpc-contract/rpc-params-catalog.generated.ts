@@ -597,6 +597,8 @@ import {
   SkillsCancelInstallParams,
   SkillsDiscoverParams,
   SkillsGetInstallProgressParams,
+  SkillsImportApplyParams,
+  SkillsImportableListParams,
   SkillsUnifiedCatalogParams
 } from './skills-params'
 import {
@@ -1488,6 +1490,8 @@ export const RPC_PARAMS_BY_METHOD = {
   'skills.discover': SkillsDiscoverParams,
   'skills.executeBundledOrca': BundledSkillExecuteRequestSchema,
   'skills.getInstallProgress': SkillsGetInstallProgressParams,
+  'skills.importApply': SkillsImportApplyParams,
+  'skills.importableList': SkillsImportableListParams,
   'skills.install': SkillInstallRequestSchema,
   'skills.installBundle': SkillBundleInstallRequestSchema,
   'skills.listManagedInstalls': null,
