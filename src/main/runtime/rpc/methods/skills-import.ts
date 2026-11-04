@@ -3,7 +3,11 @@ import {
   SkillsImportApplyParams,
   SkillsImportableListParams
 } from '../../../../shared/rpc-contract/skills-params'
-import { applyImportSelection, listImportableSkills } from '../../../skills/harness-skill-import'
+import {
+  applyImportSelection,
+  HarnessSkillImportDisabledError,
+  listImportableSkills
+} from '../../../skills/harness-skill-import'
 
 /** Node-only: importing links skills from other harness homes into ~/.agents/skills. */
 export const SKILL_IMPORT_METHODS = [
@@ -24,8 +28,12 @@ export const SKILL_IMPORT_METHODS = [
     handler: async (params, { runtime }) => {
       const store = runtime.requireStore()
       const selected = [...new Set(params.selected)]
-      const skills = await applyImportSelection(selected)
-      const enabled = store.getSettings().importedHarnessSkills?.enabled === true
+      const current = store.getSettings().importedHarnessSkills
+      const enabled = current?.enabled === true
+      if (!enabled) {
+        throw new HarnessSkillImportDisabledError()
+      }
+      const skills = await applyImportSelection(selected, current?.selected)
       store.updateSettings?.(
         { importedHarnessSkills: { enabled, selected } },
         { notifyListeners: true }

@@ -98,7 +98,7 @@ describe('listImportableSkills', () => {
 
   it('keeps selected ids whose source vanished as broken', async () => {
     const source = await writeSkill('.claude', 'skills', 'gone')
-    await applyImportSelection(['claude-home:gone'], home)
+    await applyImportSelection(['claude-home:gone'], [], home)
     await rm(source, { recursive: true, force: true })
 
     expect(await listImportableSkills(['claude-home:gone'], home)).toEqual([
@@ -113,7 +113,7 @@ describe('applyImportSelection', () => {
     const repo = join(home, 'repo')
     await mkdir(repo, { recursive: true })
 
-    const applied = await applyImportSelection(['claude-home:review'], home)
+    const applied = await applyImportSelection(['claude-home:review'], [], home)
 
     expect(applied).toEqual([
       expect.objectContaining({ id: 'claude-home:review', state: 'linked' })
@@ -134,9 +134,9 @@ describe('applyImportSelection', () => {
 
   it('removes its own link when deselected', async () => {
     await writeSkill('.codex', 'skills', 'format')
-    await applyImportSelection(['codex:format'], home)
+    await applyImportSelection(['codex:format'], [], home)
 
-    const applied = await applyImportSelection([], home)
+    const applied = await applyImportSelection([], ['codex:format'], home)
 
     expect(applied).toEqual([expect.objectContaining({ id: 'codex:format', state: 'available' })])
     expect(await linkTarget(join(agentsRoot(), 'format'))).toBeNull()
@@ -144,10 +144,10 @@ describe('applyImportSelection', () => {
 
   it('removes a stale link whose external source vanished', async () => {
     const source = await writeSkill('.codex', 'skills', 'stale')
-    await applyImportSelection(['codex:stale'], home)
+    await applyImportSelection(['codex:stale'], [], home)
     await rm(source, { recursive: true, force: true })
 
-    await applyImportSelection([], home)
+    await applyImportSelection([], ['codex:stale'], home)
 
     expect(await linkTarget(join(agentsRoot(), 'stale'))).toBeNull()
   })
@@ -160,11 +160,33 @@ describe('applyImportSelection', () => {
     await mkdir(outside, { recursive: true })
     await symlink(outside, join(agentsRoot(), 'foreign'), 'dir')
 
-    await applyImportSelection(['claude-home:taken', 'codex:foreign'], home)
-    await applyImportSelection([], home)
+    await applyImportSelection(['claude-home:taken', 'codex:foreign'], [], home)
+    await applyImportSelection([], ['claude-home:taken', 'codex:foreign'], home)
 
     expect(await linkTarget(join(agentsRoot(), 'taken'))).toBeNull()
     expect((await lstat(join(agentsRoot(), 'taken'))).isDirectory()).toBe(true)
     expect(await linkTarget(join(agentsRoot(), 'foreign'))).toBe(outside)
+  })
+
+  it('keeps a hand-made link into a harness root when nothing was selected by Orca', async () => {
+    const source = await writeSkill('.claude', 'skills', 'mine')
+    await mkdir(agentsRoot(), { recursive: true })
+    await symlink(source, join(agentsRoot(), 'mine'), 'dir')
+
+    const applied = await applyImportSelection([], [], home)
+
+    expect(await linkTarget(join(agentsRoot(), 'mine'))).toBe(source)
+    expect(applied).toEqual([expect.objectContaining({ id: 'claude-home:mine', state: 'linked' })])
+  })
+
+  it('keeps a hand-made dangling link that is not in the ledger', async () => {
+    const source = await writeSkill('.claude', 'skills', 'gone')
+    await mkdir(agentsRoot(), { recursive: true })
+    await symlink(source, join(agentsRoot(), 'gone'), 'dir')
+    await rm(source, { recursive: true, force: true })
+
+    await applyImportSelection([], [], home)
+
+    expect(await linkTarget(join(agentsRoot(), 'gone'))).toBe(source)
   })
 })

@@ -1,4 +1,4 @@
-import { lstat, mkdir, readdir, readlink, realpath, symlink, unlink } from 'node:fs/promises'
+import { lstat, mkdir, readlink, realpath, symlink, unlink } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { basename, dirname, isAbsolute, join, resolve, sep } from 'node:path'
 import type { DiscoveredSkill } from '../../shared/skills'
@@ -181,14 +181,27 @@ function parseImportId(id: string): { origin: ImportableSkillOrigin; linkName: s
     : null
 }
 
-/** Make ~/.agents/skills links match `selected`; never touches real dirs or foreign symlinks. */
+export class HarnessSkillImportDisabledError extends Error {
+  readonly code = 'harness_skill_import_disabled'
+  constructor() {
+    super('Importing harness skills is disabled.')
+  }
+}
+
+/**
+ * Make ~/.agents/skills links match `selected`. `previous` is the ownership ledger: only links for
+ * names Orca selected before may be removed; hand-made links and real dirs are never touched.
+ */
 export async function applyImportSelection(
   selected: readonly string[],
+  previous: readonly string[] = [],
   homeDir: string = homedir()
 ): Promise<ImportableSkill[]> {
   const wanted = new Set(selected)
+  const ledger = new Set(previous.map((id) => parseImportId(id)?.linkName))
   const root = agentsRoot(homeDir)
-  for (const item of await listImportableSkills(selected, homeDir)) {
+  // Previously selected ids stay listed (broken when their source vanished) so dead links get dropped.
+  for (const item of await listImportableSkills([...selected, ...previous], homeDir)) {
     const linkName = parseImportId(item.id)?.linkName
     if (!linkName) {
       continue
@@ -200,31 +213,12 @@ export async function applyImportSelection(
         await symlink(item.sourcePath, linkPath, 'dir')
       }
     } else if (
+      ledger.has(linkName) &&
       (item.state === 'linked' || item.state === 'broken') &&
       (await isOwnedLink(linkPath, homeDir))
     ) {
       await unlink(linkPath)
     }
   }
-  // Links whose external source vanished are dead; drop them even when no selection mentions them.
-  for (const linkPath of await staleOwnedLinks(root, homeDir)) {
-    await unlink(linkPath)
-  }
   return listImportableSkills(selected, homeDir)
-}
-
-async function staleOwnedLinks(root: string, home: string): Promise<string[]> {
-  const entries = await readdir(root, { withFileTypes: true }).catch(() => [])
-  const stale: string[] = []
-  for (const entry of entries) {
-    const linkPath = join(root, entry.name)
-    if (
-      entry.isSymbolicLink() &&
-      (await real(linkPath)) === null &&
-      (await isOwnedLink(linkPath, home))
-    ) {
-      stale.push(linkPath)
-    }
-  }
-  return stale
 }
