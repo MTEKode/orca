@@ -1,3 +1,4 @@
+import type { MteWorkerPin } from '../../../shared/mte/worker-pin'
 import type { RunRow } from './types'
 import { isEquivalentPaneKey } from './db/pane-key-match'
 import { currentRunCoordinatorOrcaSessionId } from './db/runs/run-coordinator-orca-session'
@@ -23,6 +24,7 @@ export type OrchestrationSessionCaller = OrchestrationCallerIdentity &
     workspaceId: string
     /** From the session record: set only on chats the MTE start entry points launched. */
     mteRole?: 'planner'
+    mteWorker?: MteWorkerPin
   }>
 
 /** A caller with neither a pane nor an Orca session id can never be bound to a Run. */

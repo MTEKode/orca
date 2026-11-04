@@ -6,11 +6,11 @@ import { escapeTomlBasicString } from './toml/escape'
 import { readMcpServerTomlOwnership } from './toml/mcp-ownership'
 import { getMcpServerTomlSectionName, getTomlSections, joinTomlBlocks } from './toml/sections'
 
-export type WorkspaceMcpAdapter = 'claude' | 'opencode' | 'codex'
+export type WorkspaceMcpAdapter = 'claude' | 'opencode' | 'codex' | 'antigravity'
 
 export type WorkspaceMcpPlan = {
   adapter: WorkspaceMcpAdapter
-  /** Absolute path of the config file this adapter writes. */
+  /** Absolute path of the config file this adapter writes ('' when it writes none). */
   configPath: string
   /** File content to write, or null when the existing config is already correct. */
   nextContent: string | null
@@ -169,6 +169,9 @@ export function planWorkspaceMcpConfig(args: {
   const serverArgs =
     serverId === TOOLS_MCP_SERVER_ID ? TOOLS_MCP_SERVER_ARGS : memoryServerArgs(workspaceRoot)
   switch (args.adapter) {
+    case 'antigravity':
+      // No file: MCP servers are injected at ACP connection start.
+      return { adapter: 'antigravity', configPath: '', nextContent: null }
     case 'claude':
       return {
         adapter: 'claude',

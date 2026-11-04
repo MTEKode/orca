@@ -1,5 +1,6 @@
 // agent.launch shares desktop/mobile policy; absent --surface uses the host's Chat | CLI choice for the agent.
 
+import type { MteWorkerPin } from '../shared/mte/worker-pin'
 import { randomUUID } from 'node:crypto'
 import type { AgentLaunchPrompt, AgentLaunchResult } from '../shared/agent-launch-intent'
 import { AGENT_LAUNCH_SURFACES, type AgentLaunchSurface } from '../shared/agent-launch-surface'
@@ -39,6 +40,7 @@ export type CliAgentLaunch = {
   operationId?: string
   surface?: AgentLaunchSurface
   mteRole?: 'planner'
+  mteWorker?: MteWorkerPin
 }
 
 function readSurfaceFlag(flags: Flags): AgentLaunchSurface | undefined {

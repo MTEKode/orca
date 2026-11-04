@@ -23,4 +23,22 @@ describe('launchPlannerChat', () => {
     })
     expect(callAgentLaunch.mock.calls[0]?.[1]).toMatchObject({ mteRole: 'planner' })
   })
+
+  it('forwards the worker pin to agent.launch', async () => {
+    const { launchPlannerChat } = await import('./mte-start-launch')
+    const worker = { agent: 'opencode', model: 'qwen3.8' } as const
+    await launchPlannerChat({
+      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: test double carries only isRemote.
+      client: { isRemote: false } as never,
+      agent: 'claude',
+      prompt: 'p',
+      worktreePath: '/tmp/w',
+      cwd: '/tmp',
+      worker
+    })
+    expect(callAgentLaunch.mock.calls.at(-1)?.[1]).toMatchObject({
+      mteRole: 'planner',
+      mteWorker: worker
+    })
+  })
 })

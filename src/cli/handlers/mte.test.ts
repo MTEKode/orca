@@ -154,6 +154,49 @@ describe('resolveMteStartInvocation', () => {
     expect(resolveMteStartInvocation(flags([['agent', true]]), root).ok).toBe(false)
   })
 
+  it('resolves a worker pin, planner model/effort and a pinned prompt', () => {
+    const inv = resolveMteStartInvocation(
+      flags([
+        ['agent', 'claude'],
+        ['model', 'opus'],
+        ['effort', 'high'],
+        ['worker-agent', 'opencode'],
+        ['worker-model', 'qwen3.8']
+      ]),
+      root
+    )
+    expect(inv).toMatchObject({
+      ok: true,
+      model: 'opus',
+      effort: 'high',
+      worker: { agent: 'opencode', model: 'qwen3.8' }
+    })
+  })
+
+  it('rejects worker model/effort without agent and unknown worker agents', () => {
+    expect(
+      resolveMteStartInvocation(
+        flags([
+          ['agent', 'claude'],
+          ['worker-effort', 'low']
+        ]),
+        root
+      )
+    ).toMatchObject({ ok: false, message: expect.stringContaining('--worker-agent') })
+    expect(
+      resolveMteStartInvocation(
+        flags([
+          ['agent', 'claude'],
+          ['worker-agent', 'cursor']
+        ]),
+        root
+      )
+    ).toMatchObject({
+      ok: false,
+      message: expect.stringContaining('claude, codex, opencode, antigravity')
+    })
+  })
+
   it('rejects an unknown adapter and a valueless or blank goal', () => {
     expect(
       resolveMteStartInvocation(

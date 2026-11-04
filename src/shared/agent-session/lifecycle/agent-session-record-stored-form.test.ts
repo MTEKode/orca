@@ -494,4 +494,16 @@ describe('mteRole record marker', () => {
     expect(isPersistedAgentSessionRecord(stored)).toBe(true)
     expect(isPersistedAgentSessionRecord({ ...stored, mteRole: 'worker' })).toBe(false)
   })
+
+  it('round-trips mteWorker and rejects an invalid pin', () => {
+    const worker = { agent: 'opencode' as const, model: 'qwen3.8' }
+    const marked: AgentSessionRecord = {
+      ...agentSessionRecordFixture(),
+      mteRole: 'planner',
+      mteWorker: worker
+    }
+    const stored = JSON.parse(JSON.stringify(encodeAgentSessionRecord(marked)))
+    expect(decodePersistedAgentSessionRecord(stored).record.mteWorker).toEqual(worker)
+    expect(isPersistedAgentSessionRecord({ ...stored, mteWorker: { agent: 'cursor' } })).toBe(false)
+  })
 })

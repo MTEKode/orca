@@ -3,6 +3,7 @@ import { readOrcaCliVersion } from '../cli-version'
 import type { CommandHandler } from '../dispatch'
 import type { RuntimeClient } from '../runtime-client'
 import { errorMessage } from '../../shared/error-message'
+import type { MteWorkerPin } from '../../shared/mte/worker-pin'
 import { MTE_START_DEFAULT_GOAL, plannerKickoffPrompt } from '../../shared/mte/planner-prompt'
 import {
   applyWorkspaceMcpConfig,
@@ -24,6 +25,7 @@ import {
   type MteStartLaunch,
   type MteStartLaunchOutcome
 } from './mte-start-launch'
+import { readOptionalStringFlags, resolveWorkerPin } from './mte-start-worker-flags'
 import { runMteCheck } from './mte-check'
 import { MTE_DEPLOY_CHECK_HANDLERS } from './mte-deploy-check'
 
@@ -74,7 +76,7 @@ function refuseUsage(message: string): void {
   process.exitCode = 1
 }
 
-const MTE_START_ADAPTERS = ['claude', 'opencode', 'codex'] as const
+const MTE_START_ADAPTERS = ['claude', 'opencode', 'codex', 'antigravity'] as const
 
 export { MTE_START_DEFAULT_GOAL }
 
@@ -97,6 +99,9 @@ export type MteStartInvocation =
       workspaceRoot: string
       goal: string
       adapter: WorkspaceMcpAdapter
+      model?: string
+      effort?: string
+      worker?: MteWorkerPin
     }
   | { ok: false; message: string }
 
@@ -129,16 +134,42 @@ export function resolveMteStartInvocation(
   if (adapterFlag !== undefined) {
     const parsed = parseStartAdapterFlag(adapterFlag)
     if (parsed === null) {
-      return { ok: false, message: '--adapter must be one of: claude, opencode, codex' }
+      return {
+        ok: false,
+        message: '--adapter must be one of: claude, opencode, codex, antigravity'
+      }
     }
     adapter = parsed
+  }
+  const optional = readOptionalStringFlags(flags, [
+    'model',
+    'effort',
+    'worker-agent',
+    'worker-model',
+    'worker-effort'
+  ])
+  if (typeof optional === 'string') {
+    return { ok: false, message: optional }
+  }
+  const worker = resolveWorkerPin(optional)
+  if (typeof worker === 'string') {
+    return { ok: false, message: worker }
   }
   const workspaceRoot = realMemoryWorkspacePath(
     typeof workspaceFlag === 'string' && workspaceFlag.length > 0
       ? resolvePath(workspaceFlag)
       : resolveMemoryWorkspaceRoot(cwd)
   )
-  return { ok: true, agent, workspaceRoot, goal, adapter }
+  return {
+    ok: true,
+    agent,
+    workspaceRoot,
+    goal,
+    adapter,
+    ...(optional.model ? { model: optional.model } : {}),
+    ...(optional.effort ? { effort: optional.effort } : {}),
+    ...(worker ? { worker } : {})
+  }
 }
 
 export { resolveMteStartCliCommand }
@@ -183,9 +214,12 @@ export async function runMteStart(
     const launchArgs = {
       client: ctx.client,
       agent: invocation.agent,
-      prompt: plannerKickoffPrompt(invocation.goal),
+      prompt: plannerKickoffPrompt(invocation.goal, invocation.worker),
       worktreePath: invocation.workspaceRoot,
-      cwd: ctx.cwd
+      cwd: ctx.cwd,
+      ...(invocation.model ? { model: invocation.model } : {}),
+      ...(invocation.effort ? { effort: invocation.effort } : {}),
+      ...(invocation.worker ? { worker: invocation.worker } : {})
     }
     let launchRetry: 'repo-add' | undefined
     let outcome: MteStartLaunchOutcome

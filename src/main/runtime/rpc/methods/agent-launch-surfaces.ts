@@ -54,6 +54,7 @@ export function agentLaunchSurfaceFactory(
       options,
       chatOptions,
       mteRole,
+      mteWorker,
       sessionId: requested,
       tabId,
       withoutPrompt,
@@ -114,7 +115,10 @@ export function agentLaunchSurfaceFactory(
         )
       }
       if (mteRole) {
-        await getStructuredAgentSessionHost()?.deps.store.markMtePlanner(created.value.sessionId)
+        await getStructuredAgentSessionHost()?.deps.store.markMtePlanner(
+          created.value.sessionId,
+          mteWorker
+        )
       }
       return {
         sessionId: created.value.sessionId,

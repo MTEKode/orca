@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { MTE_PLANNER_PROMPT, plannerKickoffPrompt } from './planner-prompt'
+import { MTE_PLANNER_PROMPT, mtePlannerPrompt, plannerKickoffPrompt } from './planner-prompt'
 
 describe('MTE_PLANNER_PROMPT', () => {
   it('states the Lead Architect role and the .mte-only edit boundary', () => {
@@ -103,5 +103,28 @@ describe('plannerKickoffPrompt', () => {
       expect(MTE_PLANNER_PROMPT).toContain(fragment)
     }
     expect(MTE_PLANNER_PROMPT).not.toContain('| claude |')
+  })
+})
+
+describe('worker-pinned planner prompt', () => {
+  const pin = { agent: 'opencode', model: 'qwen3.8', effort: 'medium' } as const
+
+  it('pins agent/model/effort and drops the session-start question', () => {
+    const prompt = plannerKickoffPrompt('x', pin)
+    expect(prompt).toContain('## Session start (worker pinned)')
+    expect(prompt).toContain('`--agent opencode` `--model qwen3.8` `--effort medium`')
+    expect(prompt).toContain('Never ask which agent runs the workers')
+    expect(prompt).not.toContain('which agent runs the workers for this session')
+    expect(prompt).not.toContain('ask the session-start question')
+    expect(prompt).toContain('Start now: run the requirement interview for this goal.')
+  })
+
+  it('omits unset model/effort flags', () => {
+    expect(mtePlannerPrompt({ agent: 'claude' })).not.toContain('--model')
+  })
+
+  it('leaves the unpinned prompt unchanged', () => {
+    expect(mtePlannerPrompt()).toBe(MTE_PLANNER_PROMPT)
+    expect(plannerKickoffPrompt('x')).toContain('ask the session-start question above')
   })
 })

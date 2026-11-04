@@ -1,3 +1,4 @@
+import type { MteWorkerPin } from '../../shared/mte/worker-pin'
 import type { RuntimeClient } from '../runtime-client'
 import { RuntimeClientError } from '../runtime/types'
 import {
@@ -16,6 +17,9 @@ export type MteStartLaunchArgs = {
   prompt: string
   worktreePath: string
   cwd: string
+  model?: string
+  effort?: string
+  worker?: MteWorkerPin
 }
 
 export type MteStartLaunchOutcome = {
@@ -31,14 +35,17 @@ export async function launchPlannerChat(args: MteStartLaunchArgs): Promise<MteSt
     throw new RuntimeClientError('invalid_argument', 'orca mte start runs on the local host only.')
   }
   const agent = parseCliAgent(args.agent)
-  const launch = readCliAgentLaunch(
-    new Map<string, string | boolean>([
-      ['prompt', args.prompt],
-      ['surface', 'chat']
-    ]),
-    agent,
-    { createsWorktree: false }
-  )
+  const launchFlags = new Map<string, string | boolean>([
+    ['prompt', args.prompt],
+    ['surface', 'chat']
+  ])
+  if (args.model) {
+    launchFlags.set('model', args.model)
+  }
+  if (args.effort) {
+    launchFlags.set('effort', args.effort)
+  }
+  const launch = readCliAgentLaunch(launchFlags, agent, { createsWorktree: false })
   const worktree = await getRequiredWorktreeSelector(
     new Map<string, string | boolean>([['worktree', `path:${args.worktreePath}`]]),
     'worktree',
@@ -54,7 +61,7 @@ export async function launchPlannerChat(args: MteStartLaunchArgs): Promise<MteSt
   }
   const result = await callAgentLaunch(
     args.client,
-    { ...launch, mteRole: 'planner' },
+    { ...launch, mteRole: 'planner', ...(args.worker ? { mteWorker: args.worker } : {}) },
     { target: { kind: 'existing', worktree }, presentation: 'background' },
     capabilities
   )
