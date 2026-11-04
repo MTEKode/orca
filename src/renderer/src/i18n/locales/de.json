@@ -4273,18 +4273,12 @@
           },
           "TabBar": {
             "b1a132357f": "Neuen Tab erstellen",
-            "4f327c8b3d": "Markdown öffnen…",
             "3d5d6c960d": "Neue Markdown-Datei erstellen",
             "fd2b42aaa3": "Neuen Mobilgeräte-Emulator erstellen",
             "aea43b5748": "Den vorhandenen Emulator-Tab öffnen.",
             "b426bb2615": "Zum Mobilgeräte-Emulator wechseln",
             "4833fb2cbe": "Neuen Browser-Tab öffnen",
             "d364f3c8d4": "Neues Terminal öffnen",
-            "7c1313d237": "Neues Terminal:",
-            "d1afac112b": "WSL",
-            "efb33546ff": "Git Bash",
-            "1a8af49530": "CMD-Eingabeaufforderung",
-            "2148f65e04": "PowerShell",
             "7a9b4af2af": "Tabs nach links scrollen",
             "232e075b07": "Tabs nach rechts scrollen"
           },
@@ -4292,7 +4286,6 @@
             "d62d63b807": "Datei erstellen",
             "25dc1cd653": "Datei öffnen",
             "7cdf8ee0c8": "URL öffnen",
-            "b27864279e": "Agenten starten",
             "8f0a1c4d92": "Zum Tab wechseln",
             "2c38630a01": "Arbeitsbereich existiert nicht mehr",
             "4f0d9a71c2": "Tab existiert nicht mehr",
@@ -4300,8 +4293,7 @@
             "7726ce9970": "Tab des Mobilgeräte-Emulators existiert nicht mehr",
             "chooseAction": "Eine Aktion auswählen.",
             "searchProvider": "Mit {{value0}} suchen",
-            "openPage": "Seite öffnen",
-            "omniboxPlaceholderWithHistory": "Offene Tabs, Verlauf, Dateien, URLs und Agenten suchen…"
+            "openPage": "Seite öffnen"
           },
           "TabBarQuickCommandsButton": {
             "a2c7a33831": "Befehl",
@@ -4357,8 +4349,6 @@
                   "fb50e3d874": "Markdown-Datei erstellen",
                   "6d8b6b4117": "Neue Datei erstellen",
                   "b330f72434": "mark",
-                  "37ff3ddca1": "Markdown-Datei öffnen",
-                  "164c394bab": "Datei öffnen",
                   "bbaf4f85a4": "Mobilgeräte-Emulator",
                   "3784b83bd4": "Emulator",
                   "a63847a742": "Simulator",

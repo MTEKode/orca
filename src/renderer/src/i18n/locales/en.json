@@ -1347,8 +1347,8 @@
           "localBaseRefRefreshFailedForWorktree": "Local {{value0}} was not refreshed for \"{{value1}}\"",
           "903b51c2ed": "Workspace created from {{value0}}, but Orca could not fast-forward local {{value1}}. {{value2}}",
           "localBaseRefRefreshFailedDescriptionNamed": "Workspace \"{{value0}}\" was created from {{value1}}, but Orca could not fast-forward local {{value2}}. {{value3}}",
-          "localBaseRefRefreshFailedDetailDirtyNamed": "The worktree at {{value0}} (where local {{value1}} is checked out) has uncommitted changes. Commit, stash, or discard those changes, then update local {{value1}} manually.",
-          "localBaseRefRefreshFailedDetailDirty": "The worktree where local {{value0}} is checked out has uncommitted changes. Commit, stash, or discard those changes, then update local {{value0}} manually.",
+          "localBaseRefRefreshFailedDetailDirtyNamed": "The worktree at {{value0}} (where local {{value1}} is checked out) has untracked files that block the update. Move or delete those files, then update local {{value1}} manually.",
+          "localBaseRefRefreshFailedDetailDirty": "The worktree where local {{value0}} is checked out has untracked files that block the update. Move or delete those files, then update local {{value0}} manually.",
           "localBaseRefRefreshFailedDetailNotFastForward": "Local {{value0}} does not exist or cannot be fast-forwarded cleanly from the remote base. Check for local-only commits before updating it manually.",
           "localBaseRefRefreshFailedDetailError": "Git returned an error while updating local {{value0}}. Check the repo for locked refs or unusual worktree state, then update local {{value0}} manually.",
           "localBaseRefShallowHistoryTitle": "Local {{value0}} not updated: shallow clone",
@@ -4418,18 +4418,12 @@
           },
           "TabBar": {
             "b1a132357f": "New tab",
-            "4f327c8b3d": "Open Markdown...",
             "3d5d6c960d": "New Markdown",
             "fd2b42aaa3": "New Mobile Emulator",
             "aea43b5748": "Open the existing emulator tab.",
             "b426bb2615": "Go to Mobile Emulator",
             "4833fb2cbe": "New Browser Tab",
             "d364f3c8d4": "New Terminal",
-            "7c1313d237": "New Terminal:",
-            "d1afac112b": "WSL",
-            "efb33546ff": "Git Bash",
-            "1a8af49530": "CMD Prompt",
-            "2148f65e04": "PowerShell",
             "7a9b4af2af": "Scroll tabs left",
             "232e075b07": "Scroll tabs right"
           },
@@ -4437,7 +4431,6 @@
             "d62d63b807": "Create file",
             "25dc1cd653": "Open file",
             "7cdf8ee0c8": "Open URL",
-            "b27864279e": "Launch agent",
             "8f0a1c4d92": "Switch to tab",
             "2c38630a01": "Workspace no longer exists",
             "4f0d9a71c2": "Tab no longer exists",
@@ -4446,7 +4439,7 @@
             "chooseAction": "Choose an action.",
             "searchProvider": "Search {{value0}}",
             "openPage": "Open page",
-            "omniboxPlaceholderWithHistory": "Search open tabs, history, files, URLs, agents…"
+            "omniboxPlaceholderNoAgents": "Search open tabs, history, files, URLs…"
           },
           "TabBarQuickCommandsButton": {
             "a2c7a33831": "Command",
@@ -4502,8 +4495,6 @@
                   "fb50e3d874": "new markdown",
                   "6d8b6b4117": "new file",
                   "b330f72434": "mark",
-                  "37ff3ddca1": "open markdown",
-                  "164c394bab": "open file",
                   "bbaf4f85a4": "mobile emulator",
                   "3784b83bd4": "emulator",
                   "a63847a742": "simulator",
@@ -19846,7 +19837,12 @@
           "xhigh": "XHigh"
         },
         "imageUnavailable": "Preview unavailable",
-        "removeDiffComment": "Remove comment on {{path}} lines {{lines}}"
+        "removeDiffComment": "Remove comment on {{path}} lines {{lines}}",
+        "agentLabel": {
+          "orchestrator": "Orchestrator",
+          "worker": "Worker",
+          "agent": "Agent"
+        }
       },
       "tool": {
         "exitCode": "exit {{value0}}",
@@ -23704,6 +23700,10 @@
     "effort": "Effort",
     "catalogFallback": "Model list may be incomplete",
     "cancel": "Cancel",
-    "start": "Start"
+    "start": "Start",
+    "menuItem": "New Chat",
+    "menuKeywordChat": "chat",
+    "menuKeywordAgent": "agent",
+    "menuKeywordNewChat": "new chat"
   }
 }

@@ -13,7 +13,6 @@ import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react
 import { afterEach, beforeAll, expect, it, vi } from 'vitest'
 import { AgentLaunchPickerMenu } from '@/components/agent/AgentLaunchPickerMenu'
 import { useTabAgentMenuLaunch } from '@/components/tab-bar/QuickLaunchButton'
-import TabBarCreateEntry from '@/components/tab-bar/TabBarCreateEntry'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import {
   DropdownMenu,
@@ -73,13 +72,7 @@ afterEach(() => {
   resetStructuredAgentLaunchPersistenceForTests()
 })
 
-function Menu({
-  route,
-  selected = entry
-}: {
-  route: 'menu' | 'search'
-  selected?: AgentPickerEntry
-}) {
+function Menu({ selected = entry }: { selected?: AgentPickerEntry }) {
   const launch = useTabAgentMenuLaunch({
     worktreeId: 'wt-1',
     groupId: 'group-1',
@@ -87,25 +80,12 @@ function Menu({
   })
   return (
     <TooltipProvider>
-      {route === 'search' ? (
-        <TabBarCreateEntry
-          worktreeId="wt-1"
-          groupId="group-1"
-          menuOpen
-          agentPickerEntries={[selected]}
-          onOpenEntry={async () => {}}
-          onLaunchAgentOption={(option) =>
-            option.row ? launch(option.row, option.setup, option.pickerEntry) : false
-          }
-        />
-      ) : (
-        <DropdownMenu defaultOpen modal={false}>
-          <DropdownMenuTrigger>New tab</DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <AgentLaunchPickerMenu entries={[selected]} runLaunch={launch} />
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+      <DropdownMenu defaultOpen modal={false}>
+        <DropdownMenuTrigger>New tab</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <AgentLaunchPickerMenu entries={[selected]} runLaunch={launch} />
+        </DropdownMenuContent>
+      </DropdownMenu>
     </TooltipProvider>
   )
 }
@@ -117,13 +97,9 @@ function button(name: string): HTMLButtonElement {
   return [...document.querySelectorAll('button')].find((button) => button.textContent === name)!
 }
 
-it.each(
-  (['menu', 'search'] as const).flatMap((route) =>
-    (['claude', 'codex'] as const).map((agent) => ({ route, agent }))
-  )
-)(
-  'preserves refused $route $agent setup prompts and selected skill paths through the actual terminal launcher',
-  async ({ route, agent }) => {
+it.each(['claude', 'codex'] as const)(
+  'preserves refused %s setup prompts and selected skill paths through the actual terminal launcher',
+  async (agent) => {
     const selected: AgentPickerEntry = {
       ...entry,
       agent,
@@ -135,12 +111,7 @@ it.each(
     const dispatch = vi
       .spyOn(launcher, 'launchAgentInNewTab')
       .mockImplementation((args) => actualLaunch({ ...args, launchPlatform: 'win32' }))
-    const view = render(<Menu route={route} selected={selected} />)
-    if (route === 'search') {
-      fireEvent.change(view.container.querySelector('input')!, {
-        target: { value: 'launch-model' }
-      })
-    }
+    render(<Menu selected={selected} />)
     fireEvent.click(document.querySelector(`button[aria-label="Configure ${selected.label}"]`)!)
     const argumentsInput = document.querySelector('textarea[aria-label="Arguments"]')!
     fireEvent.change(argumentsInput, { target: { value: '--model "unterminated' } })
@@ -211,7 +182,7 @@ it('keeps direct row launch empty even when that workspace has an unsent launch 
   const dispatch = vi
     .spyOn(launcher, 'launchAgentInNewTab')
     .mockImplementation((args) => actualLaunch({ ...args, launchPlatform: 'win32' }))
-  render(<Menu route="menu" />)
+  render(<Menu />)
   fireEvent.click(document.querySelector('[role="menuitem"]')!)
   expect(mockCreateTab).toHaveBeenCalledOnce()
   expect(dispatch.mock.calls[0][0].prompt).toBeUndefined()
@@ -268,7 +239,7 @@ it.each([true, false])(
     const dispatch = vi
       .spyOn(launcher, 'launchAgentInNewTab')
       .mockImplementation((args) => actualLaunch({ ...args, launchPlatform: 'linux' }))
-    render(<Menu route="menu" selected={selected} />)
+    render(<Menu selected={selected} />)
     fireEvent.click(document.querySelector('button[aria-label="Configure Codex"]')!)
     act(() =>
       promptEditor(editor()).commands.setContent({
@@ -325,7 +296,7 @@ it('holds an actual clipboard-image paste until its save settles before launchin
   const dispatch = vi
     .spyOn(launcher, 'launchAgentInNewTab')
     .mockImplementation((args) => actualLaunch({ ...args, launchPlatform: 'linux' }))
-  render(<Menu route="menu" />)
+  render(<Menu />)
   fireEvent.click(document.querySelector('button[aria-label="Configure Claude"]')!)
   let finishSave: (path: string) => void = () => {}
   const save = vi.fn(
@@ -378,13 +349,13 @@ import * as runtimeRpc from '@/runtime/runtime-rpc-client'
 import type { RuntimeRpcResponse } from '../../../shared/runtime-rpc-envelope'
 
 it.each([
-  { route: 'menu' as const, agent: 'claude' as const, failure: 'preferences' },
-  { route: 'search' as const, agent: 'codex' as const, failure: 'create' },
-  { route: 'search' as const, agent: 'claude' as const, failure: 'unknown' },
-  { route: 'menu' as const, agent: 'codex' as const, failure: 'paste' }
+  { agent: 'claude' as const, failure: 'preferences' },
+  { agent: 'codex' as const, failure: 'create' },
+  { agent: 'claude' as const, failure: 'unknown' },
+  { agent: 'codex' as const, failure: 'paste' }
 ])(
-  'recovers deferred $failure through $route $agent setup then explicitly retries once',
-  async ({ route, agent, failure }) => {
+  'recovers deferred $failure through $agent setup then explicitly retries once',
+  async ({ agent, failure }) => {
     const selected: AgentPickerEntry = {
       ...entry,
       agent,
@@ -424,12 +395,7 @@ it.each([
       create.mockImplementationOnce(actualCreate)
     }
     liveStore().setState({ setActiveWorktree: vi.fn() })
-    const view = render(<Menu route={route} selected={selected} />)
-    if (route === 'search') {
-      fireEvent.change(view.container.querySelector('input')!, {
-        target: { value: 'launch-model' }
-      })
-    }
+    const view = render(<Menu selected={selected} />)
     fireEvent.click(document.querySelector(`button[aria-label="Configure ${selected.label}"]`)!)
     changePrompt(editor(), 'review @/repo/file')
     await act(async () => button('Launch terminal').click())
@@ -477,12 +443,7 @@ it.each([
     })
     create.mockResolvedValue({ outcome: { status: 'created' }, hostTabId: 'accepted' })
     mockPasteDraftWhenAgentReady.mockResolvedValue(true)
-    const retry = render(<Menu route={route} selected={selected} />)
-    if (route === 'search') {
-      fireEvent.change(retry.container.querySelector('input')!, {
-        target: { value: 'launch-model' }
-      })
-    }
+    render(<Menu selected={selected} />)
     fireEvent.click(document.querySelector(`button[aria-label="Configure ${selected.label}"]`)!)
     expect(editor().textContent).toContain('review @/repo/file')
     await act(async () => button('Launch terminal').click())
@@ -496,8 +457,7 @@ it.each([
 
 it('returns setup input when explicit chat is refused before session admission', async () => {
   mockCreateSupport.mockResolvedValue({ supported: false, reason: 'Not available here' })
-  render(<Menu route="search" />)
-  fireEvent.change(document.querySelector('input')!, { target: { value: 'launch-model' } })
+  render(<Menu />)
   fireEvent.click(document.querySelector('button[aria-label="Configure Claude"]')!)
   changePrompt(editor(), 'task before any session')
   await act(async () => button('Launch chat').click())
@@ -517,7 +477,7 @@ it.each(['auto-submit', 'draft'] as const)(
     const dispatch = vi
       .spyOn(launcher, 'launchAgentInNewTab')
       .mockImplementation((args) => actual({ ...args, promptDelivery }))
-    render(<Menu route="menu" />)
+    render(<Menu />)
     fireEvent.click(document.querySelector('button[aria-label="Configure Claude"]')!)
     changePrompt(editor(), 'local prompt')
     await act(async () => button('Launch terminal').click())

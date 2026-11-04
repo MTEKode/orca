@@ -16955,8 +16955,6 @@
                   "fb50e3d874": "novo markdown",
                   "6d8b6b4117": "novo arquivo",
                   "b330f72434": "mark",
-                  "37ff3ddca1": "abrir markdown",
-                  "164c394bab": "abrir arquivo",
                   "bbaf4f85a4": "emulador móvel",
                   "3784b83bd4": "emulador",
                   "a63847a742": "simulador",
@@ -17024,18 +17022,12 @@
           },
           "TabBar": {
             "b1a132357f": "Nova aba",
-            "4f327c8b3d": "Abrir Markdown...",
             "3d5d6c960d": "Novo Markdown",
             "fd2b42aaa3": "Novo Emulador Móvel",
             "aea43b5748": "Abra a aba do emulador existente.",
             "b426bb2615": "Ir para o Emulador Móvel",
             "4833fb2cbe": "Nova Aba do Navegador",
             "d364f3c8d4": "Novo Terminal",
-            "7c1313d237": "Novo Terminal:",
-            "d1afac112b": "WSL",
-            "efb33546ff": "Git Bash",
-            "1a8af49530": "Prompt CMD",
-            "2148f65e04": "PowerShell",
             "7a9b4af2af": "Rolar abas para a esquerda",
             "232e075b07": "Rolar abas para a direita"
           },
@@ -17043,7 +17035,6 @@
             "d62d63b807": "Criar arquivo",
             "25dc1cd653": "Abrir arquivo",
             "7cdf8ee0c8": "Abrir URL",
-            "b27864279e": "Iniciar agente",
             "8f0a1c4d92": "Mudar para a aba",
             "2c38630a01": "O espaço de trabalho não existe mais",
             "4f0d9a71c2": "A aba não existe mais",
@@ -17051,8 +17042,7 @@
             "7726ce9970": "A aba do emulador móvel não existe mais",
             "chooseAction": "Escolha uma ação.",
             "searchProvider": "Buscar {{value0}}",
-            "openPage": "Abrir página",
-            "omniboxPlaceholderWithHistory": "Buscar abas abertas, histórico, arquivos, URLs, agentes…"
+            "openPage": "Abrir página"
           },
           "BrowserTab": {
             "6e0bc8f3a8": "Abrir no Navegador",

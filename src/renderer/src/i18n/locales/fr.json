@@ -4061,18 +4061,12 @@
           },
           "TabBar": {
             "b1a132357f": "Nouvel onglet",
-            "4f327c8b3d": "Ouvrir un Markdown...",
             "3d5d6c960d": "Nouveau Markdown",
             "fd2b42aaa3": "Nouvel émulateur mobile",
             "aea43b5748": "Ouvrir l'onglet émulateur existant.",
             "b426bb2615": "Aller à l'émulateur mobile",
             "4833fb2cbe": "Nouvel onglet de navigateur",
             "d364f3c8d4": "Nouveau terminal",
-            "7c1313d237": "Nouveau terminal :",
-            "d1afac112b": "WSL",
-            "efb33546ff": "Git Bash",
-            "1a8af49530": "Invite CMD",
-            "2148f65e04": "PowerShell",
             "7a9b4af2af": "Faire défiler les onglets vers la gauche",
             "232e075b07": "Faire défiler les onglets vers la droite"
           },
@@ -4080,7 +4074,6 @@
             "d62d63b807": "Créer un fichier",
             "25dc1cd653": "Ouvrir le fichier",
             "7cdf8ee0c8": "Ouvrir une URL",
-            "b27864279e": "Lancer un agent",
             "8f0a1c4d92": "Basculer vers l'onglet",
             "2c38630a01": "L'espace de travail n'existe plus",
             "4f0d9a71c2": "L'onglet n'existe plus",
@@ -4088,8 +4081,7 @@
             "7726ce9970": "L'onglet émulateur mobile n'existe plus",
             "chooseAction": "Choisissez une action.",
             "searchProvider": "Rechercher {{value0}}",
-            "openPage": "Ouvrir la page",
-            "omniboxPlaceholderWithHistory": "Recherchez les onglets ouverts, l’historique, les fichiers, les URL, les agents…"
+            "openPage": "Ouvrir la page"
           },
           "TabBarQuickCommandsButton": {
             "a2c7a33831": "Commande",
@@ -4145,8 +4137,6 @@
                   "fb50e3d874": "nouveau markdown",
                   "6d8b6b4117": "nouveau fichier",
                   "b330f72434": "mark",
-                  "37ff3ddca1": "ouvrir un markdown",
-                  "164c394bab": "ouvrir un fichier",
                   "bbaf4f85a4": "émulateur mobile",
                   "3784b83bd4": "émulateur",
                   "a63847a742": "simulateur",

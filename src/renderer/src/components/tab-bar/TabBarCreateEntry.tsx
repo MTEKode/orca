@@ -173,7 +173,7 @@ function TabBarCreateEntrySession({
 
   const submitOption = (option?: ActiveOption) => {
     if (disabled || pending) {
-      return false
+      return
     }
     const selectedOption = option ?? selectedActiveOption ?? null
     if (!selectedOption) {
