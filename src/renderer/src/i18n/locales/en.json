@@ -23681,16 +23681,11 @@
   },
   "mte": {
     "start": {
-      "title": "Start this chat with MTE orchestration?",
-      "description": "MTE is a planner → coder → validator loop. The planner interviews you about the goal, locks the requirements, writes task specs, dispatches coder agents and validates each result before merging. Orca writes the MTE tool config into this workspace first.",
       "goalLabel": "Goal",
       "goalPlaceholder": "What should this run deliver? Leave empty and the planner will ask.",
       "linksLabel": "Linked Linear issues and pull requests",
       "noLinks": "Nothing linked to this workspace yet.",
-      "linkPlaceholder": "Add by identifier or URL: ENG-123, #45, https://…",
-      "dontAskAgain": "Don't ask again for this project",
-      "plainChat": "Plain chat",
-      "useMte": "MTE orchestration"
+      "linkPlaceholder": "Add by identifier or URL: ENG-123, #45, https://…"
     },
     "prepare": {
       "failed": "Could not prepare MTE: {{message}}"
@@ -23698,5 +23693,17 @@
     "planner": {
       "started": "MTE planner started in {{agent}}"
     }
+  },
+  "newChat": {
+    "title": "New chat",
+    "description": "Pick the harness, model and effort. Orchestration mode runs a planner that dispatches workers on the model you pin.",
+    "orchestration": "Orchestration mode",
+    "orchestrator": "Orchestrator",
+    "worker": "Worker",
+    "model": "Model",
+    "effort": "Effort",
+    "catalogFallback": "Model list may be incomplete",
+    "cancel": "Cancel",
+    "start": "Start"
   }
 }

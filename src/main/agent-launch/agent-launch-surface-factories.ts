@@ -1,3 +1,4 @@
+import type { MteWorkerPin } from '../../shared/mte/worker-pin'
 import type { RuntimeTerminalCreate } from '../../shared/runtime-terminal-create-contract'
 /**
  * The factories `executeAgentLaunch` is handed: how a surface and a workspace are BUILT once the
@@ -25,6 +26,7 @@ export type AgentLaunchSurfaceFactory = {
     chatOptions?: Readonly<Record<string, string>>
     /** Mark the created chat as an MTE planner. */
     mteRole?: 'planner'
+    mteWorker?: MteWorkerPin
     options?: Readonly<Record<string, unknown>>
     /** Caller-minted ID; reject with AgentLaunchSessionAlreadyExistsError if taken. */
     sessionId?: string

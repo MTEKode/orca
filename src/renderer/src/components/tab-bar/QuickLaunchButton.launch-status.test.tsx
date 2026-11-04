@@ -69,9 +69,9 @@ vi.mock('@/runtime/structured-chat-name-observation', () => ({
   getStructuredChatTabNames: () => new Map()
 }))
 vi.mock('@/hooks/use-now', () => ({ useNow: () => 0 }))
-// The MTE start dialog has its own tests; these launches must stay synchronous.
-vi.mock('./use-mte-flow-launch-prompt', () => ({
-  useMteFlowLaunchPrompt: () => () => false,
+// The New Chat dialog has its own tests; these launches must stay synchronous.
+vi.mock('./use-new-chat-launch', () => ({
+  useNewChatLaunch: () => () => false,
   markMtePlannerSession: async () => undefined
 }))
 

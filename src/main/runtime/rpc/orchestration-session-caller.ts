@@ -131,7 +131,8 @@ export async function resolveOrchestrationSessionCaller(
     ...resolveOrcaSessionParty(sessionId, db),
     sessionId,
     workspaceId: record.location.workspaceId,
-    ...(record.mteRole ? { mteRole: record.mteRole } : {})
+    ...(record.mteRole ? { mteRole: record.mteRole } : {}),
+    ...(record.mteWorker ? { mteWorker: record.mteWorker } : {})
   })
   return {
     request: {

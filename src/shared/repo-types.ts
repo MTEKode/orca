@@ -1,3 +1,4 @@
+import type { NewChatDefaults } from './new-chat-defaults'
 import type { RepoIcon } from './repo-icon'
 import type { GhAccountBinding } from './github/account-binding'
 import type { GitHubRepositoryIdentity } from './github/pull-request-types'
@@ -71,6 +72,8 @@ export type Repo = {
   deployCheck?: { url: string; username: string; linearDoneState?: string }
   /** Whether new chats offer the native MTE orchestration flow; undefined means 'ask'. */
   mteFlowPrompt?: 'ask' | 'never'
+  /** Last New Chat dialog choices (harness/model/effort, orchestration pins) for this repo. */
+  newChatDefaults?: NewChatDefaults
   /** Run shell quick commands in the floating terminal (inside the repo); undefined means true. */
   quickCommandsInFloatingTerminal?: boolean
   /** Canonical identity for the repo remote Orca should use for provider-level grouping. */

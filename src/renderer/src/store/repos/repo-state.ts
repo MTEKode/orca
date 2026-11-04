@@ -51,6 +51,7 @@ export type RepoUpdate = Partial<
     | 'defaultJiraProject'
     | 'forkSyncMode'
     | 'mteFlowPrompt'
+    | 'newChatDefaults'
     | 'deployCheck'
     | 'quickCommandsInFloatingTerminal'
     | 'externalWorktreeVisibilityPromptDismissedAt'

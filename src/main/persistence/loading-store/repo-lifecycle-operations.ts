@@ -177,6 +177,7 @@ export class RepoLifecycleOperations {
         | 'issueSourcePreference'
         | 'forkSyncMode'
         | 'mteFlowPrompt'
+        | 'newChatDefaults'
         | 'deployCheck'
         | 'quickCommandsInFloatingTerminal'
         | 'externalWorktreeVisibilityPromptDismissedAt'

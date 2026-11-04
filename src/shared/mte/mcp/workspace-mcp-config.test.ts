@@ -165,6 +165,20 @@ describe('planWorkspaceMcpConfig', () => {
     })
   })
 
+  describe('antigravity', () => {
+    it('plans no file and apply is a no-op', async () => {
+      const plan = planWorkspaceMcpConfig({
+        adapter: 'antigravity',
+        workspaceRoot: root,
+        orcaCliCommand: CLI,
+        role: 'orchestrator'
+      })
+      expect(plan).toEqual({ adapter: 'antigravity', configPath: '', nextContent: null })
+      await applyWorkspaceMcpConfig(plan)
+      expect(existsSync(join(root, '.mcp.json'))).toBe(false)
+    })
+  })
+
   describe('codex', () => {
     let home: string
     let originalHome: string | undefined

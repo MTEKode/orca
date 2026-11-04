@@ -9,6 +9,8 @@ export function mteAdapterForAgent(agent: string): WorkspaceMcpAdapter | null {
       return 'codex'
     case 'opencode':
       return 'opencode'
+    case 'antigravity':
+      return 'antigravity'
     default:
       return null
   }

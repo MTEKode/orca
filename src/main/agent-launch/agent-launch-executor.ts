@@ -257,6 +257,7 @@ async function createSurface(
       ...(intent.chatOptions ? { chatOptions: intent.chatOptions } : {}),
       ...(intent.sessionId ? { sessionId: intent.sessionId } : {}),
       ...(intent.mteRole ? { mteRole: intent.mteRole } : {}),
+      ...(intent.mteWorker ? { mteWorker: intent.mteWorker } : {}),
       ...(reservedTabId ? { tabId: reservedTabId } : {}),
       ...launchPromptCreateInputs(intent, execution.signal),
       ...(intent.prompt ? {} : { withoutPrompt: true as const })

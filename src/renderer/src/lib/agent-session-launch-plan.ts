@@ -1,5 +1,6 @@
 import type { StructuredLaunchSurfaceAddress } from './agent-session/launch/structured-agent-session-launch-record'
 import type { StructuredAgentSessionResumeSource } from '../../../shared/agent-session/structured-agent-session-create'
+import type { MteWorkerPin } from '../../../shared/mte/worker-pin'
 import type { TuiAgent } from '../../../shared/tui-agent'
 import {
   isLocalExecutionHost,
@@ -46,6 +47,9 @@ export type AgentSessionLaunchRequest = AgentLaunchRouteArgs & {
   promptKeptByCaller?: true
   /** Options this launch asks for over the saved chat defaults, e.g. an action's model. */
   launchOptions?: Readonly<Record<string, string>>
+  /** MTE: mark the created chat as a planner and pin its workers at create time. */
+  mteRole?: 'planner'
+  mteWorker?: MteWorkerPin
 }
 
 /** Carry the decided route and delivery fields in memory so post-create launches and same-session retries reuse them without re-resolving. */
@@ -63,6 +67,8 @@ export type AgentSessionLaunchVerdict = {
   promptKeptByCaller?: true
   draftFromScope?: string
   launchOptions?: Readonly<Record<string, string>>
+  mteRole?: 'planner'
+  mteWorker?: MteWorkerPin
 }
 
 export type AgentSessionStructuredFeasibilityRequest = AgentLaunchRouteArgs & {
@@ -101,7 +107,9 @@ function structuredLaunchOptions(verdict: AgentSessionLaunchVerdict): Structured
     ...(verdict.promptKeptByCaller ? { promptKeptByCaller: true as const } : {}),
     ...(verdict.draftFromScope ? { draftFromScope: verdict.draftFromScope } : {}),
     ...(verdict.executionHostId ? { executionHostId: verdict.executionHostId } : {}),
-    ...(verdict.launchOptions ? { launchOptions: verdict.launchOptions } : {})
+    ...(verdict.launchOptions ? { launchOptions: verdict.launchOptions } : {}),
+    ...(verdict.mteRole ? { mteRole: verdict.mteRole } : {}),
+    ...(verdict.mteWorker ? { mteWorker: verdict.mteWorker } : {})
   }
 }
 
@@ -293,6 +301,8 @@ export function planAgentSessionLaunch(
     ...(request.resumeFrom ? { resumeFrom: request.resumeFrom } : {}),
     ...(request.onPromptDelivered ? { onPromptDelivered: request.onPromptDelivered } : {}),
     ...(request.promptKeptByCaller ? { promptKeptByCaller: true as const } : {}),
-    ...(request.launchOptions ? { launchOptions: request.launchOptions } : {})
+    ...(request.launchOptions ? { launchOptions: request.launchOptions } : {}),
+    ...(request.mteRole ? { mteRole: request.mteRole } : {}),
+    ...(request.mteWorker ? { mteWorker: request.mteWorker } : {})
   })
 }

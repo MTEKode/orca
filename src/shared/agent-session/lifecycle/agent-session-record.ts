@@ -1,4 +1,5 @@
 import { isOptionalUsageLimitContinueCancel } from './agent-session-usage-limit-continue'
+import { isMteWorkerPin, type MteWorkerPin } from '../../mte/worker-pin'
 import type { AgentSessionDeathEvidence } from './agent-session-death-evidence'
 import { isAgentSessionRewindRecord, type AgentSessionRewindRecord } from './agent-session-rewind'
 import { isAgentSessionLaunchArgs } from './agent-session-launch-args'
@@ -136,6 +137,8 @@ export type AgentSessionRecord = {
   launchArgs?: AgentSessionLaunchArgs
   /** Set only by the MTE start entry points; gates who may create orchestration runs. Absent on older records. */
   mteRole?: 'planner'
+  /** Worker harness/model/effort the MTE planner must use for every worker-start. Absent on older records. */
+  mteWorker?: MteWorkerPin
   lease: AgentSessionLease
   createdAt: number
   updatedAt: number
@@ -321,6 +324,7 @@ export function isPersistedAgentSessionObservationRecord(
       (record.conversationNameSource === undefined || record.conversationNameSource === 'user') &&
       (record.launchArgs === undefined || isAgentSessionLaunchArgs(record.launchArgs)) &&
       (record.mteRole === undefined || record.mteRole === 'planner') &&
+      (record.mteWorker === undefined || isMteWorkerPin(record.mteWorker)) &&
       !Object.hasOwn(record, 'launchEnv') &&
       isPersistedAgentSessionObservationLease(record.lease) &&
       record.lease.sessionId === record.sessionId &&

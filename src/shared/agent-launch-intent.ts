@@ -1,5 +1,6 @@
 /** One launch intent for desktop/mobile/CLI/orchestration; the host resolves settings and per-launch feasibility once and reports the created surface. */
 
+import type { MteWorkerPin } from './mte/worker-pin'
 import type { TuiAgent } from './tui-agent'
 import type { AgentLaunchSurface } from './agent-launch-surface'
 
@@ -58,6 +59,8 @@ export type AgentLaunchIntent = {
   nativeChatDefault?: boolean
   /** `agent.launch`'s `mteRole`: marks the created chat as an MTE planner. */
   mteRole?: 'planner'
+  /** `agent.launch`'s `mteWorker`: the worker pin recorded on the MTE planner chat. */
+  mteWorker?: MteWorkerPin
   /** `agent.launch`'s `surface`: the user's pick for this launch, ahead of either default. */
   surface?: AgentLaunchSurface
 }

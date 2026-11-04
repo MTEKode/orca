@@ -23540,16 +23540,11 @@
   },
   "mte": {
     "start": {
-      "title": "¿Iniciar este chat con orquestación MTE?",
-      "description": "MTE es un bucle planner → coder → validator. El planner te entrevista sobre el objetivo, fija los requisitos, escribe las specs de las tareas, despacha agentes coder y valida cada resultado antes de mergear. Orca escribe primero la configuración de herramientas MTE en este workspace.",
       "goalLabel": "Objetivo",
       "goalPlaceholder": "¿Qué debe entregar esta ejecución? Déjalo vacío y el planner te preguntará.",
       "linksLabel": "Issues de Linear y pull requests vinculados",
       "noLinks": "Todavía no hay nada vinculado a este workspace.",
-      "linkPlaceholder": "Añade por identificador o URL: ENG-123, #45, https://…",
-      "dontAskAgain": "No volver a preguntar en este proyecto",
-      "plainChat": "Chat normal",
-      "useMte": "Orquestación MTE"
+      "linkPlaceholder": "Añade por identificador o URL: ENG-123, #45, https://…"
     },
     "prepare": {
       "failed": "No se pudo preparar MTE: {{message}}"

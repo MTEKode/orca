@@ -36,7 +36,10 @@ export const MTE_METHODS = [
     params: MteMarkPlannerParams,
     handler: async (params, { runtime }) => {
       await runtime.ensureStructuredAgentSessionHost()
-      await getStructuredAgentSessionHost()?.deps.store.markMtePlanner(params.sessionId)
+      await getStructuredAgentSessionHost()?.deps.store.markMtePlanner(
+        params.sessionId,
+        params.worker
+      )
       return { ok: true }
     }
   }),

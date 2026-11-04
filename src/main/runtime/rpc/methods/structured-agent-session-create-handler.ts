@@ -111,7 +111,7 @@ export async function handleStructuredAgentSessionCreate(
   ) {
     return { ok: false, refusal: structuredAgentSessionClosedBeforeCreateRefusal() }
   }
-  return commitStructuredAgentSessionCreate({
+  const committed = await commitStructuredAgentSessionCreate({
     runtime: ctx.runtime,
     caller: callerFor(ctx),
     prepared,
@@ -122,4 +122,12 @@ export async function handleStructuredAgentSessionCreate(
       ? { tabPlacement: params.tabPlacement }
       : {})
   })
+  // MTE planner chats are marked at creation so the renderer needs no follow-up mte.markPlanner.
+  if (committed.ok && 'mteRole' in params && params.mteRole) {
+    await requireHost(ctx).deps.store.markMtePlanner(
+      params.envelope.sessionId,
+      'mteWorker' in params ? params.mteWorker : undefined
+    )
+  }
+  return committed
 }
