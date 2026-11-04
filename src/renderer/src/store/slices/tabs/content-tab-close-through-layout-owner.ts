@@ -39,7 +39,12 @@ function selectAfterClose(
     group && nextActiveTabId && group.tabOrder.includes(nextActiveTabId)
       ? nextActiveTabId
       : group
-        ? pickNextActiveTab(group.tabOrder, group.recentTabIds, tab.id)
+        ? pickNextActiveTab(
+            group.tabOrder,
+            group.recentTabIds,
+            tab.id,
+            state.unifiedTabsByWorktree[worktreeId]
+          )
         : null
   if (next && group?.activeTabId !== next) {
     state.activateTab(next, { worktreeId, preservePreview: true, recordFocus: false })

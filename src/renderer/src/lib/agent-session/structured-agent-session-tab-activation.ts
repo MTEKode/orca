@@ -10,6 +10,7 @@ import {
 } from '@/runtime/structured-agent-session-owner'
 import { toRuntimeWorktreeSelector } from '@/runtime/runtime-worktree-selector'
 import type { Tab } from '../../../../shared/tab-types'
+import { revealWorkerSession } from './revealed-worker-tabs'
 
 export function findStructuredAgentSessionTab(
   unifiedTabsByWorktree: Readonly<Record<string, readonly Tab[]>>,
@@ -44,6 +45,10 @@ export function activateStructuredAgentSessionTab(args: {
   )
   if (!tab) {
     return false
+  }
+  // Explicit activation (sidebar row, dispatch card, reveal) is the user opening a hidden worker chat.
+  if (tab.agentSessionRole === 'worker') {
+    revealWorkerSession(tab.entityId)
   }
   state.focusGroup(args.worktreeId, tab.groupId)
   state.activateTab(tab.id, { worktreeId: args.worktreeId })

@@ -4,6 +4,7 @@ import type {
   RuntimeMobileSessionTabsSnapshot
 } from '../../../shared/runtime-types'
 import { defaultAgentChatLabel } from '../../../shared/agent-session/agent-session-chat-label'
+import { structuredWorkerIdentities } from '../structured-worker-identity'
 import { getHeadlessMobileSessionGroupId } from '../mobile-session-layout-projection'
 import type { StructuredSessionSurface } from '../agent-session/structured-agent-session-close'
 import type { StructuredAgentId } from '../../../shared/agent-session/lifecycle/agent-session-provider-handle'
@@ -164,6 +165,9 @@ export function projectStructuredSessionTab(
     title: defaultAgentChatLabel(input.agent),
     sessionId: input.sessionId,
     agent: input.agent,
+    ...(structuredWorkerIdentities.getBySessionId(input.sessionId)
+      ? { role: 'worker' as const }
+      : {}),
     isActive: input.activate
   }
   const tabs = [...(existing?.tabs ?? [])].map((candidate) => ({

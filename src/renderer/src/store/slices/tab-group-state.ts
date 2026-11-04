@@ -2,6 +2,7 @@ import type { Tab, TabGroup } from '../../../../shared/tab-types'
 import type { WorkspaceSessionState } from '../../../../shared/workspace-session-state-types'
 import { createBrowserUuid } from '@/lib/browser-uuid'
 import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/layout-owner-switch'
+import { isHiddenWorkerTab } from '@/lib/agent-session/revealed-worker-tabs'
 import { workspaceRootGroupId } from '../../../../shared/workspace-layout/workspace-layout-minted-ids'
 
 export function findTabAndWorktree(
@@ -133,10 +134,13 @@ export function pickNextActiveTab(
   tabOrder: string[],
   recentTabIds: string[] | undefined,
   closingTabId: string,
-  tabs?: readonly Pick<Tab, 'id'>[]
+  tabs?: readonly Pick<Tab, 'id' | 'entityId' | 'agentSessionRole'>[]
 ): string | null {
   if (tabs) {
-    const realIds = new Set(tabs.map((tab) => tab.id))
+    // Never land on a hidden worker chat after a close.
+    const realIds = new Set(
+      tabs.filter((tab) => tab.id === closingTabId || !isHiddenWorkerTab(tab)).map((tab) => tab.id)
+    )
     tabOrder = tabOrder.filter((id) => realIds.has(id))
   }
   const sanitized = sanitizeRecentTabIds(recentTabIds, tabOrder)
