@@ -1,4 +1,5 @@
 import { getStructuredAgentSessionHost } from '../../../../../native-chat/agent-session-wire/structured-agent-session-registry'
+import { isMteOrchestrationAgent } from '../../../../../../shared/mte/orchestration-agents'
 import type { OrchestrationSessionCaller } from '../../../../orchestration/orchestration-caller-identity'
 
 /**
@@ -31,7 +32,13 @@ export async function adoptMteWorkerPin(
   params: { agent?: string; model?: string; effort?: string; terminal?: string },
   caller: Pick<OrchestrationSessionCaller, 'mteRole' | 'mteWorker' | 'sessionId'> | undefined
 ): Promise<void> {
-  if (caller?.mteRole !== 'planner' || caller.mteWorker || !params.agent || params.terminal) {
+  if (
+    caller?.mteRole !== 'planner' ||
+    caller.mteWorker ||
+    !params.agent ||
+    !isMteOrchestrationAgent(params.agent) ||
+    params.terminal
+  ) {
     return
   }
   const { agent, model, effort } = params

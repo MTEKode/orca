@@ -129,12 +129,19 @@ export function projectStructuredSessionTab(
   const isWorker = Boolean(resolveStructuredWorkerIdentityForSession(input.sessionId, db))
   const id =
     input.tabId && isReopenedChatTabId(input.tabId) ? input.tabId : mobileChatTabId(input.sessionId)
-  if (isWorker && existing?.tabs.some((tab) => tab.id === id && tab.role !== 'worker')) {
+  if (
+    isWorker &&
+    existing?.tabs.some(
+      (tab) => tab.id === id && tab.type === 'agent-session' && tab.role !== 'worker'
+    )
+  ) {
     // Reused tab that never got the marker (restored before the identity was known): mark it in place.
     existing = {
       ...existing,
       snapshotVersion: existing.snapshotVersion + 1,
-      tabs: existing.tabs.map((tab) => (tab.id === id ? { ...tab, role: 'worker' as const } : tab))
+      tabs: existing.tabs.map((tab) =>
+        tab.id === id && tab.type === 'agent-session' ? { ...tab, role: 'worker' as const } : tab
+      )
     }
     emit(runtime.storeMobileSessionSnapshot(input.workspaceId, existing))
   }

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { isOrcaSessionId } from '../../../../../../shared/orca-session-address'
 import { adoptMteWorkerPin, withMteWorkerPin } from './worker-start-mte-pin'
 
 const markMtePlanner = vi.fn()
@@ -6,6 +7,10 @@ vi.mock('../../../../../native-chat/agent-session-wire/structured-agent-session-
   getStructuredAgentSessionHost: () => ({ deps: { store: { markMtePlanner } } })
 }))
 const pinned = { mteWorker: { agent: 'codex', model: 'gpt-5', effort: 'high' } } as const
+const S1 = 'session-1'
+if (!isOrcaSessionId(S1)) {
+  throw new Error('fixture session id must be a valid OrcaSessionId')
+}
 
 describe('withMteWorkerPin', () => {
   it('fills omitted flags from the current pin', () => {
@@ -38,19 +43,19 @@ describe('withMteWorkerPin', () => {
 })
 
 describe('adoptMteWorkerPin', () => {
-  const planner = { mteRole: 'planner', sessionId: 'S1' } as const
+  const planner = { mteRole: 'planner', sessionId: S1 } as const
   it('stores the first explicit flags of an unpinned planner as its pin', async () => {
     markMtePlanner.mockClear()
     await adoptMteWorkerPin({ agent: 'claude', model: 'sonnet' }, planner)
-    expect(markMtePlanner).toHaveBeenCalledWith('S1', { agent: 'claude', model: 'sonnet' })
+    expect(markMtePlanner).toHaveBeenCalledWith(S1, { agent: 'claude', model: 'sonnet' })
     // After the pin exists, a flagless worker-start resolves from it.
-    const next = { ...planner, mteWorker: { agent: 'claude', model: 'sonnet' } }
+    const next = { ...planner, mteWorker: { agent: 'claude' as const, model: 'sonnet' } }
     expect(withMteWorkerPin({}, next)).toEqual({ agent: 'claude', model: 'sonnet' })
   })
   it('does nothing for pinned callers, non-planners or flagless calls', async () => {
     markMtePlanner.mockClear()
     await adoptMteWorkerPin({ agent: 'claude' }, { ...planner, mteWorker: { agent: 'codex' } })
-    await adoptMteWorkerPin({ agent: 'claude' }, { sessionId: 'S1' })
+    await adoptMteWorkerPin({ agent: 'claude' }, { sessionId: S1 })
     await adoptMteWorkerPin({}, planner)
     expect(markMtePlanner).not.toHaveBeenCalled()
   })

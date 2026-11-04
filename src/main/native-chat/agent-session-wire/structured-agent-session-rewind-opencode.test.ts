@@ -141,7 +141,7 @@ async function twoMessages() {
       provider: 'opencode',
       agent: 'opencode',
       accountHome: { kind: 'opencode', locator: { kind: 'unmanaged' } },
-      providerHandle: null
+      providerHandle: undefined
     })
   )
   expect(attached).toMatchObject({ ok: true })
