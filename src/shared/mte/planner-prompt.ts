@@ -5,19 +5,15 @@ export const MTE_START_DEFAULT_GOAL =
   'Ask the user for the goal of this MTE run, then run the requirement interview on it.'
 
 /** Stable planner persona + operating manual (English). */
-function workerFlags(w: MteWorkerPin): string {
-  return `--agent ${w.agent}${w.model ? ` --model ${w.model}` : ''}${w.effort ? ` --effort ${w.effort}` : ''}`
+function workerLabel(w: MteWorkerPin): string {
+  return [w.agent, w.model, w.effort].filter(Boolean).join('/')
 }
 
 function pinnedSessionStart(w: MteWorkerPin): string[] {
-  const model = w.model ? ` with model \`${w.model}\`` : ''
-  const effort = w.effort ? ` at effort \`${w.effort}\`` : ''
-  const flags = `\`--agent ${w.agent}\`${w.model ? ` \`--model ${w.model}\`` : ''}${w.effort ? ` \`--effort ${w.effort}\`` : ''}`
   return [
     '## Session start (worker pinned)',
     '',
-    `Workers for this session run on agent \`${w.agent}\`${model}${effort}. Never ask which agent runs the workers. Pass ${flags} to every \`orca orchestration worker-start\`.`,
-    'The user may change the worker from the composer at any time; flags you omit resolve to the current pin at dispatch time.'
+    `Workers for this session are pinned by the host (currently: ${workerLabel(w)}; the user may change it from the composer at any time). Never ask which agent runs the workers. Omit \`--agent\`, \`--model\` and \`--effort\` on \`orca orchestration worker-start\`: the host resolves the current pin at dispatch time, and passing them would override a change the user made.`
   ]
 }
 
@@ -30,8 +26,8 @@ const ASK_SESSION_START = [
 const UNPINNED_STEP_3 =
   '3. Once the session agent is known, run `orca agent models --agent <id> --json` ONCE and keep the list. Dispatch every coder and validator with `orca orchestration worker-start --agent <id> --task <id> --model <light>`, where <light> is the cheapest model in that list that is still a capable coding model, one or two tiers below your own (for Claude that is `sonnet`; for Codex the Terra tier; for OpenCode and Antigravity pick the smallest non-preview model of the same family as the default). After two VALIDATION_FAILED rounds on a task, redispatch it with the next stronger model and `--effort high`. If the list is empty, pass no `--model` and say so in the task report. Never dispatch a worker on your own tier unless the user asked.'
 
-function pinnedStep3(w: MteWorkerPin): string {
-  return `3. Dispatch every coder and validator with \`orca orchestration worker-start --task <id> ${workerFlags(w)}\`. When a worker model is pinned, use it instead of choosing the cheapest model. Escalation after two VALIDATION_FAILED rounds on a task is still allowed: redispatch it with the next stronger model and \`--effort high\`.`
+function pinnedStep3(): string {
+  return '3. Dispatch every coder and validator with `orca orchestration worker-start --task <id>` and no `--agent`/`--model`/`--effort` (the host applies the current worker pin). Only escalation after two VALIDATION_FAILED rounds on a task passes explicit flags: redispatch it with the next stronger `--model` and `--effort high`.'
 }
 
 /** Builds the planner persona; a worker pin replaces the session-start question. */
@@ -65,7 +61,7 @@ const PLANNER_PROMPT_LINES = (worker?: MteWorkerPin): string[] => [
   '',
   '1. `orca orchestration run-create` (once per run), then `orca orchestration run-use` to bind the session.',
   '2. Create each task with `orca orchestration task-create --spec <full task text>`. The TaskRow is the source of truth: embed the complete spec — context, exact files, interfaces, acceptance criteria, error handling — inside every task. Never point workers at chat history instead of the spec.',
-  worker ? pinnedStep3(worker) : UNPINNED_STEP_3,
+  worker ? pinnedStep3() : UNPINNED_STEP_3,
   '4. Monitor workers with `orca orchestration inbox` and `orca orchestration worker-read`.',
   '5. Answer worker questions with `orca orchestration reply`, then persist the resolution with record_qa (or answer_orq).',
   '6. Check convergence and health with `orca orchestration check`, and gate risky steps with `orca orchestration gate-create` / `orca orchestration gate-resolve`.',

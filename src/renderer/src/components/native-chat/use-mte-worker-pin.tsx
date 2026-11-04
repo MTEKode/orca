@@ -4,16 +4,17 @@ import { persistMteWorkerChange } from './mte-worker-change'
 import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
 import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-target'
 import { isMteWorkerPin, type MteWorkerPin } from '../../../../shared/mte/worker-pin'
+import { isMteOrchestrationAgent } from '../../../../shared/mte/orchestration-agents'
 
 /** The worker pinned on an MTE planner chat; undefined for plain chats or until the host answers. */
 type PinTransport = { sessionId: string; runtimeEnvironmentId: string | null; worktreeId?: string }
 
 function useMteWorkerPinState(
   transport: PinTransport | undefined
-): [MteWorkerPin | undefined, (worker: MteWorkerPin) => void] {
+): [{ worker?: MteWorkerPin } | undefined, (worker: MteWorkerPin) => void] {
   const sessionId = transport?.sessionId
   const environmentId = transport?.runtimeEnvironmentId ?? null
-  const [pin, setPin] = useState<{ sessionId: string; worker: MteWorkerPin } | null>(null)
+  const [pin, setPin] = useState<{ sessionId: string; worker?: MteWorkerPin } | null>(null)
   useEffect(() => {
     if (!sessionId) {
       return
@@ -22,13 +23,12 @@ function useMteWorkerPinState(
     // Async + try/catch so a missing, throwing, or non-promise RPC (tests, plain chats) yields no pin.
     void (async () => {
       try {
-        const result = await callRuntimeRpc<{ worker: unknown } | null | undefined>(
-          runtimeTargetForOwnerEnvironment(environmentId),
-          'mte.getPlannerPin',
-          { sessionId }
-        )
-        if (!cancelled && isMteWorkerPin(result?.worker)) {
-          setPin({ sessionId, worker: result.worker })
+        const result = await callRuntimeRpc<
+          { planner?: boolean; worker: unknown } | null | undefined
+        >(runtimeTargetForOwnerEnvironment(environmentId), 'mte.getPlannerPin', { sessionId })
+        // A planner without a pin yet still gets the selector (worker undefined).
+        if (!cancelled && (result?.planner === true || isMteWorkerPin(result?.worker))) {
+          setPin({ sessionId, worker: isMteWorkerPin(result?.worker) ? result.worker : undefined })
         }
       } catch {
         // A failed read leaves the plain "Agent" label.
@@ -43,11 +43,11 @@ function useMteWorkerPinState(
     (worker: MteWorkerPin) => sessionId && setPin({ sessionId, worker }),
     [sessionId]
   )
-  return [pin && pin.sessionId === sessionId ? pin.worker : undefined, set]
+  return [pin && pin.sessionId === sessionId ? pin : undefined, set]
 }
 
 export function useMteWorkerPin(transport: PinTransport | undefined): MteWorkerPin | undefined {
-  return useMteWorkerPinState(transport)[0]
+  return useMteWorkerPinState(transport)[0]?.worker
 }
 
 /** The chat's agent plus, on an MTE planner chat, the worker pin and the composer selector that edits it. */
@@ -55,8 +55,10 @@ export function useComposerAgentIdentity(
   agent: string,
   transport: PinTransport | undefined
 ): { agent: string; mteWorker?: MteWorkerPin; mteWorkerPicker?: ReactNode } {
-  const [mteWorker, setMteWorker] = useMteWorkerPinState(transport)
-  if (!mteWorker || !transport) {
+  const [planner, setMteWorker] = useMteWorkerPinState(transport)
+  // ponytail: with no pin yet the selector starts on the chat's own agent (model/effort unset).
+  const mteWorker = planner?.worker ?? (isMteOrchestrationAgent(agent) ? { agent } : undefined)
+  if (!planner || !mteWorker || !transport) {
     return { agent }
   }
   const change = (worker: MteWorkerPin): void => {
@@ -65,7 +67,7 @@ export function useComposerAgentIdentity(
   }
   return {
     agent,
-    mteWorker,
+    mteWorker: planner.worker,
     mteWorkerPicker: (
       <NativeChatMteWorkerPicker
         worker={mteWorker}

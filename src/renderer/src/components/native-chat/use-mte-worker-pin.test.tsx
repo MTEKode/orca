@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { useMteWorkerPin } from './use-mte-worker-pin'
+import { useComposerAgentIdentity, useMteWorkerPin } from './use-mte-worker-pin'
 
 // A plain stub (not vi.fn) so vitest's result tracking cannot observe the rejected promise itself.
 let rpcImpl: () => unknown = () => undefined
@@ -50,5 +50,20 @@ describe('useMteWorkerPin', () => {
     await waitFor(() => expect(rpcCalls).toBeGreaterThan(0))
     await Promise.resolve()
     expect(result.current).toBeUndefined()
+  })
+
+  it('renders the selector for a planner with no pin yet, defaulting to the chat agent', async () => {
+    rpcImpl = () => Promise.resolve({ planner: true, worker: null })
+    const { result } = renderHook(() => useComposerAgentIdentity('claude', transport))
+    await waitFor(() => expect(result.current.mteWorkerPicker).toBeDefined())
+    expect(result.current.mteWorker).toBeUndefined()
+  })
+
+  it('renders no selector for a plain chat', async () => {
+    rpcImpl = () => Promise.resolve({ planner: false, worker: null })
+    const { result } = renderHook(() => useComposerAgentIdentity('claude', transport))
+    await waitFor(() => expect(rpcCalls).toBeGreaterThan(0))
+    await Promise.resolve()
+    expect(result.current.mteWorkerPicker).toBeUndefined()
   })
 })

@@ -52,7 +52,8 @@ export const MTE_METHODS = [
     handler: async (params, { runtime }) => {
       await runtime.ensureStructuredAgentSessionHost()
       const record = getStructuredAgentSessionHost()?.deps.store.getRecord(params.sessionId)
-      return { worker: record?.mteRole === 'planner' ? (record.mteWorker ?? null) : null }
+      const planner = record?.mteRole === 'planner'
+      return { planner, worker: planner ? (record?.mteWorker ?? null) : null }
     }
   }),
   ...MTE_DEPLOY_CHECK_METHODS

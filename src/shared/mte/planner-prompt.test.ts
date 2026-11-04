@@ -112,15 +112,19 @@ describe('worker-pinned planner prompt', () => {
   it('pins agent/model/effort and drops the session-start question', () => {
     const prompt = plannerKickoffPrompt('x', pin)
     expect(prompt).toContain('## Session start (worker pinned)')
-    expect(prompt).toContain('`--agent opencode` `--model qwen3.8` `--effort medium`')
+    expect(prompt).toContain('currently: opencode/qwen3.8/medium')
+    expect(prompt).toContain('worker-start --task <id>` and no `--agent`')
+    expect(prompt).not.toContain('--agent opencode')
+    expect(prompt).not.toContain('--model qwen3.8')
+    expect(prompt).not.toContain('flags you omit')
     expect(prompt).toContain('Never ask which agent runs the workers')
     expect(prompt).not.toContain('which agent runs the workers for this session')
     expect(prompt).not.toContain('ask the session-start question')
     expect(prompt).toContain('Start now: run the requirement interview for this goal.')
   })
 
-  it('omits unset model/effort flags', () => {
-    expect(mtePlannerPrompt({ agent: 'claude' })).not.toContain('--model')
+  it('names only the set parts of the pin as information', () => {
+    expect(mtePlannerPrompt({ agent: 'claude' })).toContain('currently: claude;')
   })
 
   it('leaves the unpinned prompt unchanged', () => {
