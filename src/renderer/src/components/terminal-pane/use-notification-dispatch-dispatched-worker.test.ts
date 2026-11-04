@@ -53,7 +53,7 @@ describe('dispatchTerminalNotification for a dispatched worker', () => {
     expect(window.api.notifications.dispatch).not.toHaveBeenCalled()
   })
 
-  // Each of these stops either needs the person or reported to no one.
+  // Every stop a dispatched worker raises is the coordinator's news — even stops that need the person.
   it.each([
     {
       stop: 'a hook row waiting on a prompt',
@@ -74,21 +74,22 @@ describe('dispatchTerminalNotification for a dispatched worker', () => {
       title: 'claude',
       exited: true
     }
-  ])('still calls the user to $stop', ({ row, title, fromSnapshot, exited }) => {
+  ])('leaves $stop to its coordinator', ({ row, title, fromSnapshot, exited }) => {
     const entry = row === null ? null : row?.()
     if (entry === null) {
       delete mockState.agentStatusByPaneKey[paneKey]
     } else if (entry) {
       mockState.agentStatusByPaneKey[paneKey] = entry
     }
-    dispatchTerminalNotification('wt-primary', {
+    const admitted = dispatchTerminalNotification('wt-primary', {
       source: 'agent-task-complete',
       terminalTitle: title,
       paneKey,
       ...(fromSnapshot && entry ? { agentStatusSnapshot: entry } : {}),
       ...(exited ? { agentCompletionSource: 'process-exit' as const } : {})
     })
-    expect(mockState.markAgentAttentionUnread).toHaveBeenCalled()
-    expect(window.api.notifications.dispatch).toHaveBeenCalled()
+    expect(admitted).toBe(false)
+    expect(mockState.markAgentAttentionUnread).not.toHaveBeenCalled()
+    expect(window.api.notifications.dispatch).not.toHaveBeenCalled()
   })
 })
