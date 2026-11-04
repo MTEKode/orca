@@ -86,7 +86,6 @@ import {
   ProjectedAgentMenuItems,
   useTabAgentMenuLaunch
 } from './QuickLaunchButton'
-import { useTabBarCreateMenuController } from './use-tab-bar-create-menu-controller'
 import * as menuRows from './use-new-tab-agent-menu-rows'
 import {
   resetStructuredAgentLaunchRegistryForTests,
@@ -361,7 +360,7 @@ it.each(['chat', 'cli'] as const)(
   }
 )
 
-it('gives static/search no agent actions while loading, retaining settings and generic terminal', () => {
+it('gives the agent menu no agent actions while loading, retaining settings', () => {
   const model = vi
     .spyOn(menuRows, 'useNewTabAgentMenuRows')
     .mockReturnValue({ state: 'loading', placeholderCount: 2 })
@@ -372,36 +371,6 @@ it('gives static/search no agent actions while loading, retaining settings and g
       onFocusTerminal={vi.fn()}
     />
   )
-  const controller = renderHook(() =>
-    useTabBarCreateMenuController({
-      worktreeId: WORKTREE_ID,
-      resolvedGroupId: 'group-1',
-      terminalOnly: false,
-      mobileEmulatorEnabled: false,
-      managedBrowserCreationEnabled: false,
-      mobileEmulatorCreationEnabled: false,
-      workspaceHasSimulatorTab: false,
-      showWindowsShellMenu: false,
-      projectRuntimeShellMenuMode: null,
-      defaultWindowsShell: 'powershell',
-      defaultWindowsPowerShellImplementation: 'auto',
-      agentDetectionTarget: { kind: 'local' },
-      windowsTerminalCapabilities: {
-        wslAvailable: false,
-        wslDistros: [],
-        pwshAvailable: false,
-        gitBashAvailable: false,
-        hostPlatform: null,
-        isLoading: false
-      },
-      onNewTerminalTab: vi.fn(),
-      onNewBrowserTab: vi.fn()
-    })
-  )
-  expect(controller.result.current.agentPickerInventory.getSnapshot()).toEqual([])
-  expect(
-    controller.result.current.createMenuOptions.some((option) => option.kind === 'new-terminal')
-  ).toBe(true)
   expect(document.querySelector('[title]')).toBeNull()
   expect(document.body.textContent).toContain('Agent settings')
   model.mockRestore()

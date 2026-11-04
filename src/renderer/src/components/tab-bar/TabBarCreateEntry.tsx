@@ -6,11 +6,6 @@ import {
   getTabEntryOptions,
   isTabEntryAbsolutePathLike
 } from './tab-create-entry-action'
-import {
-  configuredAgentPickerLaunchOption,
-  findMatchingTabAgentLaunchOptions,
-  matchingAgentPickerLaunchOptions
-} from './tab-agent-launch-options'
 import { findMatchingTabCreateMenuOptions } from './tab-create-menu-options'
 import { getActiveOptionId, type ActiveOption } from './tab-create-entry-active-option'
 import {
@@ -36,7 +31,7 @@ import {
   getTabEntryChooseActionMessage,
   getTabEntryOmniboxPlaceholder
 } from './tab-create-entry-copy'
-import { EMPTY_AGENT_OPTIONS, EMPTY_MENU_OPTIONS } from './tab-create-entry-empty-options'
+import { EMPTY_MENU_OPTIONS } from './tab-create-entry-empty-options'
 import type { TabEntryActionClassification } from './tab-create-entry-classifier'
 import type { TabBarCreateEntryProps } from './tab-create-entry-props'
 
@@ -45,14 +40,10 @@ export default function TabBarCreateEntry(props: TabBarCreateEntryProps): React.
 }
 
 function TabBarCreateEntrySession({
-  agentOptions = EMPTY_AGENT_OPTIONS,
-  agentPickerEntries,
   groupId,
   menuOpen,
   menuOptions = EMPTY_MENU_OPTIONS,
   onDidOpenEntry,
-  onLaunchAgent,
-  onLaunchAgentOption,
   onOpenDefaultTerminal,
   onOpenEntry,
   onQueryChange,
@@ -149,17 +140,6 @@ function TabBarCreateEntrySession({
     query,
     tabResults
   })
-  const matchingAgentOptions = useMemo(
-    () =>
-      terminalQueryMode
-        ? EMPTY_AGENT_OPTIONS
-        : [
-            ...matchingAgentPickerLaunchOptions(agentPickerEntries ?? [], query),
-            ...findMatchingTabAgentLaunchOptions(query, agentOptions)
-          ],
-    [agentOptions, agentPickerEntries, query, terminalQueryMode]
-  )
-
   const disabled = !onOpenEntry
   const hasQuery = query.trim().length > 0
   const activeOptions: ActiveOption[] = [
@@ -169,10 +149,6 @@ function TabBarCreateEntrySession({
     })),
     ...matchingMenuOptions.map((option) => ({
       kind: 'menu' as const,
-      option
-    })),
-    ...matchingAgentOptions.map((option) => ({
-      kind: 'agent' as const,
       option
     })),
     ...placeHistoryRowsInEntryOptions(options, historyRows)
@@ -235,18 +211,6 @@ function TabBarCreateEntrySession({
       onSelectMenuOption?.(selectedOption.option)
       onDidOpenEntry?.()
       return
-    }
-    if (selectedOption.kind === 'agent') {
-      if (selectedOption.option.disabled) {
-        return false
-      }
-      const accepted = onLaunchAgentOption
-        ? onLaunchAgentOption(selectedOption.option)
-        : onLaunchAgent?.(selectedOption.option.agent)
-      if (accepted !== false) {
-        onDidOpenEntry?.()
-      }
-      return accepted
     }
     // Route history through typed-URL navigation to preserve workspace targeting and SSH resolution.
     const classification: TabEntryActionClassification =
@@ -385,20 +349,7 @@ function TabBarCreateEntrySession({
                 id={resultOptionDomId(index)}
                 option={option}
                 selected={index === activeSelectedIndex}
-                onUseAgent={
-                  option.kind === 'agent' && option.option.pickerEntry
-                    ? (draft) =>
-                        submitOption({
-                          kind: 'agent',
-                          option: configuredAgentPickerLaunchOption(option.option, draft)
-                        })
-                    : undefined
-                }
-                disabled={
-                  disabled ||
-                  pending ||
-                  (option.kind === 'agent' && option.option.disabled === true)
-                }
+                disabled={disabled || pending}
                 loading={pending && index === activeSelectedIndex}
                 onClick={() => {
                   setSelectionGuidance(null)

@@ -54,7 +54,6 @@ function TabWidthFixture({
           editorFiles={editorFiles}
           tabBarOrder={tabBarOrder}
           expandedPaneByTabId={{}}
-          showAgentLaunchItems={false}
           onActivate={setActiveTabId}
           onClose={noop}
           onCloseOthers={noop}

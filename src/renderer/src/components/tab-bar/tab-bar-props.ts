@@ -20,15 +20,11 @@ export type TabBarProps = {
   /** Set only when this group is one of several splits. */
   onCloseSplitPane?: () => void
   onNewTerminalTab: () => void
-  onNewTerminalWithShell?: (shell: string) => void
   onNewBrowserTab: () => void
   onNewSimulatorTab?: () => void
   onOpenEntry?: (args: TabCreateEntryArgs) => Promise<void>
   terminalOnly?: boolean
-  showAgentLaunchItems?: boolean
   onNewFileTab?: () => void
-  onOpenFileTab?: () => void
-  newTabMenuOrder?: 'default' | 'markdown-first'
   onSetCustomTitle: (tabId: string, title: string | null) => void
   onSetTabColor: (tabId: string, color: string | null) => void
   onTogglePaneExpand: (tabId: string) => void

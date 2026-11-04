@@ -5,12 +5,12 @@ import {
   GitCompare,
   Globe,
   Loader2,
+  MessageSquare,
   Search,
   Smartphone,
   TerminalSquare
 } from 'lucide-react'
 import { AgentIcon } from '@/lib/agent-catalog'
-import { PluginContributionIcon } from '../plugins/PluginContributionIcon'
 import { cn } from '@/lib/utils'
 import { FilePathCursorTooltip, FilenameFirstPath } from '@/components/file-path-cursor-tooltip'
 import { translate } from '@/i18n/i18n'
@@ -18,8 +18,6 @@ import { SEARCH_ENGINE_LABELS } from '../../../../shared/browser-url'
 import { formatBrowserHistoryUrl } from '@/lib/browser-history-match'
 import type { ActiveOption } from './tab-create-entry-active-option'
 import { BrowserFavicon } from '@/components/browser-favicon'
-import { AgentLaunchSetupButton } from '../agent/AgentLaunchSetupButton'
-import type { AgentPickerDraft } from '../../../../shared/agent-launch-picker'
 
 export const RESULT_LISTBOX_ID = 'tab-create-entry-results'
 
@@ -46,23 +44,19 @@ export function EntryStatusRow({
 export function EntryActionRow({
   disabled = false,
   id,
-  labelOverride,
   loading = false,
   onClick,
-  onUseAgent,
   option,
   selected
 }: {
   disabled?: boolean
   id: string
-  labelOverride?: string
   loading?: boolean
-  onUseAgent?: (draft: AgentPickerDraft) => boolean | void | Promise<boolean>
   onClick: () => void
   option: ActiveOption
   selected: boolean
 }): React.JSX.Element {
-  const presentation = getActionPresentation(option, labelOverride)
+  const presentation = getActionPresentation(option)
 
   const row = (
     <div className="flex items-center gap-1">
@@ -104,14 +98,6 @@ export function EntryActionRow({
           </>
         ) : null}
       </button>
-      {onUseAgent && option.kind === 'agent' && option.option.pickerEntry ? (
-        <AgentLaunchSetupButton
-          entry={option.option.pickerEntry}
-          initial={option.option.setup}
-          disabled={disabled}
-          onUse={onUseAgent}
-        />
-      ) : null}
     </div>
   )
 
@@ -152,10 +138,7 @@ function getOpenTabIcon(option: Extract<ActiveOption, { kind: 'tab' }>['option']
   return <GitCompare className="size-3.5 shrink-0" aria-hidden="true" />
 }
 
-function getActionPresentation(
-  option: ActiveOption,
-  labelOverride?: string
-): {
+function getActionPresentation(option: ActiveOption): {
   detail: string
   icon: React.ReactNode
   label: string
@@ -168,14 +151,8 @@ function getActionPresentation(
         <Globe className="size-3.5 shrink-0" aria-hidden="true" />
       ) : option.option.kind === 'new-markdown' ? (
         <FilePlus className="size-3.5 shrink-0" aria-hidden="true" />
-      ) : option.option.kind === 'new-plugin-file' ? (
-        <PluginContributionIcon
-          url={option.option.pluginNewFile?.iconUrl}
-          fallback={FilePlus}
-          className="size-3.5 shrink-0"
-        />
-      ) : option.option.kind === 'open-markdown' ? (
-        <FileText className="size-3.5 shrink-0" aria-hidden="true" />
+      ) : option.option.kind === 'new-chat' ? (
+        <MessageSquare className="size-3.5 shrink-0" aria-hidden="true" />
       ) : option.option.kind === 'new-simulator' || option.option.kind === 'go-to-simulator' ? (
         <Smartphone className="size-3.5 shrink-0" aria-hidden="true" />
       ) : (
@@ -206,16 +183,6 @@ function getActionPresentation(
       detail: entry.title ? `${entry.title} · ${url}` : url,
       icon: <BrowserFavicon faviconUrl={entry.faviconUrl} className="size-3.5" />,
       label: translate('auto.components.tab.bar.TabBarCreateEntry.openPage', 'Open page'),
-      showDetail: true
-    }
-  }
-  if (option.kind === 'agent') {
-    return {
-      detail: [option.option.label, option.option.reason].filter(Boolean).join(' · '),
-      icon: <AgentIcon agent={option.option.agent} size={14} />,
-      label:
-        labelOverride ??
-        translate('auto.components.tab.bar.TabBarCreateEntry.b27864279e', 'Launch agent'),
       showDetail: true
     }
   }

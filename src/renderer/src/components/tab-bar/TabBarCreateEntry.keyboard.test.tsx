@@ -7,7 +7,6 @@ import type { Tab, TabGroup } from '../../../../shared/tab-types'
 import type { TerminalTab } from '../../../../shared/terminal-tab-types'
 import type { Worktree } from '../../../../shared/worktree/types'
 import type { TabEntryOption } from './tab-create-entry-action'
-import type { TabAgentLaunchOption } from './tab-agent-launch-options'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { useAppStore } from '@/store'
 import type { AppState } from '@/store/types'
@@ -228,28 +227,6 @@ describe('TabBarCreateEntry keyboard navigation', () => {
     expect(onOpenEntry.mock.calls[0][0].classification).toMatchObject({ relativePath: 'b.ts' })
   })
 
-  it('launches a matched agent when its highlighted row is selected', () => {
-    const agentOptions: TabAgentLaunchOption[] = [
-      { agent: 'gemini', aliases: ['gemini'], label: 'Gemini' }
-    ]
-    const onLaunchAgent = vi.fn()
-    mount(
-      <TabBarCreateEntry
-        worktreeId="wt"
-        groupId="g"
-        menuOpen
-        agentOptions={agentOptions}
-        onOpenEntry={vi.fn().mockResolvedValue(undefined)}
-        onLaunchAgent={onLaunchAgent}
-      />
-    )
-
-    setQuery('gem')
-    submitForm()
-
-    expect(onLaunchAgent).toHaveBeenCalledWith('gemini')
-  })
-
   it('exposes the highlighted row to assistive tech via aria-activedescendant', () => {
     entryOptionsMock.options = [fileOption('a.ts'), fileOption('b.ts'), fileOption('c.ts')]
     mount(
@@ -296,7 +273,7 @@ describe('TabBarCreateEntry keyboard navigation', () => {
 
     const input = container.querySelector('input')!
     const placeholder = input.getAttribute('placeholder')
-    expect(placeholder).toBe('Search open tabs, history, files, URLs, agents\u2026')
+    expect(placeholder).toBe('Search open tabs, history, files, URLs\u2026')
     expect(input.getAttribute('aria-label')).toBe(placeholder)
   })
 

@@ -179,50 +179,62 @@ export function openNewChatLaunch(deps: NewChatLaunchDeps): boolean {
   return true
 }
 
+type NewChatLauncher = (args: RunLaunchArgs) => boolean | Promise<boolean>
+
+/** Opens the New Chat dialog for a worktree; true when it took over the launch. */
+export function openNewChatForWorktree(
+  worktreeId: string,
+  launch: NewChatLauncher,
+  seed?: { row: NewTabAgentMenuRow; draft?: AgentPickerDraft }
+): boolean {
+  const state = useAppStore.getState()
+  const worktree = findWorktreeById(state.worktreesByRepo, worktreeId)
+  const repo = worktree ? state.repos.find((r) => r.id === worktree.repoId) : undefined
+  const { draft } = seed ?? {}
+  return openNewChatLaunch({
+    openDialog: useNewChatDialogStore.getState().open,
+    linkedItems: worktree?.linkedItems ?? [],
+    worktreeId,
+    repo,
+    ...(seed ? { row: seed.row } : {}),
+    workspaceRoot: worktree?.path,
+    ...(draft
+      ? {
+          initial: {
+            agent: draft.agent,
+            ...(draft.choices.model ? { model: draft.choices.model } : {}),
+            ...(draft.choices.options?.effort ? { effort: draft.choices.options.effort } : {})
+          }
+        }
+      : {}),
+    prepareWorkspace: (params) =>
+      callRuntimeRpc(
+        runtimeTargetForOwnerEnvironment(
+          runtimeEnvironmentIdOrLocalUnlessTwin(useAppStore.getState(), worktreeId)
+        ),
+        'mte.prepareWorkspace',
+        params
+      ),
+    saveDefaults: (repoId, defaults) =>
+      void useAppStore.getState().updateRepo(repoId, { newChatDefaults: defaults }),
+    launch
+  })
+}
+
 /** Offers the New Chat dialog for a bare chat row; true when it took over the launch. */
 export function useNewChatLaunch(
   worktreeId: string
 ): (
   args: [NewTabAgentMenuRow, AgentPickerDraft?, AgentPickerEntry?],
   callerOwnsPrompt: boolean,
-  launch: (args: RunLaunchArgs) => boolean | Promise<boolean>
+  launch: NewChatLauncher
 ) => boolean {
   return useCallback(
     ([row, draft], callerOwnsPrompt, launch) => {
       if (callerOwnsPrompt || draft?.prompt || row.kind !== 'chat') {
         return false
       }
-      const state = useAppStore.getState()
-      const worktree = findWorktreeById(state.worktreesByRepo, worktreeId)
-      const repo = worktree ? state.repos.find((r) => r.id === worktree.repoId) : undefined
-      return openNewChatLaunch({
-        openDialog: useNewChatDialogStore.getState().open,
-        linkedItems: worktree?.linkedItems ?? [],
-        worktreeId,
-        repo,
-        row,
-        workspaceRoot: worktree?.path,
-        ...(draft
-          ? {
-              initial: {
-                agent: draft.agent,
-                ...(draft.choices.model ? { model: draft.choices.model } : {}),
-                ...(draft.choices.options?.effort ? { effort: draft.choices.options.effort } : {})
-              }
-            }
-          : {}),
-        prepareWorkspace: (params) =>
-          callRuntimeRpc(
-            runtimeTargetForOwnerEnvironment(
-              runtimeEnvironmentIdOrLocalUnlessTwin(useAppStore.getState(), worktreeId)
-            ),
-            'mte.prepareWorkspace',
-            params
-          ),
-        saveDefaults: (repoId, defaults) =>
-          void useAppStore.getState().updateRepo(repoId, { newChatDefaults: defaults }),
-        launch
-      })
+      return openNewChatForWorktree(worktreeId, launch, { row, ...(draft ? { draft } : {}) })
     },
     [worktreeId]
   )

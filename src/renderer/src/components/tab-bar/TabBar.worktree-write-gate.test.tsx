@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-/** Gate worktree subscriptions behind the Windows shell menu so unrelated poll/status writes cannot rerender every tab strip. */
+/** Worktree writes must not rerender every tab strip. */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, render } from '@testing-library/react'
 import {
@@ -57,7 +57,7 @@ async function pushWorktreeWrites(store: TabBarProbeStore): Promise<void> {
   }
 }
 
-describe('TabBar worktree-write gate (non-Windows client)', () => {
+describe('TabBar worktree-write gate', () => {
   beforeEach(async () => {
     Object.defineProperty(navigator, 'userAgent', {
       configurable: true,
@@ -83,19 +83,5 @@ describe('TabBar worktree-write gate (non-Windows client)', () => {
 
     expect(tabBarSurfaceRenders.count).toBe(rendersAtMount)
     expect(localProjectRuntimeSpy).not.toHaveBeenCalled()
-  })
-
-  it('still tracks worktree writes when the Windows shell menu is on', async () => {
-    const store = await createTabBarProbeStore()
-    probeWindowsCapabilities.hostPlatform = 'win32'
-    await renderTabBar()
-    const rendersAtMount = tabBarSurfaceRenders.count
-    const runtimeCallsAtMount = localProjectRuntimeSpy.mock.calls.length
-    expect(runtimeCallsAtMount).toBeGreaterThan(0)
-
-    await pushWorktreeWrites(store)
-
-    expect(tabBarSurfaceRenders.count).toBe(rendersAtMount + WORKTREE_WRITES)
-    expect(localProjectRuntimeSpy.mock.calls.length).toBe(runtimeCallsAtMount + WORKTREE_WRITES)
   })
 })

@@ -477,7 +477,9 @@ describe('TabBar context menu wiring', () => {
     })
 
     const menuItems = findChildrenByType(element, 'DropdownMenuItem')
-    const newTerminalItem = menuItems[0]
+    const newTerminalItem = menuItems.find((item) =>
+      extractText(item.props.children).includes('New Terminal')
+    )!
     const menuContent = findChildrenByType(element, 'DropdownMenuContent')[0]
     expect(newTerminalItem).toBeTruthy()
     expect(menuContent).toBeTruthy()
@@ -495,22 +497,23 @@ describe('TabBar context menu wiring', () => {
     expect(focusTerminalTabSurface).not.toHaveBeenCalledWith('old-terminal')
   })
 
-  it('can put markdown actions before terminal actions in the new-tab menu', async () => {
+  it('lists only chat, terminal, browser, markdown and emulator, in that order', async () => {
     const element = await renderTabBar({
       tabs: [TERMINAL_TAB],
       onNewFileTab: () => {},
-      onOpenFileTab: () => {},
-      newTabMenuOrder: 'markdown-first'
+      onNewSimulatorTab: () => {}
     })
 
     const menuLabels = findChildrenByType(element, 'DropdownMenuItem').map((item) =>
       extractText(item.props.children)
     )
 
-    expect(menuLabels[0]).toContain('New Markdown')
-    expect(menuLabels[1]).toContain('Open Markdown...')
-    expect(menuLabels[2]).toContain('New Terminal')
-    expect(menuLabels[3]).toContain('New Browser Tab')
+    expect(menuLabels).toHaveLength(5)
+    expect(menuLabels[0]).toContain('New Chat')
+    expect(menuLabels[1]).toContain('New Terminal')
+    expect(menuLabels[2]).toContain('New Browser Tab')
+    expect(menuLabels[3]).toContain('New Markdown')
+    expect(menuLabels[4]).toContain('New Mobile Emulator')
   })
 
   it('omits impossible paired-web actions while keeping terminal and markdown', async () => {
@@ -518,7 +521,6 @@ describe('TabBar context menu wiring', () => {
     const element = await renderTabBar({
       tabs: [TERMINAL_TAB],
       onNewFileTab: () => {},
-      onOpenFileTab: () => {},
       onNewSimulatorTab: () => {}
     })
 
@@ -528,7 +530,6 @@ describe('TabBar context menu wiring', () => {
 
     expect(menuLabels.some((label) => label.includes('New Terminal'))).toBe(true)
     expect(menuLabels.some((label) => label.includes('New Markdown'))).toBe(true)
-    expect(menuLabels.some((label) => label.includes('Open Markdown...'))).toBe(true)
     expect(menuLabels.some((label) => label.includes('Browser'))).toBe(false)
     expect(menuLabels.some((label) => label.includes('Mobile Emulator'))).toBe(false)
   })

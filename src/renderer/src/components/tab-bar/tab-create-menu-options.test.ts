@@ -4,7 +4,6 @@ import {
   buildTabCreateMenuOptions,
   findMatchingTabCreateMenuOptions,
   isTabCreateMenuQueryTooLarge,
-  withPluginNewFileMenuOptions,
   type TabCreateMenuOption
 } from './tab-create-menu-options'
 
@@ -15,11 +14,27 @@ afterEach(() => {
 describe('tab create menu options', () => {
   const defaultOptions = buildTabCreateMenuOptions({
     terminalOnly: false,
+    hasNewChat: true,
     hasNewBrowser: true,
     hasNewMarkdown: true,
-    hasOpenMarkdown: true,
     hasSimulator: true,
     simulatorIsGoTo: false
+  })
+
+  it('lists exactly chat, terminal, browser, markdown, emulator in order', () => {
+    expect(defaultOptions.map((option) => option.kind)).toEqual([
+      'new-chat',
+      'new-terminal',
+      'new-browser',
+      'new-markdown',
+      'new-simulator'
+    ])
+  })
+
+  it('matches chat aliases to the new chat action', () => {
+    expect(
+      findMatchingTabCreateMenuOptions('chat', defaultOptions).map((option) => option.kind)
+    ).toEqual(['new-chat'])
   })
 
   it('matches mobile emulator aliases to the simulator menu action', () => {
@@ -33,9 +48,9 @@ describe('tab create menu options', () => {
   it('matches go-to simulator when the workspace already has one', () => {
     const options = buildTabCreateMenuOptions({
       terminalOnly: false,
+      hasNewChat: true,
       hasNewBrowser: true,
       hasNewMarkdown: true,
-      hasOpenMarkdown: false,
       hasSimulator: true,
       simulatorIsGoTo: true
     })
@@ -57,78 +72,16 @@ describe('tab create menu options', () => {
   it('keeps terminal and markdown results when client-impossible actions are omitted', () => {
     const options = buildTabCreateMenuOptions({
       terminalOnly: false,
+      hasNewChat: false,
       hasNewBrowser: false,
       hasNewMarkdown: true,
-      hasOpenMarkdown: true,
       hasSimulator: false,
       simulatorIsGoTo: false
     })
 
-    expect(options.map((option) => option.kind)).toEqual([
-      'new-terminal',
-      'new-markdown',
-      'open-markdown'
-    ])
+    expect(options.map((option) => option.kind)).toEqual(['new-terminal', 'new-markdown'])
     expect(findMatchingTabCreateMenuOptions('browser', options)).toEqual([])
     expect(findMatchingTabCreateMenuOptions('mobile emulator', options)).toEqual([])
-  })
-
-  it('preserves default Windows shell order for tied terminal matches', () => {
-    const options = buildTabCreateMenuOptions({
-      terminalOnly: false,
-      hasNewBrowser: false,
-      hasNewMarkdown: false,
-      hasOpenMarkdown: false,
-      hasSimulator: false,
-      simulatorIsGoTo: false,
-      windowsShellEntries: [
-        { label: 'PowerShell', shell: 'powershell.exe' },
-        { label: 'CMD Prompt', shell: 'cmd.exe' }
-      ]
-    })
-
-    expect(
-      findMatchingTabCreateMenuOptions('new terminal', options).map((option) => option.shell)
-    ).toEqual(['powershell.exe', 'cmd.exe'])
-  })
-
-  it("offers a plugin's new files wherever New Markdown is, matched by name or extension", () => {
-    const drawing = {
-      key: 'stablyai.orca-excalidraw/drawing',
-      pluginKey: 'stablyai.orca-excalidraw',
-      pluginName: 'Excalidraw',
-      id: 'drawing',
-      title: 'New Excalidraw drawing',
-      extension: '.excalidraw'
-    }
-    const context = {
-      terminalOnly: false,
-      hasNewBrowser: false,
-      hasOpenMarkdown: true,
-      hasSimulator: false,
-      simulatorIsGoTo: false
-    }
-    const options = withPluginNewFileMenuOptions(
-      buildTabCreateMenuOptions({ ...context, hasNewMarkdown: true }),
-      [drawing]
-    )
-    expect(options.map((option) => option.kind)).toEqual([
-      'new-terminal',
-      'new-markdown',
-      'new-plugin-file',
-      'open-markdown'
-    ])
-    for (const query of ['excalidraw', '.excalidraw', 'new excalidraw drawing']) {
-      expect(findMatchingTabCreateMenuOptions(query, options)[0]?.pluginNewFile, query).toBe(
-        drawing
-      )
-    }
-    expect(
-      withPluginNewFileMenuOptions(
-        buildTabCreateMenuOptions({ ...context, hasNewMarkdown: false }),
-        [drawing]
-      ).some((option) => option.kind === 'new-plugin-file')
-    ).toBe(false)
   })
 
   it('returns no matches for an empty query', () => {

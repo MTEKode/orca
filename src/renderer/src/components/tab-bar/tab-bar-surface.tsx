@@ -10,8 +10,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { ProjectedAgentMenuItems } from './QuickLaunchButton'
-import { TabBarAgentPickerEntry } from './TabBarAgentPickerEntry'
+import TabBarCreateEntry from './TabBarCreateEntry'
 import { TabStripScrollIndicator } from './TabStripScrollIndicator'
 import { TabStripTooltipProvider } from './TabStripTooltipProvider'
 import { getTabStripScrollMaskClassName } from './tab-strip-scroll-metrics'
@@ -53,7 +52,6 @@ export function renderTabBarSurface({
   const {
     worktreeId,
     terminalOnly = false,
-    showAgentLaunchItems = true,
     onNewTerminalTab,
     onOpenEntry,
     tabStripChrome = 'default'
@@ -65,26 +63,18 @@ export function renderTabBarSurface({
     mobileEmulatorCreationEnabled,
     workspaceHasSimulatorTab,
     showMobileEmulatorIntroCallout,
-    windowsTerminalCapabilities,
-    defaultWindowsPowerShellImplementation,
     newTerminalShortcut,
     newBrowserShortcut,
     newSimulatorShortcut,
-    newFileShortcut,
-    openMarkdownShortcut
+    newFileShortcut
   } = runtime
   const {
-    agentMenu,
-    agentPickerInventory,
-    selectPickerAgent,
-    launchAgentRow,
+    openNewChat,
     newTabMenuOpen,
     setNewTabMenuOpen,
     setCreateMenuQuery,
     createMenuOptions,
-    windowsShellEntries,
     handleSelectCreateMenuOption,
-    launchAgentFromNewTabEntry,
     runPendingNewTabMenuFocusAfterClose,
     queueNewActiveTerminalFocusAfterNewTabMenuClose,
     queueFocusAfterNewTabMenuClose,
@@ -236,13 +226,11 @@ export function renderTabBarSurface({
         >
           {!terminalOnly && onOpenEntry ? (
             <>
-              <TabBarAgentPickerEntry
-                inventory={agentPickerInventory}
+              <TabBarCreateEntry
                 worktreeId={worktreeId}
                 groupId={resolvedGroupId}
                 menuOpen={newTabMenuOpen}
                 menuOptions={createMenuOptions}
-                onLaunchAgentOption={launchAgentFromNewTabEntry}
                 onOpenDefaultTerminal={() => {
                   queueNewActiveTerminalFocusAfterNewTabMenuClose()
                   onNewTerminalTab()
@@ -259,37 +247,21 @@ export function renderTabBarSurface({
           {showStaticCreateMenuItems ? (
             <TabBarStaticCreateMenu
               props={props}
-              groupId={resolvedGroupId}
               terminalOnly={terminalOnly}
               mobileEmulatorEnabled={mobileEmulatorEnabled}
               managedBrowserCreationEnabled={managedBrowserCreationEnabled}
               mobileEmulatorCreationEnabled={mobileEmulatorCreationEnabled}
               workspaceHasSimulatorTab={workspaceHasSimulatorTab}
               showMobileEmulatorIntroCallout={showMobileEmulatorIntroCallout}
-              windowsShellEntries={windowsShellEntries}
-              defaultWindowsPowerShellImplementation={defaultWindowsPowerShellImplementation}
-              pwshAvailable={windowsTerminalCapabilities.pwshAvailable}
               newTerminalShortcut={newTerminalShortcut}
               newBrowserShortcut={newBrowserShortcut}
               newSimulatorShortcut={newSimulatorShortcut}
               newFileShortcut={newFileShortcut}
-              openMarkdownShortcut={openMarkdownShortcut}
+              openNewChat={openNewChat}
               queueNewActiveTerminalFocusAfterNewTabMenuClose={
                 queueNewActiveTerminalFocusAfterNewTabMenuClose
               }
             />
-          ) : null}
-          {showStaticCreateMenuItems && showAgentLaunchItems ? (
-            <>
-              <DropdownMenuSeparator />
-              <ProjectedAgentMenuItems
-                model={agentMenu}
-                pickerInventory={agentPickerInventory}
-                onSelectPickerAgent={selectPickerAgent}
-                hidePickerSearch={!terminalOnly && Boolean(onOpenEntry)}
-                runLaunch={launchAgentRow}
-              />
-            </>
           ) : null}
         </DropdownMenuContent>
       </DropdownMenu>
