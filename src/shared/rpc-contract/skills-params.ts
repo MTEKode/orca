@@ -10,3 +10,5 @@ export const SkillsCancelInstallParams = z
   .strict()
 
 export const SkillsDiscoverParams = SkillDiscoveryTargetSchema.default({})
+
+export const SkillsUnifiedCatalogParams = z.object({ repoPath: z.string().min(1) }).strict()

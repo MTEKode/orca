@@ -2,6 +2,7 @@ import { defineMethod } from '../core'
 import { getStructuredAgentSessionHost } from '../../../native-chat/agent-session-wire/structured-agent-session-registry'
 import { MTE_DEPLOY_CHECK_METHODS } from './mte-deploy-check'
 import {
+  MteGetPlannerPinParams,
   MteMarkPlannerParams,
   MtePrepareWorkspaceParams
 } from '../../../../shared/rpc-contract/mte-params'
@@ -41,6 +42,17 @@ export const MTE_METHODS = [
         params.worker
       )
       return { ok: true }
+    }
+  }),
+  defineMethod({
+    // Lets the composer label show the worker pinned on an MTE planner chat; null for plain chats.
+    name: 'mte.getPlannerPin',
+    permission: 'workspace',
+    params: MteGetPlannerPinParams,
+    handler: async (params, { runtime }) => {
+      await runtime.ensureStructuredAgentSessionHost()
+      const record = getStructuredAgentSessionHost()?.deps.store.getRecord(params.sessionId)
+      return { worker: record?.mteRole === 'planner' ? (record.mteWorker ?? null) : null }
     }
   }),
   ...MTE_DEPLOY_CHECK_METHODS

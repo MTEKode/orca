@@ -130,10 +130,7 @@ describe('picker window launch contract', () => {
       const { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } =
         await import('../components/ui/dropdown-menu')
       const { useTabAgentMenuLaunch } = await import('../components/tab-bar/QuickLaunchButton')
-      const { EntryActionRow } = await import('../components/tab-bar/TabBarCreateEntryRow')
-      const { matchingAgentPickerLaunchOptions, configuredAgentPickerLaunchOption } =
-        await import('../components/tab-bar/tab-agent-launch-options')
-      const { agentPickerChoiceSeeds, agentPickerLaunchInputs } =
+      const { agentPickerChoiceSeeds, agentPickerLaunchInputs, searchAgentPickerSetups } =
         await import('../../../shared/agent-launch-picker')
       Object.assign(store.settings, { agentDefaultArgs: { claude: '--add-dir docs' } })
       if (target === 'ssh') {
@@ -180,8 +177,13 @@ describe('picker window launch contract', () => {
       }
       expect(entry.defaultSurface).toBe('terminal')
       expect(entry.surfaces).toEqual(target === 'ssh' ? ['terminal'] : ['chat', 'terminal'])
-      const option = matchingAgentPickerLaunchOptions([entry], 'opus high')[0]
-      function Menu({ omnibox }: { omnibox: boolean }) {
+      const found = searchAgentPickerSetups([entry], 'opus high')[0]
+      const setup = {
+        agent: entry.agent,
+        surface: found.entry.defaultSurface,
+        choices: found.choices
+      }
+      function Menu() {
         const runLaunch = useTabAgentMenuLaunch({
           worktreeId: 'wt-1',
           groupId: 'group-1',
@@ -190,39 +192,28 @@ describe('picker window launch contract', () => {
         return createElement(
           TooltipProvider,
           null,
-          omnibox
-            ? createElement(EntryActionRow, {
-                id: 'setup-result',
-                selected: true,
-                option: { kind: 'agent', option },
-                onClick: () => runLaunch(option.row!, option.setup, entry),
-                onUseAgent: (draft) => {
-                  const configured = configuredAgentPickerLaunchOption(option, draft)
-                  runLaunch(configured.row!, configured.setup, entry)
-                }
+          createElement(
+            DropdownMenu,
+            { defaultOpen: true, modal: false },
+            createElement(DropdownMenuTrigger, null, 'New tab'),
+            createElement(
+              DropdownMenuContent,
+              null,
+              createElement(AgentLaunchPickerMenu, {
+                entries: [entry],
+                runLaunch
               })
-            : createElement(
-                DropdownMenu,
-                { defaultOpen: true, modal: false },
-                createElement(DropdownMenuTrigger, null, 'New tab'),
-                createElement(
-                  DropdownMenuContent,
-                  null,
-                  createElement(AgentLaunchPickerMenu, {
-                    entries: [entry],
-                    runLaunch
-                  })
-                )
-              )
+            )
+          )
         )
       }
-      const perform = async (inputs = {}, menu?: 'ordinary' | 'searched' | 'omnibox') => {
+      const perform = async (inputs = {}, menu?: 'ordinary' | 'searched') => {
         mockCreateTab.mockClear()
         mockCreateWebRuntimeSessionTerminal.mockClear()
         mockToastError.mockClear()
         dispatch.mockClear()
         if (menu) {
-          render(createElement(Menu, { omnibox: menu === 'omnibox' }))
+          render(createElement(Menu))
           if (menu === 'searched') {
             fireEvent.change(document.querySelector('input')!, { target: { value: 'opus high' } })
           }
@@ -270,10 +261,9 @@ describe('picker window launch contract', () => {
         expect(configured.errors).toHaveLength(1)
       }
       const expectedSearch = await perform(
-        agentPickerLaunchInputs({ ...option.setup!, surface: 'terminal' }, entry)
+        agentPickerLaunchInputs({ ...setup, surface: 'terminal' }, entry)
       )
       expect(await perform({}, 'searched')).toEqual(expectedSearch)
-      expect(await perform({}, 'omnibox')).toEqual(expectedSearch)
       expect(expectedSearch.command ?? expectedSearch.remote?.command ?? '').toContain('opus')
       dispatch.mockRestore()
     }

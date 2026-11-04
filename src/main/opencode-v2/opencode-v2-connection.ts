@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import type { OpenCodeV2Client } from './opencode-v2-client'
 
 /** A reused prompt id: the provider already admitted this exact send. */
@@ -16,7 +17,7 @@ export type OpenCodeV2PromptFile = {
 
 export type OpenCodeV2SendInput = {
   text: string
-  /** Orca's client message id: the provider's idempotency and message id. */
+  /** Orca's client message id; mapped to a provider `msg_` id inside the connection. */
   id: string
   files?: OpenCodeV2PromptFile[]
   /** Default 'steer' injects into a running turn; 'queue' waits for the next one. */
@@ -37,6 +38,17 @@ function clientStatus(error: unknown): number | null {
   return typeof status === 'number' ? status : null
 }
 
+const OPENCODE_MESSAGE_ID = /^msg_[0-9a-z]{26}$/
+
+/** OpenCode validates prompt ids as `msg_` + 12 hex (timestamp) + 14 base62-ish chars. */
+export function toOpenCodeMessageId(clientMessageId: string, now = Date.now()): string {
+  if (OPENCODE_MESSAGE_ID.test(clientMessageId)) {
+    return clientMessageId
+  }
+  const digest = BigInt(`0x${createHash('sha256').update(clientMessageId).digest('hex')}`)
+  return `msg_${now.toString(16).padStart(12, '0')}${digest.toString(36).slice(0, 14)}`
+}
+
 /** The one HTTP surface this transport uses; every call names its session explicitly. */
 export class OpenCodeV2Connection {
   constructor(
@@ -44,12 +56,24 @@ export class OpenCodeV2Connection {
     readonly sessionID: string
   ) {}
 
+  // Keeps retries of one client id on one provider id so the 409 idempotency still holds.
+  private readonly providerIds = new Map<string, string>()
+
+  private providerMessageId(clientMessageId: string): string {
+    let id = this.providerIds.get(clientMessageId)
+    if (!id) {
+      id = toOpenCodeMessageId(clientMessageId)
+      this.providerIds.set(clientMessageId, id)
+    }
+    return id
+  }
+
   async send(input: OpenCodeV2SendInput) {
     try {
       return await this.client.session.prompt(
         {
           sessionID: this.sessionID,
-          id: input.id,
+          id: this.providerMessageId(input.id),
           text: input.text,
           delivery: input.delivery ?? 'steer',
           ...(input.files?.length

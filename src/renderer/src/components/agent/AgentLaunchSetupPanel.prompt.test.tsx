@@ -258,7 +258,6 @@ it.each(['/model', '/effort', '/resume'])(
   }
 )
 
-import { EntryActionRow } from '../tab-bar/TabBarCreateEntryRow'
 import { AgentLaunchPickerMenu } from './AgentLaunchPickerMenu'
 import {
   DropdownMenu,
@@ -266,7 +265,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 it.each(['claude', 'codex'] as const)(
-  'both actual setup callers retain rich %s input/options across freshness, refusal and explicit retry',
+  'the actual setup caller retains rich %s input/options across freshness, refusal and explicit retry',
   async (agent) => {
     const own: AgentPickerEntry = {
       ...entry,
@@ -328,16 +327,12 @@ it.each(['claude', 'codex'] as const)(
     act(() =>
       root.render(
         <TooltipProvider>
-          <EntryActionRow
-            id="actual-search-row"
-            option={{
-              kind: 'agent',
-              option: { agent, aliases: [], label: agent, pickerEntry: refreshed }
-            }}
-            selected={false}
-            onClick={() => launch(undefined)}
-            onUseAgent={(draft) => launch(own.rows[0], draft, refreshed)}
-          />
+          <DropdownMenu key="refreshed" defaultOpen modal={false}>
+            <DropdownMenuTrigger>New tab</DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <AgentLaunchPickerMenu entries={[refreshed]} runLaunch={launch} />
+            </DropdownMenuContent>
+          </DropdownMenu>
         </TooltipProvider>
       )
     )

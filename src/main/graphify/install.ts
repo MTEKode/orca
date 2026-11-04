@@ -25,11 +25,16 @@ const defaultExec: Exec = async (cmd, args) => {
   return r.stdout
 }
 
+// Why: the gemini backend needs the `openai` client, which only the `gemini` extra pulls in.
+const GRAPHIFY_SPEC = 'graphifyy[mcp,gemini]'
+
 async function installedVersion(exec: Exec): Promise<string | null> {
   try {
     // `uv tool run` would auto-install; `tool list` only reads what's installed.
-    const out = await exec('uv', ['tool', 'list'])
-    return /^graphifyy v(\S+)/m.exec(out)?.[1] ?? null
+    const out = await exec('uv', ['tool', 'list', '--show-extras'])
+    const m = /^graphifyy v(\S+)(?: \[extras: ([^\]]*)\])?/m.exec(out)
+    // Why: an install without the gemini extra is treated as missing so it gets upgraded in place.
+    return m && m[2]?.split(/,\s*/).includes('gemini') ? m[1] : null
   } catch (error) {
     // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: parsed JSON/error shape is checked at this boundary
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
@@ -43,7 +48,7 @@ async function installedVersion(exec: Exec): Promise<string | null> {
 export async function ensureGraphify(exec: Exec = defaultExec): Promise<string> {
   const version = await installedVersion(exec)
   if (!version || !versionAtLeast(version, GRAPHIFY_MIN_VERSION)) {
-    await exec('uv', ['tool', 'install', '--upgrade', 'graphifyy[mcp]'])
+    await exec('uv', ['tool', 'install', '--upgrade', GRAPHIFY_SPEC])
   }
   // ponytail: relies on uv's tool bin dir being on PATH; resolve via `uv tool dir --bin` if that bites.
   return 'graphify'

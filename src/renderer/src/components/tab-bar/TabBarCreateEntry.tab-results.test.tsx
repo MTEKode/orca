@@ -8,7 +8,6 @@ import { buildPaletteTabDocument } from '../../../../shared/palette-match/tab-do
 import type { SearchableWorkspaceTab } from '@/lib/workspace-tab-palette-search'
 import type { OpenTabSearchResult } from './open-tab-search'
 import type { OpenTabSearchEntries } from './open-tab-search-entries'
-import type { TabAgentLaunchOption } from './tab-agent-launch-options'
 import type { TabCreateMenuOption } from './tab-create-menu-options'
 import type { TabEntryOption } from './tab-create-entry-action'
 import { encodePaletteIdentity } from '../../../../shared/palette-match/palette-ranking'
@@ -278,24 +277,20 @@ describe('TabBarCreateEntry tab results', () => {
     expect(rowTexts()[1]).toContain('Claude Code')
   })
 
-  it('orders tab rows above menu actions, agents and file entries', () => {
+  it('orders tab rows above menu actions and file entries', () => {
     entryOptionsMock.options = [existingFileOption('src/gem.ts')]
     tabSearchMock.resultsByQuery['gem'] = [terminalResult({ title: 'gem tab' })]
     const menuOptions: TabCreateMenuOption[] = [
       { id: 'new-browser', kind: 'new-browser', keywords: ['gem'], label: 'New Browser Tab' }
     ]
-    const agentOptions: TabAgentLaunchOption[] = [
-      { agent: 'gemini', aliases: ['gemini'], label: 'Gemini' }
-    ]
-    renderEntry({ agentOptions, menuOptions })
+    renderEntry({ menuOptions })
 
     setQuery('gem')
 
     const rows = rowTexts()
     expect(rows[0]).toContain('Switch to tab')
     expect(rows[1]).toContain('New Browser Tab')
-    expect(rows[2]).toContain('Launch agent')
-    expect(rows[3]).toContain('Open file')
+    expect(rows[2]).toContain('Open file')
   })
 
   it('re-pins Enter to a deferred tab row that ranks above the auto-selected file', () => {

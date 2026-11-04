@@ -92,6 +92,28 @@ describe('NewChatDialogForm', () => {
     expect(queryByText(document.body, 'Orchestrator')).toBeNull()
   })
 
+  it('shows the harness icon and an effort icon in the pickers', () => {
+    render()
+    const model = document.body.querySelector('#new-chat-model')!
+    const effort = document.body.querySelector('#new-chat-effort')!
+    expect(model.querySelector('[data-icon="harness"] svg')).not.toBeNull()
+    expect(effort.querySelector('[data-icon="effort-high"] svg')).not.toBeNull()
+  })
+
+  it('shows icons in the orchestrator and worker pickers too', () => {
+    render()
+    act(() => {
+      fireEvent.click(document.body.querySelector('[role="checkbox"]')!)
+    })
+    for (const id of ['new-chat-orchestrator', 'new-chat-worker']) {
+      const group = document.body.querySelector(
+        `[aria-label="${id === 'new-chat-worker' ? 'Worker' : 'Orchestrator'}"]`
+      )!
+      expect(group.querySelector(`#${id}-model [data-icon="harness"] svg`)).not.toBeNull()
+      expect(group.querySelector(`#${id}-effort [data-icon="effort-medium"] svg`)).not.toBeNull()
+    }
+  })
+
   it('hides the orchestration choice when the repo cannot orchestrate', () => {
     render(vi.fn(), { orchestrationAvailable: false })
     expect(queryByText(document.body, 'Orchestration mode')).toBeNull()

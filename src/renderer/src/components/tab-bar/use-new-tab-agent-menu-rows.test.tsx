@@ -16,11 +16,6 @@ import type * as MenuRows from '@/lib/new-tab-agent-menu-rows'
 import type * as ZustandShallow from 'zustand/react/shallow'
 import type * as HostAgentSettingsTransport from '@/components/settings/agent-launch-settings-transport'
 import type { RuntimeEnvironmentStatus } from '../../../../shared/runtime-host-status'
-import { useTabBarCreateMenuController } from './use-tab-bar-create-menu-controller'
-import {
-  buildTabAgentLaunchOptionsFromRows,
-  findMatchingTabAgentLaunchOptions
-} from './tab-agent-launch-options'
 import {
   readLocalRuntimeCapabilitiesOrUnknown,
   setLocalRuntimeCapabilitiesForTests
@@ -240,41 +235,12 @@ type OwnerProps = { target: string | AgentMenuRowsTarget; phase: string }
 type OwnerResult = {
   model: NewTabAgentMenuModel
   selectionFor?: ReturnType<typeof useAgentMenuObservation>['selectionFor']
-  controller?: ReturnType<typeof useTabBarCreateMenuController>
 }
 function useMenuOwner({ target }: OwnerProps): OwnerResult {
   return { model: useNewTabAgentMenuRows(target, true, { kind: 'local' }) }
 }
 function usePickerOwner({ target }: OwnerProps): OwnerResult {
   return useAgentMenuObservation(target, true, { kind: 'local' })
-}
-function useTabOwner({ target, phase }: OwnerProps): OwnerResult {
-  const controller = useTabBarCreateMenuController({
-    worktreeId: typeof target === 'string' ? target : (target.workspace.worktreeId ?? ''),
-    resolvedGroupId: 'group',
-    terminalOnly: false,
-    showAgentLaunchItems: phase !== 'hidden',
-    mobileEmulatorEnabled: false,
-    managedBrowserCreationEnabled: false,
-    mobileEmulatorCreationEnabled: false,
-    workspaceHasSimulatorTab: false,
-    showWindowsShellMenu: false,
-    projectRuntimeShellMenuMode: null,
-    defaultWindowsShell: 'powershell',
-    defaultWindowsPowerShellImplementation: 'auto',
-    agentDetectionTarget: { kind: 'local' },
-    windowsTerminalCapabilities: {
-      wslAvailable: false,
-      wslDistros: [],
-      pwshAvailable: false,
-      gitBashAvailable: false,
-      hostPlatform: null,
-      isLoading: false
-    },
-    onNewTerminalTab: () => {},
-    onNewBrowserTab: () => {}
-  })
-  return { model: controller.agentMenu, controller }
 }
 
 it('shares real answer preparation at N and 10N across candidates, owners and selections', async () => {
@@ -300,8 +266,8 @@ it('shares real answer preparation at N and 10N across candidates, owners and se
         }
       )
     })
-    for (const useOwner of [useMenuOwner, usePickerOwner, useTabOwner]) {
-      for (const launchCwd of useOwner === useTabOwner ? [undefined] : [undefined, '.']) {
+    for (const useOwner of [useMenuOwner, usePickerOwner]) {
+      for (const launchCwd of [undefined, '.']) {
         const zero = new Map<string, ReturnType<typeof work>>()
         for (const viable of [false, true]) {
           const inventory: TuiAgent[] = ['claude', 'codex', ...(viable ? candidates : [])]
@@ -334,15 +300,8 @@ it('shares real answer preparation at N and 10N across candidates, owners and se
           })
           await act(async () => {})
           const phases =
-            useOwner === useTabOwner
-              ? ['static', 'search', 'closed', 'hidden', 'loading', 'missing-program', 'settled']
-              : useOwner === usePickerOwner
-                ? ['static', 'loading', 'missing-program']
-                : ['static']
+            useOwner === usePickerOwner ? ['static', 'loading', 'missing-program'] : ['static']
           for (const phase of phases) {
-            if (phase === 'hidden') {
-              act(() => useAppStore.setState({ activeWorktreeId: 'elsewhere' }))
-            }
             mocks.program.mockImplementation((_state, agent) =>
               phase === 'missing-program' && agent !== 'claude' && agent !== 'codex'
                 ? 'missing'
@@ -350,13 +309,6 @@ it('shares real answer preparation at N and 10N across candidates, owners and se
             )
             act(() => useAppStore.setState({ detectedAgentIds: phase === 'loading' ? null : ids }))
             mocks.detection.mockReturnValue({ detectedIds: phase === 'loading' ? null : ids })
-            const controller = hook.result.current.controller
-            if (controller) {
-              act(() => {
-                controller.setNewTabMenuOpen(!['closed', 'hidden'].includes(phase))
-                controller.setCreateMenuQuery(phase === 'search' ? 'opencode' : '')
-              })
-            }
             hook.rerender({ target, phase })
             resetWork()
             hook.rerender({ target, phase })
@@ -393,11 +345,6 @@ it('shares real answer preparation at N and 10N across candidates, owners and se
                 agent: 'codex',
                 executionHostId: 'local'
               })
-              const search = findMatchingTabAgentLaunchOptions(
-                'opencode',
-                buildTabAgentLaunchOptionsFromRows(rows)
-              )
-              expect(search.map((option) => option.row?.kind)).toEqual(viable ? ['cli'] : [])
             } else {
               expect(model.state).toBe('loading')
             }

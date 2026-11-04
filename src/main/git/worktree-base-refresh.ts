@@ -101,7 +101,8 @@ export async function getLocalBaseRefUpdateSuggestionForWorktreeCreate(
     fullRef: parsed.fullRef,
     remoteTrackingRef
   })
-  return inspection.status === 'behind'
+  // Why: a dirty owner checkout is reset on create, but a bare suggestion must not imply discarding edits.
+  return inspection.status === 'behind' && !inspection.ownerHasTrackedChanges
     ? { baseRef: parsed.baseRef, localBranch: parsed.localBranch, behind: inspection.behind }
     : undefined
 }

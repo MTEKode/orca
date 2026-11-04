@@ -33,6 +33,8 @@ import type { NativeChatComposerGoalMode } from './use-native-chat-composer-subm
 import { translate } from '@/i18n/i18n'
 import { useNativeChatComposerDraftUnsaved } from './use-native-chat-draft-unsaved'
 import { useLatestHandler } from '@/lib/use-latest-handler'
+import { imeComposedSegment } from './native-chat-ime-composed-segment'
+import type { MteWorkerPin } from '../../../../shared/mte/worker-pin'
 import type { NativeChatFollowUpBehavior } from '../../../../shared/native-chat-follow-up-behavior'
 
 function noop(): void {}
@@ -98,6 +100,8 @@ export type NativeChatComposerFieldProps = {
   sessionOptionsPickerRequest?: NativeChatOptionPickerRequest | null
   goalMode?: NativeChatComposerGoalMode
   agent?: string
+  /** The worker pinned on an MTE planner chat; labels the pill beside the orchestrator. */
+  mteWorker?: MteWorkerPin
   launchPrompt?: { placeholder: string }
 }
 
@@ -114,23 +118,6 @@ export type NativeChatComposerImageAttachment = {
   pendingName?: string
   /** Set on an image the draft names but can't send: the file to attach again. */
   unavailableName?: string
-}
-
-/** After a clear suppressed by IME, preserve only the composed segment; compare both ends because the caret need not be at the end. */
-function imeComposedSegment(base: string, settled: string): string {
-  const limit = Math.min(base.length, settled.length)
-  let prefix = 0
-  while (prefix < limit && base[prefix] === settled[prefix]) {
-    prefix += 1
-  }
-  let suffix = 0
-  while (
-    suffix < limit - prefix &&
-    base[base.length - 1 - suffix] === settled[settled.length - 1 - suffix]
-  ) {
-    suffix += 1
-  }
-  return settled.slice(prefix, settled.length - suffix)
 }
 
 export function NativeChatComposerField({
@@ -185,6 +172,7 @@ export function NativeChatComposerField({
   sessionOptionsPickerRequest,
   goalMode,
   agent,
+  mteWorker,
   launchPrompt
 }: NativeChatComposerFieldProps): React.JSX.Element {
   const draftNotSaved = useNativeChatComposerDraftUnsaved(draftScopeKey)
@@ -434,6 +422,7 @@ export function NativeChatComposerField({
                 onExitGoalMode={goalMode?.active ? exitGoalMode : undefined}
                 launchPrompt={launch}
                 {...(agent ? { agent } : {})}
+                {...(mteWorker ? { mteWorker } : {})}
               />
             </div>
           </div>

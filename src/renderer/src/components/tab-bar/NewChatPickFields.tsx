@@ -8,6 +8,7 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { translate } from '@/i18n/i18n'
+import { NewChatEffortLabel, NewChatHarnessLabel } from './NewChatOptionIcons'
 import type { AgentPickerEntry } from '../../../../shared/agent-launch-picker'
 import type { NewChatPick } from '../../../../shared/new-chat-defaults'
 import type { NewChatSelection } from './new-chat-dialog-store'
@@ -67,7 +68,9 @@ export function NewChatPickFields({
               key={newChatPairValue(entry.agent, model.id)}
               value={newChatPairValue(entry.agent, model.id)}
             >
-              {`${entry.label} / ${model.label}`}
+              <NewChatHarnessLabel agent={entry.agent}>
+                {`${entry.label} / ${model.label}`}
+              </NewChatHarnessLabel>
             </SelectItem>
           ))}
         </SelectContent>
@@ -87,7 +90,7 @@ export function NewChatPickFields({
           <SelectContent>
             {efforts.map((c) => (
               <SelectItem key={c.value} value={c.value}>
-                {c.label}
+                <NewChatEffortLabel value={c.value}>{c.label}</NewChatEffortLabel>
               </SelectItem>
             ))}
           </SelectContent>

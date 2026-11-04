@@ -583,32 +583,6 @@ describe('FloatingTerminalPanel markdown editor', () => {
     )
   })
 
-  it('opens existing markdown documents through the floating picker', async () => {
-    setFloatingTabs([makeTab({ id: 'tab-1' })])
-    mocks.pickFloatingMarkdownDocument.mockResolvedValue({
-      filePath: '/tmp/orca/notes.md',
-      relativePath: 'notes.md',
-      basename: 'notes.md',
-      name: 'notes'
-    })
-
-    const element = await renderPanel(true)
-    const tabBar = findByTypeName(element, 'TabBar')
-    ;(tabBar.props.onOpenFileTab as () => void)()
-    await flushAsyncWork()
-
-    expect(mocks.pickFloatingMarkdownDocument).toHaveBeenCalledWith()
-    expect(mocks.openFile).toHaveBeenCalledWith(
-      expect.objectContaining({
-        filePath: '/tmp/orca/notes.md',
-        relativePath: 'notes.md',
-        runtimeEnvironmentId: null,
-        worktreeId: FLOATING_TERMINAL_WORKTREE_ID
-      }),
-      expect.objectContaining({ suppressActiveRuntimeFallback: true })
-    )
-  })
-
   it('disables markdown annotations in floating editor tabs', async () => {
     setFloatingEditorTabs([makeFile({ id: 'notes' })])
 

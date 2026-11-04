@@ -6,6 +6,7 @@ import type { DiscoveredSkill, SkillDiscoveryResult } from '../../../../shared/s
 import { getNativeChatAgentProfile } from '../../../../shared/native-chat/native-chat-agent-profiles'
 import { isNativeChatSkillForAgent } from '../../../../shared/native-chat-skill-visibility'
 import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
+import { loadNativeChatUnifiedSkills } from './native-chat-unified-skills'
 import { emitNativeChatSkillDiscovery } from '@/lib/native-chat-telemetry'
 import {
   isNativeChatSkillDiscoveryAwaitingDirectory,
@@ -27,6 +28,8 @@ const DISCOVERY_BACKSTOP_TIMEOUT_MS = 18_000
 export type NativeChatSkillDiscovery = {
   status: 'idle' | 'loading' | 'ready' | 'error'
   skills: DiscoveredSkill[]
+  /** Unified catalog shared by every agent; empty until loaded. */
+  unifiedSkills?: DiscoveredSkill[]
   error: Error | null
   errorKind?: 'unavailable' | 'timeout' | 'host' | 'unknown'
   retry: () => void
@@ -86,6 +89,7 @@ export function useNativeChatSkills(
   const [state, setState] = useState<StoredDiscoveryState>(IDLE_STATE)
   const [retryGeneration, setRetryGeneration] = useState(0)
   const paneDiscoveryCache = useRef(new Map<string, SkillDiscoveryResult>())
+  const unifiedCache = useRef(new Map<string, DiscoveredSkill[]>())
   // Consume retry intent once; a generation-wide force flag would leak across pane switches.
   const forceNextDiscovery = useRef(false)
   const profile = getNativeChatAgentProfile(agent)
@@ -122,7 +126,13 @@ export function useNativeChatSkills(
         outcome: 'ready',
         executionHostKind: context.executionHostKind
       })
-      setState({ status: 'ready', skills: cached.skills, error: null, contextKey: context.key })
+      setState({
+        status: 'ready',
+        skills: cached.skills,
+        unifiedSkills: unifiedCache.current.get(paneCacheKey) ?? [],
+        error: null,
+        contextKey: context.key
+      })
       return
     }
     setState({ status: 'loading', skills: [], error: null, contextKey: context.key })
@@ -130,9 +140,10 @@ export function useNativeChatSkills(
     const forced = forceNextDiscovery.current
     forceNextDiscovery.current = false
     const request = getOrStartDiscovery(context, forced)
-    void request.then(
-      (result) => {
+    void Promise.all([request, loadNativeChatUnifiedSkills(context)]).then(
+      ([result, unifiedSkills]) => {
         paneDiscoveryCache.current.set(paneCacheKey, result)
+        unifiedCache.current.set(paneCacheKey, unifiedSkills)
         if (cancelled) {
           return
         }
@@ -141,7 +152,13 @@ export function useNativeChatSkills(
           outcome: 'ready',
           executionHostKind: context.executionHostKind
         })
-        setState({ status: 'ready', skills: result.skills, error: null, contextKey: paneCacheKey })
+        setState({
+          status: 'ready',
+          skills: result.skills,
+          unifiedSkills,
+          error: null,
+          contextKey: paneCacheKey
+        })
       },
       (reason) => {
         if (cancelled) {
@@ -199,6 +216,7 @@ export function useNativeChatSkills(
     forceNextDiscovery.current = true
     if (context) {
       paneDiscoveryCache.current.delete(context.key)
+      unifiedCache.current.delete(context.key)
       setState({ status: 'loading', skills: [], error: null, contextKey: context.key })
     }
     setRetryGeneration((generation) => generation + 1)
@@ -207,6 +225,7 @@ export function useNativeChatSkills(
     () => ({
       status: effectiveState.status,
       skills: visibleSkills,
+      unifiedSkills: effectiveState.status === 'ready' ? (effectiveState.unifiedSkills ?? []) : [],
       error: effectiveState.error,
       ...(effectiveState.errorKind ? { errorKind: effectiveState.errorKind } : {}),
       retry

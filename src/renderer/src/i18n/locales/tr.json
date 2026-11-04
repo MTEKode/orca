@@ -4248,18 +4248,12 @@
           },
           "TabBar": {
             "b1a132357f": "Yeni sekme",
-            "4f327c8b3d": "Markdown Aç...",
             "3d5d6c960d": "Yeni Markdown",
             "fd2b42aaa3": "Yeni Mobil Emülatör",
             "aea43b5748": "Mevcut emülatör sekmesini açın.",
             "b426bb2615": "Mobil Emülatöre Git",
             "4833fb2cbe": "Yeni Tarayıcı Sekmesi",
             "d364f3c8d4": "Yeni Terminal",
-            "7c1313d237": "Yeni Terminal:",
-            "d1afac112b": "WSL",
-            "efb33546ff": "Git Bash",
-            "1a8af49530": "CMD Prompt",
-            "2148f65e04": "PowerShell",
             "7a9b4af2af": "Sekmeleri sola kaydır",
             "232e075b07": "Sekmeleri sağa kaydır"
           },
@@ -4267,7 +4261,6 @@
             "d62d63b807": "Dosya oluştur",
             "25dc1cd653": "Dosyayı aç",
             "7cdf8ee0c8": "URL Aç",
-            "b27864279e": "Ajanı başlat",
             "8f0a1c4d92": "Sekmeye geç",
             "2c38630a01": "Çalışma alanı artık mevcut değil",
             "4f0d9a71c2": "Sekme artık mevcut değil",
@@ -4275,8 +4268,7 @@
             "7726ce9970": "Mobil emülatör sekmesi artık mevcut değil",
             "chooseAction": "Bir eylem seçin.",
             "searchProvider": "{{value0}} içinde ara",
-            "openPage": "Sayfayı aç",
-            "omniboxPlaceholderWithHistory": "Açık sekmelerde, geçmişte, dosyalarda, URL'lerde, ajanlarda ara…"
+            "openPage": "Sayfayı aç"
           },
           "TabBarQuickCommandsButton": {
             "a2c7a33831": "Komut",
@@ -4332,8 +4324,6 @@
                   "fb50e3d874": "yeni markdown",
                   "6d8b6b4117": "yeni dosya",
                   "b330f72434": "mark",
-                  "37ff3ddca1": "markdown aç",
-                  "164c394bab": "dosya aç",
                   "bbaf4f85a4": "mobil emülatör",
                   "3784b83bd4": "emülatör",
                   "a63847a742": "simülatör",

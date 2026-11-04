@@ -37,7 +37,13 @@ vi.mock('@/components/ui/tooltip', () => ({
 }))
 
 vi.mock('./NativeChatSessionOptionPickers', () => ({
-  NativeChatSessionOptionPickers: () => <div data-testid="session-option-pickers" />
+  NativeChatSessionOptionPickers: (props: { agent?: string; mteWorker?: { agent: string } }) => (
+    <div
+      data-testid="session-option-pickers"
+      data-agent={props.agent}
+      data-worker={props.mteWorker?.agent}
+    />
+  )
 }))
 
 import { NativeChatComposerActions } from './NativeChatComposerActions'
@@ -99,6 +105,31 @@ describe('NativeChatComposerActions', () => {
     rerender(<NativeChatComposerActions {...props} sendDisabled={false} isStopping />)
 
     expect(screen.getByRole('button', { name: 'Stopping…' }).hasAttribute('disabled')).toBe(true)
+  })
+
+  it('hands the chat agent and its pinned MTE worker to the option pill', () => {
+    const props = {
+      attachDisabled: false,
+      dictationDisabled: false,
+      sendDisabled: false,
+      isWorking: false,
+      isDictating: false,
+      isDictationHoldMode: false,
+      onAttach: vi.fn(),
+      onDictationToggle: vi.fn(),
+      onDictationHoldStart: vi.fn(),
+      onDictationHoldEnd: vi.fn(),
+      onSend: vi.fn(),
+      sessionOptionsSurface: null,
+      sessionOptionsSnapshot: [],
+      agent: 'claude'
+    }
+    const { rerender } = render(<NativeChatComposerActions {...props} />)
+    expect(screen.getByTestId('session-option-pickers').dataset.agent).toBe('claude')
+    expect(screen.getByTestId('session-option-pickers').dataset.worker).toBeUndefined()
+
+    rerender(<NativeChatComposerActions {...props} mteWorker={{ agent: 'codex' }} />)
+    expect(screen.getByTestId('session-option-pickers').dataset.worker).toBe('codex')
   })
 
   it('marks the streaming Stop control as the critical hit target', () => {

@@ -811,8 +811,8 @@
           "localBaseRefRefreshFailedForWorktree": "No se actualizó el {{value0}} local para \"{{value1}}\"",
           "903b51c2ed": "Espacio de trabajo creado desde {{value0}}, pero Orca no pudo hacer fast-forward del {{value1}} local. {{value2}}",
           "localBaseRefRefreshFailedDescriptionNamed": "El espacio de trabajo \"{{value0}}\" se creó desde {{value1}}, pero Orca no pudo hacer fast-forward del {{value2}} local. {{value3}}",
-          "localBaseRefRefreshFailedDetailDirtyNamed": "El worktree en {{value0}} (donde está checked out el {{value1}} local) tiene cambios sin confirmar. Haz commit, stash o descarta esos cambios y luego actualiza el {{value1}} local manualmente.",
-          "localBaseRefRefreshFailedDetailDirty": "El worktree donde está checked out el {{value0}} local tiene cambios sin confirmar. Haz commit, stash o descarta esos cambios y luego actualiza el {{value0}} local manualmente.",
+          "localBaseRefRefreshFailedDetailDirtyNamed": "El worktree en {{value0}} (donde está checked out el {{value1}} local) tiene archivos sin seguimiento (untracked) que bloquean la actualización. Muévelos o elimínalos y luego actualiza el {{value1}} local manualmente.",
+          "localBaseRefRefreshFailedDetailDirty": "El worktree donde está checked out el {{value0}} local tiene archivos sin seguimiento (untracked) que bloquean la actualización. Muévelos o elimínalos y luego actualiza el {{value0}} local manualmente.",
           "localBaseRefRefreshFailedDetailNotFastForward": "El {{value0}} local no existe o no se puede hacer fast-forward de forma limpia desde la base remota. Revisa si hay commits solo locales antes de actualizarlo manualmente.",
           "localBaseRefRefreshFailedDetailError": "Git devolvió un error al actualizar el {{value0}} local. Revisa el repo por refs bloqueados o un estado de worktree inusual y luego actualiza el {{value0}} local manualmente.",
           "0216895fb5": "No se pudo eliminar la rama",
@@ -3837,18 +3837,12 @@
           },
           "TabBar": {
             "b1a132357f": "Nueva pestaña",
-            "4f327c8b3d": "Abrir Markdown...",
             "3d5d6c960d": "Nuevo Markdown",
             "fd2b42aaa3": "Nuevo emulador móvil",
             "aea43b5748": "Abrir la pestaña del emulador existente.",
             "b426bb2615": "Ir al emulador móvil",
             "4833fb2cbe": "Nueva pestaña de navegador",
             "d364f3c8d4": "Nuevo terminal",
-            "7c1313d237": "Nuevo terminal:",
-            "d1afac112b": "WSL",
-            "efb33546ff": "Git Bash",
-            "1a8af49530": "CMD Prompt",
-            "2148f65e04": "PowerShell",
             "7a9b4af2af": "Desplazar pestañas a la izquierda",
             "232e075b07": "Desplazar pestañas a la derecha"
           },
@@ -3856,8 +3850,6 @@
             "d62d63b807": "Crear archivo",
             "25dc1cd653": "Abrir archivo",
             "7cdf8ee0c8": "Abrir URL",
-            "b27864279e": "Iniciar agente",
-            "omniboxPlaceholderWithHistory": "Buscar pestañas abiertas, historial, archivos, URL y agentes…",
             "openPage": "Abrir página",
             "8f0a1c4d92": "Cambiar a la pestaña",
             "2c38630a01": "El espacio de trabajo ya no existe",
@@ -3921,8 +3913,6 @@
                   "fb50e3d874": "nuevo markdown",
                   "6d8b6b4117": "nuevo archivo",
                   "b330f72434": "mark",
-                  "37ff3ddca1": "abrir markdown",
-                  "164c394bab": "abrir archivo",
                   "bbaf4f85a4": "emulador móvil",
                   "3784b83bd4": "emulador",
                   "a63847a742": "simulador",
@@ -19172,7 +19162,12 @@
           "xhigh": "Muy alto"
         },
         "sessionAttachmentsFailed": "El chat {{agent}} no se pudo abrir. Utilice Reintentar en el chat y luego adjunte los archivos nuevamente.",
-        "sessionAttachmentsStarting": "El chat de {{agent}} aún se está abriendo. Espera a que se abra y vuelve a adjuntar los archivos."
+        "sessionAttachmentsStarting": "El chat de {{agent}} aún se está abriendo. Espera a que se abra y vuelve a adjuntar los archivos.",
+        "agentLabel": {
+          "orchestrator": "Orquestador",
+          "worker": "Worker",
+          "agent": "Agente"
+        }
       },
       "tool": {
         "result": "Resultado",

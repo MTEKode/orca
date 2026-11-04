@@ -3,7 +3,6 @@ import { useNativeChatComposerNotice } from './use-native-chat-composer-notice'
 import { useNativeChatMobileHoldNotice } from './use-native-chat-mobile-hold-notice'
 import { forwardRef, useCallback, useState, useRef } from 'react'
 import { useNativeChatComposerInterrupt } from './use-native-chat-composer-interrupt'
-import { useNativeChatContextUsageSummary } from './use-native-chat-context-usage-summary'
 import { useNativeChatMentionFiles } from './use-native-chat-mention-files'
 import { useNativeChatDraft } from './use-native-chat-draft'
 import { useNativeChatDraftEvents } from './use-native-chat-draft-events'
@@ -16,9 +15,7 @@ import { useNativeChatComposerHandle } from './use-native-chat-composer-handle'
 import { useNativeChatFileDrops } from './use-native-chat-file-drops'
 import { useNativeChatComposerKeyDown } from './use-native-chat-composer-keydown'
 import { useNativeChatSendLifecycle } from './use-native-chat-send-lifecycle'
-import { useNativeChatSessionOptions } from './use-native-chat-session-options'
 import { useNativeChatDictation } from './use-native-chat-dictation'
-import { useNativeChatSessionOptionCommand } from './use-native-chat-session-option-command'
 import type * as C from './native-chat-composer-types'
 import { useNativeChatPtyComposerSend } from './use-native-chat-pty-composer-send'
 import { useNativeChatStructuredComposerSend } from './use-native-chat-structured-composer-send'
@@ -27,6 +24,8 @@ import { useNativeChatComposerAppMenuSelection } from './use-native-chat-compose
 import { useNativeChatComposerSubmit } from './use-native-chat-composer-submit'
 import { useNativeChatHasQueuedDiffComments } from './use-native-chat-queued-diff-comments'
 import { useNativeChatComposerCommandPicker } from './use-native-chat-composer-command-picker'
+import { useNativeChatComposerSessionOptions } from './use-native-chat-composer-session-options'
+import { useComposerAgentIdentity } from './use-mte-worker-pin'
 
 type ComposerHandle = C.NativeChatComposerHandle
 
@@ -126,6 +125,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       autocomplete,
       classifySend,
       clearSkillOrigin,
+      withSkillInstruction,
       completeItem,
       completeMention,
       dismiss,
@@ -213,28 +213,20 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
     })
 
     const dictation = useNativeChatDictation(textareaRef, disabled)
-    const { dispatch: dispatchSessionOptionCommand, isDispatching: isDispatchingSessionOption } =
-      useNativeChatSessionOptionCommand({
-        agent,
-        disabled,
-        onSlashCommand,
-        onSubmitted,
-        resolveTarget
-      })
-
-    const { surface: ptySessionOptionsSurface, snapshot: ptySessionOptionsSnapshot } =
-      useNativeChatSessionOptions({
-        agent,
-        terminalTabId,
-        targetPtyId,
-        dispatchCommand: dispatchSessionOptionCommand,
-        onAgentPicker: onSwitchToTerminal,
-        readTerminalScreen,
-        paneKey
-      })
-    const sessionOptionsSurface = structuredTransport?.optionsSurface ?? ptySessionOptionsSurface
-    const contextUsageSummary = useNativeChatContextUsageSummary(structuredTransport)
-    const sessionOptionsSnapshot = structuredTransport?.optionSnapshot ?? ptySessionOptionsSnapshot
+    const sessionOptions = useNativeChatComposerSessionOptions({
+      agent,
+      terminalTabId,
+      targetPtyId,
+      paneKey,
+      disabled,
+      onSlashCommand,
+      onSubmitted,
+      onSwitchToTerminal,
+      readTerminalScreen,
+      structuredTransport,
+      resolveTarget
+    })
+    const agentIdentity = useComposerAgentIdentity(agent, structuredTransport)
 
     const sendStructured = useNativeChatStructuredComposerSend({
       agent,
@@ -243,6 +235,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       structuredTransport,
       isComposing: imeEnterGesture.isComposing,
       clearSkillOrigin,
+      withSkillInstruction,
       setDraft,
       setCaret
     })
@@ -250,12 +243,12 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
     const ptyCommandRouting = {
       agent,
       disabled,
-      isDispatchingSessionOption,
+      isDispatchingSessionOption: sessionOptions.isDispatching,
       resolveTarget,
       onSlashCommand,
       onSubmitted,
       answerCommandLocally,
-      sessionOptionsSurface: ptySessionOptionsSurface,
+      sessionOptionsSurface: sessionOptions.ptySurface,
       trackPendingSend,
       setDraft,
       setCaret,
@@ -266,6 +259,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
     const sendPty = useNativeChatPtyComposerSend({
       draftScopeKey,
       ...ptyCommandRouting,
+      withSkillInstruction,
       draft,
       imageAttachments,
       launchDraft: launchSeed?.launchDraft,
@@ -407,11 +401,11 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
           onDictationHoldEnd={dictation.stopHoldDictation}
           onSend={send}
           onStop={interrupt}
-          sessionOptionsSurface={sessionOptionsSurface}
-          sessionOptionsSnapshot={sessionOptionsSnapshot}
-          contextUsage={contextUsageSummary}
+          sessionOptionsSurface={sessionOptions.surface}
+          sessionOptionsSnapshot={sessionOptions.snapshot}
+          contextUsage={sessionOptions.contextUsage}
           sessionOptionsPickerRequest={structuredTransport?.optionPickerRequest ?? null}
-          agent={agent}
+          {...agentIdentity}
           launchPrompt={launchPrompt}
           {...fieldOverrides}
         />

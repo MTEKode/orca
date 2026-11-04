@@ -19,6 +19,8 @@ import {
   nativeChatSessionOptionActionLabel,
   nativeChatSessionOptionDisabledReason
 } from '../../../../shared/native-chat-session-option-labels'
+import type { MteWorkerPin } from '../../../../shared/mte/worker-pin'
+import { composerAgentPillLabel } from './native-chat-composer-agent-label-text'
 import { sayNativeChatSessionOptionTranslated as say } from './native-chat-session-option-labels-text'
 import type { NativeChatOptionPickerRequest } from './native-chat-composer-types'
 import { runSessionOptionSurfaceCall } from './native-chat-session-option-surface-call'
@@ -34,6 +36,10 @@ export type NativeChatSessionOptionPickersProps = {
   pickerRequest?: NativeChatOptionPickerRequest | null
   /** Where focus lands after a visit that changed something; see `useNativeChatPickerFocusReturn`. */
   focusComposer?: () => void
+  /** The chat's agent: with it, the pill reads "Agent: Claude · Model · Effort" instead of model · effort. */
+  agent?: string
+  /** The worker pinned on an MTE planner chat: the pill then reads "Orchestrator: … | Worker: …". */
+  mteWorker?: MteWorkerPin
 }
 
 /** A descriptor write in flight; its value shows until it settles. */
@@ -79,6 +85,9 @@ function PickerTrigger(props: {
   modelLabel: string
   /** The options' values, shown after the model; empty when there are none to show. */
   optionsLabel: string
+  /** Replaces the model and options text with one agent-labelled line. */
+  agentLabel: string | null
+  wide: boolean
   accessibleName: string
   disabled: boolean
   disabledReason: string | null
@@ -100,11 +109,17 @@ function PickerTrigger(props: {
             size="xs"
             aria-label={props.accessibleName}
             disabled={props.disabled}
-            className="max-w-64"
+            className={props.wide ? 'max-w-md' : 'max-w-64'}
             onKeyDown={props.onKeyDown}
           >
-            <span className="truncate text-chat-foreground">{props.modelLabel}</span>
-            {props.optionsLabel ? <span className="shrink-0">{props.optionsLabel}</span> : null}
+            {props.agentLabel ? (
+              <span className="truncate text-chat-foreground">{props.agentLabel}</span>
+            ) : (
+              <>
+                <span className="truncate text-chat-foreground">{props.modelLabel}</span>
+                {props.optionsLabel ? <span className="shrink-0">{props.optionsLabel}</span> : null}
+              </>
+            )}
             <ChevronDown className="size-3" />
           </Button>
         </PopoverTrigger>
@@ -137,6 +152,8 @@ function SessionOptionPopover(props: {
   onSet: (descriptor: SessionOptionDescriptor, value: SessionOptionValue) => void
   onAction: (descriptor: SessionOptionDescriptor) => void
   focusComposer?: () => void
+  agent?: string
+  mteWorker?: MteWorkerPin
 }): React.JSX.Element {
   const { model, options, pendingIds, demandModelCatalog } = props
   const canOpen = [model, ...options].some(
@@ -170,6 +187,19 @@ function SessionOptionPopover(props: {
   const modelName = pillAccessibleName(modelTitle, modelLabel)
   const optionsTitle = nativeChatOptionsPillTitle(options, say)
   const optionsLabel = nativeChatOptionValuesLabel(options, say)
+  // The live pick, so the label follows model and effort changes; an unreported model is left out.
+  const agentLabel = props.agent
+    ? composerAgentPillLabel({
+        orchestrator: {
+          agent: props.agent,
+          ...(model.valueSource !== 'unknown' && modelLabel !== modelTitle
+            ? { model: modelLabel }
+            : {}),
+          ...(optionsLabel ? { effort: optionsLabel } : {})
+        },
+        ...(props.mteWorker ? { worker: props.mteWorker } : {})
+      })
+    : null
   const modelReason = nativeChatSessionOptionDisabledReason(model.disabledReason, say)
   const optionsReason =
     options.length > 0 && options.every((descriptor) => !descriptor.settable)
@@ -211,10 +241,14 @@ function SessionOptionPopover(props: {
       <PickerTrigger
         modelLabel={modelLabel}
         optionsLabel={optionsLabel}
+        agentLabel={agentLabel}
+        wide={props.mteWorker !== undefined}
         accessibleName={
-          optionsLabel
-            ? `${modelName}, ${pillAccessibleName(optionsTitle, optionsLabel)}`
-            : modelName
+          agentLabel
+            ? pillAccessibleName(modelTitle, agentLabel)
+            : optionsLabel
+              ? `${modelName}, ${pillAccessibleName(optionsTitle, optionsLabel)}`
+              : modelName
         }
         disabled={!canOpen}
         disabledReason={modelReason ?? optionsReason}
@@ -307,7 +341,9 @@ function NativeChatSessionOptionPickersInner({
   snapshot,
   isWorking,
   pickerRequest,
-  focusComposer
+  focusComposer,
+  agent,
+  mteWorker
 }: NativeChatSessionOptionPickersProps): React.JSX.Element | null {
   useUiLanguageRevision()
   const [pending, setPending] = useState<ReadonlyMap<string, PendingPick>>(() => new Map())
@@ -356,6 +392,8 @@ function NativeChatSessionOptionPickersInner({
           )
         }
         focusComposer={focusComposer}
+        agent={agent}
+        mteWorker={mteWorker}
       />
     </div>
   )
