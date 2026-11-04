@@ -2,10 +2,9 @@ import { describe, expect, it, vi } from 'vitest'
 import { adoptMteWorkerPin, withMteWorkerPin } from './worker-start-mte-pin'
 
 const markMtePlanner = vi.fn()
-vi.mock(
-  '../../../../../native-chat/agent-session-wire/structured-agent-session-registry',
-  () => ({ getStructuredAgentSessionHost: () => ({ deps: { store: { markMtePlanner } } }) })
-)
+vi.mock('../../../../../native-chat/agent-session-wire/structured-agent-session-registry', () => ({
+  getStructuredAgentSessionHost: () => ({ deps: { store: { markMtePlanner } } })
+}))
 const pinned = { mteWorker: { agent: 'codex', model: 'gpt-5', effort: 'high' } } as const
 
 describe('withMteWorkerPin', () => {
