@@ -12,7 +12,7 @@ import { exposeMessage } from './mailbox-message-receipt'
 import { recordReceiptBeforeNudge } from './mutation-replay-nudge'
 
 /** Answer a Run's question: its creator's helper, its current consumer, or a federated relay home.
- *  A question standing for a worker's prompt resolves that prompt first; a stale one closes the
+ *  Caller authority is checked first, then a question standing for a worker's prompt resolves that prompt; a stale one closes the
  *  question with a typed error instead of answering twice. */
 export async function answerQuestionReply(args: {
   runtime: OrcaRuntimeService
@@ -26,7 +26,6 @@ export async function answerQuestionReply(args: {
   recordMutationReceipt?: (receipt: unknown) => void
 }): Promise<unknown> {
   const { runtime, db, question, original, params, recordMutationReceipt } = args
-  await resolveWorkerPromptReply(db, original, params.body)
   const creatorAnswerer =
     params.run === undefined || params.run === question.run_id
       ? helperQuestionAnswerer(runtime, {
@@ -37,6 +36,7 @@ export async function answerQuestionReply(args: {
         })
       : undefined
   if (creatorAnswerer) {
+    await resolveWorkerPromptReply(db, original, params.body)
     const answered = db.answerQuestion({
       messageId: question.message_id,
       runId: question.run_id,
@@ -57,6 +57,7 @@ export async function answerQuestionReply(args: {
     callerEvidence: args.callerEvidence,
     callerSession: args.callerSession
   })
+  await resolveWorkerPromptReply(db, original, params.body)
   const answered = db.answerQuestion({
     messageId: question.message_id,
     runId: run.id,

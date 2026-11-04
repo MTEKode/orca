@@ -644,6 +644,22 @@ describe('a request that settles while the user is asked something', () => {
     expect(h.outcomes()).toEqual([[M1, 'failure']])
   })
 
+  it('still raises a prompt left pending by a failed turn, after the failure completion', () => {
+    const h = harness()
+    h.listen({ includePrompts: true })
+    const user = userEntry('m1', 1)
+    const accepted = [sent('m1', { dispatchState: 'accepted' })]
+    h.setJournal([user, turnItem(turn('t1', 'running'), 2)], accepted)
+    h.observe()
+    h.setJournal(
+      [user, turnItem(turn('t1', 'completed', 'failure'), 2), approval('a1', 3, 'pending')],
+      accepted
+    )
+    h.observe()
+    expect(h.outcomes()).toEqual([['t1', 'failure']])
+    expect(h.prompts()).toEqual(['a1'])
+  })
+
   it('announces the main turn asking for permission once, and the settle once', () => {
     const h = harness()
     h.listen({ includePrompts: true })

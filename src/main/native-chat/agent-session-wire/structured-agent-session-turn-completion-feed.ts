@@ -129,7 +129,8 @@ export class StructuredAgentSessionTurnCompletionFeed {
       completion.journalCursor = cursor
       const restatesPrompt = completion.awaitingUser === true && completion.outcome === 'success'
       this.broadcast({ type: 'completion', completion }, restatesPrompt ? 'legacy' : 'all')
-      if (!restatesPrompt) {
+      // A failed turn that left a pending prompt must still raise it, or a dispatched worker stalls unseen.
+      if (!restatesPrompt && completion.outcome === 'success') {
         return
       }
     }
