@@ -12,7 +12,7 @@ function createOpenCodeV2Adapter(
 ): StructuredAgentRuntimeAdapter {
   const { deps, store, followUps } = context
   return new OpenCodeV2SessionAdapter({
-    service: openCodeV2ProcessService(),
+    service: openCodeV2ProcessService(deps.resolveAgentCommandSettings),
     resolveWorkspacePath: deps.resolveWorkspacePath,
     readRecord: (sessionId) => store.getRecord(sessionId),
     onLifecycle: context.deliverLifecycle,

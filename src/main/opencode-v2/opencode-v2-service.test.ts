@@ -162,6 +162,19 @@ describe('createOpenCodeV2Service launch', () => {
     })
     await expect(resolver.endpoint()).rejects.toBeInstanceOf(OrchestrationError)
     expect(ensure).not.toHaveBeenCalled()
-    expect(launch).toHaveBeenCalledTimes(1)
+    expect(launch).toHaveBeenCalledTimes(2)
+  })
+
+  it('does not cache a missing CLI: the next attempt resolves again and succeeds', async () => {
+    const { service, ensure } = fakeService()
+    const launch = vi
+      .fn()
+      .mockResolvedValueOnce(null)
+      .mockResolvedValue({ command: '/bin/opencode' })
+    const resolver = createOpenCodeV2Service({ service, launch, readFile: async () => '{}' })
+    await expect(resolver.endpoint()).rejects.toMatchObject({ code: 'capability_unsupported' })
+    await resolver.endpoint()
+    expect(launch).toHaveBeenCalledTimes(2)
+    expect(ensure).toHaveBeenCalledTimes(1)
   })
 })

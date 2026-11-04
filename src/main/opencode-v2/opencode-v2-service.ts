@@ -1,4 +1,6 @@
 import { readFile } from 'node:fs/promises'
+import { getSpawnArgsForWindows } from '../../shared/windows-batch-spawn'
+import type { StructuredAgentCommandSettings } from '../native-chat/structured-agent-command-resolution'
 import { resolveOpenCodeV2ServiceLaunch } from './opencode-v2-service-launch'
 import { OrchestrationError } from '../runtime/orchestration/orchestration-error'
 
@@ -65,11 +67,17 @@ function readRegistrationPid(contents: string): { pid: number | null; version: s
   }
 }
 
+/** `.cmd`/`.bat` shims cannot be spawned directly on Windows; the shared helper wraps them in cmd.exe. */
+function openCodeV2ServiceCommand(command: string): string[] {
+  const { spawnCmd, spawnArgs } = getSpawnArgsForWindows(command, ['serve', '--service'])
+  return [spawnCmd, ...spawnArgs]
+}
+
 /** What starts the shared service: the resolved binary plus the env (hydrated PATH) it needs. */
 export type OpenCodeV2ServiceLaunch = { command: string; env?: Record<string, string> }
 
 export type OpenCodeV2ServiceDeps = {
-  /** Resolved once per process (failure included); a GUI-launched app's PATH may lack the CLI. */
+  /** Resolved on every start attempt (never cached): the CLI may be installed or the override fixed while Orca runs. */
   launch?: () => Promise<OpenCodeV2ServiceLaunch | null>
   service?: OpenCodeV2ServiceModule | (() => Promise<OpenCodeV2ServiceModule>)
   readFile?: (path: string) => Promise<string>
@@ -83,7 +91,6 @@ export function createOpenCodeV2Service(deps: OpenCodeV2ServiceDeps = {}) {
     typeof deps.service === 'function'
       ? await deps.service()
       : (deps.service ?? (await defaultServiceModule()))
-  let launch: Promise<OpenCodeV2ServiceLaunch | null> | null = null
   const read = deps.readFile ?? ((path: string) => readFile(path, 'utf8'))
 
   const resolve = async (): Promise<ResolvedOpenCodeV2Endpoint> => {
@@ -91,8 +98,7 @@ export function createOpenCodeV2Service(deps: OpenCodeV2ServiceDeps = {}) {
     let endpoint: OpenCodeV2Endpoint
     let resolved: OpenCodeV2ServiceLaunch | null = null
     if (deps.launch) {
-      launch ??= deps.launch().catch(() => null)
-      resolved = await launch
+      resolved = await deps.launch().catch(() => null)
       if (!resolved) {
         throw new OrchestrationError('capability_unsupported', OPENCODE_V2_CLI_MISSING_REFUSAL)
       }
@@ -101,7 +107,7 @@ export function createOpenCodeV2Service(deps: OpenCodeV2ServiceDeps = {}) {
       endpoint = await service.ensure({
         ...(resolved
           ? {
-              command: [resolved.command, 'serve', '--service'],
+              command: openCodeV2ServiceCommand(resolved.command),
               ...(resolved.env ? { env: resolved.env } : {})
             }
           : {}),
@@ -142,7 +148,6 @@ export function createOpenCodeV2Service(deps: OpenCodeV2ServiceDeps = {}) {
     },
     reset(): void {
       cached = null
-      launch = null
     }
   }
 }
@@ -152,7 +157,15 @@ export type OpenCodeV2Service = ReturnType<typeof createOpenCodeV2Service>
 let processService: OpenCodeV2Service | null = null
 
 /** The process-wide resolver; tests build their own via createOpenCodeV2Service. */
-export function openCodeV2ProcessService(): OpenCodeV2Service {
-  processService ??= createOpenCodeV2Service({ launch: resolveOpenCodeV2ServiceLaunch })
+let commandSettings: (() => StructuredAgentCommandSettings) | undefined
+
+/** `resolveSettings` supplies the user's `agentCmdOverrides`; the latest one given is used. */
+export function openCodeV2ProcessService(
+  resolveSettings?: () => StructuredAgentCommandSettings
+): OpenCodeV2Service {
+  commandSettings = resolveSettings ?? commandSettings
+  processService ??= createOpenCodeV2Service({
+    launch: () => resolveOpenCodeV2ServiceLaunch(commandSettings?.())
+  })
   return processService
 }
