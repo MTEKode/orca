@@ -450,6 +450,7 @@ import {
 import {
   MteDeployCheckConfigParams,
   MteDeployCheckReportParams,
+  MteGetPlannerPinParams,
   MteMarkPlannerParams,
   MtePrepareWorkspaceParams
 } from './mte-params'
@@ -594,7 +595,8 @@ import { SidebarSessionBeginParams } from './sidebar-session-params'
 import {
   SkillsCancelInstallParams,
   SkillsDiscoverParams,
-  SkillsGetInstallProgressParams
+  SkillsGetInstallProgressParams,
+  SkillsUnifiedCatalogParams
 } from './skills-params'
 import {
   DictationChunk,
@@ -1298,6 +1300,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'mobileWeb.bundle.range': MobileWebBundleChunkParamsSchema,
   'mte.deployCheckConfig': MteDeployCheckConfigParams,
   'mte.deployCheckReport': MteDeployCheckReportParams,
+  'mte.getPlannerPin': MteGetPlannerPinParams,
   'mte.markPlanner': MteMarkPlannerParams,
   'mte.prepareWorkspace': MtePrepareWorkspaceParams,
   'nativeChat.readSession': NativeChatSession,
@@ -1490,6 +1493,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'skills.previewInstall': SkillInstallPreviewRequestSchema,
   'skills.removeInstall': SkillRemoveRequestSchema,
   'skills.share': AgentSkillShareRequestSchema,
+  'skills.unifiedCatalog': SkillsUnifiedCatalogParams,
   'skills.uploadChunk': SkillUploadChunkRequestSchema,
   'speech.dictation.cancel': DictationHandle,
   'speech.dictation.chunk': DictationChunk,

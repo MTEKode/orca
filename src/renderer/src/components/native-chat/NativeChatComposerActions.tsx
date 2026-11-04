@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { translate } from '@/i18n/i18n'
 import { getScreenSubmitShortcutLabel } from '@/lib/screen-submit-shortcut'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
+import type { MteWorkerPin } from '../../../../shared/mte/worker-pin'
 import type { NativeChatFollowUpBehavior } from '../../../../shared/native-chat-follow-up-behavior'
 import type {
   SessionOptionDescriptor,
@@ -51,6 +52,8 @@ export type NativeChatComposerActionsProps = {
   contextUsage?: NativeChatContextUsageSummary | null
   /** The chat's agent, whose permission modes the picker describes. */
   agent?: string
+  /** The worker pinned on an MTE planner chat; labels the pill beside the orchestrator. */
+  mteWorker?: MteWorkerPin
   /** A launch prompt: Attach and dictation are its only controls; launching is the panel's. */
   launchPrompt?: boolean
 }
@@ -82,6 +85,7 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
   contextUsage,
   focusComposer,
   agent,
+  mteWorker,
   launchPrompt = false
 }: NativeChatComposerActionsProps): React.JSX.Element {
   useUiLanguageRevision()
@@ -236,6 +240,8 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
           isWorking={isWorking}
           pickerRequest={sessionOptionsPickerRequest}
           focusComposer={focusComposer}
+          {...(agent ? { agent } : {})}
+          {...(mteWorker ? { mteWorker } : {})}
         />
         {contextUsage ? <NativeChatContextUsageRing usage={contextUsage} /> : null}
         {dictation}
