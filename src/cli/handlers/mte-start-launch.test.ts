@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-const callAgentLaunch = vi.fn(async () => ({ result: {} }))
+const callAgentLaunch = vi.fn(async (..._args: unknown[]) => ({ result: {} }))
 vi.mock('../agent-launch-request', () => ({
   callAgentLaunch,
   formatAgentLaunch: () => 'ok',
@@ -12,7 +12,7 @@ vi.mock('../selectors', () => ({ getRequiredWorktreeSelector: async () => 'id:wt
 
 describe('launchPlannerChat', () => {
   it('marks the launched chat as an MTE planner', async () => {
-    const { launchPlannerChat } = await import('./mte-start-launch')
+    const { launchPlannerChat } = await import('./mte-start-launch.js')
     await launchPlannerChat({
       // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: test double carries only isRemote.
       client: { isRemote: false } as never,
@@ -25,7 +25,7 @@ describe('launchPlannerChat', () => {
   })
 
   it('forwards the worker pin to agent.launch', async () => {
-    const { launchPlannerChat } = await import('./mte-start-launch')
+    const { launchPlannerChat } = await import('./mte-start-launch.js')
     const worker = { agent: 'opencode', model: 'qwen3.8' } as const
     await launchPlannerChat({
       // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: test double carries only isRemote.
