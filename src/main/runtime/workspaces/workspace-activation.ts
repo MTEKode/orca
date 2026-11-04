@@ -1,11 +1,12 @@
 import { OrcaRuntimeWithForegroundInspection } from './workspace-foreground-inspection'
+import { maybeAutoUpdate } from '../../graphify'
 import {
   type RuntimeNavigationTarget,
   navigationTargetsClients,
   navigationTargetsHost,
   resolveRuntimeNavigationTarget
 } from '../../../shared/runtime-navigation'
-import { getRepoExecutionHostId } from '../../../shared/execution-host'
+import { getRepoExecutionHostId, getRepoRoutingConnectionId } from '../../../shared/execution-host'
 import { phoneWakeReport } from '../../../shared/workspace-sleep'
 import type { Repo } from '../../../shared/repo-types'
 import type { TerminalWorkspaceLaunchScope } from '../runtime-legacy-worker-terminal-recovery-types'
@@ -75,6 +76,14 @@ export abstract class OrcaRuntimeWithActivateManagedWorktree extends OrcaRuntime
     const repo = this.store?.getRepo(worktree.repoId)
     if (!repo) {
       throw new Error('repo_not_found')
+    }
+    if (!getRepoRoutingConnectionId(repo)) {
+      // Local repos only: graphify reads the checkout directly.
+      maybeAutoUpdate({
+        repoId: repo.id,
+        repoRoot: repo.path,
+        enabled: this.store?.getSettings().graphifyAutoUpdate
+      })
     }
     const navigation = resolveRuntimeNavigationTarget({ ...opts, defaultTarget: 'host' })
     const targetsHost = navigationTargetsHost(navigation)
