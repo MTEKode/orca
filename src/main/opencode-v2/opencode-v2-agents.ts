@@ -1,4 +1,5 @@
 import type { AgentSessionOptionChoice } from '../../shared/agent-session/agent-session-wire'
+import type { AgentSessionOptionsResult } from '../../shared/agent-session/options/agent-session-options-result'
 import type { OpenCodeV2Client } from './opencode-v2-client'
 
 /** The listing fields this transport reads; the client's AgentInfo carries more. */
@@ -50,4 +51,16 @@ export async function readOpenCodeV2Agents(
 ): Promise<OpenCodeV2AgentListing> {
   const listed = await client.agent.list({ location: { directory } }, { signal })
   return openCodeV2AgentListing(listed.data)
+}
+
+/** The options snapshot's agent rows; the default agent is marked. Empty when none is listed. */
+export function openCodeV2AgentOptions(
+  listing: OpenCodeV2AgentListing
+): NonNullable<AgentSessionOptionsResult['agents']> {
+  return listing.choices.map((choice) => ({
+    id: choice.value,
+    label: choice.label,
+    ...(choice.description ? { description: choice.description } : {}),
+    ...(choice.value === listing.defaultAgent ? { default: true } : {})
+  }))
 }

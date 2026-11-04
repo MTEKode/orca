@@ -17,6 +17,7 @@ import type {
   AgentSessionAcceptedInputSources,
   AgentSessionOptionsResult
 } from './agent-session-options-result'
+import { STRUCTURED_AGENT_OPTION_ID } from './structured-agent-session-agent-option'
 import { labelFromModelId } from '../../model-id-label'
 import type { AgentSessionModelCatalogResult } from '../agent-session-wire'
 import { listingVerifiedModelIds } from './structured-agent-session-listing-verified-ids'
@@ -65,6 +66,9 @@ export type StructuredAgentSessionOptionState = {
   reportedPermissionMode?: string | null
   permissionOwnSupported?: boolean | null
   reportedEffort?: string
+  /** Selectable agents and the one running; absent shows no Agent picker. */
+  agents?: AgentSessionOptionsResult['agents']
+  currentAgent?: string
   /** The host is still listing models; it only keeps a seed from settling to built-in, since controls follow their data. */
   listingInProgress?: boolean
   fastModeRestricted?: boolean
@@ -206,7 +210,9 @@ export function applyStructuredAgentSessionOptions(
         ? result.listedModelIds
         : undefined,
     permissionMode: result.current.permissionMode ?? null,
-    reportedPermissionMode: result.current.reportedPermissionMode
+    reportedPermissionMode: result.current.reportedPermissionMode,
+    agents: result.agents,
+    currentAgent: result.current.agent
   }
 }
 
@@ -242,6 +248,9 @@ export function commitStructuredAgentSessionOption(
   if (id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID) {
     return { ...state, permissionMode: value, reportedPermissionMode: undefined }
   }
+  if (id === STRUCTURED_AGENT_OPTION_ID) {
+    return { ...state, currentAgent: value }
+  }
   if (!state.catalog) {
     return state
   }
@@ -266,7 +275,7 @@ export function commitStructuredAgentSessionOptionValues(
   origin: 'picked' | 'seeded' = 'picked'
 ): StructuredAgentSessionOptionState {
   let next = state
-  for (const id of STRUCTURED_LAUNCH_OPTION_IDS) {
+  for (const id of [...STRUCTURED_LAUNCH_OPTION_IDS, STRUCTURED_AGENT_OPTION_ID]) {
     const value = values[id]
     if (value !== undefined) {
       next = commitStructuredAgentSessionOption(next, id, value, origin)

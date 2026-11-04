@@ -18,6 +18,7 @@ import {
   type StructuredAgentSessionLiveOptions
 } from '../native-chat/agent-session-wire/structured-agent-session-option-models'
 import { OPENCODE_V2_AGENT_DISPLAY_NAME } from './opencode-v2-agent-definition'
+import { openCodeV2AgentOptions } from './opencode-v2-agents'
 import { OpenCodeV2PromptConflictError } from './opencode-v2-connection'
 import { OpenCodeV2PromptError, prepareOpenCodeV2Prompt } from './opencode-v2-prompt'
 import type { OpenCodeV2Session } from './opencode-v2-session'
@@ -245,12 +246,15 @@ export function readOpenCodeV2SessionOptions(
     session.currentModelId ?? undefined,
     (unlisted) => unlisted
   )
+  const agents = openCodeV2AgentOptions(session.agents)
   return {
     models,
+    ...(agents.length > 0 ? { agents } : {}),
     acceptsImages: true,
     listedModelIds: session.listing.models.map((model) => model.id),
     current: {
       model: session.currentModelId ?? '',
+      ...(agents.length > 0 && session.currentAgent ? { agent: session.currentAgent } : {}),
       ...(session.currentEffort ? { effort: session.currentEffort } : {}),
       ...(session.currentModelId ? { confirmed: ['model'] as readonly string[] } : {})
     }

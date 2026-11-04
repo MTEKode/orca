@@ -25,6 +25,10 @@ import {
 } from './structured-agent-session-option-state'
 import { withUnlistedEffort } from './structured-agent-session-unlisted-effort'
 import { structuredAgentSessionPermissionDescriptor } from './structured-agent-session-permission-option'
+import {
+  STRUCTURED_AGENT_OPTION_ID,
+  structuredAgentSessionAgentDescriptor
+} from './structured-agent-session-agent-option'
 import type { StructuredAgentSessionOptionState } from './structured-agent-session-options'
 
 /** Unpickable placeholder cannot become a launch selection before a real model answer. */
@@ -223,7 +227,8 @@ export function structuredAgentSessionOptionSnapshot(
   const options = modelOptionSnapshot(state).map((option) =>
     state.fastModeRestricted && option.id === 'fastMode' ? { ...option, settable: false } : option
   )
-  return permission ? [...options, permission] : options
+  const agent = structuredAgentSessionAgentDescriptor(state)
+  return [...options, ...(permission ? [permission] : []), ...(agent ? [agent] : [])]
 }
 
 /** Presentation only until a launch or fence can carry picks. */
@@ -257,6 +262,14 @@ export function canSetStructuredAgentSessionOption(
       (value === 'own'
         ? state.permissionOwnSupported === true
         : descriptor.kind.choices.some((choice) => choice.value === value))
+    )
+  }
+  if (id === STRUCTURED_AGENT_OPTION_ID) {
+    const descriptor = snapshot.find((entry) => entry.id === id)
+    return (
+      descriptor?.settable === true &&
+      descriptor.kind.type === 'select' &&
+      descriptor.kind.choices.some((choice) => choice.value === value)
     )
   }
   return (
