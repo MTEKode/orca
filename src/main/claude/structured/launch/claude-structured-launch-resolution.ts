@@ -31,8 +31,8 @@ import { resolveClaudeLaunchFlags } from './claude-structured-launch-flags'
 import { withNativeChatVisualsEnv } from '../../../native-chat/native-chat-visuals-delivery'
 import { claudeLaunchResumesTranscript } from './claude-structured-launch-home'
 import type { StructuredAgentLaunchPartResolver } from '../../../runtime/structured-agent-launch-composition'
-import type { AgentSessionRecord } from '../../../../shared/agent-session/lifecycle/agent-session-record'
 import type { ClaudeReviewMcpRuntime } from '../../claude-review-mcp-server'
+import { resolveClaudeMcpServers } from './claude-structured-mcp-servers'
 import { claudeSessionIdForOrcaSession } from '../claude-structured-session-id'
 import {
   pendingAgentSessionRewindFork,
@@ -136,6 +136,8 @@ export type ClaudeStructuredLaunchPartDeps = {
   }) => Promise<boolean>
   /** In-process review MCP tools for this launch; absent or disabled adds no mcpServers entry. */
   reviewTools?: ClaudeReviewMcpRuntime
+  /** orca-tools stdio bridge (command + args only, no secrets); null/absent when integrations are off. */
+  resolveToolsMcpServer?: () => { command: string; args: string[] } | null
 }
 
 export type ClaudeStructuredInvocation = {
@@ -268,7 +270,7 @@ export function claudeStructuredLaunchPart(
         hasTranscript: deps.hasTranscript
       })
     }
-    const reviewMcpServers = await resolveClaudeReviewMcpServers(deps.reviewTools, record)
+    const reviewMcpServers = await resolveClaudeMcpServers(deps, record)
     return {
       launch: {
         pathToClaudeCodeExecutable: command,
@@ -318,21 +320,4 @@ function claudeRewindForkOptions(
   return fork.throughEntryId
     ? { resume: fork.sourceSessionId, resumeSessionAt: fork.throughEntryId, forkSession: true }
     : {}
-}
-
-/** Review tools are optional context; a server build failure degrades to launching without them. */
-async function resolveClaudeReviewMcpServers(
-  reviewTools: ClaudeReviewMcpRuntime | undefined,
-  record: AgentSessionRecord
-): Promise<Pick<ClaudeStructuredSdkOptions, 'mcpServers'>> {
-  if (!reviewTools?.isEnabled()) {
-    return {}
-  }
-  try {
-    const server = await reviewTools.createServer(record)
-    return server ? { mcpServers: { orca: server } } : {}
-  } catch (error) {
-    console.warn('[claude] review MCP server unavailable; launching without it:', error)
-    return {}
-  }
 }

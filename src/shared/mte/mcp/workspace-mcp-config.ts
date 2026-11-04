@@ -17,6 +17,8 @@ export type WorkspaceMcpPlan = {
 }
 
 export const MEMORY_MCP_SERVER_ID = 'mte-memory'
+export const TOOLS_MCP_SERVER_ID = 'orca-tools'
+export const TOOLS_MCP_SERVER_ARGS = ['mcp', 'serve']
 
 function memoryServerArgs(workspaceRoot: string): string[] {
   return ['mte', 'memory', '--role', 'orchestrator', '--workspace', workspaceRoot]
@@ -74,21 +76,22 @@ function planJsonConfig(args: {
   configPath: string
   containerKey: 'mcpServers' | 'mcp'
   entry: Record<string, unknown>
+  serverId: string
 }): string | null {
   const existing = readConfigText(args.configPath)
   if (existing === null) {
-    return serializeJsonConfig({ [args.containerKey]: { [MEMORY_MCP_SERVER_ID]: args.entry } })
+    return serializeJsonConfig({ [args.containerKey]: { [args.serverId]: args.entry } })
   }
   const parsed = parseJsonObject(args.configPath, existing)
   const container = parsed[args.containerKey]
   if (container === undefined) {
-    parsed[args.containerKey] = { [MEMORY_MCP_SERVER_ID]: args.entry }
+    parsed[args.containerKey] = { [args.serverId]: args.entry }
   } else if (isJsonRecord(container)) {
-    if (jsonValueEquals(container[MEMORY_MCP_SERVER_ID], args.entry)) {
+    if (jsonValueEquals(container[args.serverId], args.entry)) {
       // Correct entry already present; leave the user's own formatting untouched.
       return null
     }
-    container[MEMORY_MCP_SERVER_ID] = args.entry
+    container[args.serverId] = args.entry
   } else {
     throw new Error(
       `${args.configPath} has a non-object "${args.containerKey}" key; orca refuses to rewrite it`
@@ -100,29 +103,28 @@ function planJsonConfig(args: {
 function planCodexTomlConfig(args: {
   configPath: string
   orcaCliCommand: string
-  workspaceRoot: string
+  serverId: string
+  serverArgs: string[]
 }): string | null {
   const existing = readConfigText(args.configPath) ?? ''
   const ownership = readMcpServerTomlOwnership(existing)
   if (ownership.ownsRoot) {
     throw new Error(
-      `${args.configPath} assigns mcp_servers inline; orca cannot append a [mcp_servers.${MEMORY_MCP_SERVER_ID}] table to it`
+      `${args.configPath} assigns mcp_servers inline; orca cannot append a [mcp_servers.${args.serverId}] table to it`
     )
   }
   const desired = [
-    `[mcp_servers.${MEMORY_MCP_SERVER_ID}]`,
+    `[mcp_servers.${args.serverId}]`,
     `command = "${escapeTomlBasicString(args.orcaCliCommand)}"`,
-    `args = [${memoryServerArgs(args.workspaceRoot)
-      .map((arg) => `"${escapeTomlBasicString(arg)}"`)
-      .join(', ')}]`
+    `args = [${args.serverArgs.map((arg) => `"${escapeTomlBasicString(arg)}"`).join(', ')}]`
   ].join('\n')
   const sections = getTomlSections(existing)
   const owned = sections.filter(
-    (section) => getMcpServerTomlSectionName(section.header) === MEMORY_MCP_SERVER_ID
+    (section) => getMcpServerTomlSectionName(section.header) === args.serverId
   )
-  if (ownership.names.has(MEMORY_MCP_SERVER_ID) && owned.length === 0) {
+  if (ownership.names.has(args.serverId) && owned.length === 0) {
     throw new Error(
-      `${args.configPath} defines ${MEMORY_MCP_SERVER_ID} outside its own table; orca refuses to rewrite it by hand`
+      `${args.configPath} defines ${args.serverId} outside its own table; orca refuses to rewrite it by hand`
     )
   }
   const lines = existing.split('\n')
@@ -132,11 +134,11 @@ function planCodexTomlConfig(args: {
   const blocks: string[] = []
   let replaced = false
   for (const section of sections) {
-    if (getMcpServerTomlSectionName(section.header) !== MEMORY_MCP_SERVER_ID) {
+    if (getMcpServerTomlSectionName(section.header) !== args.serverId) {
       blocks.push(section.block)
       continue
     }
-    // Duplicate mte-memory tables are invalid TOML; the canonical table replaces them.
+    // Duplicate server tables are invalid TOML; the canonical table replaces them.
     if (!replaced) {
       blocks.push(desired)
       replaced = true
@@ -155,13 +157,17 @@ export function planWorkspaceMcpConfig(args: {
   workspaceRoot: string
   orcaCliCommand: string
   role: 'orchestrator'
+  /** Defaults to the role-scoped memory server; `orca-tools` wires the integration bridge. */
+  serverId?: typeof MEMORY_MCP_SERVER_ID | typeof TOOLS_MCP_SERVER_ID
 }): WorkspaceMcpPlan {
   if (args.role !== 'orchestrator') {
     // Workers never get memory-server config; only the planner surface is wired.
     throw new Error('planWorkspaceMcpConfig only wires the orchestrator role')
   }
   const workspaceRoot = resolve(args.workspaceRoot)
-  const serverArgs = memoryServerArgs(workspaceRoot)
+  const serverId = args.serverId ?? MEMORY_MCP_SERVER_ID
+  const serverArgs =
+    serverId === TOOLS_MCP_SERVER_ID ? TOOLS_MCP_SERVER_ARGS : memoryServerArgs(workspaceRoot)
   switch (args.adapter) {
     case 'claude':
       return {
@@ -170,6 +176,7 @@ export function planWorkspaceMcpConfig(args: {
         nextContent: planJsonConfig({
           configPath: join(workspaceRoot, '.mcp.json'),
           containerKey: 'mcpServers',
+          serverId,
           entry: { command: args.orcaCliCommand, args: serverArgs }
         })
       }
@@ -180,6 +187,7 @@ export function planWorkspaceMcpConfig(args: {
         nextContent: planJsonConfig({
           configPath: join(workspaceRoot, 'opencode.json'),
           containerKey: 'mcp',
+          serverId,
           entry: { type: 'local', command: [args.orcaCliCommand, ...serverArgs] }
         })
       }
@@ -190,7 +198,8 @@ export function planWorkspaceMcpConfig(args: {
         nextContent: planCodexTomlConfig({
           configPath: join(homedir(), '.codex', 'config.toml'),
           orcaCliCommand: args.orcaCliCommand,
-          workspaceRoot
+          serverId,
+          serverArgs
         })
       }
   }
