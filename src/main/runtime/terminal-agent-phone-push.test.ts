@@ -239,24 +239,23 @@ describe('TerminalAgentPhonePush', () => {
     expect(sent).toEqual([])
   })
 
-  it('leaves a dispatched worker’s finish to its coordinator, and still pushes its prompt', () => {
+  it('leaves a dispatched worker entirely silent for the person — finish and prompt alike', () => {
     const { push, sent, state, advance, finish } = harness({ dispatched: true })
     finish()
     advance(AGENT_DONE_QUIET_MS)
-    expect(sent).toEqual([])
     state.hookRow = row({ state: 'waiting', stateStartedAt: 6_000 })
     push.observe(moved('needs-input', 'needs-you'))
-    expect(sent.map((event) => event.agentState)).toEqual(['waiting'])
+    expect(sent).toEqual([])
   })
 
-  it('pushes a dispatched worker’s finish whose title still waits for approval, as the window does', () => {
+  it('pushes nothing for a dispatched worker whose title still waits for approval', () => {
     const { sent, advance, finish } = harness({
       dispatched: true,
       title: 'Codex - waiting for approval'
     })
     finish()
     advance(AGENT_DONE_QUIET_MS)
-    expect(sent).toHaveLength(1)
+    expect(sent).toEqual([])
   })
 
   it('marks the push not desktop-allowed when agent notifications are off', () => {

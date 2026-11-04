@@ -14,6 +14,8 @@ export function createQuestion(
     options?: string[]
     /** The asker's report mailbox; the Run when omitted. */
     to?: string
+    /** Extra payload fields, e.g. the structured prompt a question stands for. */
+    payloadExtra?: Record<string, unknown>
   }
 ): { question: QuestionRow; message: MessageRow } {
   this.db.exec('BEGIN IMMEDIATE')
@@ -40,7 +42,8 @@ export function createQuestion(
         taskId: dispatch.task_id,
         dispatchId: dispatch.id,
         question: params.question,
-        options: params.options ?? []
+        options: params.options ?? [],
+        ...params.payloadExtra
       }),
       runId: params.runId
     })
@@ -211,7 +214,17 @@ export function closeQuestionsForDispatch(this: OrchestrationDb, dispatchId: str
   return rows.map((row) => row.message_id)
 }
 
+/** Settle a pending question without an answer, e.g. its prompt was resolved elsewhere. */
+export function closeQuestion(this: OrchestrationDb, messageId: string): void {
+  this.db
+    .prepare(
+      "UPDATE question_threads SET status = 'closed', closed_at = datetime('now') WHERE message_id = ? AND status = 'pending'"
+    )
+    .run(messageId)
+}
+
 export type QuestionThreadsMethods = {
+  closeQuestion: typeof closeQuestion
   createQuestion: typeof createQuestion
   getQuestion: typeof getQuestion
   getQuestionRaw: typeof getQuestionRaw
@@ -222,6 +235,7 @@ export type QuestionThreadsMethods = {
 
 export function attachQuestionThreads(ctor: { prototype: object }): void {
   Object.assign(ctor.prototype, {
+    closeQuestion,
     createQuestion,
     getQuestion,
     getQuestionRaw,

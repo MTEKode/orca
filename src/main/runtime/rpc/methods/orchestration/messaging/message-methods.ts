@@ -1,5 +1,4 @@
 import { defineMethod } from '../../../core'
-import { deliverQuestionAnswer } from '../../../../orchestration/question-answer-delivery'
 import type { TaskStatus } from '../../../../orchestration/db'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import { ORCHESTRATION_LEGACY_RUN_ID } from '../../../../../../shared/orchestration-rpc-contract'
@@ -14,9 +13,8 @@ import { exposeMessage } from './mailbox-message-receipt'
 import { resolveOrchestrationParty } from '../../../../orchestration/orchestration-party'
 import { recordReceiptBeforeNudge, replayMutationNudge } from './mutation-replay-nudge'
 import { resolveReplyRecipient } from './recipient-routing'
-import { helperQuestionAnswerer } from './helper-question-answerer'
+import { answerQuestionReply } from './question-reply'
 import { replyToRemoteRunHome } from './reply-remote'
-import { withAnswerNext } from '../receipt-next'
 import {
   ReplyParams,
   InboxParams,
@@ -76,70 +74,18 @@ export const ORCHESTRATION_MESSAGE_METHODS = [
       }
 
       const question = db.getQuestion(params.id)
-      const creatorAnswerer =
-        question && (params.run === undefined || params.run === question.run_id)
-          ? helperQuestionAnswerer(runtime, {
-              question: original,
-              from: params.from,
-              session: orchestrationCaller,
-              evidence: orchestrationCompatibilityEvidence
-            })
-          : undefined
-      if (question && creatorAnswerer) {
-        const answered = db.answerQuestion({
-          messageId: question.message_id,
-          runId: question.run_id,
-          answeredBy: creatorAnswerer,
-          body: params.body
-        })
-        return recordReceiptBeforeNudge(
-          recordMutationReceipt,
-          { ...answered, message: exposeMessage(answered.message) },
-          () => deliverQuestionAnswer(runtime, question)
-        )
-      }
       if (question) {
-        const run = resolveRunScope(runtime, {
-          runId: params.run ?? question.run_id,
-          callerTerminalHandle: params.from,
-          requireCurrentConsumer: true,
-          legacyCoordinatorRunId,
+        return await answerQuestionReply({
+          runtime,
+          db,
+          question,
+          original,
+          params,
+          callerSession: orchestrationCaller,
           callerEvidence: orchestrationCompatibilityEvidence,
-          callerSession: orchestrationCaller
+          legacyCoordinatorRunId,
+          recordMutationReceipt
         })
-        const answered = db.answerQuestion({
-          messageId: question.message_id,
-          runId: run.id,
-          consumerGeneration: run.consumer_generation,
-          body: params.body
-        })
-        const federated = db.getFederatedDispatch(question.dispatch_id)
-        const receipt = withAnswerNext({
-          message: exposeMessage(answered.message),
-          question: answered.question,
-          duplicate: answered.duplicate
-        })
-        if (federated) {
-          db.enqueueFederationRelay({
-            dispatchId: question.dispatch_id,
-            direction: 'to_worker',
-            kind: 'reply',
-            payload: JSON.stringify({
-              questionId: question.message_id,
-              answerMessageId: answered.message.id,
-              body: params.body
-            })
-          })
-          return recordReceiptBeforeNudge(
-            recordMutationReceipt,
-            receipt,
-            () => runtime.ensureOrchestrationFederationRelay(run.id),
-            { kind: 'federation', runId: run.id }
-          )
-        }
-        return recordReceiptBeforeNudge(recordMutationReceipt, receipt, () =>
-          deliverQuestionAnswer(runtime, question)
-        )
       }
 
       if (db.getRun(original.run_id)?.home_database === 'remote') {

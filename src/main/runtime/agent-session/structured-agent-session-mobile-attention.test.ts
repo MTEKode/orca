@@ -99,7 +99,7 @@ describe('structured attention mobile delivery', () => {
     expect(isWorkspaceMuted).toHaveBeenCalledWith(SCOPE)
   })
 
-  it('leaves a dispatched chat worker’s finished turn to its coordinator, and still sends its prompts', () => {
+  it('sends nothing for a dispatched chat worker — its coordinator receives every edge', () => {
     const readOrchestration = vi.fn(() => ({
       taskId: 'task_1',
       dispatchId: 'ctx_1',
@@ -109,10 +109,9 @@ describe('structured attention mobile delivery', () => {
     h.delivery.deliver(completion('success'), SUMMARY)
     h.delivery.deliver(completion('failure'), SUMMARY)
     h.delivery.deliver(completion('success', true), SUMMARY)
-    // A failed turn that leaves a prompt waiting is still the person's to answer.
     h.delivery.deliver(completion('failure', true), SUMMARY)
     h.delivery.deliver(PROMPT, SUMMARY)
-    expect(h.sent.map((event) => event.agentState)).toEqual(['blocked', 'done', 'blocked'])
+    expect(h.sent).toEqual([])
     // The key the session's chat row carries in the host's orchestration projection.
     expect(readOrchestration).toHaveBeenCalledWith(
       structuredAgentSessionPaneKey(structuredAgentSessionTabId('session-1'), 'session-1')

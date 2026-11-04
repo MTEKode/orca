@@ -143,13 +143,9 @@ export function dispatchTerminalNotification(
       settlesTurn: event.source === 'agent-task-complete',
       // Fresh accepted hooks can arrive before inactive-worktree PTY hydration; title/BEL-only completion still requires live surface evidence.
       hasFreshActivityEvidence: Boolean(agentStatus),
-      coordinatorOnlyNews:
-        event.source === 'agent-task-complete' &&
-        isCoordinatorOnlyNews(completionTurnState(event, agentStatus), () =>
-          event.paneKey === undefined
-            ? undefined
-            : canonicalOrchestrationForRow(state, event.paneKey)
-        )
+      coordinatorOnlyNews: isCoordinatorOnlyNews(completionTurnState(event, agentStatus), () =>
+        event.paneKey === undefined ? undefined : canonicalOrchestrationForRow(state, event.paneKey)
+      )
     },
     createTerminalAttentionSurface(state)
   )

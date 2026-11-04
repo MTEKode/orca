@@ -336,7 +336,7 @@ describe('dispatchStructuredTurnCompletionAttention', () => {
     expect(onlyDispatch()).toMatchObject({ agentState: 'done' })
   })
 
-  it('leaves a dispatched chat worker’s finished turn to its coordinator, but still calls the user to its prompt', () => {
+  it('sends nothing to the person for a dispatched chat worker — its coordinator gets every edge', () => {
     store.setState({
       runtimeAgentOrchestrationByPaneKey: {
         [structuredAgentSessionPaneKey(structuredAgentSessionTabId(SESSION), SESSION)]: {
@@ -351,8 +351,8 @@ describe('dispatchStructuredTurnCompletionAttention', () => {
     expect(dispatched).toEqual([])
 
     dispatchStructuredTurnCompletionAttention(structuredTab(), completion({ awaitingUser: true }))
-    expect(indicators().paneDot).toBe('agent-completion')
-    expect(onlyDispatch()).toMatchObject({ agentState: 'blocked' })
+    expect(indicators()).toEqual(NOTHING_LIT)
+    expect(dispatched).toEqual([])
   })
 
   it('says done even while the status row still reads working, because the host settled the turn', () => {

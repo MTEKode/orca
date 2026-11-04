@@ -60,6 +60,21 @@ describe('resolveAgentAttention', () => {
     expect(sink.calls).toEqual([])
   })
 
+  it('rejects coordinator-only news before liveness and admission gates, earning no unread or delivery', () => {
+    const admitSurface = vi.fn()
+    const hasLiveSession = vi.fn(() => true)
+    const decision = resolveAgentAttention(
+      completion({ coordinatorOnlyNews: true }),
+      makeSurface({ admitSurface, hasLiveSession })
+    )
+    expect(decision).toEqual({ admitted: false, cause: 'coordinator-only-news' })
+    expect(admitSurface).not.toHaveBeenCalled()
+    expect(hasLiveSession).not.toHaveBeenCalled()
+    const sink = makeSink()
+    applyAgentAttention(decision, sink)
+    expect(sink.calls).toEqual([])
+  })
+
   it('rejects a subject with no live session and no fresh activity evidence', () => {
     const decision = resolveAgentAttention(
       completion(),
