@@ -1,6 +1,11 @@
-import { describe, expect, it } from 'vitest'
-import { withMteWorkerPin } from './worker-start-mte-pin'
+import { describe, expect, it, vi } from 'vitest'
+import { adoptMteWorkerPin, withMteWorkerPin } from './worker-start-mte-pin'
 
+const markMtePlanner = vi.fn()
+vi.mock(
+  '../../../../../native-chat/agent-session-wire/structured-agent-session-registry',
+  () => ({ getStructuredAgentSessionHost: () => ({ deps: { store: { markMtePlanner } } }) })
+)
 const pinned = { mteWorker: { agent: 'codex', model: 'gpt-5', effort: 'high' } } as const
 
 describe('withMteWorkerPin', () => {
@@ -30,5 +35,24 @@ describe('withMteWorkerPin', () => {
       model: 'sonnet',
       effort: 'medium'
     })
+  })
+})
+
+describe('adoptMteWorkerPin', () => {
+  const planner = { mteRole: 'planner', sessionId: 'S1' } as const
+  it('stores the first explicit flags of an unpinned planner as its pin', async () => {
+    markMtePlanner.mockClear()
+    await adoptMteWorkerPin({ agent: 'claude', model: 'sonnet' }, planner)
+    expect(markMtePlanner).toHaveBeenCalledWith('S1', { agent: 'claude', model: 'sonnet' })
+    // After the pin exists, a flagless worker-start resolves from it.
+    const next = { ...planner, mteWorker: { agent: 'claude', model: 'sonnet' } }
+    expect(withMteWorkerPin({}, next)).toEqual({ agent: 'claude', model: 'sonnet' })
+  })
+  it('does nothing for pinned callers, non-planners or flagless calls', async () => {
+    markMtePlanner.mockClear()
+    await adoptMteWorkerPin({ agent: 'claude' }, { ...planner, mteWorker: { agent: 'codex' } })
+    await adoptMteWorkerPin({ agent: 'claude' }, { sessionId: 'S1' })
+    await adoptMteWorkerPin({}, planner)
+    expect(markMtePlanner).not.toHaveBeenCalled()
   })
 })

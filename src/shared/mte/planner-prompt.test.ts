@@ -57,6 +57,9 @@ describe('MTE_PLANNER_PROMPT', () => {
       expect(MTE_PLANNER_PROMPT).toContain(agent)
     }
     expect(MTE_PLANNER_PROMPT).toContain('never ask again')
+    expect(MTE_PLANNER_PROMPT).toContain('FIRST coder or validator')
+    expect(MTE_PLANNER_PROMPT).toContain('EVERY LATER one')
+    expect(MTE_PLANNER_PROMPT).not.toContain('use the same agent for every')
   })
 
   it('guards git history and pushes', () => {

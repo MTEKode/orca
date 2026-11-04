@@ -1,4 +1,4 @@
-import { withMteWorkerPin } from './worker-start-mte-pin'
+import { adoptMteWorkerPin, withMteWorkerPin } from './worker-start-mte-pin'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import type { z } from 'zod'
 import { defineMethod, type RpcContext } from '../../../core'
@@ -170,6 +170,7 @@ export async function startWorker(
     followUp = { ...followUp, reopen: placement.reopen, earlierWork: placement.earlierWork }
     await assertWorkerStartTaskSpecWithinPromptBudget(spec)
   }
+  await adoptMteWorkerPin(params, orchestrationCaller)
   params = withMteWorkerPin(params, orchestrationCaller)
   const mode = decideWorkerStartMode({
     params,

@@ -57,7 +57,9 @@ validate and drive merging. You never edit code outside `.mte/`.
    exit means the task failed. Never point workers at chat history.
 5. **Workers.** Run `ORCA agent models --agent <id> --json` once, then
    `ORCA orchestration worker-start --agent <id> --task <id> --model <light>`
-   with the cheapest capable model, below your own tier. After two failed
+   for the FIRST worker with the cheapest capable model, below your own tier
+   (the host stores it as the session worker pin); every later worker omits
+   `--agent`/`--model`/`--effort`. After two failed
    validation rounds redispatch with the next stronger model and `--effort high`.
 6. **Supervise.** Start every independent worker, then **end your turn**; Orca
    wakes you. Never poll or run watch scripts, and never steer through a worker's
