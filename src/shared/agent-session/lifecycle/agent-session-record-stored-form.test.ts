@@ -448,3 +448,50 @@ it('stores a delivered kill in the form older builds read and reads only that ex
     expect(decodePersistedAgentSessionRecord(row).record.lease.deathEvidence).toEqual(read)
   }
 })
+
+describe('retired OpenCode chat ids', () => {
+  it.each(['opencode2', 'opencode-v2'])(
+    'resumes a %s record as opencode on the v2 transport',
+    (id) => {
+      const stored = JSON.parse(
+        JSON.stringify(
+          encodeAgentSessionRecord({
+            ...agentSessionRecordFixture(),
+            provider: id,
+            providerHandleChain: [
+              {
+                linkId: 'oc-1',
+                handle: {
+                  transport: id === 'opencode2' ? 'acp' : 'opencode-v2',
+                  agent: id,
+                  nativeId: 'ses_1'
+                },
+                origin: 'created',
+                mintedAtFence: 1,
+                observedAt: 1
+              }
+            ]
+          })
+        )
+      )
+      const { record, normalized } = decodePersistedAgentSessionRecord(stored)
+      expect(normalized).toBe(true)
+      expect(record.provider).toBe('opencode')
+      expect(record.providerHandleChain[0]?.handle).toEqual({
+        transport: 'opencode-v2',
+        agent: 'opencode',
+        nativeId: 'ses_1'
+      })
+    }
+  )
+})
+
+describe('mteRole record marker', () => {
+  it('round-trips through encode/decode and tolerates absence', () => {
+    const marked: AgentSessionRecord = { ...agentSessionRecordFixture(), mteRole: 'planner' }
+    const stored = JSON.parse(JSON.stringify(encodeAgentSessionRecord(marked)))
+    expect(decodePersistedAgentSessionRecord(stored).record.mteRole).toBe('planner')
+    expect(isPersistedAgentSessionRecord(stored)).toBe(true)
+    expect(isPersistedAgentSessionRecord({ ...stored, mteRole: 'worker' })).toBe(false)
+  })
+})

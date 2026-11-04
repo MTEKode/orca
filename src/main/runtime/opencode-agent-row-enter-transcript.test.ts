@@ -10,7 +10,7 @@ import { TUI_AGENT_CONFIG } from '../../shared/tui-agent-config'
 import { readTimedRuntimeFixture, replayTranscript } from './agent-transcript-replay-test-harness'
 
 const HELD_PASTE = '[Pasted ~'
-const AGENT_ROW_SIGNAL = TUI_AGENT_CONFIG.opencode2.submitPasteReadySignal!
+const AGENT_ROW_SIGNAL = TUI_AGENT_CONFIG.opencode.submitPasteReadySignal!
 // Prior readiness used the box show-cursor.
 const BOX_CURSOR_SIGNAL: DraftPasteReadySignal = 'render-cursor-after-bracketed-paste'
 

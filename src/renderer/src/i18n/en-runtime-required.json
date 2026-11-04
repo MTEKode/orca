@@ -638,9 +638,9 @@
           "detectedServers_one": "{{detected}} detected · {{count}} server",
           "detectedServers_other": "{{detected}} detected · {{count}} servers"
         },
-        "OrchestrationPane": {
-          "workerAutoReleaseKeywordClose": "close",
-          "workerAutoReleaseKeywordRelease": "release"
+        "McpIntegrationCard": {
+          "description": "Exposed to agents as MCP tools.",
+          "graphifyHint": "Build graphs from the Graph panel or `orca graph build`."
         },
         "OrchestrationSkillAgentCoverage": {
           "fullCoverage_one": "All 1 detected agent has the skill.",
@@ -1930,12 +1930,6 @@
         }
       }
     },
-    "orchestrationCrew": {
-      "needsYou_one": "{{count}} needs you",
-      "needsYou_other": "{{count}} need you",
-      "workers_one": "{{count}} worker",
-      "workers_other": "{{count}} workers"
-    },
     "tab": {
       "bar": {
         "bulkClose": {
@@ -2067,14 +2061,6 @@
   },
   "menu": {
     "quitApp": "Quit {{appName}}"
-  },
-  "mte": {
-    "prompt": {
-      "cancel": "Plain chat",
-      "confirm": "Use MTE",
-      "description": "The MTE planner will interview you about the goal, then drive coder and validator agents through the plan. Orca writes the MTE tool config into this workspace.",
-      "title": "Use MTE orchestration for this chat?"
-    }
   },
   "pet": {
     "defaultLabels": {

@@ -4,7 +4,7 @@ import { openCodeVariantRetryPlan } from './opencode-generation-command'
 
 const rejection = 'Unrecognized flag: --variant in command opencode run'
 describe('OpenCode generation commands', () => {
-  it.each(['opencode', 'opencode.exe', 'opencode.cmd', 'opencode2'])(
+  it.each(['opencode', 'opencode.exe', 'opencode.cmd'])(
     'keeps run before launch flags for %s',
     (binary) => {
       const result = planCommitMessageGeneration(

@@ -23,6 +23,8 @@ export type AgentLaunchSurfaceFactory = {
     worktreeId: string
     agent: StructuredAgentId
     chatOptions?: Readonly<Record<string, string>>
+    /** Mark the created chat as an MTE planner. */
+    mteRole?: 'planner'
     options?: Readonly<Record<string, unknown>>
     /** Caller-minted ID; reject with AgentLaunchSessionAlreadyExistsError if taken. */
     sessionId?: string

@@ -1,3 +1,4 @@
+import { migrateRetiredOpenCodeAgentIds } from '../applying-settings/opencode-agent-id-migration'
 import { normalizeAgentDefaultSurface } from '../../../shared/native-chat/native-chat-providers'
 import { normalizeNativeChatAppearanceSettings } from '../../../shared/native-chat/native-chat-appearance-settings'
 import { getDefaultVoiceSettings } from '../../../shared/constants'
@@ -75,7 +76,8 @@ export function normalizeLoadedGlobalSettings(
     leftSidebarAppearanceMode: parsed.settings?.leftSidebarAppearanceMode
   }
 
-  return {
+  // The permission migration seeds every known agent id, so fold retired OpenCode ids last.
+  const normalized: PersistedState['settings'] = {
     ...defaults.settings,
     // Legacy stored booleans cannot distinguish opt-in from the old default; retain explicit true.
     ...expandWorkspaceDirHome(stripRetiredGlobalSettings(parsed.settings)),
@@ -182,4 +184,5 @@ export function normalizeLoadedGlobalSettings(
       ...parsed.settings?.voice
     }
   }
+  return migrateRetiredOpenCodeAgentIds(normalized).settings!
 }

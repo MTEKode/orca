@@ -207,7 +207,7 @@ describe('readTuiIdleHookTurn', () => {
 
 describe('profile.hooks', () => {
   it('marks the agents whose hooks report every turn end as authoritative', () => {
-    for (const agent of ['opencode', 'opencode2', 'pi', 'omp'] as const) {
+    for (const agent of ['opencode', 'pi', 'omp'] as const) {
       expect(hookAuthority(agent)).toBe('authoritative')
     }
     // Codex before its Interrupt hook posts nothing for an Esc, so only its done is trusted.

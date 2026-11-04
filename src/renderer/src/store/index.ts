@@ -13,6 +13,8 @@ import { createKeybindingsSlice } from './slices/keybindings'
 import { createGitHubSlice } from './slices/github'
 import { createHostedReviewSlice } from './slices/hosted-review'
 import { createLinearSlice } from './slices/linear'
+import { createMcpIntegrationsSlice } from './slices/mcp-integrations'
+import { createGraphifySlice } from './slices/graphify'
 import { createPreflightSlice } from './slices/preflight'
 import { createJiraSlice } from './slices/jira'
 import { createEditorSlice } from './slices/editor'
@@ -110,6 +112,8 @@ export const useAppStore = create<AppState>()(
           ...createGitHubSlice(...a),
           ...createHostedReviewSlice(...a),
           ...createLinearSlice(...a),
+          ...createMcpIntegrationsSlice(...a),
+          ...createGraphifySlice(...a),
           ...createPreflightSlice(...a),
           ...createJiraSlice(...a),
           ...createEditorSlice(...a),

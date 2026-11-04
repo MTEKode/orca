@@ -2212,8 +2212,6 @@
         "6a50cdcd7c": "Voz",
         "0059bd17f3": "Permita que agentes controlem qualquer aplicativo no seu computador.",
         "b35e92364b": "Uso do Computador",
-        "cd50cec5d7": "Coordene vários agentes de código através do Orca.",
-        "58a868e8e4": "Orquestração",
         "7c79d3b7bf": "Opcional",
         "b1c2f8b0ac": "Alternância de conta opcional e configuração de uso para Claude, Codex, Gemini, OpenCode Go, MiniMax e Grok.",
         "f70ac54d38": "Contas de Provedores de IA",
@@ -2312,7 +2310,6 @@
           "060d152fb5": "Trae",
           "d443a47995": "Prime Agent",
           "mimo_code_label": "MiMo Code",
-          "opencode2_label": "OpenCode 2",
           "freebuff_label": "Freebuff",
           "muse_label": "Muse",
           "dsh_label": "DeepSeek Harness",
@@ -5087,8 +5084,6 @@
           "5063bb47a5": "Voz",
           "7118953f14": "Permita que agentes controlem qualquer aplicativo no seu computador.",
           "c9841721cb": "Uso do Computador",
-          "475980f53d": "Coordene vários agentes de código através do Orca.",
-          "00c3a7950d": "Orquestração",
           "21f09426ea": "Opcional. O Orca funciona com seus logins de provedor existentes; adicione contas somente se quiser que o Orca ajude a alternar entre elas.",
           "ad6c529693": "Contas de Provedores de IA",
           "ec1ba547f7": "Gerencie agentes de IA, defina um padrão e personalize comandos.",
@@ -7444,9 +7439,7 @@
             "91fc8ab7e5": "coordenação",
             "13ba5c6cbd": "agentes",
             "d86705ba77": "multiagente",
-            "a7f76b4ca7": "orquestração",
-            "e05ff36753": "Coordene vários agentes de código através de mensagens, DAGs de tarefas, despacho e portões de decisão.",
-            "c34045764e": "Orquestração de Agentes"
+            "a7f76b4ca7": "orquestração"
           }
         },
         "quick": {
@@ -8031,21 +8024,6 @@
           "c5886a31cc": "Falha ao abrir o editor externo.",
           "cdf794f46d": "O arquivo de atalhos não está disponível.",
           "dd532a01ce": "Falha ao abrir os atalhos no Orca."
-        },
-        "OrchestrationPane": {
-          "52e0634e2c": "Peça a um agente coordenador para usar orquestração em transferências, transferências de worktree e agentes filhos sequenciais ou paralelos.",
-          "ae79504732": "Como usar",
-          "9bedd2a6e5": "Permite que agentes transfiram contexto e coordenem trabalho através do Orca.",
-          "07641b9768": "Skill de orquestração",
-          "2aacdb0517": "Coordene agentes de código em transferências, transferências de worktree e trabalho de agentes filhos.",
-          "191ac34567": "Orquestração de Agentes",
-          "nestedWorkerDepthTitle": "Profundidade de worker aninhado",
-          "nestedWorkerDepthDescription": "Quantas gerações de workers despachados podem gerar seus próprios workers. 1 mantém a árvore de agentes plana: um coordenador despacha workers, e esses workers não despacham.",
-          "7bc082f4de": "Copiar comando de instalação",
-          "workerAutoReleaseTitle": "Fechar automaticamente workers concluídos",
-          "workerAutoReleaseDescription": "Fecha o terminal ou chat de um worker 2 minutos após a conclusão, a menos que você escolha Manter aberto. Se ele voltar a trabalhar, os 2 minutos recomeçam quando terminar.",
-          "workerAutoReleaseKeywordClose": "fechar",
-          "workerAutoReleaseKeywordRelease": "liberar"
         },
         "RuntimeAccessGrantList": {
           "6f6d5188ed": "Revogar {{value0}}",

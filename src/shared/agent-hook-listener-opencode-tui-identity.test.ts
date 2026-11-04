@@ -113,14 +113,11 @@ describe('legacy structural TUI identity at the execution-host boundary', () => 
     expect(normalizeHookPayload(state, 'opencode', shared, 'test')?.paneKey).toBe(PANE_B)
   })
 
-  it.each(['opencode2', 'mimo-code', 'claude'] as const)(
-    'does not bind another provider: %s',
-    (source) => {
-      const state = createHookListenerState()
-      bindOpenCodeTuiSession(state, source, body(), 'ses_b')
-      expect(lookupOpenCodeSessionPane(state, 'ses_b')).toBeUndefined()
-    }
-  )
+  it.each(['mimo-code', 'claude'] as const)('does not bind another provider: %s', (source) => {
+    const state = createHookListenerState()
+    bindOpenCodeTuiSession(state, source, body(), 'ses_b')
+    expect(lookupOpenCodeSessionPane(state, 'ses_b')).toBeUndefined()
+  })
 
   it('keeps OpenCode 2 off the legacy binder even when an old id or optional marker coincides', () => {
     const state = createHookListenerState()

@@ -21,7 +21,7 @@ export type ConversationKey = {
 
 const FAMILY_MEMBERS = [...new Set(Object.entries(CLI_CONVERSATION_ADOPTING_AGENTS).flat(2))].sort()
 
-/** Agents that open one conversation's ids (`opencode`, `opencode2`) share one family name. */
+/** Agents that open one conversation's ids (e.g. `opencode`) share one family name. */
 export function conversationFamily(agent: string): string {
   return FAMILY_MEMBERS.find((member) => chatAgentsShareConversations(member, agent)) ?? agent
 }

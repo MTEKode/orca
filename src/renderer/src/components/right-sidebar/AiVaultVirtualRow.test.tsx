@@ -152,7 +152,7 @@ describe('AiVaultVirtualRow conversation logs', () => {
       renderSession(
         {
           ...cliSession,
-          agent: 'opencode2',
+          agent: 'opencode',
           filePath: '/tmp/opencode.db',
           messageCount: 0,
           previewMessages: [],

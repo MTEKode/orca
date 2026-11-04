@@ -12,8 +12,8 @@ import { writeEveryAgentVault } from './session-scanner-every-agent-fixture'
 vi.mock('./session-scanner-opencode-sqlite-worker-spawn', async () => {
   const v1List = await import('./session-scanner-opencode-sqlite-list')
   const v1Parse = await import('./session-scanner-opencode-sqlite')
-  const v2List = await import('./session-scanner-opencode2-sqlite-list')
-  const v2Parse = await import('./session-scanner-opencode2-sqlite')
+  const v2List = await import('./session-scanner-opencode-next-sqlite-list')
+  const v2Parse = await import('./session-scanner-opencode-next-sqlite')
   return {
     listOpenCodeSqliteSessionsViaWorker: (
       args: Parameters<typeof v1List.listOpenCodeSqliteSessions>[0]
@@ -27,12 +27,12 @@ vi.mock('./session-scanner-opencode-sqlite-worker-spawn', async () => {
     parseZcodeSqliteSessionViaWorker: (
       args: Parameters<typeof v1Parse.parseOpenCodeSqliteSession>[0]
     ) => v1Parse.parseOpenCodeSqliteSession({ ...args, agent: 'zcode' }),
-    listOpenCode2SqliteSessionsViaWorker: (
-      args: Parameters<typeof v2List.listOpenCode2SqliteSessions>[0]
-    ) => v2List.listOpenCode2SqliteSessions(args),
-    parseOpenCode2SqliteSessionViaWorker: (
-      args: Parameters<typeof v2Parse.parseOpenCode2SqliteSession>[0]
-    ) => v2Parse.parseOpenCode2SqliteSession(args)
+    listOpenCodeNextSqliteSessionsViaWorker: (
+      args: Parameters<typeof v2List.listOpenCodeNextSqliteSessions>[0]
+    ) => v2List.listOpenCodeNextSqliteSessions(args),
+    parseOpenCodeNextSqliteSessionViaWorker: (
+      args: Parameters<typeof v2Parse.parseOpenCodeNextSqliteSession>[0]
+    ) => v2Parse.parseOpenCodeNextSqliteSession(args)
   }
 })
 
@@ -425,11 +425,11 @@ describe('scanAiVaultSessions', () => {
       "cd '/tmp/copilot' && copilot --resume='copilot-session'"
     )
     expect(commandByAgent.get('cursor')).toBe("cursor-agent --resume 'cursor-session'")
-    expect(commandByAgent.get('opencode')).toBe(
-      "cd '/tmp/opencode' && opencode --session 'opencode-session'"
-    )
-    expect(commandByAgent.get('opencode2')).toBe(
-      "cd '/tmp/opencode2' && opencode2 --standalone --session 'opencode2-session'"
+    // Classic and next-schema sessions both label as `opencode`, so assert over every row.
+    expect(
+      result.sessions.filter((session) => session.agent === 'opencode').map((s) => s.resumeCommand)
+    ).toEqual(
+      expect.arrayContaining(["cd '/tmp/opencode' && opencode --session 'opencode-session'"])
     )
     expect(commandByAgent.get('zcode')).toBe("cd '/tmp/zcode' && zcode --resume 'zcode-session'")
     expect(commandByAgent.get('grok')).toBe("cd '/tmp/grok' && grok --resume 'grok-session'")

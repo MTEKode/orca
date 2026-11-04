@@ -972,7 +972,6 @@
           "d443a47995": "Prime Agent",
           "mimo_code_label": "MiMo Code",
           "muse_label": "Muse",
-          "opencode2_label": "OpenCode 2",
           "codebuddy_label": "CodeBuddy",
           "zcode_label": "ZCode",
           "jcode_label": "Jcode",
@@ -1540,8 +1539,6 @@
         "6a50cdcd7c": "语音",
         "0059bd17f3": "使智能体能够控制您计算机上的任何应用程序。",
         "b35e92364b": "计算机控制",
-        "cd50cec5d7": "通过 Orca 协调多个编码智能体。",
-        "58a868e8e4": "编排",
         "7c79d3b7bf": "可选",
         "b1c2f8b0ac": "Claude、Codex、Gemini、OpenCode Go、MiniMax 和 Grok 的可选账户切换与使用量设置。",
         "f70ac54d38": "AI 提供商账户",
@@ -7745,21 +7742,6 @@
           "3743ed080c": "设置命令",
           "f79084947b": "新应用程序"
         },
-        "OrchestrationPane": {
-          "52e0634e2c": "让协调智能体通过编排处理交接、工作树移交，以及顺序或并行的子智能体。",
-          "ae79504732": "如何使用",
-          "9bedd2a6e5": "使智能体能够通过 Orca 传递上下文并协调工作。",
-          "07641b9768": "编排技能",
-          "2aacdb0517": "在交接、工作树移交和子智能体工作中协调编码智能体。",
-          "191ac34567": "智能体编排",
-          "nestedWorkerDepthTitle": "工作智能体嵌套深度",
-          "nestedWorkerDepthDescription": "已派发的工作智能体可以再派发自己的工作智能体的层数。设为 1 时智能体树保持扁平：协调者派发工作智能体，这些工作智能体不再派发。",
-          "7bc082f4de": "复制安装命令",
-          "workerAutoReleaseTitle": "自动关闭已完成的工作者",
-          "workerAutoReleaseDescription": "除非选择“保持打开”，否则工作者完成后 2 分钟会关闭其终端或聊天。如果它再次开始工作，完成后将重新计时 2 分钟。",
-          "workerAutoReleaseKeywordClose": "关闭",
-          "workerAutoReleaseKeywordRelease": "释放"
-        },
         "OrchestrationSetupCard": {
           "e7d2a5146c": "使智能体能够通过 Orca 传递上下文并协调工作。",
           "2777ff0fdc": "编排技能"
@@ -8244,8 +8226,6 @@
           "5063bb47a5": "语音",
           "7118953f14": "使智能体能够控制您计算机上的任何应用程序。",
           "c9841721cb": "计算机控制",
-          "475980f53d": "通过 Orca 协调多个编码智能体。",
-          "00c3a7950d": "编排",
           "21f09426ea": "可选。 Orca 可与您现有的提供商登录配合使用；仅当您希望 Orca 帮助在账户之间切换时才添加账户。",
           "ad6c529693": "AI 提供商账户",
           "ec1ba547f7": "管理 AI 智能体、设置默认值并自定义命令。",
@@ -10006,9 +9986,7 @@
             "91fc8ab7e5": "协调",
             "13ba5c6cbd": "智能体",
             "d86705ba77": "多智能体",
-            "a7f76b4ca7": "编排",
-            "e05ff36753": "通过消息传递、任务 DAG、调度和决策门来协调多个编码智能体。",
-            "c34045764e": "智能体编排"
+            "a7f76b4ca7": "编排"
           }
         },
         "privacy": {
@@ -22872,12 +22850,6 @@
     "terminalUnverifiable": "Orca 无法确认 WSL 发行版 {{distro}} 是否正在运行，因此没有启动此终端。请启动该发行版后重试。"
   },
   "mte": {
-    "prompt": {
-      "title": "在此聊天中使用 MTE 编排吗？",
-      "description": "MTE 规划器会先询问目标，然后按计划驱动 coder 和 validator 智能体。Orca 会把 MTE 工具配置写入此工作区。",
-      "confirm": "使用 MTE",
-      "cancel": "普通聊天"
-    },
     "prepare": {
       "failed": "无法准备 MTE：{{message}}"
     },

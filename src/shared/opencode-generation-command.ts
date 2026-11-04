@@ -8,8 +8,8 @@ export function mergeOpenCodeGenerationArgs(
   args: string[]
 ): string[] {
   if (
-    (agentId === 'opencode' || agentId === 'opencode2') &&
-    /(?:^|[\\/])opencode2?(?:\.(?:cmd|exe))?$/i.test(binary) &&
+    agentId === 'opencode' &&
+    /(?:^|[\\/])opencode(?:\.(?:cmd|exe))?$/i.test(binary) &&
     args[0] === 'run' &&
     !prefixArgs.includes('--')
   ) {

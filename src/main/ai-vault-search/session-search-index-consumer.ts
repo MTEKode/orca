@@ -23,7 +23,6 @@ export const SELF_CONTAINED_TRANSCRIPT_AGENTS = {
   cursor: false, // Sibling chat metadata enriches the transcript.
   antigravity: false, // Workspace history enriches the transcript separately.
   opencode: false, // SQLite or a separate message directory.
-  opencode2: false,
   zcode: false,
   grok: false, // chat_history.jsonl supplies messages.
   hermes: true,

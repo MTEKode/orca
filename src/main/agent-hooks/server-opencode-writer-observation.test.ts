@@ -68,7 +68,7 @@ describe('OpenCode writer observation', () => {
               }),
               ...extra
             },
-            '/hook/opencode2'
+            '/hook/opencode'
           )
         ).status
       ).toBe(204)
@@ -100,7 +100,7 @@ describe('OpenCode writer observation', () => {
         worktreeId: 'wt-1',
         terminalHandle: 'terminal-a',
         origin,
-        payload: { state: 'done', prompt: 'changed repaint', agentType: 'opencode2' }
+        payload: { state: 'done', prompt: 'changed repaint', agentType: 'opencode' }
       })
     repaint()
     expect(observation()?.topology).toBe('pane-owned')
@@ -110,12 +110,12 @@ describe('OpenCode writer observation', () => {
     const event = {
       ...snapshot,
       restoredUnconfirmed: snapshot.restoredUnconfirmed ? (true as const) : undefined,
-      payload: { state: 'done' as const, prompt: '', agentType: 'opencode2' }
+      payload: { state: 'done' as const, prompt: '', agentType: 'opencode' }
     }
     for (const value of [
       event,
       toAgentStatusIpcPayload(event),
-      buildRelayHookEnvelope(event, 'opencode2')
+      buildRelayHookEnvelope(event, 'opencode')
     ]) {
       expect(JSON.stringify(value)).not.toContain('pane-owned')
       expect(Object.getOwnPropertySymbols(structuredClone(value).providerSession ?? {})).toEqual([])
@@ -131,7 +131,7 @@ describe('OpenCode writer observation', () => {
       tabId: 'tab-1',
       worktreeId: 'wt-1',
       origin: 'process',
-      payload: { state: 'working', prompt: 'task', agentType: 'opencode2' }
+      payload: { state: 'working', prompt: 'task', agentType: 'opencode' }
     })
     expect(observation()?.topology).toBe('unverifiable')
     await post()

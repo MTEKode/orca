@@ -534,7 +534,7 @@ describe('Gemini hook normalization', () => {
   })
 })
 
-describe.each(['opencode', 'opencode2'] as const)('%s hook normalization', (source) => {
+describe.each(['opencode'] as const)('%s hook normalization', (source) => {
   it('SessionBusy maps to working', () => {
     const result = _internals.normalizeHookPayload(
       source,

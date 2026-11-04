@@ -60,7 +60,6 @@ describe.skipIf(process.platform === 'win32')('WSL public-manager settings lifet
   let pendingRequest: ReturnType<typeof gate>
   const sources = {
     opencodePluginSource: '// independent v1',
-    opencode2PluginSource: '// independent v2',
     piExtensionSource: '// pi',
     ompExtensionSource: '// omp'
   }
@@ -181,7 +180,7 @@ describe.skipIf(process.platform === 'win32')('WSL public-manager settings lifet
     async ({ stage, initialEnabled, toggleBack }) => {
       pause = stage
       const setEnabled = (enabled: boolean) => {
-        settings = { disabledTuiAgents: enabled ? [] : ['opencode', 'opencode2'] }
+        settings = { disabledTuiAgents: enabled ? [] : ['opencode'] }
       }
       setEnabled(initialEnabled)
       await manager.ensureForDistro('fixture')
@@ -201,8 +200,7 @@ describe.skipIf(process.platform === 'win32')('WSL public-manager settings lifet
         sentEnabled
           ? sources
           : {
-              opencodePluginSource: '',
-              opencode2PluginSource: ''
+              opencodePluginSource: ''
             }
       )
       if (stage === 'plugin') {
@@ -219,23 +217,20 @@ describe.skipIf(process.platform === 'win32')('WSL public-manager settings lifet
         finalEnabled
           ? sources
           : {
-              opencodePluginSource: '',
-              opencode2PluginSource: ''
+              opencodePluginSource: ''
             }
       )
-      for (const agent of ['opencode', 'opencode2'] as const) {
-        const dir = manager.getOpenCodeOverlayDir('fixture', agent)
-        if (finalEnabled) {
-          expect(dir).toBeTruthy()
-          if (!dir) {
-            throw new Error('missing enabled overlay')
-          }
-          expect(readFileSync(join(dir, 'plugins', `orca-${agent}-status.js`), 'utf8')).toBe(
-            agent === 'opencode' ? sources.opencodePluginSource : sources.opencode2PluginSource
-          )
-        } else {
-          expect(dir).toBeNull()
+      const dir = manager.getOpenCodeOverlayDir('fixture')
+      if (finalEnabled) {
+        expect(dir).toBeTruthy()
+        if (!dir) {
+          throw new Error('missing enabled overlay')
         }
+        expect(readFileSync(join(dir, 'plugins', 'orca-opencode-status.js'), 'utf8')).toBe(
+          sources.opencodePluginSource
+        )
+      } else {
+        expect(dir).toBeNull()
       }
       const settledCount = requests.length
       await manager.ensureForDistro('fixture')
@@ -247,11 +242,10 @@ describe.skipIf(process.platform === 'win32')('WSL public-manager settings lifet
     pause = 'detect'
     await manager.ensureForDistro('fixture')
     const oldV1 = manager.getOpenCodeOverlayDir('fixture')
-    const oldV2 = manager.getOpenCodeOverlayDir('fixture', 'opencode2')
     now += REINSTALL_MIN_INTERVAL_MS + 1
     const refresh = manager.ensureForDistro('fixture')
     await beforeSources.reached
-    settings = { disabledTuiAgents: ['opencode', 'opencode2'] }
+    settings = { disabledTuiAgents: ['opencode'] }
     const disabled = manager.ensureForDistro('fixture')
     beforeSources.release()
     await pendingRequest.reached
@@ -262,7 +256,6 @@ describe.skipIf(process.platform === 'win32')('WSL public-manager settings lifet
     await Promise.all([refresh, disabled, restored])
     expect(requests).toHaveLength(2)
     expect(manager.getOpenCodeOverlayDir('fixture')).toBe(oldV1)
-    expect(manager.getOpenCodeOverlayDir('fixture', 'opencode2')).toBe(oldV2)
     await manager.ensureForDistro('fixture')
     expect(requests).toHaveLength(2)
   })
@@ -281,14 +274,13 @@ describe.skipIf(process.platform === 'win32')('WSL public-manager settings lifet
     }
     const refresh = manager.ensureForDistro('fixture', undefined, 'omp')
     await pendingRequest.reached
-    settings.disabledTuiAgents = ['opencode', 'opencode2']
+    settings.disabledTuiAgents = ['opencode']
     const disabled = manager.ensureForDistro('fixture')
     pendingRequest.release()
     await secondKind.reached
     expect(requests[2]).toMatchObject({
       launchKind: 'omp',
-      opencodePluginSource: '',
-      opencode2PluginSource: ''
+      opencodePluginSource: ''
     })
     settings.disabledTuiAgents = []
     const restored = manager.ensureForDistro('fixture')
@@ -297,7 +289,6 @@ describe.skipIf(process.platform === 'win32')('WSL public-manager settings lifet
     expect(requests.map((request) => request.launchKind)).toEqual(['pi', 'pi', 'omp', 'pi', 'omp'])
     expect(requests.at(-1)).toMatchObject(sources)
     expect(manager.getOpenCodeOverlayDir('fixture')).toBeTruthy()
-    expect(manager.getOpenCodeOverlayDir('fixture', 'opencode2')).toBeTruthy()
     const pi = manager.getGuestAgentPath('fixture', 'pi')
     const omp = manager.getGuestAgentPath('fixture', 'omp')
     if (!pi || !omp) {
@@ -316,7 +307,7 @@ describe.skipIf(process.platform === 'win32')('WSL public-manager settings lifet
     now += REINSTALL_MIN_INTERVAL_MS + 1
     const refresh = manager.ensureForDistro('fixture')
     await beforeSources.reached
-    settings.disabledTuiAgents = ['opencode', 'opencode2']
+    settings.disabledTuiAgents = ['opencode']
     rejectHooks = true
     const waiters = Array.from({ length: 4 }, () => manager.ensureForDistro('fixture'))
     beforeSources.release()
@@ -331,7 +322,7 @@ describe.skipIf(process.platform === 'win32')('WSL public-manager settings lifet
     pendingRequest.release()
     await manager.ensureForDistro('fixture')
     expect(hookCount).toBe(4)
-    expect(requests.at(-1)).toMatchObject({ opencodePluginSource: '', opencode2PluginSource: '' })
+    expect(requests.at(-1)).toMatchObject({ opencodePluginSource: '' })
     expect(manager.getOpenCodeOverlayDir('fixture')).toBeNull()
   })
 
@@ -351,6 +342,5 @@ describe.skipIf(process.platform === 'win32')('WSL public-manager settings lifet
     await Promise.all([refresh, ...waiters])
     expect(requests).toHaveLength(3)
     expect(manager.getOpenCodeOverlayDir('fixture')).toBe(current)
-    expect(manager.getOpenCodeOverlayDir('fixture', 'opencode2')).toContain(activeGuest.home)
   })
 })

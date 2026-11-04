@@ -58,7 +58,7 @@ function prepareShellConfigDirEnv(
   base: Record<string, string> | undefined
 ): { ok: true; env?: NodeJS.ProcessEnv } | null {
   const configVar =
-    agentId === 'opencode' || agentId === 'opencode2'
+    agentId === 'opencode'
       ? 'OPENCODE_CONFIG_DIR'
       : agentId === 'pi' || agentId === 'omp'
         ? 'PI_CODING_AGENT_DIR'
@@ -70,7 +70,7 @@ function prepareShellConfigDirEnv(
   }
   // Pi/OMP share a binary config var but need distinct source shadows or nested legacy overlays restore the wrong agent directory.
   const sourceVar =
-    agentId === 'opencode' || agentId === 'opencode2'
+    agentId === 'opencode'
       ? 'ORCA_OPENCODE_SOURCE_CONFIG_DIR'
       : agentId === 'pi'
         ? 'ORCA_PI_SOURCE_AGENT_DIR'

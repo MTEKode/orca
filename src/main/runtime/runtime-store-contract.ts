@@ -103,9 +103,12 @@ export type RuntimeStore = {
   getMobileClientTabSelections?: Store['getMobileClientTabSelections']
   setMobileClientTabSelections?: Store['setMobileClientTabSelections']
   getSettings(): {
+    mcpIntegrationsEnabled?: GlobalSettings['mcpIntegrationsEnabled']
+    mcpIntegrationConfig?: GlobalSettings['mcpIntegrationConfig']
+    graphifyAutoUpdate?: GlobalSettings['graphifyAutoUpdate']
+    mteGateOrchestration?: GlobalSettings['mteGateOrchestration']
     autoRenameBranchFromWork?: GlobalSettings['autoRenameBranchFromWork']
     nativeChatAutoName?: GlobalSettings['nativeChatAutoName']
-    experimentalOpenCodeV2Chat?: GlobalSettings['experimentalOpenCodeV2Chat']
     notifications?: GlobalSettings['notifications']
     claudeManagedAccounts?: GlobalSettings['claudeManagedAccounts']
     activeClaudeManagedAccountId?: GlobalSettings['activeClaudeManagedAccountId']

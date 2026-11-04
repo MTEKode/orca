@@ -17,10 +17,10 @@ import {
 import { normalizeTitleText } from './session-scanner-values'
 import { asRecord } from './session-scanner-record-value'
 import {
-  extractOpenCode2MessageText,
-  decodeOpenCode2Message,
-  parseOpenCode2MessageRow
-} from './session-scanner-opencode2-message'
+  extractOpenCodeNextMessageText,
+  decodeOpenCodeNextMessage,
+  parseOpenCodeNextMessageRow
+} from './session-scanner-opencode-next-message'
 import SyncDatabase from '../sqlite/sync-database'
 import { columnExists, tableExists } from '../opencode-usage/schema-helpers'
 import type { TranscriptMessage, TranscriptMessageSink } from './session-transcript-consumers'
@@ -62,7 +62,7 @@ function openReadonlyDatabase(dbPath: string): SyncDatabase {
   return db
 }
 
-function canReadOpenCode2Sessions(db: SyncDatabase): boolean {
+function canReadOpenCodeNextSessions(db: SyncDatabase): boolean {
   return (
     tableExists(db, OPENCODE2_SESSION_TABLE) &&
     columnExists(db, OPENCODE2_SESSION_TABLE, 'time_created') &&
@@ -78,7 +78,7 @@ function sessionNumberColumnSelect(db: SyncDatabase, columnName: string): string
   return columnExists(db, OPENCODE2_SESSION_TABLE, columnName) ? `s.${columnName}` : '0'
 }
 
-function canCountOpenCode2Messages(db: SyncDatabase): boolean {
+function canCountOpenCodeNextMessages(db: SyncDatabase): boolean {
   return (
     tableExists(db, OPENCODE2_MESSAGE_TABLE) &&
     columnExists(db, OPENCODE2_MESSAGE_TABLE, 'session_id') &&
@@ -87,7 +87,7 @@ function canCountOpenCode2Messages(db: SyncDatabase): boolean {
 }
 
 function buildSessionQuery(db: SyncDatabase): string {
-  const messageCountSubquery = canCountOpenCode2Messages(db)
+  const messageCountSubquery = canCountOpenCodeNextMessages(db)
     ? `(SELECT COUNT(*) FROM ${OPENCODE2_MESSAGE_TABLE} m
         WHERE m.session_id = s.id
           AND m.type IN ('user','assistant'))`
@@ -144,7 +144,7 @@ function mapPreviewRole(type: string | null): AiVaultSessionPreviewMessage['role
 }
 
 function readFirstUserPromptFromDb(db: SyncDatabase, sessionId: string): string | null {
-  if (!canReadOpenCode2Messages(db)) {
+  if (!canReadOpenCodeNextMessages(db)) {
     return null
   }
   try {
@@ -158,7 +158,7 @@ function readFirstUserPromptFromDb(db: SyncDatabase, sessionId: string): string 
          LIMIT 1`
       )
       .all(sessionId) as { data: string }[]
-    const text = rows[0] ? extractOpenCode2MessageText(rows[0].data) : null
+    const text = rows[0] ? extractOpenCodeNextMessageText(rows[0].data) : null
     return text ? normalizeFullFirstUserPromptText(text) : null
   } catch {
     return null
@@ -166,7 +166,7 @@ function readFirstUserPromptFromDb(db: SyncDatabase, sessionId: string): string 
 }
 
 function buildPreviewQuery(db: SyncDatabase): string | null {
-  if (!canReadOpenCode2Messages(db)) {
+  if (!canReadOpenCodeNextMessages(db)) {
     return null
   }
   return `SELECT type, data, time_created
@@ -179,9 +179,9 @@ function buildPreviewQuery(db: SyncDatabase): string | null {
           LIMIT ?`
 }
 
-function canReadOpenCode2Messages(db: SyncDatabase): boolean {
+function canReadOpenCodeNextMessages(db: SyncDatabase): boolean {
   return (
-    canCountOpenCode2Messages(db) &&
+    canCountOpenCodeNextMessages(db) &&
     ['data', 'time_created', 'seq'].every((column) =>
       columnExists(db, OPENCODE2_MESSAGE_TABLE, column)
     )
@@ -189,7 +189,7 @@ function canReadOpenCode2Messages(db: SyncDatabase): boolean {
 }
 
 function* readCaptureRows(db: SyncDatabase, sessionId: string): Generator<PreviewRow> {
-  if (!canReadOpenCode2Messages(db)) {
+  if (!canReadOpenCodeNextMessages(db)) {
     throw new Error('OpenCode 2 transcript schema is unreadable')
   }
   const rows = db
@@ -199,7 +199,7 @@ function* readCaptureRows(db: SyncDatabase, sessionId: string): Generator<Previe
   let count = 0
   let bytes = 0
   for (const value of rows) {
-    const row = parseOpenCode2MessageRow(value)
+    const row = parseOpenCodeNextMessageRow(value)
     bytes += Buffer.byteLength(row.data)
     if (++count > OPENCODE_CAPTURE_RECORD_LIMIT || bytes > OPENCODE_CAPTURE_TEXT_LIMIT) {
       throw new Error('OpenCode 2 transcript exceeds capture limits; no partial read was published')
@@ -209,7 +209,7 @@ function* readCaptureRows(db: SyncDatabase, sessionId: string): Generator<Previe
 }
 
 /** Read v2 metadata and previews; absent required session schema returns null, while database errors propagate. */
-export async function parseOpenCode2SqliteSession(args: {
+export async function parseOpenCodeNextSqliteSession(args: {
   dbPath: string
   sessionId: string
   platform: NodeJS.Platform
@@ -219,7 +219,7 @@ export async function parseOpenCode2SqliteSession(args: {
   let db: SyncDatabase | null = null
   try {
     db = openReadonlyDatabase(dbPath)
-    if (!canReadOpenCode2Sessions(db)) {
+    if (!canReadOpenCodeNextSessions(db)) {
       return null
     }
     // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: Runtime validation or the local test fixture establishes the asserted shape.
@@ -233,7 +233,7 @@ export async function parseOpenCode2SqliteSession(args: {
         ? row.time_updated
         : row.time_created
     const accumulator = createAccumulator({
-      agent: 'opencode2',
+      agent: 'opencode',
       file: {
         path: dbPath,
         mtimeMs,
@@ -258,7 +258,7 @@ export async function parseOpenCode2SqliteSession(args: {
           ? db
               .prepare(previewSql)
               .all(sessionId, OPENCODE2_PREVIEW_LIMIT + 1)
-              .map(parseOpenCode2MessageRow)
+              .map(parseOpenCodeNextMessageRow)
           : []
       if (probedRows.length > OPENCODE2_PREVIEW_LIMIT) {
         accumulator.previewMessagesTruncated = true
@@ -270,7 +270,7 @@ export async function parseOpenCode2SqliteSession(args: {
         const role = mapPreviewRole(previewRow.type)
         addDecodedSessionMessage(
           accumulator,
-          decodeOpenCode2Message(previewRow.data, role, timestampIso(previewRow.time_created), {
+          decodeOpenCodeNextMessage(previewRow.data, role, timestampIso(previewRow.time_created), {
             includeTools: accumulator.messages.active
           }),
           { seedFirstUserPrompt: false }
@@ -288,13 +288,13 @@ export async function parseOpenCode2SqliteSession(args: {
   }
 }
 
-export async function captureOpenCode2SqliteSession(args: {
+export async function captureOpenCodeNextSqliteSession(args: {
   dbPath: string
   sessionId: string
   platform: NodeJS.Platform
 }): Promise<{ session: AiVaultSession | null; messages: TranscriptMessage[] }> {
   const messages: TranscriptMessage[] = []
   const sink: TranscriptMessageSink = { active: true, push: (message) => messages.push(message) }
-  const session = await parseOpenCode2SqliteSession({ ...args, messages: sink })
+  const session = await parseOpenCodeNextSqliteSession({ ...args, messages: sink })
   return { session, messages }
 }

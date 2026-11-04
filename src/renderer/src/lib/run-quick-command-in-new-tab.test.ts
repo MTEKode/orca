@@ -182,20 +182,20 @@ describe('runQuickCommandInNewTab', () => {
     expect(mockState.setRecentQuickCommandForGroup).toHaveBeenCalledWith('group-1', 'agent-review')
   })
 
-  it('submits OpenCode2 quick prompts after its TUI is ready', () => {
+  it('submits OpenCodeNext quick prompts after its TUI is ready', () => {
     mocks.launchAgentInNewTab.mockReturnValue({
-      surface: { kind: 'local-terminal', tabId: 'tab-opencode2' }
+      surface: { kind: 'local-terminal', tabId: 'tab-opencode' }
     })
     mockState.unifiedTabsByWorktree['repo::worktree'] = [
-      { entityId: 'tab-opencode2', contentType: 'terminal', groupId: 'group-1' }
+      { entityId: 'tab-opencode', contentType: 'terminal', groupId: 'group-1' }
     ]
 
     runQuickCommandInNewTab({
       command: {
-        id: 'agent-opencode2',
-        label: 'OpenCode2 review',
+        id: 'agent-opencode',
+        label: 'OpenCodeNext review',
         action: 'agent-prompt',
-        agent: 'opencode2',
+        agent: 'opencode',
         prompt: 'Review this diff'
       },
       worktreeId: 'repo::worktree',
@@ -204,13 +204,13 @@ describe('runQuickCommandInNewTab', () => {
 
     expect(mocks.launchAgentInNewTab).toHaveBeenCalledWith({
       requestId: expect.any(String),
-      agent: 'opencode2',
+      agent: 'opencode',
       prompt: 'Review this diff',
       promptDelivery: 'submit-after-ready',
       worktreeId: 'repo::worktree',
       groupId: 'group-1',
       launchSource: 'quick_command',
-      quickCommandLabel: 'OpenCode2 review'
+      quickCommandLabel: 'OpenCodeNext review'
     })
   })
 

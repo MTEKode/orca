@@ -57,7 +57,7 @@ it('extracts executable tokens through the shared launch boundary', () => {
 it.each([
   ['sleep 30 && "C:\\Program Files\\Orca\\Codex.EXE" --resume', 'codex'],
   ['/usr/local/bin/mimo.sh', 'mimo'],
-  ['sleep 1 && opencode2.cmd', 'opencode2'],
+  ['sleep 1 && opencode.cmd', 'opencode'],
   [undefined, '']
 ])('normalizes the launch executable name of %s', (command, expected) => {
   expect(getAgentLaunchExecutableName(command)).toBe(expected)

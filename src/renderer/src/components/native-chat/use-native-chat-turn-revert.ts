@@ -6,7 +6,7 @@ import { refreshWorktreeGitStatusAfterTurnRevert } from './native-chat-turn-reve
 /** The pending turn revert: which turn, the confirm's busy state, and its success side effects. */
 export function useNativeChatTurnRevert(args: {
   /** The session's restore mutation; null means refused and already toasted its own words. */
-  revertTurn: (turnId: string, kind: 'start') => Promise<unknown | null>
+  revertTurn: (turnId: string, kind: 'start') => Promise<unknown>
   worktreeId: string | null
   refreshCheckpoints: () => void
 }): {

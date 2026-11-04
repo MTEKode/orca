@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { getOpenCode2SetupSource } from './status-plugin-setup-source'
+import { getOpenCodeNextSetupSource } from './status-plugin-setup-source'
 
 type Hooks = { event: (event: unknown) => Promise<void>; dispose?: () => Promise<void> }
 
@@ -8,7 +8,7 @@ function createSetup(factory: () => Promise<Hooks>) {
     'OrcaOpenCodeStatusPlugin',
     'AbortController',
     'console',
-    `${getOpenCode2SetupSource().join('\n')}\nreturn setupOpenCode2Status;`
+    `${getOpenCodeNextSetupSource().join('\n')}\nreturn setupOpenCodeNextStatus;`
   )(factory, AbortController, { warn: vi.fn() })
   if (typeof setup !== 'function') {
     throw new Error('Missing generated setup')

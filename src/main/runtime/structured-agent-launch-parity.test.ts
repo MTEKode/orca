@@ -158,16 +158,7 @@ import {
 import { partialRuntimeStore } from './runtime-store-partial-fixture'
 
 // A new agent goes last: its cases then shift only the configured ones' session ids.
-const AGENTS = [
-  'claude',
-  'codex',
-  'grok',
-  'opencode',
-  'omp',
-  'pi',
-  'antigravity',
-  'opencode2'
-] as const
+const AGENTS = ['claude', 'codex', 'grok', 'omp', 'pi', 'antigravity'] as const
 type Agent = (typeof AGENTS)[number]
 
 /** What each fake binary prints for `--version`: a release every launch gate accepts. */
@@ -175,11 +166,9 @@ const VERSIONS: Record<Agent, string> = {
   claude: '2.1.120 (Claude Code)',
   codex: 'codex-cli 0.136.0',
   grok: '1.0.50',
-  opencode: '2.0.20',
   omp: '17.1.0',
   pi: '1.1.0',
-  antigravity: '1.3.0',
-  opencode2: '2.0.20'
+  antigravity: '1.3.0'
 }
 /** An agent whose binary is not named after it. */
 const BINARIES: Partial<Record<Agent, string>> = { antigravity: 'agy_acp_server.par' }
@@ -291,11 +280,9 @@ function configuredSettings(): Partial<GlobalSettings> {
       claude: `${YOLO_TUI_AGENT_ARGS.claude} --add-dir /parity/configured`,
       codex: `${YOLO_TUI_AGENT_ARGS.codex} -c model_reasoning_effort=low`,
       grok: '',
-      opencode: '',
       omp: '',
       pi: '',
-      antigravity: '',
-      opencode2: ''
+      antigravity: ''
     },
     agentDefaultEnv: Object.fromEntries(
       AGENTS.map((agent) => [
@@ -360,9 +347,6 @@ function accountHomeFor(agent: Agent): AgentSessionAccountHome {
       return { variable: 'CODEX_HOME', path: directory('codex') }
     case 'grok':
       return { variable: 'GROK_HOME', path: directory('grok') }
-    case 'opencode':
-    case 'opencode2':
-      return { kind: 'opencode', locator: { kind: 'unmanaged' } }
     case 'omp':
       return { variable: 'PI_CODING_AGENT_DIR', path: directory('omp') }
     case 'pi':
@@ -389,8 +373,6 @@ async function resumedHandleFor(
       return { transport: 'jsonl-rpc', agent: 'pi', nativeId: file }
     }
     case 'grok':
-    case 'opencode':
-    case 'opencode2':
     case 'omp':
     case 'antigravity':
       return { transport: 'acp', agent, nativeId: `acp-session-${sessionId}` }
@@ -670,7 +652,7 @@ describe.skipIf(process.platform === 'win32')('native-chat launch parity', () =>
       expect(child.env).toMatchObject({ PARITY_OVERLAY: 'omp-configured' })
       expect(child.env).not.toHaveProperty('ORCA_AGENT_SESSION_ID')
       expect(pins).toEqual([])
-      for (const agent of ['grok', 'opencode', 'opencode2', 'antigravity']) {
+      for (const agent of ['grok', 'antigravity']) {
         expect(
           STRUCTURED_AGENT_RUNTIME_REGISTRATIONS.find(
             ({ definition }) => definition.agent === agent

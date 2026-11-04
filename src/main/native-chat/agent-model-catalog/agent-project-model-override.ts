@@ -86,7 +86,6 @@ const PROJECT_MODEL_LAYERS: Readonly<Record<string, ProjectModelLayers>> = {
     )
   },
   opencode: OPENCODE_PROJECT_MODEL_LAYERS,
-  opencode2: OPENCODE_PROJECT_MODEL_LAYERS,
   // OMP also merges other agents' project settings.
   omp: {
     files: [

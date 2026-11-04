@@ -151,7 +151,7 @@ describe('OpenCode installation uses the current enabled agents', () => {
       {
         ...options,
         agentStatusHooksEnabled: disabled,
-        disabledTuiAgents: disabled ? ['opencode', 'opencode2'] : []
+        disabledTuiAgents: disabled ? ['opencode'] : []
       }
     )
     expect(existsSync(join(consumer, 'opencode'))).toBe(false)
@@ -181,9 +181,7 @@ describe('OpenCode installation uses the current enabled agents', () => {
 
   const combinations = [
     { disabled: [], fallback: 'opencode' },
-    { disabled: ['opencode'], fallback: 'opencode2' },
-    { disabled: ['opencode2'], fallback: 'opencode' },
-    { disabled: ['opencode', 'opencode2'], fallback: undefined }
+    { disabled: ['opencode'], fallback: undefined }
   ]
   for (const { disabled, fallback } of combinations) {
     it.each(['default', 'custom'])(`bare %s config with disabled ${disabled.join(',')}`, (kind) => {
@@ -197,37 +195,30 @@ describe('OpenCode installation uses the current enabled agents', () => {
       )
       expect(env.ORCA_OPENCODE_AGENT).toBe(fallback)
       const selected = env.OPENCODE_CONFIG_DIR ?? config
-      for (const agent of ['opencode', 'opencode2']) {
-        expect(existsSync(plugin(selected, agent))).toBe(agent === fallback)
-      }
+      expect(existsSync(plugin(selected, 'opencode'))).toBe(fallback === 'opencode')
       if (kind === 'custom') {
         expect(readFileSync(join(selected, 'plugins', 'user.js'), 'utf8')).toBe('// user plugin')
         expect(readFileSync(join(selected, 'opencode.json'), 'utf8')).toBe('{"model":"fixture"}')
         expect(existsSync(plugin(custom, 'opencode'))).toBe(false)
       }
     })
-    it.each(['opencode', 'opencode2'] as const)(
-      `explicit %s with disabled ${disabled.join(',')}`,
-      (agent) => {
-        for (const selection of [
-          { launchCommand: `${agent} --session fixture` },
-          { launchCommand: `sleep 30 && ${agent} --session fixture` },
-          { launchAgent: agent }
-        ]) {
-          const env = buildPtyHostEnv(
-            'pane',
-            {},
-            { ...options, ...selection, disabledTuiAgents: disabled }
-          )
-          const selected = disabled.includes(agent) ? undefined : agent
-          expect(env.ORCA_OPENCODE_AGENT).toBe(selected)
-          expect(existsSync(plugin(config, agent))).toBe(selected === agent)
-          expect(existsSync(plugin(config, agent === 'opencode' ? 'opencode2' : 'opencode'))).toBe(
-            false
-          )
-        }
+    it.each(['opencode'] as const)(`explicit %s with disabled ${disabled.join(',')}`, (agent) => {
+      for (const selection of [
+        { launchCommand: `${agent} --session fixture` },
+        { launchCommand: `sleep 30 && ${agent} --session fixture` },
+        { launchAgent: agent }
+      ]) {
+        const env = buildPtyHostEnv(
+          'pane',
+          {},
+          { ...options, ...selection, disabledTuiAgents: disabled }
+        )
+        // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: disabled is a string list in this test.
+        const selected = (disabled as string[]).includes(agent) ? undefined : agent
+        expect(env.ORCA_OPENCODE_AGENT).toBe(selected)
+        expect(existsSync(plugin(config, agent))).toBe(selected === agent)
       }
-    )
+    })
   }
 
   it('reads enable/disable changes on the same services without deleting installed files', () => {
@@ -235,7 +226,7 @@ describe('OpenCode installation uses the current enabled agents', () => {
     const installed = plugin(config, 'opencode')
     writeFileSync(installed, '// already installed sentinel')
     const env = buildPtyHostEnv('second', {}, { ...options, disabledTuiAgents: ['opencode'] })
-    expect(env.ORCA_OPENCODE_AGENT).toBe('opencode2')
+    expect(env.ORCA_OPENCODE_AGENT).toBeUndefined()
     expect(readFileSync(installed, 'utf8')).toBe('// already installed sentinel')
     buildPtyHostEnv('third', {}, options)
     expect(readFileSync(installed, 'utf8')).toContain('/hook/opencode')
@@ -252,7 +243,7 @@ describe('OpenCode installation uses the current enabled agents', () => {
         {
           ...options,
           agentStatusHooksEnabled: enabled,
-          disabledTuiAgents: ['opencode', 'opencode2']
+          disabledTuiAgents: ['opencode']
         }
       )
       expect(env.OPENCODE_CONFIG_DIR).toBe(custom)
@@ -273,7 +264,7 @@ describe('OpenCode installation uses the current enabled agents', () => {
           ORCA_OPENCODE_CONFIG_DIR: fixture.guestOverlay,
           ORCA_OPENCODE_AGENT: 'opencode'
         },
-        { ...options, disabledTuiAgents: ['opencode', 'opencode2'] }
+        { ...options, disabledTuiAgents: ['opencode'] }
       )
       expect(env.OPENCODE_CONFIG_DIR).toBe(primary === custom ? custom : undefined)
       expect(env.ORCA_OPENCODE_AGENT).toBeUndefined()
@@ -284,7 +275,7 @@ describe('OpenCode installation uses the current enabled agents', () => {
     const enabled = buildPtyHostEnv(
       'wsl-enabled',
       {},
-      { ...options, isWsl: true, launchAgent: 'opencode2' }
+      { ...options, isWsl: true, launchAgent: 'opencode' }
     )
     expect(enabled.OPENCODE_CONFIG_DIR).toBe(fixture.guestOverlay)
     expect(existsSync(config)).toBe(false)
@@ -294,7 +285,7 @@ describe('OpenCode installation uses the current enabled agents', () => {
       {
         ...options,
         isWsl: true,
-        disabledTuiAgents: ['opencode', 'opencode2']
+        disabledTuiAgents: ['opencode']
       }
     )
     expect(disabled.OPENCODE_CONFIG_DIR).toBeUndefined()
@@ -311,7 +302,7 @@ it.each(['source', 'no-source', 'user-config'])(
       {},
       {
         ...options,
-        disabledTuiAgents: ['opencode', 'opencode2']
+        disabledTuiAgents: ['opencode']
       }
     )
     vi.stubEnv('OPENCODE_CONFIG_DIR', kind === 'user-config' ? custom : fixture.guestOverlay)
@@ -346,7 +337,7 @@ it.each([
   const prepared = buildPtyHostEnv(
     'daemon-pane',
     scenario.explicit ? { OPENCODE_CONFIG_DIR: custom } : {},
-    { ...options, disabledTuiAgents: ['opencode', 'opencode2'] }
+    { ...options, disabledTuiAgents: ['opencode'] }
   )
   const previous = join(root, 'previous')
   mkdirSync(previous)
@@ -383,7 +374,7 @@ it.each([
   expect(result.ORCA_OPENCODE_AGENT).toBeUndefined()
 })
 
-it.each(['opencode', 'opencode2'] as const)(
+it.each(['opencode'] as const)(
   'keeps the freshly selected %s overlay through a stale daemon',
   (agent) => {
     const prepared = buildPtyHostEnv(
@@ -458,7 +449,7 @@ it.each([true, false])(
         ORCA_OPENCODE_CONFIG_DIR: overlay,
         ORCA_OPENCODE_SOURCE_CONFIG_DIR: source
       },
-      { ...options, isWsl: true, disabledTuiAgents: ['opencode', 'opencode2'] }
+      { ...options, isWsl: true, disabledTuiAgents: ['opencode'] }
     )
     expect(env.OPENCODE_CONFIG_DIR).toBeUndefined()
     expect(env.ORCA_OPENCODE_CONFIG_DIR).toBeUndefined()
@@ -476,9 +467,7 @@ describe.each([
 ])('inherited retired shared hooks dir ($name)', ({ marked }) => {
   it.each([
     { agent: 'opencode', hooksDir: 'opencode-hooks' },
-    { agent: 'opencode', hooksDir: 'opencode2-hooks' },
-    { agent: 'opencode2', hooksDir: 'opencode-hooks' },
-    { agent: 'opencode2', hooksDir: 'opencode2-hooks' }
+    { agent: 'opencode', hooksDir: 'opencode2-hooks' }
   ] as const)('drops $hooksDir for $agent panes', ({ agent, hooksDir }) => {
     const legacy = join(fixture.userData, hooksDir, 'shared')
     mkdirSync(join(legacy, 'plugins'), { recursive: true })
@@ -493,7 +482,7 @@ describe.each([
     expect(env.ORCA_OPENCODE_CONFIG_DIR).toBeUndefined()
     expect(env.ORCA_OPENCODE_SOURCE_CONFIG_DIR).toBeUndefined()
     expect(existsSync(plugin(config, agent))).toBe(true)
-    expect(existsSync(join(fixture.userData, `${agent}-config-overlays`))).toBe(false)
+    expect(existsSync(join(fixture.userData, 'opencode-config-overlays'))).toBe(false)
   })
 })
 
@@ -581,14 +570,14 @@ it.each([true, false])(
   }
 )
 
-it('repairs both legacy variants without main inheriting any retired path or enabling hooks', () => {
-  for (const agent of ['opencode', 'opencode2']) {
+it('repairs the legacy plugin without main inheriting any retired path or enabling hooks', () => {
+  for (const agent of ['opencode']) {
     const path = plugin(join(fixture.userData, `${agent}-hooks`, 'shared'), agent)
     mkdirSync(join(path, '..'), { recursive: true })
     writeFileSync(path, '// old plugin')
   }
   buildPtyHostEnv('pane', {}, { ...options, agentStatusHooksEnabled: false })
-  for (const agent of ['opencode', 'opencode2']) {
+  for (const agent of ['opencode']) {
     expect(
       readFileSync(plugin(join(fixture.userData, `${agent}-hooks`, 'shared'), agent), 'utf8')
     ).toContain('setup')

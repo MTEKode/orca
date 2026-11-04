@@ -113,10 +113,9 @@ describe('resumeAiVaultSessionInNewChat', () => {
         finish = resolve
       })
     )
-    mocks.admitStructuredLaunchOnHost.mockResolvedValue({ kind: 'admitted' })
     const launched = resumeAiVaultSessionInNewChat(
       { ...session, executionHostId: 'runtime:server-1' },
-      'opencode2',
+      'opencode',
       'worktree-1',
       'resume-click'
     )
@@ -127,11 +126,8 @@ describe('resumeAiVaultSessionInNewChat', () => {
     expect(mocks.activateAndRevealWorkspace).toHaveBeenCalledWith('worktree-1', {
       executionHostId: 'runtime:server-1'
     })
-    expect(mocks.admitStructuredLaunchOnHost).toHaveBeenCalledWith(
-      { kind: 'environment', environmentId: 'server-1' },
-      'id:worktree-1',
-      'opencode2'
-    )
+    // Why: one chat per row agent means no fallback chat to probe, so no host admission.
+    expect(mocks.admitStructuredLaunchOnHost).not.toHaveBeenCalled()
     expect(mocks.beginStructuredAgentSessionProvisionalLaunch).toHaveBeenCalledWith(
       expect.objectContaining({
         plan: expect.objectContaining({ executionHostId: 'runtime:server-1' })
@@ -206,29 +202,14 @@ describe('resumeAiVaultSessionInNewChat', () => {
     }
   )
 
-  // Where `opencode` is 1.x, only the OpenCode 2 chat can load a 2.x conversation.
-  it.each([
-    ['admitted', 'opencode2'],
-    ['declined', 'opencode'],
-    // Not a refusal: switching would start `opencode`, which may be 1.x.
-    ['unreachable', 'opencode2'],
-    ['workspace-unresolved', 'opencode2']
-  ])(
-    'opens an OpenCode 2 row in the OpenCode 2 chat, else an OpenCode chat (%s)',
-    async (kind, agent) => {
-      mocks.admitStructuredLaunchOnHost.mockResolvedValue({ kind })
-      await resumeAiVaultSessionInNewChat(session, 'opencode2', 'worktree-1', 'resume-click')
+  it('opens an OpenCode row in the OpenCode chat without probing the host', async () => {
+    await resumeAiVaultSessionInNewChat(session, 'opencode', 'worktree-1', 'resume-click')
 
-      expect(mocks.admitStructuredLaunchOnHost).toHaveBeenCalledExactlyOnceWith(
-        { kind: 'local' },
-        'id:worktree-1',
-        'opencode2'
-      )
-      expect(mocks.beginStructuredAgentSessionProvisionalLaunch).toHaveBeenCalledWith(
-        expect.objectContaining({ plan: expect.objectContaining({ agent }) })
-      )
-    }
-  )
+    expect(mocks.admitStructuredLaunchOnHost).not.toHaveBeenCalled()
+    expect(mocks.beginStructuredAgentSessionProvisionalLaunch).toHaveBeenCalledWith(
+      expect.objectContaining({ plan: expect.objectContaining({ agent: 'opencode' }) })
+    )
+  })
 
   it('asks the host nothing for a row only one chat takes over', async () => {
     await resumeAiVaultSessionInNewChat(session, 'codex', 'worktree-1', 'resume-click')

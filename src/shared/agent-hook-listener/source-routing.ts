@@ -11,7 +11,7 @@ export const HOOK_SOURCE_BY_PATHNAME: Readonly<Record<string, AgentHookSource>> 
   '/hook/antigravity': 'antigravity',
   '/hook/amp': 'amp',
   '/hook/opencode': 'opencode',
-  '/hook/opencode2': 'opencode2',
+  '/hook/opencode2': 'opencode', // legacy: plugins installed by the retired opencode2 agent
   '/hook/mimo-code': 'mimo-code',
   '/hook/cursor': 'cursor',
   '/hook/pi': 'pi',

@@ -210,7 +210,7 @@ describe('native chat names in Vault rows', () => {
     }
   )
 
-  it.each(['opencode', 'opencode2', 'grok', 'omp', 'pi'] as const)(
+  it.each(['opencode', 'grok', 'omp', 'pi'] as const)(
     'shows a %s chat row its CLI title until the chat is named, then the chat name',
     async (agent) => {
       await renderRow({ ...row('local', 'Fix the parser'), agent })

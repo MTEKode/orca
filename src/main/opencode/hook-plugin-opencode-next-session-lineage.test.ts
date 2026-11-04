@@ -32,13 +32,13 @@ const ENV_KEYS = [
   'ORCA_AGENT_HOOK_TOKEN'
 ] as const
 
-describe.each(['opencode', 'opencode2'] as const)('%s plugin OpenCode 2 lineage', (agent) => {
+describe.each(['opencode'] as const)('%s plugin OpenCode 2 lineage', (agent) => {
   let tempDir: string
   let savedFetch: typeof globalThis.fetch
   let savedEnv: Record<string, string | undefined>
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), 'orca-opencode2-lineage-'))
+    tempDir = mkdtempSync(join(tmpdir(), 'orca-opencode-lineage-'))
     savedFetch = globalThis.fetch
     savedEnv = {}
     for (const key of ENV_KEYS) {
@@ -70,8 +70,8 @@ describe.each(['opencode', 'opencode2'] as const)('%s plugin OpenCode 2 lineage'
     }
   }> {
     const source =
-      agent === 'opencode2'
-        ? _internals.getOpenCode2PluginSource()
+      agent === 'opencode'
+        ? _internals.getOpenCodePluginSource()
         : _internals.getOpenCodePluginSource()
     const pluginPath = join(tempDir, `plugin-${Math.random().toString(36).slice(2)}.mjs`)
     writeFileSync(pluginPath, source)

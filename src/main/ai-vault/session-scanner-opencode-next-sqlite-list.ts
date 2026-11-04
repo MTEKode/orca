@@ -26,7 +26,7 @@ function openReadonlyDatabase(dbPath: string): SyncDatabase {
   return db
 }
 
-function canReadOpenCode2Sessions(db: SyncDatabase): boolean {
+function canReadOpenCodeNextSessions(db: SyncDatabase): boolean {
   return (
     tableExists(db, OPENCODE2_SESSION_TABLE) &&
     columnExists(db, OPENCODE2_SESSION_TABLE, 'time_created') &&
@@ -57,7 +57,7 @@ function rowToCandidate(row: SessionRow, dbPath: string): SessionFileCandidate {
       ? row.time_updated
       : row.time_created
   return {
-    agent: 'opencode2',
+    agent: 'opencode',
     file: {
       path: buildOpenCodeSqliteCandidatePath(dbPath, row.id),
       mtimeMs,
@@ -85,7 +85,7 @@ function dedupeAndSortCandidates(candidates: SessionFileCandidate[]): SessionFil
 }
 
 /** Skip databases without readable v2 session tables; report query failures as scan issues. */
-export async function listOpenCode2SqliteSessions(args: {
+export async function listOpenCodeNextSqliteSessions(args: {
   dbPaths: readonly string[]
   limit: number
   issues: AiVaultScanIssue[]
@@ -98,7 +98,7 @@ export async function listOpenCode2SqliteSessions(args: {
     let db: SyncDatabase | null = null
     try {
       db = openReadonlyDatabase(dbPath)
-      if (!canReadOpenCode2Sessions(db)) {
+      if (!canReadOpenCodeNextSessions(db)) {
         continue
       }
       const limited = Number.isFinite(args.limit) && !scoped
@@ -116,7 +116,7 @@ export async function listOpenCode2SqliteSessions(args: {
       }
     } catch (err) {
       args.issues.push({
-        agent: 'opencode2',
+        agent: 'opencode',
         path: dbPath,
         message: errorMessage(err)
       })

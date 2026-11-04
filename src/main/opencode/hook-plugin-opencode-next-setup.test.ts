@@ -16,7 +16,7 @@ vi.mock('electron', () => ({
 
 import { _internals } from './hook-service'
 
-describe.each(['opencode', 'opencode2'] as const)('%s plugin on OpenCode 2', (agent) => {
+describe.each(['opencode'] as const)('%s plugin on OpenCode 2', (agent) => {
   type PostBody = { payload?: unknown }
 
   function record(value: unknown): Record<string, unknown> | undefined {
@@ -95,27 +95,8 @@ describe.each(['opencode', 'opencode2'] as const)('%s plugin on OpenCode 2', (ag
     return (await import(pathToFileURL(pluginPath).href)) as PluginModule
   }
 
-  it('does not register hooks for the other pane variant', async () => {
-    process.env.ORCA_OPENCODE_AGENT = agent === 'opencode' ? 'opencode2' : 'opencode'
-    const module = await loadPluginModule(
-      agent === 'opencode2'
-        ? _internals.getOpenCode2PluginSource()
-        : _internals.getOpenCodePluginSource()
-    )
-    const hook = vi.fn()
-    const subscribe = vi.fn()
-    const cleanup = await module.default?.setup?.({ session: { hook }, event: { subscribe } })
-    expect(hook).not.toHaveBeenCalled()
-    expect(subscribe).not.toHaveBeenCalled()
-    await cleanup?.()
-  })
-
   it('fails open when setup is probed without a usable context', async () => {
-    const module = await loadPluginModule(
-      agent === 'opencode2'
-        ? _internals.getOpenCode2PluginSource()
-        : _internals.getOpenCodePluginSource()
-    )
+    const module = await loadPluginModule(_internals.getOpenCodePluginSource())
     // OpenCode probes varying setup shapes; each must return cleanup without throwing in the TUI.
     const contexts: unknown[] = [
       undefined,
@@ -132,11 +113,7 @@ describe.each(['opencode', 'opencode2'] as const)('%s plugin on OpenCode 2', (ag
 
   it('disposes cleanly when the prompt hook returns nothing to dispose', async () => {
     process.env.ORCA_PANE_KEY = 'tab-1:leaf-1'
-    const module = await loadPluginModule(
-      agent === 'opencode2'
-        ? _internals.getOpenCode2PluginSource()
-        : _internals.getOpenCodePluginSource()
-    )
+    const module = await loadPluginModule(_internals.getOpenCodePluginSource())
     const cleanup = await module.default?.setup?.({
       session: {
         get: async ({ sessionID }: { sessionID: string }) => ({ data: { id: sessionID } }),
@@ -151,15 +128,9 @@ describe.each(['opencode', 'opencode2'] as const)('%s plugin on OpenCode 2', (ag
   })
 
   it('exposes a distinct plugin id per agent variant', async () => {
-    const module = await loadPluginModule(
-      agent === 'opencode2'
-        ? _internals.getOpenCode2PluginSource()
-        : _internals.getOpenCodePluginSource()
-    )
+    const module = await loadPluginModule(_internals.getOpenCodePluginSource())
     // Both plugins share one directory; duplicate IDs disable the second plugin.
-    expect(module.default?.id).toBe(
-      agent === 'opencode2' ? 'orca-opencode2-status' : 'orca-opencode-status'
-    )
+    expect(module.default?.id).toBe('orca-opencode-status')
   })
 
   it('subscribes through the OpenCode 2 setup API and disposes its registrations', async () => {
@@ -171,11 +142,7 @@ describe.each(['opencode', 'opencode2'] as const)('%s plugin on OpenCode 2', (ag
     })
     const dispose = vi.fn()
     let subscriptionSignal: AbortSignal | undefined
-    const module = await loadPluginModule(
-      agent === 'opencode2'
-        ? _internals.getOpenCode2PluginSource()
-        : _internals.getOpenCodePluginSource()
-    )
+    const module = await loadPluginModule(_internals.getOpenCodePluginSource())
     expect(module.default?.setup).toBeTypeOf('function')
     const cleanup = await module.default?.setup?.({
       session: {
@@ -226,11 +193,7 @@ describe.each(['opencode', 'opencode2'] as const)('%s plugin on OpenCode 2', (ag
       bodies.push(record(JSON.parse(String(init?.body))) ?? {})
       return new Response('{}', { status: 200 })
     })
-    const module = await loadPluginModule(
-      agent === 'opencode2'
-        ? _internals.getOpenCode2PluginSource()
-        : _internals.getOpenCodePluginSource()
-    )
+    const module = await loadPluginModule(_internals.getOpenCodePluginSource())
     const hooks = await module.default?.server?.({
       client: { session: { get: async () => ({ data: { id: 'ses_root' } }) } }
     })
@@ -252,11 +215,7 @@ describe.each(['opencode', 'opencode2'] as const)('%s plugin on OpenCode 2', (ag
       posts.push({ body: record(JSON.parse(String(init?.body))) ?? {} })
       return new Response('{}', { status: 200 })
     })
-    const module = await loadPluginModule(
-      agent === 'opencode2'
-        ? _internals.getOpenCode2PluginSource()
-        : _internals.getOpenCodePluginSource()
-    )
+    const module = await loadPluginModule(_internals.getOpenCodePluginSource())
     const cleanup = await module.default?.setup?.({
       session: {
         get: async ({ sessionID }: { sessionID: string }) => ({ data: { id: sessionID } }),
@@ -344,11 +303,7 @@ describe.each(['opencode', 'opencode2'] as const)('%s plugin on OpenCode 2', (ag
       names.push(String(payload(record(JSON.parse(String(init?.body))) ?? {}).hook_event_name))
       return new Response('{}', { status: 200 })
     })
-    const module = await loadPluginModule(
-      agent === 'opencode2'
-        ? _internals.getOpenCode2PluginSource()
-        : _internals.getOpenCodePluginSource()
-    )
+    const module = await loadPluginModule(_internals.getOpenCodePluginSource())
     const cleanup = await module.default?.setup?.({
       session: {
         get: async ({ sessionID }: { sessionID: string }) => ({ data: { id: sessionID } }),
@@ -511,11 +466,7 @@ describe.each(['opencode', 'opencode2'] as const)('%s plugin on OpenCode 2', (ag
       const lookup = new Promise<{ data: { id: string } }>((resolve) => {
         releaseLookup = resolve
       })
-      const module = await loadPluginModule(
-        agent === 'opencode2'
-          ? _internals.getOpenCode2PluginSource()
-          : _internals.getOpenCodePluginSource()
-      )
+      const module = await loadPluginModule(_internals.getOpenCodePluginSource())
       const hooks = await module.default?.server?.({ client: { session: { get: () => lookup } } })
       expect(hooks).toBeDefined()
       const prompt = hooks?.event({

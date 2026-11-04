@@ -7,19 +7,15 @@ import { writeOpenCodeTuiPlugin } from '../shared/opencode-tui-plugin-install'
 
 const RELAY_HOOKS_DIR = '.orca-relay'
 
-export type OpenCodeAgent = 'opencode' | 'opencode2'
-
 export function installOpenCodePluginInCanonicalConfig(
   source: string,
-  agent: OpenCodeAgent,
   environment: NodeJS.ProcessEnv | Record<string, string>,
   homeDir: string,
   onlyIfInstalled = false
 ): boolean {
   try {
     const configDir = resolveOpenCodeConfigDirectory(environment, homeDir)
-    const pluginFileName =
-      agent === 'opencode2' ? 'orca-opencode2-status.js' : 'orca-opencode-status.js'
+    const pluginFileName = 'orca-opencode-status.js'
     const pluginPath = join(configDir, 'plugins', pluginFileName)
     if (onlyIfInstalled && !existsSync(pluginPath)) {
       return false
@@ -32,7 +28,7 @@ export function installOpenCodePluginInCanonicalConfig(
     return true
   } catch (err) {
     process.stderr.write(
-      `[plugin-overlay] failed to install ${agent} plugin: ${err instanceof Error ? err.message : String(err)}\n`
+      `[plugin-overlay] failed to install OpenCode plugin: ${err instanceof Error ? err.message : String(err)}\n`
     )
     return false
   }

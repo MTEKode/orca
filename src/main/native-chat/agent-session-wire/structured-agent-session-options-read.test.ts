@@ -553,7 +553,7 @@ describe('a chat at rest, read by the host', () => {
   })
 
   it('fences a live read and newly received startup report to their actual child through folder awaits', async () => {
-    const record = agentSessionRecordFixture({ sessionId: SESSION, provider: 'opencode2' })
+    const record = agentSessionRecordFixture({ sessionId: SESSION, provider: 'opencode' })
     const folder = Promise.withResolvers<string | null>()
     const lookup = vi.fn(() => folder.promise)
     const store = new AgentModelCatalogStore()
@@ -563,7 +563,7 @@ describe('a chat at rest, read by the host', () => {
       drivesRecord: () => true,
       resolveAccountHome: async () => record.accountHome,
       recordWorkspacePath: lookup,
-      listsInChatFolder: new Set(['opencode2'])
+      listsInChatFolder: new Set(['opencode'])
     })
     const queue = new StructuredAgentSessionTaskQueue()
     const child = (generation: string, fence: number) => ({

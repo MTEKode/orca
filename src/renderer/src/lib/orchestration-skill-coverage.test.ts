@@ -315,7 +315,7 @@ describe('orchestration skill agent coverage', () => {
     ]
 
     expect(
-      agentHasOrchestrationSkill('opencode2', skills, [
+      agentHasOrchestrationSkill('opencode', skills, [
         source('/Users/test/.config/opencode/skills', 'opencode')
       ])
     ).toBe(true)
@@ -332,7 +332,7 @@ describe('orchestration skill agent coverage', () => {
     ]
 
     expect(
-      agentHasOrchestrationSkill('opencode2', skills, [
+      agentHasOrchestrationSkill('opencode', skills, [
         source('/Users/test/.claude/skills', 'claude')
       ])
     ).toBe(true)

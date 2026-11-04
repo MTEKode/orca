@@ -11,7 +11,7 @@ import {
 } from './orchestration-worker-start-mode'
 
 const STRUCTURED_PREFERENCE = {
-  nativeChatProviders: { ...EVERY_AGENT_CHAT, opencode2: true }
+  nativeChatProviders: { ...EVERY_AGENT_CHAT, opencode: true }
 } as const
 
 const REGISTERED_AGENTS = STRUCTURED_AGENT_RUNTIME_REGISTRATIONS.map(
@@ -19,7 +19,7 @@ const REGISTERED_AGENTS = STRUCTURED_AGENT_RUNTIME_REGISTRATIONS.map(
 ).filter(isTuiAgent)
 
 /** Registered agents with no terminal launch: only the structured chat surfaces offer them. */
-const STRUCTURED_ONLY_AGENTS = ['opencode-v2']
+const STRUCTURED_ONLY_AGENTS: string[] = []
 
 describe('a worker for a registered native-chat agent', () => {
   it('covers every registered agent, the ACP and Pi agents included', () => {

@@ -166,7 +166,7 @@ it('copies OpenCode directly from the selected record and preserves its typed ac
   )
   expect(result.cliForkSource).toMatchObject({
     agent: 'opencode',
-    sourceAgent: 'opencode2',
+    sourceAgent: 'opencode',
     sessionId: 'ses_copy'
   })
   expect(prepare).not.toHaveBeenCalled()

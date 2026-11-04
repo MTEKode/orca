@@ -796,12 +796,8 @@ describe('OpenCode 2 TUI reporter: each pane reports its own sessions', () => {
 
   it.each([
     ['an OpenCode 1 TUI', () => fakeTui('1.18.33')],
-    ['the other pane variant', () => fakeTui()],
     ['a TUI outside an Orca pane', () => fakeTui()]
   ])('stays silent in %s', async (label, make) => {
-    if (label === 'the other pane variant') {
-      process.env.ORCA_OPENCODE_AGENT = 'opencode2'
-    }
     process.env.ORCA_PANE_KEY = PANE_A
     if (label === 'a TUI outside an Orca pane') {
       delete process.env.ORCA_PANE_KEY

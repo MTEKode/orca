@@ -66,7 +66,7 @@ export abstract class OrcaRuntimeWithResolveAuthoritativeTerminalWaitPermission 
     if (
       pty.launchIncarnationId !== incarnationId ||
       pty.launchToken !== launchToken ||
-      (pty.launchAgent !== 'opencode' && pty.launchAgent !== 'opencode2')
+      pty.launchAgent !== 'opencode'
     ) {
       return null
     }

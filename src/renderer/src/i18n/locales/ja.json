@@ -972,7 +972,6 @@
           "d443a47995": "Prime Agent",
           "mimo_code_label": "MiMo Code",
           "muse_label": "Muse",
-          "opencode2_label": "OpenCode 2",
           "codebuddy_label": "CodeBuddy",
           "zcode_label": "ZCode",
           "jcode_label": "Jcode",
@@ -1540,8 +1539,6 @@
         "6a50cdcd7c": "音声",
         "0059bd17f3": "Agent がコンピュータ上の任意のアプリを制御できるようにします。",
         "b35e92364b": "コンピュータ操作",
-        "cd50cec5d7": "Orca を通じて複数のコーディング Agent を調整します。",
-        "58a868e8e4": "オーケストレーション",
         "7c79d3b7bf": "任意",
         "b1c2f8b0ac": "Claude、Codex、Gemini、OpenCode Go、MiniMax、Grok の任意のアカウント切り替えと使用量設定。",
         "f70ac54d38": "AI プロバイダーアカウント",
@@ -7782,21 +7779,6 @@
           "3743ed080c": "セットコマンド",
           "f79084947b": "新規アプリ"
         },
-        "OrchestrationPane": {
-          "52e0634e2c": "コーディネーター Agent に、ハンドオフ、ワークツリーハンドオーバー、および順次または並列の子 Agent にオーケストレーションを使用するように依頼します。",
-          "ae79504732": "使い方",
-          "9bedd2a6e5": "Agent がコンテキストを引き継ぎ、Orca を通じて作業を調整できるようにします。",
-          "07641b9768": "オーケストレーションスキル",
-          "2aacdb0517": "ハンドオフ、ワークツリーのハンドオーバー、および子 Agent の作業全体にわたってコーディング Agent を調整します。",
-          "191ac34567": "Agent オーケストレーション",
-          "nestedWorkerDepthTitle": "ネストされたワーカーの深さ",
-          "nestedWorkerDepthDescription": "起動されたワーカーが、さらに自分のワーカーを起動できる世代数です。1 にすると Agent ツリーはフラットになります。コーディネーターがワーカーを起動し、そのワーカーはワーカーを起動しません。",
-          "7bc082f4de": "インストールコマンドのコピー",
-          "workerAutoReleaseTitle": "完了したワーカーを自動的に閉じる",
-          "workerAutoReleaseDescription": "「開いたままにする」を選ばない限り、ワーカーの終了から2分後にターミナルまたはチャットを閉じます。再び作業を開始した場合、終了時に2分のカウントがやり直されます。",
-          "workerAutoReleaseKeywordClose": "閉じる",
-          "workerAutoReleaseKeywordRelease": "解放"
-        },
         "OrchestrationSetupCard": {
           "e7d2a5146c": "Agent がコンテキストを引き継ぎ、Orca を通じて作業を調整できるようにします。",
           "2777ff0fdc": "オーケストレーションスキル"
@@ -8281,8 +8263,6 @@
           "5063bb47a5": "音声",
           "7118953f14": "Agent がコンピュータ上の任意のアプリを制御できるようにします。",
           "c9841721cb": "コンピュータ操作",
-          "475980f53d": "Orca を通じて複数のコーディング Agent を調整します。",
-          "00c3a7950d": "オーケストレーション",
           "21f09426ea": "任意。Orca は既存のプロバイダーのログインと連携します。Orca に切り替えを任せたい場合にのみ、アカウントを追加してください。",
           "ad6c529693": "AI プロバイダーアカウント",
           "ec1ba547f7": "AI Agent を管理し、デフォルトを設定し、コマンドをカスタマイズします。",
@@ -10043,9 +10023,7 @@
             "91fc8ab7e5": "調整",
             "13ba5c6cbd": "Agent",
             "d86705ba77": "マルチ Agent",
-            "a7f76b4ca7": "オーケストレーション",
-            "e05ff36753": "メッセージング、タスク DAG、ディスパッチ、意思決定ゲートを介して複数のコーディング Agent を調整します。",
-            "c34045764e": "Agent オーケストレーション"
+            "a7f76b4ca7": "オーケストレーション"
           }
         },
         "privacy": {
@@ -22871,12 +22849,6 @@
     "terminalUnverifiable": "WSL ディストリビューション {{distro}} が実行中か確認できなかったため、Orca はこのターミナルを起動しませんでした。ディストリビューションを起動してから、もう一度お試しください。"
   },
   "mte": {
-    "prompt": {
-      "title": "このチャットでMTEオーケストレーションを使用しますか？",
-      "description": "MTEプランナーが目標についてヒアリングし、計画に沿ってcoderとvalidatorのAgentを動かします。OrcaはこのワークスペースにMTEツールの設定を書き込みます。",
-      "confirm": "MTEを使用",
-      "cancel": "通常のチャット"
-    },
     "prepare": {
       "failed": "MTEを準備できませんでした: {{message}}"
     },

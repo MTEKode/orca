@@ -92,7 +92,7 @@ function runQuickCommandInFloatingTerminal(
   return { tabId: tab.id }
 }
 
-/** Queue terminal commands until shell readiness and always append Enter (run differs from right-click Insert). Agent prompts use their launch path; OpenCode2 submits after TUI readiness because --prompt can remain unsent. */
+/** Queue terminal commands until shell readiness and always append Enter (run differs from right-click Insert). Agent prompts use their launch path; OpenCodeNext submits after TUI readiness because --prompt can remain unsent. */
 export function runQuickCommandInNewTab({
   command,
   worktreeId,
@@ -110,9 +110,7 @@ export function runQuickCommandInNewTab({
       prompt: command.prompt,
       worktreeId,
       groupId: targetGroupId,
-      ...(command.agent === 'opencode' || command.agent === 'opencode2'
-        ? { promptDelivery: 'submit-after-ready' as const }
-        : {}),
+      ...(command.agent === 'opencode' ? { promptDelivery: 'submit-after-ready' as const } : {}),
       launchSource: 'quick_command',
       quickCommandLabel: command.label
     })

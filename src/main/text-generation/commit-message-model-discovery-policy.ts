@@ -58,7 +58,7 @@ export function finalizeModelDiscoveryOutput(
     }
     return { success: false, error: `${spec.label} returned no available models.` }
   }
-  if (spec.id === 'opencode' || spec.id === 'opencode2') {
+  if (spec.id === 'opencode') {
     const configuredDefault = spec.models.find((model) => model.id === 'default')
     if (configuredDefault && !models.some((model) => model.id === 'default')) {
       models = [configuredDefault, ...models]

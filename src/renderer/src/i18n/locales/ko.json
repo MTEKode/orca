@@ -972,7 +972,6 @@
           "d443a47995": "Prime Agent",
           "mimo_code_label": "MiMo Code",
           "muse_label": "Muse",
-          "opencode2_label": "OpenCode 2",
           "codebuddy_label": "CodeBuddy",
           "zcode_label": "ZCode",
           "jcode_label": "Jcode",
@@ -1540,8 +1539,6 @@
         "6a50cdcd7c": "음성",
         "0059bd17f3": "agents가 컴퓨터의 모든 앱을 제어할 수 있도록 하세요.",
         "b35e92364b": "컴퓨터 사용",
-        "cd50cec5d7": "Orca를 통해 여러 코딩 에이전트를 조율합니다.",
-        "58a868e8e4": "오케스트레이션",
         "7c79d3b7bf": "선택 사항",
         "b1c2f8b0ac": "Claude, Codex, Gemini, OpenCode Go, MiniMax, Grok의 선택적 계정 전환 및 사용량 설정.",
         "f70ac54d38": "AI 제공자 계정",
@@ -7745,21 +7742,6 @@
           "3743ed080c": "명령 설정",
           "f79084947b": "새로운 앱"
         },
-        "OrchestrationPane": {
-          "52e0634e2c": "핸드오프, 작업 트리 핸드오버, 순차 또는 병렬 하위 에이전트 작업에 오케스트레이션을 사용하도록 조율 에이전트에게 요청하세요.",
-          "ae79504732": "사용 방법",
-          "9bedd2a6e5": "에이전트가 Orca를 통해 컨텍스트를 인계하고 작업을 조율할 수 있습니다.",
-          "07641b9768": "오케스트레이션 스킬",
-          "2aacdb0517": "핸드오프, 작업 트리 핸드오버, 하위 에이전트 작업 전반에 걸쳐 코딩 에이전트를 조율합니다.",
-          "191ac34567": "에이전트 오케스트레이션",
-          "nestedWorkerDepthTitle": "하위 에이전트 최대 생성 단계",
-          "nestedWorkerDepthDescription": "하위 에이전트를 몇 단계까지 생성할 수 있는지 설정합니다. 1이면 조율 에이전트만 하위 에이전트를 생성할 수 있고, 생성된 하위 에이전트는 자신의 하위 에이전트를 생성할 수 없습니다.",
-          "7bc082f4de": "설치 명령 복사",
-          "workerAutoReleaseTitle": "완료된 워커 자동 닫기",
-          "workerAutoReleaseDescription": "열어 두기를 선택하지 않으면 워커가 완료된 지 2분 후 터미널 또는 채팅을 닫습니다. 다시 작업을 시작하면 완료 시 2분이 다시 시작됩니다.",
-          "workerAutoReleaseKeywordClose": "닫기",
-          "workerAutoReleaseKeywordRelease": "해제"
-        },
         "OrchestrationSetupCard": {
           "e7d2a5146c": "에이전트가 Orca를 통해 컨텍스트를 인계하고 작업을 조율할 수 있습니다.",
           "2777ff0fdc": "오케스트레이션 스킬"
@@ -8244,8 +8226,6 @@
           "5063bb47a5": "음성",
           "7118953f14": "agents가 컴퓨터의 모든 앱을 제어할 수 있도록 하세요.",
           "c9841721cb": "컴퓨터 사용",
-          "475980f53d": "Orca를 통해 여러 코딩 에이전트를 조율합니다.",
-          "00c3a7950d": "오케스트레이션",
           "21f09426ea": "선택 사항. Orca는 기존 공급자 로그인과 함께 작동합니다. Orca가 계정 간 전환을 돕도록 원하는 경우에만 계정을 추가하세요.",
           "ad6c529693": "AI 제공업체 계정",
           "ec1ba547f7": "AI 에이전트를 관리하고, 기본값을 설정하고, 명령을 사용자 지정하세요.",
@@ -10006,9 +9986,7 @@
             "91fc8ab7e5": "코디네이션",
             "13ba5c6cbd": "에이전트",
             "d86705ba77": "멀티 에이전트",
-            "a7f76b4ca7": "오케스트레이션",
-            "e05ff36753": "메시징, 작업 DAG, 디스패치 및 의사결정 게이트를 통해 여러 코딩 에이전트를 조율합니다.",
-            "c34045764e": "에이전트 오케스트레이션"
+            "a7f76b4ca7": "오케스트레이션"
           }
         },
         "privacy": {
@@ -22871,12 +22849,6 @@
     "terminalUnverifiable": "WSL 배포판 {{distro}}이(가) 실행 중인지 확인할 수 없어 Orca가 이 터미널을 시작하지 않았습니다. 배포판을 시작한 후 다시 시도하세요."
   },
   "mte": {
-    "prompt": {
-      "title": "이 채팅에서 MTE 오케스트레이션을 사용할까요?",
-      "description": "MTE 플래너가 목표에 대해 질문한 뒤 계획에 따라 coder와 validator 에이전트를 진행합니다. Orca는 이 작업 공간에 MTE 도구 설정을 기록합니다.",
-      "confirm": "MTE 사용",
-      "cancel": "일반 채팅"
-    },
     "prepare": {
       "failed": "MTE를 준비하지 못했습니다: {{message}}"
     },

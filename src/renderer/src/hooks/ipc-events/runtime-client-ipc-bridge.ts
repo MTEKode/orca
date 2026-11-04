@@ -118,6 +118,14 @@ export function registerRuntimeClientIpcBridge(
       void useAppStore.getState().fetchHostWorkspaceStatuses(environmentId)
       return
     }
+    if (event.type === 'graphifyChanged') {
+      void useAppStore.getState().refreshGraphify(event.repoId)
+      return
+    }
+    if (event.type === 'mcpIntegrationsChanged') {
+      void useAppStore.getState().refreshMcpIntegrations()
+      return
+    }
     if (event.type === 'reposChanged') {
       requestProjectRefresh(environmentId)
       return

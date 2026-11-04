@@ -79,7 +79,7 @@ function context(): RpcContext {
   return { runtime: runtime as unknown as RpcContext['runtime'], clientKind: 'mobile' }
 }
 
-describe.each(['opencode', 'opencode2'])('%s paired semantic pages', (agent) => {
+describe.each(['opencode'])('%s paired semantic pages', (agent) => {
   it('reconstructs reasoning and answers across raw-row cursors at limit 1', async () => {
     fixture()
     const method = buildRegistry(NATIVE_CHAT_METHODS).get('nativeChat.readSession')!

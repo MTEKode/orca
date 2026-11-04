@@ -4,11 +4,11 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import Database from '../sqlite/sync-database'
 import { buildOpenCodeSqliteCandidatePath } from './session-scanner-opencode-sqlite-paths'
-import { listOpenCode2SqliteSessions } from './session-scanner-opencode2-sqlite-list'
+import { listOpenCodeNextSqliteSessions } from './session-scanner-opencode-next-sqlite-list'
 import {
-  parseOpenCode2SqliteSession,
-  captureOpenCode2SqliteSession
-} from './session-scanner-opencode2-sqlite'
+  parseOpenCodeNextSqliteSession,
+  captureOpenCodeNextSqliteSession
+} from './session-scanner-opencode-next-sqlite'
 import { withFullFirstUserPromptCapture } from './session-scanner-first-user-prompt-capture'
 import type { AiVaultScanIssue } from '../../shared/ai-vault-types'
 
@@ -22,13 +22,13 @@ afterEach(() => {
 })
 
 function createTempDb(name = 'opencode-next.db'): { db: Database.Database; path: string } {
-  const dir = mkdtempSync(join(tmpdir(), 'orca-opencode2-sqlite-'))
+  const dir = mkdtempSync(join(tmpdir(), 'orca-opencode-next-sqlite-'))
   tempDirs.push(dir)
   const path = join(dir, name)
   return { db: new Database(path), path }
 }
 
-function applyOpenCode2Schema(db: Database.Database): void {
+function applyOpenCodeNextSchema(db: Database.Database): void {
   db.exec(`
     CREATE TABLE session_v2 (
       id TEXT PRIMARY KEY,
@@ -129,7 +129,7 @@ const issues: AiVaultScanIssue[] = []
 
 it('captures the full transcript while keeping list previews bounded', async () => {
   const { db, path } = createTempDb('opencode.db')
-  applyOpenCode2Schema(db)
+  applyOpenCodeNextSchema(db)
   insertSession(db, { id: 'long', directory: '/repo', timeCreated: 1000, timeUpdated: 9000 })
   for (let index = 0; index < 8; index++) {
     insertMessage(db, {
@@ -143,8 +143,8 @@ it('captures the full transcript while keeping list previews bounded', async () 
   }
   db.close()
   const args = { dbPath: path, sessionId: 'long', platform: 'darwin' as const }
-  const preview = await parseOpenCode2SqliteSession(args)
-  const capture = await captureOpenCode2SqliteSession(args)
+  const preview = await parseOpenCodeNextSqliteSession(args)
+  const capture = await captureOpenCodeNextSqliteSession(args)
   expect(preview?.previewMessages).toHaveLength(5)
   expect(capture.messages.map((message) => message.text)).toEqual(
     Array.from({ length: 8 }, (_, index) => `Turn ${index}`)
@@ -153,19 +153,19 @@ it('captures the full transcript while keeping list previews bounded', async () 
 
 it('keeps session metadata readable but refuses a complete capture when ordering columns are missing', async () => {
   const { db, path } = createTempDb()
-  applyOpenCode2Schema(db)
+  applyOpenCodeNextSchema(db)
   insertSession(db, { id: 'partial', directory: '/repo', timeCreated: 1000, timeUpdated: 1000 })
   db.exec('ALTER TABLE session_message DROP COLUMN seq')
   db.close()
   const args = { dbPath: path, sessionId: 'partial', platform: 'darwin' as const }
-  expect((await parseOpenCode2SqliteSession(args))?.sessionId).toBe('partial')
-  await expect(captureOpenCode2SqliteSession(args)).rejects.toThrow('schema is unreadable')
+  expect((await parseOpenCodeNextSqliteSession(args))?.sessionId).toBe('partial')
+  await expect(captureOpenCodeNextSqliteSession(args)).rejects.toThrow('schema is unreadable')
 })
 
-describe('listOpenCode2SqliteSessions', () => {
+describe('listOpenCodeNextSqliteSessions', () => {
   it('lists top-level, non-archived sessions newest-first', async () => {
     const { db, path } = createTempDb()
-    applyOpenCode2Schema(db)
+    applyOpenCodeNextSchema(db)
     insertSession(db, {
       id: 'session_old',
       directory: '/repo',
@@ -194,7 +194,7 @@ describe('listOpenCode2SqliteSessions', () => {
     })
     db.close()
 
-    const candidates = await listOpenCode2SqliteSessions({
+    const candidates = await listOpenCodeNextSqliteSessions({
       dbPaths: [path],
       limit: 25,
       issues
@@ -204,7 +204,7 @@ describe('listOpenCode2SqliteSessions', () => {
       buildOpenCodeSqliteCandidatePath(path, 'session_new'),
       buildOpenCodeSqliteCandidatePath(path, 'session_old')
     ])
-    expect(candidates[0]!.agent).toBe('opencode2')
+    expect(candidates[0]!.agent).toBe('opencode')
   })
 
   it('skips databases without the session_v2 table', async () => {
@@ -212,7 +212,7 @@ describe('listOpenCode2SqliteSessions', () => {
     db.exec(`CREATE TABLE unrelated (id TEXT PRIMARY KEY)`)
     db.close()
 
-    const candidates = await listOpenCode2SqliteSessions({
+    const candidates = await listOpenCodeNextSqliteSessions({
       dbPaths: [path],
       limit: 25,
       issues
@@ -222,10 +222,10 @@ describe('listOpenCode2SqliteSessions', () => {
   })
 })
 
-describe('parseOpenCode2SqliteSession', () => {
+describe('parseOpenCodeNextSqliteSession', () => {
   it('parses session metadata and preview messages', async () => {
     const { db, path } = createTempDb()
-    applyOpenCode2Schema(db)
+    applyOpenCodeNextSchema(db)
     insertSession(db, {
       id: 'session_1',
       directory: '/repo',
@@ -264,7 +264,7 @@ describe('parseOpenCode2SqliteSession', () => {
     db.close()
 
     const session = await withFullFirstUserPromptCapture(() =>
-      parseOpenCode2SqliteSession({
+      parseOpenCodeNextSqliteSession({
         dbPath: path,
         sessionId: 'session_1',
         platform: 'darwin'
@@ -272,7 +272,7 @@ describe('parseOpenCode2SqliteSession', () => {
     )
 
     expect(session).not.toBeNull()
-    expect(session!.agent).toBe('opencode2')
+    expect(session!.agent).toBe('opencode')
     expect(session!.sessionId).toBe('session_1')
     expect(session!.filePath).toBe(path)
     expect(session!.title).toBe('Fix login')
@@ -293,14 +293,12 @@ describe('parseOpenCode2SqliteSession', () => {
         timestamp: new Date(1_777_634_000_900).toISOString()
       }
     ])
-    expect(session!.resumeCommand).toBe(
-      "cd '/repo' && opencode2 --standalone --session 'session_1'"
-    )
+    expect(session!.resumeCommand).toBe("cd '/repo' && opencode --session 'session_1'")
   })
 
   it('extracts assistant text from content arrays and falls back to raw model ids', async () => {
     const { db, path } = createTempDb()
-    applyOpenCode2Schema(db)
+    applyOpenCodeNextSchema(db)
     insertSession(db, {
       id: 'session_2',
       directory: '/repo',
@@ -329,7 +327,7 @@ describe('parseOpenCode2SqliteSession', () => {
     })
     db.close()
 
-    const session = await parseOpenCode2SqliteSession({
+    const session = await parseOpenCodeNextSqliteSession({
       dbPath: path,
       sessionId: 'session_2',
       platform: 'darwin'
@@ -351,7 +349,7 @@ describe('parseOpenCode2SqliteSession', () => {
     db.exec(`CREATE TABLE session_v1 (id TEXT PRIMARY KEY)`)
     db.close()
 
-    const session = await parseOpenCode2SqliteSession({
+    const session = await parseOpenCodeNextSqliteSession({
       dbPath: path,
       sessionId: 'session_1',
       platform: 'darwin'
@@ -362,10 +360,10 @@ describe('parseOpenCode2SqliteSession', () => {
 
   it('fails soft when the session does not exist', async () => {
     const { db, path } = createTempDb()
-    applyOpenCode2Schema(db)
+    applyOpenCodeNextSchema(db)
     db.close()
 
-    const session = await parseOpenCode2SqliteSession({
+    const session = await parseOpenCodeNextSqliteSession({
       dbPath: path,
       sessionId: 'missing',
       platform: 'darwin'

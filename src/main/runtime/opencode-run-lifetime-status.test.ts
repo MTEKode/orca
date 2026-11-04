@@ -23,8 +23,7 @@ function setup(
   let clock = 1_000
   const lifetime = new OpenCodeRunLifetimeStatus({
     isObservablePty: () => options.observable ?? true,
-    isStatusEnabled: (agent) =>
-      (options.enabledAgents ?? ['opencode', 'opencode2']).includes(agent),
+    isStatusEnabled: (agent) => (options.enabledAgents ?? ['opencode']).includes(agent),
     readForegroundProcessName,
     readForegroundCommandLine,
     publish: (ptyId, payload, yieldsToHookSince) =>
@@ -62,16 +61,6 @@ describe('OpenCodeRunLifetimeStatus', () => {
     expect(published.map((entry) => entry.ptyId)).toEqual(['pty-1', 'pty-1'])
     expect(published.map((entry) => entry.payload.agentType)).toEqual(['opencode', 'opencode'])
     expect(new Set(published.map((entry) => entry.yieldsToHookSince))).toEqual(new Set([1_000]))
-  })
-
-  it('reports `opencode2 run` as OpenCode 2', async () => {
-    const { lifetime, published } = setup({
-      name: 'opencode2',
-      commandLine: '/usr/local/bin/opencode2 run --model a/b hi'
-    })
-    lifetime.onCommandStarted('pty-1')
-    await settle()
-    expect(published[0]?.payload.agentType).toBe('opencode2')
   })
 
   it('marks a Ctrl-C exit as interrupted and any other exit as a plain Done', async () => {
@@ -142,7 +131,7 @@ describe('OpenCodeRunLifetimeStatus', () => {
   })
 
   it('ignores a command line whose agent is not the foreground name', async () => {
-    const { lifetime, states } = setup({ name: 'opencode2', commandLine: 'opencode run hi' })
+    const { lifetime, states } = setup({ name: 'node', commandLine: 'opencode run hi' })
     lifetime.onCommandStarted('pty-1')
     await settle()
     expect(states()).toEqual([])
@@ -175,7 +164,7 @@ describe('OpenCodeRunLifetimeStatus', () => {
   })
 
   it('stays silent when OpenCode status is turned off for that agent', async () => {
-    const { lifetime, states, readForegroundCommandLine } = setup({ enabledAgents: ['opencode2'] })
+    const { lifetime, states, readForegroundCommandLine } = setup({ enabledAgents: [] })
     lifetime.onCommandStarted('pty-1')
     await settle()
     lifetime.onCommandFinished('pty-1', 0)
@@ -183,7 +172,7 @@ describe('OpenCodeRunLifetimeStatus', () => {
     expect(states()).toEqual([])
   })
 
-  it('sets no timer and reads nothing while status is off for both OpenCode agents', () => {
+  it('sets no timer and reads nothing while status is off for OpenCode', () => {
     const { lifetime, readForegroundProcessName } = setup({ enabledAgents: [] })
     lifetime.onCommandStarted('pty-1')
     expect(vi.getTimerCount()).toBe(0)

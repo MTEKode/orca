@@ -18,11 +18,7 @@ export function openCodeStartupPromptEnv(
   env: Record<string, string> | null | undefined
 ): { env?: Record<string, string> } {
   const parsed = tokenizeStartupCommand(command, shell)
-  if (
-    (agent !== 'opencode' && agent !== 'opencode2') ||
-    !parsed.ok ||
-    isOpenCodeRunCommand(parsed.tokens, shell)
-  ) {
+  if (agent !== 'opencode' || !parsed.ok || isOpenCodeRunCommand(parsed.tokens, shell)) {
     return env ? { env: { ...env } } : {}
   }
   const digest = Array.from(sha256(new TextEncoder().encode(prompt)), (byte) =>

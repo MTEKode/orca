@@ -303,7 +303,7 @@ export function resolveAiVaultCopiedSessionAgentArgs(
 /** Check every possible chat-owning CLI before copying: OpenCode copies live in the local store and launch args must not redirect them. */
 export function assertAiVaultCopiedSessionStoreAllowed(args: AiVaultResumeStartupArgs): void {
   const row = args.session.agent
-  if (row !== 'opencode' && row !== 'opencode2') {
+  if (row !== 'opencode') {
     return
   }
   const { platform, liveShell } = args.host

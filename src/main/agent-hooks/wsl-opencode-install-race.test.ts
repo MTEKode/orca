@@ -32,7 +32,7 @@ let root: string
 let state: WslRelayDistroState
 let settings: { disabledTuiAgents: TuiAgent[] }
 let guests: { mux: SshChannelMultiplexer; dispatcher: RelayDispatcher }[]
-const sources = { opencodePluginSource: '// v1', opencode2PluginSource: '// v2' }
+const sources = { opencodePluginSource: '// v1' }
 const deps = {
   pluginSources: () => sources,
   managedHookSettings: () => settings,
@@ -103,10 +103,10 @@ it.each([true, false])('coalesces waiters through a held %s enablement toggle', 
   const second = heldRequest()
   const guest = createGuest('guest', (index) => (index === 1 ? first.wait() : second.wait()))
   connect(guest)
-  settings.disabledTuiAgents = enabled ? [] : ['opencode', 'opencode2']
+  settings.disabledTuiAgents = enabled ? [] : ['opencode']
   const initial = runWslRelayGuestInstall(deps, state, guest.mux, guest.home)
   await first.reached
-  settings.disabledTuiAgents = enabled ? ['opencode', 'opencode2'] : []
+  settings.disabledTuiAgents = enabled ? ['opencode'] : []
   let settled = 0
   const waiters = Array.from({ length: 4 }, () =>
     maybeRerunWslRelayGuestInstall(deps, state).then(() => {
@@ -121,19 +121,13 @@ it.each([true, false])('coalesces waiters through a held %s enablement toggle', 
   second.release()
   await Promise.all([initial, ...waiters])
   expect(guest.requests).toHaveLength(2)
-  expect(guest.requests[1]).toMatchObject(
-    enabled ? { opencodePluginSource: '', opencode2PluginSource: '' } : sources
-  )
+  expect(guest.requests[1]).toMatchObject(enabled ? { opencodePluginSource: '' } : sources)
   if (enabled) {
     expect(state.opencodeOverlayDir).toBeUndefined()
-    expect(state.opencode2OverlayDir).toBeUndefined()
   } else {
     expect(
       readFileSync(join(state.opencodeOverlayDir!, 'plugins', 'orca-opencode-status.js'), 'utf8')
     ).toBe('// v1')
-    expect(
-      readFileSync(join(state.opencode2OverlayDir!, 'plugins', 'orca-opencode2-status.js'), 'utf8')
-    ).toBe('// v2')
   }
   await maybeRerunWslRelayGuestInstall(deps, state)
   expect(guest.requests).toHaveLength(2)
@@ -143,23 +137,16 @@ it.each([true, false])('coalesces waiters through a held %s enablement toggle', 
 it('drains reentrant toggles during successive requests without duplicate passes', async () => {
   const waiters: Promise<void>[] = []
   const guest = createGuest('guest', async (index) => {
-    if (index <= 2) {
-      settings.disabledTuiAgents = index === 1 ? ['opencode'] : ['opencode', 'opencode2']
+    if (index <= 1) {
+      settings.disabledTuiAgents = ['opencode']
       waiters.push(maybeRerunWslRelayGuestInstall(deps, state))
     }
   })
   connect(guest)
   await maybeRerunWslRelayGuestInstall(deps, state)
   await Promise.all(waiters)
-  expect(
-    guest.requests.map((params) => [params.opencodePluginSource, params.opencode2PluginSource])
-  ).toEqual([
-    ['// v1', '// v2'],
-    ['', '// v2'],
-    ['', '']
-  ])
+  expect(guest.requests.map((params) => params.opencodePluginSource)).toEqual(['// v1', ''])
   expect(state.opencodeOverlayDir).toBeUndefined()
-  expect(state.opencode2OverlayDir).toBeUndefined()
 })
 
 it('does not reinstall for rapid toggles that return to the in-flight settings', async () => {
@@ -168,7 +155,7 @@ it('does not reinstall for rapid toggles that return to the in-flight settings',
   connect(guest)
   const initial = runWslRelayGuestInstall(deps, state, guest.mux, guest.home)
   await held.reached
-  settings.disabledTuiAgents = ['opencode', 'opencode2']
+  settings.disabledTuiAgents = ['opencode']
   const disabled = maybeRerunWslRelayGuestInstall(deps, state)
   settings.disabledTuiAgents = []
   const enabled = maybeRerunWslRelayGuestInstall(deps, state)
@@ -176,7 +163,6 @@ it('does not reinstall for rapid toggles that return to the in-flight settings',
   await Promise.all([initial, disabled, enabled])
   expect(guest.requests).toHaveLength(1)
   expect(state.opencodeOverlayDir).toBeTruthy()
-  expect(state.opencode2OverlayDir).toBeTruthy()
 })
 
 it('coalesces an ensure re-entering before the first asynchronous hook operation', async () => {
@@ -231,7 +217,7 @@ it.each([true, false])(
     )
     await reached.promise
     if (changed) {
-      settings.disabledTuiAgents = ['opencode', 'opencode2']
+      settings.disabledTuiAgents = ['opencode']
     }
     const waiter = maybeRerunWslRelayGuestInstall(deps, state)
     rejected.reject(new Error('fixture installation failed'))
@@ -241,8 +227,7 @@ it.each([true, false])(
     expect(guest.requests).toHaveLength(changed ? 1 : 0)
     if (changed) {
       expect(guest.requests[0]).toMatchObject({
-        opencodePluginSource: '',
-        opencode2PluginSource: ''
+        opencodePluginSource: ''
       })
     }
     expect(state.installation).toBeUndefined()
@@ -256,14 +241,13 @@ it('does not publish a held response or reinstall after ownership is removed', a
   connect(guest)
   const initial = runWslRelayGuestInstall(deps, state, guest.mux, guest.home)
   await held.reached
-  settings.disabledTuiAgents = ['opencode', 'opencode2']
+  settings.disabledTuiAgents = ['opencode']
   const waiter = maybeRerunWslRelayGuestInstall(deps, state)
   state.mux = undefined
   held.release()
   await Promise.all([initial, waiter])
   expect(guest.requests).toHaveLength(1)
   expect(state.opencodeOverlayDir).toBeUndefined()
-  expect(state.opencode2OverlayDir).toBeUndefined()
 })
 
 it('leaves the replacement task and its paths owned by the new mux', async () => {
@@ -284,11 +268,9 @@ it('leaves the replacement task and its paths owned by the new mux', async () =>
   await initial
   expect(state.installation).toBe(ownedTask)
   expect(state.opencodeOverlayDir).toBeUndefined()
-  expect(state.opencode2OverlayDir).toBeUndefined()
   nextHeld.release()
   await Promise.all([waiter, replacement])
   expect(state.opencodeOverlayDir).toContain(next.home)
-  expect(state.opencode2OverlayDir).toContain(next.home)
   expect(old.requests).toHaveLength(1)
   expect(next.requests).toHaveLength(1)
 })
@@ -316,7 +298,7 @@ it('does not dispatch a recheck on a disposed mux', async () => {
   connect(guest)
   const initial = runWslRelayGuestInstall(deps, state, guest.mux, guest.home)
   await held.reached
-  settings.disabledTuiAgents = ['opencode', 'opencode2']
+  settings.disabledTuiAgents = ['opencode']
   const waiter = maybeRerunWslRelayGuestInstall(deps, state)
   guest.mux.dispose()
   held.release()

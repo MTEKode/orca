@@ -25,8 +25,7 @@ export function applyManagedDataAccountEnvironment(
     return
   }
   const agent = options.launchAgent ?? getAgentLaunchExecutableName(options.launchCommand)
-  const provider =
-    agent === 'opencode' || agent === 'opencode2' ? 'opencode' : agent === 'devin' ? 'devin' : null
+  const provider = agent === 'opencode' ? 'opencode' : agent === 'devin' ? 'devin' : null
   if (!provider) {
     return
   }

@@ -56,6 +56,8 @@ export type AgentLaunchIntent = {
   accountEnv?: Readonly<Record<string, string>>
   /** `agent.launch`'s `nativeChatDefault`: the caller's chat default in place of the host's own. */
   nativeChatDefault?: boolean
+  /** `agent.launch`'s `mteRole`: marks the created chat as an MTE planner. */
+  mteRole?: 'planner'
   /** `agent.launch`'s `surface`: the user's pick for this launch, ahead of either default. */
   surface?: AgentLaunchSurface
 }

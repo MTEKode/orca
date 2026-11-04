@@ -255,7 +255,6 @@ describe('explicit identity admission shared by display and input readers', () =
     ['agy — Gemini 3.1 Pro', 'antigravity'],
     ['OC | Compare Codex and Claude', 'opencode'],
     ['ssh host | opencode ready', 'opencode'],
-    ['opencode2', 'opencode2'],
     ['MiMo Code', 'mimo-code'],
     ['Cursor Agent', 'cursor'],
     ['⠋ Droid', 'droid'],

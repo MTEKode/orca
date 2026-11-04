@@ -36,6 +36,8 @@ import { GITHUB_METHODS } from './github'
 import { GITLAB_METHODS } from './gitlab'
 import { HOSTED_REVIEW_METHODS } from './hosted-review'
 import { LINEAR_METHODS } from './linear'
+import { MCP_INTEGRATION_METHODS } from './mcp-integrations'
+import { GRAPHIFY_METHODS } from './graphify'
 import { LINEAR_AGENT_ACCESS_METHODS } from './linear-agent-access'
 import { JIRA_METHODS } from './jira'
 import { SSH_METHODS } from './ssh'
@@ -135,6 +137,8 @@ export const ALL_RPC_METHODS = [
   ...HOSTED_REVIEW_METHODS,
   ...LINEAR_METHODS,
   ...LINEAR_AGENT_ACCESS_METHODS,
+  ...MCP_INTEGRATION_METHODS,
+  ...GRAPHIFY_METHODS,
   ...JIRA_METHODS,
   ...SSH_METHODS,
   ...MANAGED_SERVER_METHODS,

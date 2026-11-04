@@ -3,7 +3,7 @@ import { asRecord } from './session-scanner-record-value'
 import { parseJsonObject } from './session-scanner-values'
 import { decodeSessionMessage, type SessionMessageDecodeOptions } from './session-decoded-message'
 
-export function extractOpenCode2MessageText(data: string): string | null {
+export function extractOpenCodeNextMessageText(data: string): string | null {
   const record = parseJsonObject(data)
   if (typeof record?.text === 'string') {
     return record.text
@@ -24,7 +24,7 @@ export function extractOpenCode2MessageText(data: string): string | null {
   )
 }
 
-export function decodeOpenCode2Message(
+export function decodeOpenCodeNextMessage(
   data: string,
   role: AiVaultSessionPreviewMessage['role'],
   timestamp: string | null,
@@ -50,7 +50,7 @@ export function decodeOpenCode2Message(
   return decodeSessionMessage(role, content, timestamp, options)
 }
 
-export function parseOpenCode2MessageRow(value: unknown) {
+export function parseOpenCodeNextMessageRow(value: unknown) {
   const row = asRecord(value)
   if (
     typeof row?.data !== 'string' ||

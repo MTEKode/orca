@@ -1,12 +1,7 @@
-import { OrchestrationError } from '../runtime/orchestration/orchestration-error'
 import type { AgentModelCatalogProbe } from '../native-chat/agent-model-catalog/agent-model-catalog-discovery'
 import { createOpenCodeV2Client, type OpenCodeV2Client } from './opencode-v2-client'
-import { isOpenCodeV2ChatEnabled } from './opencode-v2-gate'
 import { openCodeV2ModelListing } from './opencode-v2-models'
 import type { OpenCodeV2Service, ResolvedOpenCodeV2Endpoint } from './opencode-v2-service'
-
-export const OPENCODE_V2_CATALOG_DISABLED_REFUSAL =
-  'OpenCode v2 chat is turned off. Enable it in Settings → Experimental, then try again.'
 
 export type OpenCodeV2ModelCatalogDeps = {
   service: OpenCodeV2Service
@@ -20,9 +15,6 @@ export function createOpenCodeV2ModelCatalogProbe(
   deps: OpenCodeV2ModelCatalogDeps
 ): AgentModelCatalogProbe {
   return async (_accountHome, options) => {
-    if (!isOpenCodeV2ChatEnabled()) {
-      throw new OrchestrationError('capability_unsupported', OPENCODE_V2_CATALOG_DISABLED_REFUSAL)
-    }
     const endpoint = await deps.service.endpoint()
     const client = await (deps.createClient ?? createOpenCodeV2Client)(endpoint)
     const directory = options?.cwd ?? options?.workspacePath ?? undefined

@@ -57,7 +57,7 @@ Review dispatch prompts and make worker labels distinct`,
     expect(
       getAgentRowPrimaryText({
         prompt: `You are working inside Orca, a multi-agent IDE. You are a dispatched worker.
-Your coordinator's terminal handle is: term_parent
+Your planner's terminal handle is: term_parent
 Your task ID is: task_1
 
 === CLI COMMANDS ===
@@ -86,7 +86,7 @@ Keep the raw preamble out of the sidebar.`
     const normalized = normalizeAgentStatusPayload({
       state: 'working',
       prompt: `You are working inside Orca, a multi-agent IDE. You are a dispatched worker.
-Your coordinator's terminal handle is: term_c376f37c-5d28-404b-869f-d0544edf12ff
+Your planner's terminal handle is: term_c376f37c-5d28-404b-869f-d0544edf12ff
 Your task ID is: task_bcfc6b64abe3
 
 You talk to the coordinator only through the CLI commands below.

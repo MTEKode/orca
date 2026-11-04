@@ -27,7 +27,7 @@ import { hasSystemMediaAccess, requestSystemMediaAccess } from '../browser/brows
 import type { OrcaRuntimeService, RuntimeWorktreeLifecycleEvent } from '../runtime/orca-runtime'
 import type { PreQuitCleanupFailureMode, UpdateInstallMode } from '../updater'
 import { scheduleHistoryGc } from '../terminal-history-gc'
-import { openCodeHookService, openCode2HookService } from '../opencode/hook-service'
+import { openCodeHookService } from '../opencode/hook-service'
 import { listLiveDaemonPtyIds } from '../daemon/daemon-provider-state'
 import { hydrateLocalPtyRegistryAtBoot } from '../memory/hydrate-local-pty-registry'
 import type { ClaudeRuntimeAuthPreparation } from '../claude-accounts/runtime-auth-service'
@@ -115,7 +115,6 @@ export function attachMainWindowServices(
     return getKnownWorktreeIdsForHistoryGc(store)
   })
   openCodeHookService.configDirGc.schedule(listLiveDaemonPtyIds)
-  openCode2HookService.configDirGc.schedule(listLiveDaemonPtyIds)
   const localPtyProviderStartupReady = options?.awaitLocalPtyProviderStartup?.()
   if (localPtyProviderStartupReady) {
     void localPtyProviderStartupReady

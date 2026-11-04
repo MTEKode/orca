@@ -299,7 +299,7 @@ describe('a /clear-ed chat is shown the Orca session ID it had before the clear'
       from: ADDRESS_Z
     })
 
-    expect(preamble).toContain(`Your coordinator's Orca session ID is: ${ADDRESS_X}\n`)
+    expect(preamble).toContain(`Your planner's Orca session ID is: ${ADDRESS_X}\n`)
     expect(preamble).not.toContain(SESSION_Z)
   })
 

@@ -2,17 +2,14 @@
 import { agentReferenceDeliveryText } from '../../../../shared/orchestration-agent-reference.test-fixture'
 import { dispatchStructuredAgentSessionComposerCommand } from '../../../../shared/agent-session/view/structured-agent-session-composer'
 import { nativeChatPastedTextToken } from './native-chat-pasted-text-reference'
-import { emptyCrew, type OrchestrationCrewRow } from '../../../../shared/orchestration-crew'
 import { createRef } from 'react'
-import { act, cleanup, render, renderHook, within, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { act, cleanup, render, renderHook, within } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 import type { PaneManager } from '@/lib/pane-manager/pane-manager'
 import type { PtyTransport } from '../terminal-pane/pty-transport-types'
 import type { NativeChatStructuredComposerTransport } from './native-chat-composer-types'
 import type { NativeChatComposerInput } from './native-chat-composer-input'
 import { NativeChatPromptEditor } from './NativeChatPromptEditor'
-import { mountedMention } from './native-chat-agent-reference.test-fixture'
 import { promptEditor } from './native-chat-prompt-editor.test-support'
 import { agentReferenceToken } from '../../../../shared/orchestration-agent-reference'
 import { serializeNativeChatAgentReferences } from './native-chat-agent-reference-send'
@@ -29,20 +26,6 @@ import { captureTerminalDropTarget } from '../terminal-pane/terminal-drop-target
 import { insertTerminalCrewMention } from '../terminal-pane/terminal-crew-mention'
 import { clearStructuredAgentSessionPendingSends } from './structured-agent-session-pending-sends'
 
-const crewRows = vi.hoisted(() => new Array<OrchestrationCrewRow>())
-vi.mock('./use-orchestration-crew', () => ({
-  useOrchestrationCrew: () => ({
-    ...emptyCrew('ok'),
-    sections: { managedBy: [], managing: crewRows, talkingWith: [] }
-  })
-}))
-
-// Render the real panel synchronously; the lazy chunk boundary is the app's load detail.
-vi.mock('../orchestration-crew/LazyOrchestrationCrewPanel', async () => ({
-  LazyOrchestrationCrewPanel: (await import('../orchestration-crew/OrchestrationCrewPanel'))
-    .OrchestrationCrewPanel
-}))
-vi.mock('@/lib/open-agent-message-sender', () => ({ openOrchestrationCrewAgent: vi.fn() }))
 vi.mock('./native-chat-runtime-send', () => ({
   sendNativeChatMessage: vi.fn(() => ({ cancel() {}, settleAfterMs: 0 })),
   sendNativeChatTypedCommand: vi.fn(),
@@ -51,7 +34,6 @@ vi.mock('./native-chat-runtime-send', () => ({
 vi.mock('@/lib/native-chat-telemetry', () => ({ emitNativeChatMessageSent: vi.fn() }))
 afterEach(() => {
   cleanup()
-  crewRows.length = 0
   clearNativeChatComposerDraftsForTests()
   clearStructuredAgentSessionPendingSends('test-session')
   vi.restoreAllMocks()
@@ -403,88 +385,4 @@ it('applies structured UTF-8 admission to the expanded final body before any sen
   expect(structured.send).not.toHaveBeenCalled()
   expect(structured.onError).toHaveBeenCalledTimes(1)
   expect(readNativeChatComposerDraft('size').text).toBe(raw.text)
-})
-
-it('keeps direct, Mention all and real menu Mention on the current native handle, caret and captured host after dismissal', async () => {
-  for (const route of ['direct', 'all', 'menu']) {
-    const user = userEvent.setup()
-    const view = mountedMention(crewRows, first, route === 'all')
-    const input = view.input.current!
-    act(() => {
-      input.focus()
-      input.setSelectionRange(6, 6)
-    })
-    await user.click(view.getByRole('button', { name: /^Show orchestration: 1 worker,/ }))
-    const more = view.getByRole('button', { name: `More for ${first.label}` })
-    const insert = vi.spyOn(view.handle.current!, 'insertAgentReferences')
-    if (route === 'menu') {
-      await user.click(more)
-    }
-    const popup = within(document.body).queryByRole('menu')
-    const closed = vi.fn()
-    popup?.addEventListener('focusScope.autoFocusOnUnmount', closed)
-    const returnFocus = vi.spyOn(more, 'focus')
-    await user.click(
-      route === 'menu'
-        ? within(document.body).getByRole('menuitem', { name: 'Mention in message' })
-        : route === 'all'
-          ? view.getByRole('button', { name: 'Mention all' })
-          : within(view.getByRole('complementary', { name: 'Orchestration' }))
-              .getByText(first.label)
-              .closest('button')!
-    )
-    expect(insert).toHaveBeenCalledExactlyOnceWith([{ ...first, hostKey: 'captured-host' }])
-    expect(insert.mock.results[0]?.value).toBe(true)
-    expect(input.contains?.(document.activeElement)).toBe(true)
-    expect(view.getByRole('button', { name: 'Collapse orchestration panel' }).isConnected).toBe(
-      true
-    )
-    await waitFor(() => expect(within(document.body).queryByRole('menu')).toBeNull())
-    if (popup) {
-      await waitFor(() => expect(closed).toHaveBeenCalledOnce())
-      expect(closed.mock.calls[0][0].target).toBe(popup)
-    }
-    expect(input.value).toBe(`Hello ${agentReferenceToken(first)} suffix`)
-    expect(input.selectionStart).toBe(`Hello ${agentReferenceToken(first)} `.length)
-    expect(input.contains?.(document.activeElement)).toBe(true)
-    expect(returnFocus).not.toHaveBeenCalled()
-    expect(readNativeChatComposerDraft('menu').document?.content?.[0]?.content).toEqual([
-      { type: 'text', text: 'Hello ' },
-      { type: 'nativeChatAgentReference', attrs: { ...first, hostKey: 'captured-host' } },
-      { type: 'text', text: ' suffix' }
-    ])
-    view.unmount()
-    clearNativeChatComposerDraftsForTests()
-    crewRows.length = 0
-  }
-})
-
-it('preserves the exact QA3773 ordinary draft around a native row Mention at caret 14', async () => {
-  const user = userEvent.setup()
-  const view = mountedMention(crewRows, first, false, 'QA3773 before  after')
-  const input = view.input.current!
-  act(() => {
-    input.focus()
-    input.setSelectionRange(14, 14)
-  })
-  await user.click(view.getByRole('button', { name: /^Show orchestration: 1 worker,/ }))
-  await user.click(
-    within(view.getByRole('complementary', { name: 'Orchestration' }))
-      .getByText(first.label)
-      .closest('button')!
-  )
-  expect(input.value).toBe(`QA3773 before ${agentReferenceToken(first)} after`)
-  expect(readNativeChatComposerDraft('menu').document?.content?.[0]?.content).toEqual([
-    { type: 'text', text: 'QA3773 before ' },
-    { type: 'nativeChatAgentReference', attrs: { ...first, hostKey: 'captured-host' } },
-    { type: 'text', text: ' after' }
-  ])
-  expect(
-    view.container
-      .querySelector('[data-native-chat-agent-reference]')
-      ?.getAttribute('data-native-chat-agent-reference')
-  ).toBe(first.address)
-  expect(input.selectionStart).toBe(`QA3773 before ${agentReferenceToken(first)}`.length)
-  expect(input.contains?.(document.activeElement)).toBe(true)
-  expect(view.getByRole('button', { name: 'Collapse orchestration panel' }).isConnected).toBe(true)
 })

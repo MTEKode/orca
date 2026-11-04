@@ -217,7 +217,7 @@ describe('runtime AI Vault session scanner', () => {
       })
       await expect(
         prepareRuntimeAiVaultSessionResume('/user-data', 'env-1', {
-          agent: forkedSession.agent === 'opencode' ? 'opencode2' : 'omp',
+          agent: forkedSession.agent === 'opencode' ? 'opencode' : 'omp',
           sessionId: 'source',
           filePath: '/source',
           codexHome: null,

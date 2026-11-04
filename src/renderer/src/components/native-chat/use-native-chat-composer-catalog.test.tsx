@@ -228,7 +228,7 @@ describe('OpenCode chat skills', () => {
   }
   const scanned = [skill('release-notes', 'Write release notes')]
   function items(
-    agent: 'opencode' | 'opencode2' | 'claude',
+    agent: 'opencode' | 'claude',
     reported: { name: string; description?: string; kindUnspecified?: true }[],
     skills: DiscoveredSkill[] = scanned
   ) {
@@ -251,7 +251,7 @@ describe('OpenCode chat skills', () => {
     items(...args).map((item) => `${item.kind}:${item.name}`)
 
   it('keeps the scanned skills once an OpenCode 2.x chat reports its commands', () => {
-    expect(rows('opencode2', [{ name: 'init' }, { name: 'review' }])).toContain(
+    expect(rows('opencode', [{ name: 'init' }, { name: 'review' }])).toContain(
       'skill:release-notes'
     )
   })
@@ -265,7 +265,7 @@ describe('OpenCode chat skills', () => {
     ).toEqual(['skill:release-notes'])
   })
 
-  it.each(['opencode', 'opencode2'] as const)(
+  it.each(['opencode'] as const)(
     'keeps %s’s own command when a skill shares its name, and marks the collision',
     (agent) => {
       const picked = items(
@@ -281,7 +281,6 @@ describe('OpenCode chat skills', () => {
 
   // The chat's send runs `/compact` as compaction whichever row inserted it.
   it.each([
-    ['opencode2', { name: 'compact', description: 'compact the session' }],
     ['opencode', { name: 'compact', description: 'Squash my notes' }],
     ['claude', { name: 'compact', kindUnspecified: true as const }]
   ] as const)('never lets a skill stand in for %s’s /compact', (agent, reported) => {

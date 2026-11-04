@@ -47,6 +47,8 @@ export const CLI_COMMAND_NAMES = [
   'linear',
   'mouse',
   'mte',
+  'mcp',
+  'graph',
   'network',
   'open',
   'open-url',

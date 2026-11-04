@@ -138,7 +138,7 @@ describe('durable execution-host launch settings', () => {
       expect(newChatPermissionModeForSettings('claude', settings)).toBe('auto')
       const loadedController = new RuntimeClientSettingsController(reloaded)
       expect(loadedController.get().agentDefaultArgs?.codex).toBe('--config=sandbox_mode=read-only')
-      for (const agent of ['antigravity', 'opencode', 'opencode2', 'omp']) {
+      for (const agent of ['antigravity', 'opencode', 'omp']) {
         expect(newChatPermissionModeForSettings(agent, reloaded.getSettings())).toBe('ask')
         expect(resolveTuiAgentLaunchArgs(agent, reloaded.getSettings())).toBe('')
       }

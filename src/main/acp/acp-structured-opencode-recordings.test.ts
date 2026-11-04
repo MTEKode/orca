@@ -24,7 +24,7 @@ const ask: AgentJournalMessageItem = {
   blocks: [{ type: 'text', text: 'Fixture prompt' }]
 }
 
-async function replaying(name: string, agent: 'opencode' | 'opencode2' = 'opencode') {
+async function replaying(name: string, agent: 'opencode' = 'opencode') {
   const replay = new GrokFixtureReplay(await readAcpFixture(name))
   const rig = await openAcpAdapterRig({
     spec: acpLaunchSpecFor(agent)!,
@@ -127,7 +127,7 @@ describe('OpenCode recordings through the adapter', () => {
 
 describe('OpenCode 2 recordings through the adapter', () => {
   it('an approved shell command completes with its output and exit code', async () => {
-    const { rig, replay } = await replaying('opencode-v2-tool', 'opencode2')
+    const { rig, replay } = await replaying('opencode-v2-tool', 'opencode')
     const approval = await answer(rig, replay, 'once')
     expect(approval.body).toMatchObject({
       kind: 'approval',
@@ -150,7 +150,7 @@ describe('OpenCode 2 recordings through the adapter', () => {
 
   // OpenCode 2.x ends denied-permission turns as cancelled, unlike 1.x.
   it('a rejected permission fails its tool and OpenCode ends the turn as cancelled', async () => {
-    const { rig, replay } = await replaying('opencode-v2-deny', 'opencode2')
+    const { rig, replay } = await replaying('opencode-v2-deny', 'opencode')
     await answer(rig, replay, 'reject')
     await waitFor(() => expect(replay.awaiting).toBeNull())
     await waitFor(async () =>
@@ -160,7 +160,7 @@ describe('OpenCode 2 recordings through the adapter', () => {
   })
 
   it('Stop during an approved command cancels it and ends the turn', async () => {
-    const { rig, replay } = await replaying('opencode-v2-stop', 'opencode2')
+    const { rig, replay } = await replaying('opencode-v2-stop', 'opencode')
     await answer(rig, replay, 'once')
     await waitFor(() => expect(replay.awaiting).toBe('session/cancel'))
     await expect(rig.adapter.cancelTurn({ sessionId: SESSION, fence: 1 })).resolves.toEqual({

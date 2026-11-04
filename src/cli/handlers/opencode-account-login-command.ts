@@ -9,8 +9,7 @@ import { createOutputSink } from '@orca/process-host/bounded-output-sink'
 import { resolveCliCommand, withCliRuntimeOnPath } from '../../shared/node-cli-command-resolution'
 import {
   getSpawnArgsForWindows,
-  UnsafeWindowsBatchArgumentsError,
-  WINDOWS_BATCH_UNSAFE_CHARACTERS_LABEL
+  UnsafeWindowsBatchArgumentsError
 } from '../../shared/windows-batch-spawn'
 import { RuntimeClientError } from '../runtime-client'
 import {
@@ -24,7 +23,7 @@ export async function resolveOpenCodeLoginCommand(
   session: InteractiveLoginSession
 ): Promise<string> {
   const unsafeLauncherPaths: string[] = []
-  for (const command of ['opencode2', 'opencode']) {
+  for (const command of ['opencode']) {
     try {
       const resolvedCommand = resolveCliCommand(command)
       let prepared: ReturnType<typeof getSpawnArgsForWindows>
@@ -58,12 +57,10 @@ export async function resolveOpenCodeLoginCommand(
     ? ` Windows could not start the OpenCode batch launchers from these paths: ${unsafeLauncherPaths.map((path) => `\`${path}\``).join(', ')}.`
     : ''
   const installGuidance =
-    process.platform === 'win32'
-      ? `Choose a separate prefix with a full absolute path without ${WINDOWS_BATCH_UNSAFE_CHARACTERS_LABEL} or line breaks, for example \`npm install --prefix C:\\tools\\orca-opencode2 @opencode/cli\`. If an existing unusable opencode2 is the first match, repair/relocate that installation or move/rename only its suffixed opencode2 launchers out of command lookup, including any further earlier matches. Leave the existing generic opencode launcher and shared npm PATH directories unchanged. Then append C:\\tools\\orca-opencode2\\node_modules\\.bin (or your safe prefix's node_modules\\.bin) to PATH after existing entries, so the first opencode2 match is the safe installation, and run this command again.`
-      : 'Install alongside your existing CLI with `npm install --prefix ./orca-opencode2 @opencode/cli`. Append the absolute path of orca-opencode2/node_modules/.bin to PATH after existing entries, then run this command again.'
+    'Install or repair OpenCode 2 (`npm install -g @opencode/cli`) so `opencode auth login` is on PATH, then run this command again.'
   throw new RuntimeClientError(
     'invalid_environment',
-    `Could not find an OpenCode 2 login. Managed OpenCode accounts require OpenCode 2.${preparationDiagnosis} ${installGuidance}`
+    `Could not find an OpenCode login. Managed OpenCode accounts require OpenCode 2.${preparationDiagnosis} ${installGuidance}`
   )
 }
 

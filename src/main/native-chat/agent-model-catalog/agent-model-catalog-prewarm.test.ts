@@ -117,7 +117,7 @@ describe('model catalog prewarm', () => {
 
     const chat = agentSessionRecordFixture({
       sessionId: 'chat-b',
-      provider: 'opencode2',
+      provider: 'opencode',
       accountHome: HOME('OPENCODE_HOME', '/homes/a'),
       location: {
         executionHostId: 'local',
@@ -134,7 +134,7 @@ describe('model catalog prewarm', () => {
       getRecord: () => chat,
       drivesRecord: () => true,
       resolveAccountHome: async () => HOME('OPENCODE_HOME', '/homes/a'),
-      listsInChatFolder: new Set(['opencode2']),
+      listsInChatFolder: new Set(['opencode']),
       recordWorkspacePath: () => lookups[lookup++]?.promise ?? Promise.resolve('/work/b')
     })
     service.recordLiveListing('chat-b', { models: listing('older').models })
@@ -143,7 +143,7 @@ describe('model catalog prewarm', () => {
     lookups[0]!.resolve('/work/b')
     await vi.waitFor(async () => {
       const read = await service.read({
-        agent: 'opencode2',
+        agent: 'opencode',
         sessionId: 'chat-b',
         waitForListing: true
       })
@@ -160,7 +160,7 @@ describe('model catalog prewarm', () => {
 
     const chatInB = agentSessionRecordFixture({
       sessionId: 'chat-b',
-      provider: 'opencode2',
+      provider: 'opencode',
       accountHome: HOME('OPENCODE_HOME', '/homes/a'),
       launchDirectory: '/work/b',
       location: {
@@ -179,12 +179,12 @@ describe('model catalog prewarm', () => {
       getRecord: (sessionId) => (sessionId === 'chat-b' ? chatInB : undefined),
       drivesRecord: () => true,
       resolveAccountHome: async () => HOME('OPENCODE_HOME', '/homes/a'),
-      probes: { opencode2: probe },
-      listsInChatFolder: new Set(['opencode2']),
+      probes: { opencode: probe },
+      listsInChatFolder: new Set(['opencode']),
       recordWorkspacePath: async (record) => record.launchDirectory ?? null
     })
     const ids = async (workspacePath: string) => {
-      const read = await service.read({ agent: 'opencode2', workspacePath, waitForListing: true })
+      const read = await service.read({ agent: 'opencode', workspacePath, waitForListing: true })
       return read.origin === 'unknown' ? [] : read.models.map((model) => model.id)
     }
 
@@ -200,7 +200,7 @@ describe('model catalog prewarm', () => {
     await vi.waitFor(async () => expect(await ids('/work/b')).toEqual(['live-b']))
     expect(await ids('/work/a')).toEqual(['big-pickle'])
     expect(probe).toHaveBeenCalledTimes(2)
-    const answer = await service.read({ agent: 'opencode2', workspacePath: '/work/a' })
+    const answer = await service.read({ agent: 'opencode', workspacePath: '/work/a' })
     expect(answer).toMatchObject({ modelsDifferByWorkspace: true })
   })
 
@@ -223,21 +223,21 @@ describe('model catalog prewarm', () => {
       drivesRecord: () => true,
       hasChatRecords: () => true,
       resolveAccountHome: async () => HOME('OPENCODE_HOME', '/homes/a'),
-      probes: { opencode2: probe },
-      listsInChatFolder: new Set(['opencode2'])
+      probes: { opencode: probe },
+      listsInChatFolder: new Set(['opencode'])
     })
 
     const prewarmed = service.prewarm()
-    const opened = await service.read({ agent: 'opencode2', workspacePath: '/work/project' })
+    const opened = await service.read({ agent: 'opencode', workspacePath: '/work/project' })
     expect(opened).toEqual({ origin: 'unknown' })
     expect(probe).not.toHaveBeenCalled()
     const waited = service.read({
-      agent: 'opencode2',
+      agent: 'opencode',
       workspacePath: '/work/project',
       waitForListing: true
     })
     await vi.waitFor(() => expect(probe).toHaveBeenCalledTimes(1))
-    expect(await service.read({ agent: 'opencode2', workspacePath: '/work/project' })).toEqual({
+    expect(await service.read({ agent: 'opencode', workspacePath: '/work/project' })).toEqual({
       origin: 'unknown',
       listingInProgress: true
     })
@@ -542,7 +542,7 @@ it('keeps old producers from publishing rows, defaults or failure expiry after r
   const store = new AgentModelCatalogStore()
   const record = agentSessionRecordFixture({
     sessionId: 'source-chat',
-    provider: 'opencode2',
+    provider: 'opencode',
     accountHome: HOME('OPENCODE_HOME', '/account'),
     location: {
       executionHostId: 'local',
@@ -566,7 +566,7 @@ it('keeps old producers from publishing rows, defaults or failure expiry after r
     resolveAccountHome: async () => record.accountHome,
     recordWorkspacePath: lookup,
     workspaceMayOverrideDefaultModel: defaultLookup,
-    listsInChatFolder: new Set(['opencode2'])
+    listsInChatFolder: new Set(['opencode'])
   })
   const oldSource = service.captureSource(record)
   service.recordLiveListing(

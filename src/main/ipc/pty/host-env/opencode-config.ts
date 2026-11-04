@@ -2,7 +2,7 @@ import {
   OPENCODE_CONFIG_DIR_ENV_KEYS,
   isOpenCodeLegacySharedConfigDir
 } from '../../../opencode/legacy-shared-config-dir'
-import { openCode2HookService, openCodeHookService } from '../../../opencode/hook-service'
+import { openCodeHookService } from '../../../opencode/hook-service'
 import { resolveOpenCodeSourceConfigDir } from './pi-agent'
 import { restoreOrStripOverlayEnv } from '../../../../shared/agent-overlay-env'
 import { selectOpenCodeHookAgent } from '../../../../shared/opencode-launch-command'
@@ -33,7 +33,6 @@ export function captureOpenCodeSourceConfig(
   }
   // A daemon or sibling shell can retain a retired path that main no longer sees.
   openCodeHookService.refreshLegacySharedPlugin()
-  openCode2HookService.refreshLegacySharedPlugin()
   const directory = resolveOpenCodeSourceConfigDir(env, inheritedEnv)
   return { inheritedEnv, directory: isLegacyDirectory(directory) ? undefined : directory }
 }
@@ -47,7 +46,7 @@ export function applyOpenCodeStatusPluginEnv(
     'launchAgent' | 'agentStatusHooksEnabled' | 'disabledTuiAgents' | 'isWsl' | 'shellPath'
   >,
   command: string | undefined
-): 'opencode' | 'opencode2' | null {
+): 'opencode' | null {
   const agent = selectOpenCodeHookAgent(
     options.launchAgent,
     command,
@@ -68,7 +67,7 @@ export function applyOpenCodeStatusPluginEnv(
   if (!agent) {
     return null
   }
-  const service = agent === 'opencode2' ? openCode2HookService : openCodeHookService
+  const service = openCodeHookService
   env.ORCA_OPENCODE_AGENT = agent
   // WSL owns its config writes; only the guest overlay may enter a WSL pane.
   if (!options.isWsl) {

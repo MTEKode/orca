@@ -205,7 +205,7 @@ describe('useNativeChatInteractiveSend', () => {
     expect(mocks.sendRuntimePtyInput).toHaveBeenCalledWith('pty-1', '\x1b', 'driving')
   })
 
-  it.each(['opencode', 'opencode2'] as const)(
+  it.each(['opencode'] as const)(
     'paces two Escape writes for %s Stop and cancels them on rebind',
     (agent) => {
       const { result, rerender } = renderHook(
@@ -222,7 +222,7 @@ describe('useNativeChatInteractiveSend', () => {
     }
   )
 
-  it.each(['opencode', 'opencode2'] as const)(
+  it.each(['opencode'] as const)(
     'rejects a %s question with one acknowledged Escape and no delayed Stop',
     async (agent) => {
       const { result } = renderHook(() => useNativeChatInteractiveSend(PANE_KEY, 'pty-1', agent))
@@ -244,7 +244,7 @@ describe('useNativeChatInteractiveSend', () => {
     await expect(result.current.cancelAsk()).resolves.toBe(false)
   })
 
-  it.each(['opencode', 'opencode2'] as const)(
+  it.each(['opencode'] as const)(
     'delivers a non-default %s answer through selector keys',
     (agent) => {
       const { result } = renderHook(() => useNativeChatInteractiveSend(PANE_KEY, 'pty-1', agent))

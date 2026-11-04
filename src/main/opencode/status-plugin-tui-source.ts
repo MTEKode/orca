@@ -1,7 +1,7 @@
 import { getTuiStatusDeliverySource } from '../opencode/status-plugin-delivery-source'
 
 // Report from each TUI’s own PTY and current session data so ownership and reconnects self-correct.
-export function getOpenCode2TuiSource(): string[] {
+export function getOpenCodeNextTuiSource(): string[] {
   return String.raw`
 const TUI_TICK_MS = 100;
 const TUI_PERMISSION_SETTLE_MS = 500;
@@ -9,7 +9,7 @@ const TUI_EARLY_ROOTS_MAX = 32;
 const TUI_RESOLVED_REQUESTS_MAX = 256;
 const TUI_ENDPOINT_CHECK_TICKS = 50;
 
-function isOpenCode2TuiContext(ctx) {
+function isOpenCodeNextTuiContext(ctx) {
   return typeof ctx?.ui?.router?.current === "function" && typeof ctx?.data?.listen === "function";
 }
 
@@ -28,7 +28,7 @@ function paneStatusMemory(ctx) {
   return [local, (mutate) => mutate(local)];
 }
 
-async function setupOpenCode2Tui(ctx) {
+async function setupOpenCodeNextTui(ctx) {
   const noop = async () => {};
   // Outside an Orca pane, post has no pane identity to report.
   if (!process.env.ORCA_PANE_KEY) return noop;
@@ -152,8 +152,8 @@ async function setupOpenCode2Tui(ctx) {
       if (level.kind === "waiting") {
         const { request, isPermission } = level.blocker;
         const translated = ctx.legacyOpenCodeTui ? { properties: request } : isPermission
-          ? translateOpenCode2Event("permission.asked", request)
-          : translateOpenCode2Event("form.created", { form: request });
+          ? translateOpenCodeNextEvent("permission.asked", request)
+          : translateOpenCodeNextEvent("form.created", { form: request });
         if (!translated) return;
         const hookEventName = isPermission ? "PermissionRequest" : "AskUserQuestion";
         await flushPendingAssistantPart(true);

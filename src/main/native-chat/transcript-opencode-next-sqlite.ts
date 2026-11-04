@@ -28,7 +28,7 @@ function sessionExists(db: SyncDatabase, sessionId: string): boolean {
   )
 }
 
-export function readOpenCode2TranscriptSignal(
+export function readOpenCodeNextTranscriptSignal(
   db: SyncDatabase,
   sessionId: string
 ): OpenCodeTranscriptSignal | null {
@@ -178,7 +178,7 @@ function messageItems(value: unknown): OpenCodeTranscriptItem[] {
   }))
 }
 
-export function readOpenCode2TranscriptPage(
+export function readOpenCodeNextTranscriptPage(
   db: SyncDatabase,
   args: {
     sessionId: string

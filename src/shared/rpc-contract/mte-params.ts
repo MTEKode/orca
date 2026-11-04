@@ -7,6 +7,8 @@ export const MtePrepareWorkspaceParams = z
   })
   .strict()
 
+export const MteMarkPlannerParams = z.object({ sessionId: z.string().min(1).max(256) }).strict()
+
 export const MteDeployCheckConfigParams = z
   .object({ workspaceRoot: z.string().min(1).max(4_096) })
   .strict()

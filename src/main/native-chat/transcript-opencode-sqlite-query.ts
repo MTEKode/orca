@@ -2,9 +2,9 @@ import { openOpenCodeDatabaseReadonly } from '../ai-vault/session-scanner-openco
 import { zcodeVisibleMessageFilter } from '../ai-vault/session-scanner-zcode-visibility'
 import { zcodeTranscriptOrder } from '../ai-vault/session-scanner-zcode-order'
 import {
-  readOpenCode2TranscriptPage,
-  readOpenCode2TranscriptSignal
-} from './transcript-opencode2-sqlite'
+  readOpenCodeNextTranscriptPage,
+  readOpenCodeNextTranscriptSignal
+} from './transcript-opencode-next-sqlite'
 import type { NativeChatMessage } from '../../shared/native-chat/native-chat-types'
 import { openCodeTranscriptPageLimit } from '../../shared/opencode-transcript-page-limit'
 import { columnExists, tableExists } from '../opencode-usage/schema-helpers'
@@ -53,7 +53,7 @@ export function readOpenCodeTranscriptSignal(
 ): OpenCodeTranscriptSignal | null {
   const db = openOpenCodeDatabaseReadonly(dbPath)
   try {
-    const v2 = readOpenCode2TranscriptSignal(db, sessionId)
+    const v2 = readOpenCodeNextTranscriptSignal(db, sessionId)
     if (v2) {
       return v2
     }
@@ -116,7 +116,7 @@ export function readOpenCodeTranscriptPage(args: {
 }): OpenCodeTranscriptPage | null {
   const db = openOpenCodeDatabaseReadonly(args.dbPath)
   try {
-    const v2 = readOpenCode2TranscriptPage(db, args)
+    const v2 = readOpenCodeNextTranscriptPage(db, args)
     if (v2) {
       return v2
     }

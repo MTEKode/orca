@@ -135,7 +135,6 @@ export const AI_VAULT_SCOPE_CWD_SOURCES: Record<AiVaultAgent, SessionScopeCwdSou
   hermes: PARSE,
   antigravity: PARSE,
   copilot: PARSE,
-  opencode2: PARSE,
   zcode: PARSE,
   devin: PARSE,
   kimi: PARSE,

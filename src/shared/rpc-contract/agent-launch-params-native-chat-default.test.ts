@@ -20,3 +20,13 @@ describe('agent.launch nativeChatDefault wire compatibility', () => {
     ).toBe(computeAgentLaunchFingerprint(AgentLaunch.parse(BASE)))
   })
 })
+
+describe('agent.launch mteRole threading', () => {
+  it('accepts only the planner role and stays outside the replay fingerprint', () => {
+    expect(AgentLaunch.parse({ ...BASE, mteRole: 'planner' }).mteRole).toBe('planner')
+    expect(AgentLaunch.safeParse({ ...BASE, mteRole: 'worker' }).success).toBe(false)
+    expect(computeAgentLaunchFingerprint(AgentLaunch.parse({ ...BASE, mteRole: 'planner' }))).toBe(
+      computeAgentLaunchFingerprint(AgentLaunch.parse(BASE))
+    )
+  })
+})

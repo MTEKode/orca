@@ -53,7 +53,8 @@ async function agentLaunchIntent(
     ...(params.nativeChatDefault !== undefined
       ? { nativeChatDefault: params.nativeChatDefault }
       : {}),
-    ...(params.surface ? { surface: params.surface } : {})
+    ...(params.surface ? { surface: params.surface } : {}),
+    ...(params.mteRole ? { mteRole: params.mteRole } : {})
   }
 }
 

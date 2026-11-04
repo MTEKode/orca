@@ -7,7 +7,7 @@ import {
   COMPUTER_USE_SKILL_NAME,
   ORCA_CLI_SKILL_NAME,
   ORCA_LINEAR_SKILL_NAME,
-  ORCHESTRATION_SKILL_NAME
+  MTE_SKILL_NAME
 } from '@/lib/agent-feature-skill-names'
 import { BROWSER_USE_ENABLED_STORAGE_KEY } from '@/lib/browser-use-setup-state'
 import {
@@ -23,7 +23,7 @@ import {
 const ALL_SKILL_NAMES = [
   ORCA_CLI_SKILL_NAME,
   COMPUTER_USE_SKILL_NAME,
-  ORCHESTRATION_SKILL_NAME,
+  MTE_SKILL_NAME,
   ORCA_LINEAR_SKILL_NAME
 ]
 
@@ -116,7 +116,7 @@ describe('onboarding feature setup runner', () => {
     const result = await runOnboardingFeatureSetup(selection, deps)
 
     expect(result.selectedIds).toEqual(['orchestration'])
-    expect(result.skillNames).toEqual([ORCHESTRATION_SKILL_NAME])
+    expect(result.skillNames).toEqual([MTE_SKILL_NAME])
     expect(result.computerUsePermissionsOpened).toBe(false)
     expect(deps.getComputerUsePermissionStatus).not.toHaveBeenCalled()
     expect(deps.openComputerUsePermissionSetup).not.toHaveBeenCalled()

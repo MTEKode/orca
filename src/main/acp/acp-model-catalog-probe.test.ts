@@ -100,7 +100,7 @@ function scriptedGrok(initializeMeta: Record<string, unknown>): {
   }
 }
 
-function scriptedOpenCode2(canDelete: boolean): {
+function scriptedOpenCodeNext(canDelete: boolean): {
   agent: AcpScriptedAgent
   launches: ProviderProcessLaunch[]
   closed: () => number
@@ -169,7 +169,7 @@ function scriptedOpenCode2(canDelete: boolean): {
 
 describe('ACP model catalog probes', () => {
   it('projects an agent-authored auth-required session/new error, retaining unknown for other failures', async () => {
-    const { agent, deps } = scriptedOpenCode2(true)
+    const { agent, deps } = scriptedOpenCodeNext(true)
     const { code, message, data } = authRequired.reply.error
     agent.on('session/new', (frame) => agent.fail(frame, code, message, data))
     const list = () =>
@@ -287,7 +287,7 @@ describe('ACP model catalog probes', () => {
   })
 
   it('lists OpenCode 2.x from a session it opens and deletes, with no listing command', async () => {
-    const { agent, deps, launches } = scriptedOpenCode2(true)
+    const { agent, deps, launches } = scriptedOpenCodeNext(true)
     deps.resolveCommandSettings = () => launcherSettings('opencode')
     const success = await createAcpModelCatalogProbe(OPENCODE, deps)(
       { kind: 'opencode', locator: { kind: 'unmanaged' } },
@@ -312,7 +312,7 @@ describe('ACP model catalog probes', () => {
   })
 
   it('opens no session on an OpenCode 2.x that cannot delete one', async () => {
-    const { agent, deps } = scriptedOpenCode2(false)
+    const { agent, deps } = scriptedOpenCodeNext(false)
     await expect(
       createAcpModelCatalogProbe(OPENCODE, deps)(
         { kind: 'opencode', locator: { kind: 'unmanaged' } },
@@ -323,7 +323,7 @@ describe('ACP model catalog probes', () => {
   })
 
   it('lists OMP from a session kept in a folder it removes, in the chat folder', async () => {
-    const { agent, deps, launches } = scriptedOpenCode2(false)
+    const { agent, deps, launches } = scriptedOpenCodeNext(false)
     const dataDirectory = await mkdtemp(join(tmpdir(), 'orca-omp-listing-'))
     try {
       const success = await createAcpModelCatalogProbe(acpLaunchSpecFor('omp')!, {
@@ -355,7 +355,7 @@ describe('ACP model catalog probes', () => {
   })
 
   it('opens no session on OpenCode 2.x without a chat folder, as at a prewarm', async () => {
-    const { agent, deps, launches } = scriptedOpenCode2(true)
+    const { agent, deps, launches } = scriptedOpenCodeNext(true)
     const probeVersion = vi.fn(deps.probeVersion)
     await expect(
       createAcpModelCatalogProbe(OPENCODE, { ...deps, probeVersion })({
@@ -369,7 +369,7 @@ describe('ACP model catalog probes', () => {
   })
 
   it('keeps the models, and says so, when OpenCode 2.x refuses to delete the listing session', async () => {
-    const { agent, deps } = scriptedOpenCode2(true)
+    const { agent, deps } = scriptedOpenCodeNext(true)
     agent.on('session/delete', (frame) => agent.fail(frame, -32603, 'locked'))
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const success = await createAcpModelCatalogProbe(OPENCODE, deps)(
@@ -386,7 +386,7 @@ describe('ACP model catalog probes', () => {
 
   // An interrupted create can save a session without returning its ID.
   it('stops a listing cut off while OpenCode 2.x creates its session, without deleting', async () => {
-    const { agent, deps, closed } = scriptedOpenCode2(true)
+    const { agent, deps, closed } = scriptedOpenCodeNext(true)
     agent.on('session/new', () => {})
     const stop = new AbortController()
     const listing = createAcpModelCatalogProbe(OPENCODE, deps)(
@@ -403,9 +403,9 @@ describe('ACP model catalog probes', () => {
   })
 
   it('asks an OpenCode 2 chat nothing, not even its version, without a chat folder', async () => {
-    const { deps, launches } = scriptedOpenCode2(true)
+    const { deps, launches } = scriptedOpenCodeNext(true)
     const probeVersion = vi.fn(deps.probeVersion)
-    const spec = { ...acpLaunchSpecFor('opencode2')!, account: OPENCODE.account }
+    const spec = { ...acpLaunchSpecFor('opencode')!, account: OPENCODE.account }
     await expect(
       createAcpModelCatalogProbe(spec, { ...deps, probeVersion })({
         kind: 'opencode',

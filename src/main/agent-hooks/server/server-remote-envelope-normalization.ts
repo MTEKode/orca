@@ -3,7 +3,7 @@ import {
   normalizeClaudePromptId,
   normalizeGrokPromptId
 } from '../../../shared/agent-hook-listener/listener-limits'
-import { isAgentHookSource, type AgentHookSource } from '../../../shared/agent-hook-relay'
+import { normalizeAgentHookSource, type AgentHookSource } from '../../../shared/agent-hook-relay'
 import {
   readClaudeSettledRequests,
   type ClaudeSettledRequest
@@ -77,7 +77,7 @@ export function normalizeRemoteEnvelopeFields(envelope: {
   toolAgentType?: string
   providerSession?: unknown
 }): RemoteEnvelopeFields {
-  const source = isAgentHookSource(envelope.source) ? envelope.source : undefined
+  const source = normalizeAgentHookSource(envelope.source)
   return {
     hookEventName:
       typeof envelope.hookEventName === 'string' && envelope.hookEventName.trim().length > 0

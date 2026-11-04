@@ -258,7 +258,7 @@ export const ORCHESTRATION_COMMAND_SPECS: CommandSpec[] = [
     ],
     identityFlagRoles: { from: 'caller' },
     notes: [
-      'This command performs no effects and returns the exact `skills get orchestration --full` recovery action.',
+      'This command performs no effects and returns the exact `skills get mte --full` recovery action.',
       'Use the lightweight Run, Task, and worker-start primitives described by the current skill.'
     ]
   },
@@ -269,7 +269,7 @@ export const ORCHESTRATION_COMMAND_SPECS: CommandSpec[] = [
     usage: 'orca orchestration coordinator-stop [--json]',
     allowedFlags: [...GLOBAL_FLAGS],
     notes: [
-      'This command performs no effects and returns the exact `skills get orchestration --full` recovery action.'
+      'This command performs no effects and returns the exact `skills get mte --full` recovery action.'
     ]
   },
   ...ORCHESTRATION_GATE_COMMAND_SPECS,

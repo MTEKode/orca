@@ -167,7 +167,7 @@ it.each(recordings)(
     const record = agentSessionRecordFixture()
     record.provider = provider
     record.accountHome =
-      provider === 'opencode' || provider === 'opencode2'
+      provider === 'opencode'
         ? { kind: 'opencode', locator: { kind: 'managed', managedProfileId: 'recorded' } }
         : { variable: 'PI_CODING_AGENT_DIR', path: '/recorded/pi' }
     const prompt = `Name this chat from the user's first request.
@@ -214,7 +214,7 @@ Repair login`
       expect(spawn?.args).not.toContain(prompt)
       await vi.waitFor(() => expect(existsSync(dirname(promptPath))).toBe(false))
     }
-    if (provider === 'opencode' || provider === 'opencode2') {
+    if (provider === 'opencode') {
       expect(spawn?.env).toMatchObject({
         XDG_DATA_HOME: '/profiles/recorded/data',
         XDG_STATE_HOME: '/profiles/recorded/state',

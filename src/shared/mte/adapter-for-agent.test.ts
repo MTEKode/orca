@@ -6,7 +6,6 @@ describe('mteAdapterForAgent', () => {
     expect(mteAdapterForAgent('claude')).toBe('claude')
     expect(mteAdapterForAgent('codex')).toBe('codex')
     expect(mteAdapterForAgent('opencode')).toBe('opencode')
-    expect(mteAdapterForAgent('opencode-v2')).toBe('opencode')
   })
 
   it('returns null for every other agent', () => {

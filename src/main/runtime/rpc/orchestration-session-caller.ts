@@ -130,7 +130,8 @@ export async function resolveOrchestrationSessionCaller(
   const caller: OrchestrationSessionCaller = Object.freeze({
     ...resolveOrcaSessionParty(sessionId, db),
     sessionId,
-    workspaceId: record.location.workspaceId
+    workspaceId: record.location.workspaceId,
+    ...(record.mteRole ? { mteRole: record.mteRole } : {})
   })
   return {
     request: {

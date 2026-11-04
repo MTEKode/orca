@@ -45,6 +45,9 @@ export type RuntimeClientEvent =
     }
   // Why: browser profiles live on the host; old clients drop the unknown type and refetch on their old triggers.
   | { type: 'browserProfilesChanged' }
+  // Why: MCP integration credentials change in main's hub; clients refetch mcpIntegrations.status.
+  | { type: 'mcpIntegrationsChanged' }
+  | { type: 'graphifyChanged'; repoId: string }
   | {
       type: 'linearLinkedIssueUpdated'
       worktreeId: string

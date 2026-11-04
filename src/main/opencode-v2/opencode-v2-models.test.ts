@@ -1,16 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { OrchestrationError } from '../runtime/orchestration/orchestration-error'
 import { createOpenCodeV2Client } from './opencode-v2-client'
-import {
-  createOpenCodeV2ModelCatalogProbe,
-  OPENCODE_V2_CATALOG_DISABLED_REFUSAL
-} from './opencode-v2-model-catalog'
+import { createOpenCodeV2ModelCatalogProbe } from './opencode-v2-model-catalog'
 import {
   openCodeV2ModelListing,
   openCodeV2OptionIdForRef,
   type OpenCodeV2ModelInfo
 } from './opencode-v2-models'
-import { installOpenCodeV2ChatGate } from './opencode-v2-gate'
 import type { ResolvedOpenCodeV2Endpoint } from './opencode-v2-service'
 import { createFetchFake, routeByPath } from './opencode-v2.test-support'
 
@@ -94,19 +89,7 @@ describe('createOpenCodeV2ModelCatalogProbe', () => {
     }
   }
 
-  it('refuses while the experimental gate is closed', async () => {
-    installOpenCodeV2ChatGate(() => ({ experimentalOpenCodeV2Chat: false }))
-    const { probe } = probeWith({})
-    const error = await probe({ kind: 'opencode', locator: { kind: 'unmanaged' } }).catch(
-      (cause: unknown) => cause
-    )
-    expect(error).toBeInstanceOf(OrchestrationError)
-    expect((error as OrchestrationError).message).toBe(OPENCODE_V2_CATALOG_DISABLED_REFUSAL)
-    installOpenCodeV2ChatGate(() => null)
-  })
-
   it('lists chat models with the configured default from the chat folder', async () => {
-    installOpenCodeV2ChatGate(() => ({ experimentalOpenCodeV2Chat: true }))
     const { probe, calls } = probeWith({
       'GET /api/model': { status: 200, json: { location: {}, data: MODELS } },
       'GET /api/model/default': { status: 200, json: { location: {}, data: MODELS[0] } }
@@ -127,7 +110,6 @@ describe('createOpenCodeV2ModelCatalogProbe', () => {
     const list = calls.find((call) => call.url.pathname === '/api/model')
     expect(list?.url.searchParams.get('location[directory]')).toBe('/work/tree')
     expect(list?.url.searchParams.get('types')).toBe('chat')
-    installOpenCodeV2ChatGate(() => null)
   })
 
   it('maps model variants to efforts', () => {

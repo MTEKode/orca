@@ -134,6 +134,8 @@ export type AgentSessionRecord = {
   /** Latest turn edge for lists that must not open conversation history. */
   lastTurn?: AgentSessionLastTurn
   launchArgs?: AgentSessionLaunchArgs
+  /** Set only by the MTE start entry points; gates who may create orchestration runs. Absent on older records. */
+  mteRole?: 'planner'
   lease: AgentSessionLease
   createdAt: number
   updatedAt: number
@@ -318,6 +320,7 @@ export function isPersistedAgentSessionObservationRecord(
         isAgentSessionConversationName(record.conversationName)) &&
       (record.conversationNameSource === undefined || record.conversationNameSource === 'user') &&
       (record.launchArgs === undefined || isAgentSessionLaunchArgs(record.launchArgs)) &&
+      (record.mteRole === undefined || record.mteRole === 'planner') &&
       !Object.hasOwn(record, 'launchEnv') &&
       isPersistedAgentSessionObservationLease(record.lease) &&
       record.lease.sessionId === record.sessionId &&

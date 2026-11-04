@@ -106,6 +106,8 @@ export const AgentLaunchFields = z.object({
   /** Forward the launching user’s chat default when host settings belong to someone else (e.g. relayed phone).
    * Explicit surface overrides it; feasibility still decides. Outside replay identity; old hosts use their own default. */
   nativeChatDefault: z.boolean().optional(),
+  /** Set only by the MTE start entry points; marks the new chat as an MTE planner. Outside replay identity. */
+  mteRole: z.literal('planner').optional(),
   /** Explicit terminal runs CLI; proven-unsupported chat refuses before creation. Inside replay identity; unknown
    * values refuse. Clients must gate on agent.launch.surface.v1 because older hosts strip this field. */
   surface: z.enum(AGENT_LAUNCH_SURFACES).optional()

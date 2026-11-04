@@ -1,9 +1,9 @@
 import { transcriptMessagesFromDecodedMessage } from './session-transcript-message-content'
 import { describe, expect, it } from 'vitest'
 import {
-  decodeOpenCode2Message,
-  extractOpenCode2MessageText
-} from './session-scanner-opencode2-message'
+  decodeOpenCodeNextMessage,
+  extractOpenCodeNextMessageText
+} from './session-scanner-opencode-next-message'
 
 describe('OpenCode 2 message decoding', () => {
   it('captures reasoning, assistant text, tool calls and results without indexing provider state', () => {
@@ -23,7 +23,7 @@ describe('OpenCode 2 message decoding', () => {
       ]
     })
     const messages = transcriptMessagesFromDecodedMessage(
-      decodeOpenCode2Message(data, 'assistant', null)
+      decodeOpenCodeNextMessage(data, 'assistant', null)
     )
     expect(messages).toEqual(
       expect.arrayContaining([
@@ -33,6 +33,6 @@ describe('OpenCode 2 message decoding', () => {
       ])
     )
     expect(JSON.stringify(messages)).not.toContain('must not index')
-    expect(extractOpenCode2MessageText(data)).toBe('Finished')
+    expect(extractOpenCodeNextMessageText(data)).toBe('Finished')
   })
 })

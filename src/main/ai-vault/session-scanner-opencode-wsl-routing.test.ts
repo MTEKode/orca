@@ -25,11 +25,11 @@ vi.mock('./session-scanner-opencode-wsl-client', async (importOriginal) => ({
   openCodeWslClient: mocks.guest
 }))
 import {
-  captureOpenCode2SqliteSessionViaWorker,
+  captureOpenCodeNextSqliteSessionViaWorker,
   captureOpenCodeSqliteSessionViaWorker,
-  listOpenCode2SqliteSessionsViaWorker,
+  listOpenCodeNextSqliteSessionsViaWorker,
   listOpenCodeSqliteSessionsViaWorker,
-  parseOpenCode2SqliteSessionViaWorker,
+  parseOpenCodeNextSqliteSessionViaWorker,
   parseOpenCodeSqliteSessionViaWorker
 } from './session-scanner-opencode-sqlite-worker-spawn'
 
@@ -134,13 +134,13 @@ describe('OpenCode SQLite execution-host routes', () => {
     mocks.guest
       .mockResolvedValueOnce({
         list: vi.fn(async (args) => {
-          args.issues.push({ agent: 'opencode2', path: guest, message: 'locked' })
+          args.issues.push({ agent: 'opencode', path: guest, message: 'locked' })
           return []
         })
       })
       .mockRejectedValueOnce(new Error('Distro stopped'))
     const issues: AiVaultScanIssue[] = []
-    await listOpenCode2SqliteSessionsViaWorker({ dbPaths: [ubuntu, debian], limit: 2, issues })
+    await listOpenCodeNextSqliteSessionsViaWorker({ dbPaths: [ubuntu, debian], limit: 2, issues })
     expect(issues).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ path: ubuntu, message: 'locked' }),
@@ -154,9 +154,9 @@ describe('OpenCode SQLite execution-host routes', () => {
     ['v1', parseOpenCodeSqliteSessionViaWorker, captureOpenCodeSqliteSessionViaWorker, undefined],
     [
       'v2',
-      parseOpenCode2SqliteSessionViaWorker,
-      captureOpenCode2SqliteSessionViaWorker,
-      'opencode2'
+      parseOpenCodeNextSqliteSessionViaWorker,
+      captureOpenCodeNextSqliteSessionViaWorker,
+      'opencode-next'
     ]
   ] as const)(
     'routes %s parse/capture to Linux and restores the caller identity',

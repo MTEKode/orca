@@ -466,7 +466,7 @@ it.each(['cold', 'warm'] as const)(
   }
 )
 
-it.each(['opencode', 'opencode2', 'omp'] as const)(
+it.each(['opencode', 'omp'] as const)(
   'keeps %s session-folder requests separate for explicit and historical readers',
   async (agent) => {
     const records = new Map(

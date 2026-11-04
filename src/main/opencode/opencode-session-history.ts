@@ -5,7 +5,7 @@ import {
 } from '../native-chat/structured-agent-cli-conversations'
 
 export const OPENCODE_SESSION_HISTORY: StructuredAgentSessionHistory = {
-  rowAgents: ['opencode', 'opencode2'],
+  rowAgents: ['opencode'],
   rowSessionId: (link) => link.handle.nativeId,
   parseResumeArgs: (args) =>
     // `--fork` continues into a new session, so it writes no owned one.

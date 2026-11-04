@@ -53,6 +53,7 @@ export function agentLaunchSurfaceFactory(
       agent,
       options,
       chatOptions,
+      mteRole,
       sessionId: requested,
       tabId,
       withoutPrompt,
@@ -111,6 +112,9 @@ export function agentLaunchSurfaceFactory(
           created.refusal.code,
           created.refusal.message
         )
+      }
+      if (mteRole) {
+        await getStructuredAgentSessionHost()?.deps.store.markMtePlanner(created.value.sessionId)
       }
       return {
         sessionId: created.value.sessionId,

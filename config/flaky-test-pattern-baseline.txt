@@ -365,13 +365,13 @@
 1 test-no-real-time-wait:src/main/native-chat/agent-session-wire/structured-agent-session-start-admission.test.ts
 1 test-no-real-time-wait:src/main/native-chat/agent-session-wire/structured-agent-session-stop-aborts-start.test.ts
 1 test-no-real-time-wait:src/main/native-chat/agent-session-wire/structured-agent-session-target-reconcile.test.ts
-1 test-no-real-time-wait:src/main/native-chat/transcript-opencode2-sqlite.test.ts
+1 test-no-real-time-wait:src/main/native-chat/transcript-opencode-next-sqlite.test.ts
 1 test-no-real-time-wait:src/main/native-chat/transcript-watch-error.test.ts
 2 test-no-real-time-wait:src/main/native-chat/transcript-watch-liveness.test.ts
 11 test-no-real-time-wait:src/main/native-chat/transcript-watch.test.ts
 1 test-no-real-time-wait:src/main/opencode/hook-plugin-legacy-tui-ownership.test.ts
 6 test-no-real-time-wait:src/main/opencode/hook-plugin-module-contract.test.ts
-1 test-no-real-time-wait:src/main/opencode/hook-plugin-opencode2-tui-ownership.test.ts
+1 test-no-real-time-wait:src/main/opencode/hook-plugin-opencode-next-tui-ownership.test.ts
 1 test-no-real-time-wait:src/main/opencode/opencode-startup-prompt-source.test.ts
 1 test-no-real-time-wait:src/main/orcad/orcad-bundled-runtime.integration.test.ts
 1 test-no-real-time-wait:src/main/orcad/orcad-daemon-teardown-linux.test.ts

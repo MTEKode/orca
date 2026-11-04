@@ -11,9 +11,17 @@ import type { PluginUpdatePolicySettings } from './plugins/catalog/plugin-update
 import type { PluginSystemSettings } from './plugins/plugin-system-settings'
 import type { WorktreeDeletionPreferences } from './worktree-deletion-preferences'
 import type { AgentPermissionGlobalSettings } from './tui-agent-permission-choice'
-import type { OpenCodeV2ChatSettings } from './opencode-v2-chat-settings'
 import type { TerminalColorOverrideGlobalSettings } from './terminal-color-overrides'
 import type { WindowMaterialSettings } from './window-material'
+
+/** Registers the orca-tools MCP bridge in agent launches; absent means on. */
+export type McpIntegrationsSettings = {
+  mcpIntegrationsEnabled?: boolean
+  /** Refresh a built code graph in the background when a workspace opens; absent means on. */
+  graphifyAutoUpdate?: boolean
+  /** Plain (non-secret) per-integration settings, e.g. the Godot plugin directory. */
+  mcpIntegrationConfig?: Partial<Record<string, Record<string, string>>>
+}
 
 /** Settings groups owned by their feature modules and composed into GlobalSettings. */
 export type GlobalSettingsBase = ClaudeAgentViewSettings &
@@ -23,7 +31,6 @@ export type GlobalSettingsBase = ClaudeAgentViewSettings &
   AgentPermissionGlobalSettings &
   ExternalConversationSettings &
   BrowserLinkOpeningSettings &
-  OpenCodeV2ChatSettings &
   BrowserExtensionGlobalSettings &
   PluginAppearanceSettings &
   EditorTypographySettings &
@@ -31,4 +38,5 @@ export type GlobalSettingsBase = ClaudeAgentViewSettings &
   PluginUpdatePolicySettings &
   PluginSystemSettings &
   TerminalColorOverrideGlobalSettings &
-  WindowMaterialSettings
+  WindowMaterialSettings &
+  McpIntegrationsSettings

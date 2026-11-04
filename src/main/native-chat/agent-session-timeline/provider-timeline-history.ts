@@ -21,6 +21,7 @@ export function isHistoricalProviderTimelineItem(
     !turn?.userItemId ||
     turn.userItemId === turnItem.itemId ||
     identity?.provider !== 'legacy' ||
+    // 'opencode2' is the retired chat id; journal item keys written under it must still match.
     !['grok', 'opencode', 'opencode2'].includes(identity.agent) ||
     identity.recordId !== `turn-lifecycle:${turn.turnId}`
   ) {

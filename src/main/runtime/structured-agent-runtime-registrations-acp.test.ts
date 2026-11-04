@@ -10,17 +10,12 @@ describe('ACP agents in the runtime registrations', () => {
   it('registers Grok beside Claude and Codex with its declared capabilities', () => {
     expect(
       STRUCTURED_AGENT_RUNTIME_REGISTRATIONS.map(({ definition }) => definition.agent)
-    ).toEqual([
-      'pi',
-      'codex',
-      'claude',
-      'grok',
-      'opencode',
-      'opencode2',
-      'omp',
-      'antigravity',
-      'opencode-v2'
-    ])
+    ).toEqual(['pi', 'codex', 'claude', 'grok', 'omp', 'antigravity', 'opencode'])
+    expect(
+      STRUCTURED_AGENT_RUNTIME_REGISTRATIONS.filter(
+        ({ definition }) => definition.agent === 'opencode'
+      )
+    ).toHaveLength(1)
     expect(structuredAgentRuntimeRegistration('codex')?.definition.capabilities.contextUsage).toBe(
       true
     )
@@ -39,20 +34,19 @@ describe('ACP agents in the runtime registrations', () => {
     })
   })
 
-  it('registers OpenCode on the ACP lane pinning its tagged account, with image prompts', () => {
+  it('registers OpenCode on the v2 HTTP lane pinning its tagged account, with image prompts', () => {
     const definition = structuredAgentRuntimeRegistration('opencode')?.definition
     expect(definition).toMatchObject({
       agent: 'opencode',
-      handleTransport: 'acp',
+      handleTransport: 'opencode-v2',
       accountLocatorKind: 'opencode',
-      capabilities: { imagePrompts: true, steering: 'queue', approvalEnforcement: 'orca' }
+      capabilities: { imagePrompts: true, steering: 'inject', approvalEnforcement: 'provider' }
     })
     expect(definition?.accountHomeVariable).toBeUndefined()
   })
 
-  it('asks `opencode` and `opencode2` their version at create', () => {
+  it('asks `opencode` its version at create', () => {
     expect(structuredAgentRuntimeRegistration('opencode')?.launchCheck).toBeDefined()
-    expect(structuredAgentRuntimeRegistration('opencode2')?.launchCheck).toBeDefined()
     // Grok runs whatever is installed: its create asks nothing of the binary.
     expect(structuredAgentRuntimeRegistration('grok')?.launchCheck).toBeUndefined()
   })
@@ -68,7 +62,7 @@ describe('ACP agents in the runtime registrations', () => {
     expect(registration?.launchCheck).toBeDefined()
   })
 
-  it.each(['omp', 'opencode2'])(
+  it.each(['omp', 'opencode'])(
     'opens %s as a structured chat only when it is set to chat',
     (agent) => {
       const placement = { agent, workspaceKind: 'git-worktree' } as const

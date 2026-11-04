@@ -169,7 +169,7 @@ describe('copying a chat conversation for the CLI', () => {
     }
   })
 
-  it.each(['opencode', 'opencode2'] as const)(
+  it.each(['opencode'] as const)(
     'refuses to copy a %s chat whose arguments route to a server, before starting OpenCode',
     async (agent) => {
       const spec = acpLaunchSpecFor(agent)!
