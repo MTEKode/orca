@@ -43,7 +43,7 @@ describe('MTE_PLANNER_PROMPT', () => {
       'check',
       'gate-create',
       'gate-resolve',
-      'orca skills get orchestration --full'
+      'orca skills get mte --full'
     ]) {
       expect(MTE_PLANNER_PROMPT).toContain(verb)
     }
@@ -53,16 +53,7 @@ describe('MTE_PLANNER_PROMPT', () => {
 
   it('asks the worker agent choice once and pins it for worker-start', () => {
     expect(MTE_PLANNER_PROMPT).toContain('Ask the user ONCE')
-    for (const agent of [
-      'claude',
-      'codex',
-      'cursor',
-      'antigravity',
-      'muse',
-      'zcode',
-      'opencode2',
-      'opencode'
-    ]) {
+    for (const agent of ['claude', 'codex', 'cursor', 'antigravity', 'muse', 'zcode', 'opencode']) {
       expect(MTE_PLANNER_PROMPT).toContain(agent)
     }
     expect(MTE_PLANNER_PROMPT).toContain('never ask again')
@@ -105,5 +96,12 @@ describe('plannerKickoffPrompt', () => {
     expect(kickoff.indexOf(MTE_PLANNER_PROMPT)).toBeLessThan(
       kickoff.indexOf('Ship the import refactor end to end')
     )
+  })
+
+  it('picks a light worker model from the live `orca agent models` list', () => {
+    for (const fragment of ['orca agent models', 'sonnet', 'Terra', 'VALIDATION_FAILED']) {
+      expect(MTE_PLANNER_PROMPT).toContain(fragment)
+    }
+    expect(MTE_PLANNER_PROMPT).not.toContain('| claude |')
   })
 })

@@ -31,5 +31,17 @@ export const AGENT_LAUNCH_COMMAND_SPECS: CommandSpec[] = [
       'orca agent launch --agent codex --model gpt-6-astra --effort high --prompt "Write the design doc" --json',
       'orca agent launch --agent claude --worktree path:/projects/myapp --focus'
     ]
+  },
+  {
+    path: ['agent', 'models'],
+    summary:
+      "List the models an agent can run, strongest first (live host listing, else Orca's static seed)",
+    usage: 'orca agent models --agent <id> [--worktree <selector>] [--json]',
+    allowedFlags: [...GLOBAL_FLAGS, 'agent', 'worktree'],
+    notes: [
+      'An empty list is not an error: the host reported no models (for example the opencode server is not running).',
+      '--worktree defaults to the workspace containing the current directory.'
+    ],
+    examples: ['orca agent models --agent claude --json', 'orca agent models --agent opencode']
   }
 ]
