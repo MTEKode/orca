@@ -59,7 +59,7 @@ export class OpenCodeV2Connection {
   // Keeps retries of one client id on one provider id so the 409 idempotency still holds.
   private readonly providerIds = new Map<string, string>()
 
-  private providerMessageId(clientMessageId: string): string {
+  providerMessageId(clientMessageId: string): string {
     let id = this.providerIds.get(clientMessageId)
     if (!id) {
       id = toOpenCodeMessageId(clientMessageId)

@@ -57,6 +57,35 @@ export function structuredRewindCut(
       kept: keptRows.map((item) => keptRow(journal, item, providerKey))
     }
   }
+  if (key?.provider === 'legacy' && key.agent === 'opencode' && target.provider === 'opencode') {
+    if (key.sessionId !== target.nativeId) {
+      return null
+    }
+    const boundary = items.findIndex((item) => item.itemId === target.itemId)
+    const keptTurns = new Set(items.slice(0, boundary).flatMap((item) => scopedTurn(item) ?? []))
+    const keptRows = items.filter((item, index) => {
+      const turn = scopedTurn(item)
+      return (
+        !omitted.has(item.itemId) &&
+        (index < boundary || (turn !== undefined && keptTurns.has(turn)))
+      )
+    })
+    // The newest kept user message is the history tail recovery compares against.
+    const keptUser = keptRows.findLast((item) => {
+      const identity = parseAgentJournalItemKey(providerKey(item.itemId))
+      return (
+        identity?.provider === 'legacy' &&
+        identity.agent === 'opencode' &&
+        journal.itemBody(item.itemId)?.kind === 'message'
+      )
+    })
+    const keptIdentity = keptUser && parseAgentJournalItemKey(providerKey(keptUser.itemId))
+    return {
+      beforeTurnId: key.recordId,
+      keptTurnId: keptIdentity?.provider === 'legacy' ? keptIdentity.recordId : null,
+      kept: keptRows.map((item) => keptRow(journal, item, providerKey))
+    }
+  }
   if (
     key?.provider !== 'codex' ||
     target.provider !== 'codex' ||

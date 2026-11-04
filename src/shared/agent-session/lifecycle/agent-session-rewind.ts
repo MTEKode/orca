@@ -112,7 +112,12 @@ export function savedRewindKeys(submissions: readonly AgentJournalSubmission[]) 
     hasSubmission: (itemId: string) => providerKeys.has(itemId),
     nativeIdentity: (itemId: string) => {
       const key = parseAgentJournalItemKey(providerKey(itemId))
-      return key?.provider === 'claude' || key?.provider === 'codex' ? key : null
+      // OpenCode accepted sends are keyed by the provider message id `/revert` takes.
+      return key?.provider === 'claude' ||
+        key?.provider === 'codex' ||
+        (key?.provider === 'legacy' && key.agent === 'opencode')
+        ? key
+        : null
     }
   }
 }

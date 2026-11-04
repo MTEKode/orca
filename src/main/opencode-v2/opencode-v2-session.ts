@@ -16,6 +16,8 @@ import {
 } from '../native-chat/agent-session-timeline/provider-timeline-plan'
 import type { JsonlRpcTimelineLane } from '../jsonl-rpc/timeline-lane'
 import type { AgentChatPermissionChoice } from '../../shared/agent-chat-permission-mode'
+import type { AgentJournalItemIdentity } from '../../shared/agent-session/journal/agent-session-journal-identity'
+import { OPENCODE_V2_AGENT_ID } from './opencode-v2-agent-definition'
 import { OpenCodeV2Connection } from './opencode-v2-connection'
 import type { OpenCodeV2Client } from './opencode-v2-client'
 import { EMPTY_OPENCODE_V2_AGENT_LISTING, type OpenCodeV2AgentListing } from './opencode-v2-agents'
@@ -210,6 +212,18 @@ export class OpenCodeV2Session {
     })
   }
 
+  /** Save the OpenCode message id so rewind can revert at it; without a live connection fall back to Orca's key. */
+  private acceptedIdentity(clientMessageId: string): AgentJournalItemIdentity {
+    return this.connection && this.providerSessionId
+      ? {
+          provider: 'legacy',
+          agent: OPENCODE_V2_AGENT_ID,
+          sessionId: this.providerSessionId,
+          recordId: this.connection.providerMessageId(clientMessageId)
+        }
+      : { provider: 'orca', clientMessageId }
+  }
+
   /** The lane admitted the send's journal row: delivery is proven to the host. */
   settleAccepted(clientMessageId: string): void {
     this.heldSends.delete(clientMessageId)
@@ -217,7 +231,7 @@ export class OpenCodeV2Session {
       sessionId: this.sessionId,
       clientMessageId,
       fence: this.input.fence,
-      outcome: { state: 'accepted', providerIdentity: { provider: 'orca', clientMessageId } }
+      outcome: { state: 'accepted', providerIdentity: this.acceptedIdentity(clientMessageId) }
     })
   }
 
