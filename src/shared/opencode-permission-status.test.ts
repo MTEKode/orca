@@ -15,7 +15,7 @@ describe('OpenCode-family permission request status', () => {
     state = createHookListenerState()
   })
 
-  const SOURCES = ['opencode', 'opencode2', 'mimo-code'] as const
+  const SOURCES = ['opencode', 'mimo-code'] as const
 
   function permissionEvent(
     source: (typeof SOURCES)[number],

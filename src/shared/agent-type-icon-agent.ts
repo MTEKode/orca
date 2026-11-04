@@ -10,7 +10,6 @@ const ICONABLE_AGENT_TYPES: Record<TerminalAgent, true> = {
   codex: true,
   autohand: true,
   opencode: true,
-  opencode2: true,
   'mimo-code': true,
   pi: true,
   omp: true,

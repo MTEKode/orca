@@ -446,7 +446,7 @@ describe('createDraftPasteReadyScanner', () => {
 })
 
 describe('resolvePasteReadySignal', () => {
-  it.each(['opencode', 'opencode2'] as const)(
+  it.each(['opencode'] as const)(
     '%s: only a paste that Enter follows waits for the agent row',
     (agent) => {
       expect(resolvePasteReadySignal(TUI_AGENT_CONFIG[agent], false)).toBe(

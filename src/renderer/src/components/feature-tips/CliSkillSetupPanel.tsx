@@ -1,6 +1,6 @@
 import { CliSkillSetupTerminal } from './CliSkillSetupTerminal'
 import { AgentSkillSetupPanel } from '@/components/settings/AgentSkillSetupPanel'
-import { ORCA_CLI_SKILL_NAME, ORCHESTRATION_SKILL_NAME } from '@/lib/agent-feature-skill-names'
+import { ORCA_CLI_SKILL_NAME, MTE_SKILL_NAME } from '@/lib/agent-feature-skill-names'
 import { useActiveProjectSkillRuntime } from '@/hooks/useActiveProjectSkillRuntime'
 import {
   GLOBAL_AGENT_SKILL_SOURCE_KINDS,
@@ -9,7 +9,7 @@ import {
 } from '@/hooks/useInstalledAgentSkills'
 import { translate } from '@/i18n/i18n'
 
-const CLI_TIP_SKILL_NAMES = [ORCA_CLI_SKILL_NAME, ORCHESTRATION_SKILL_NAME] as const
+const CLI_TIP_SKILL_NAMES = [ORCA_CLI_SKILL_NAME, MTE_SKILL_NAME] as const
 
 function BundledCliSkillSetupPanel(): React.JSX.Element {
   const activeSkillRuntime = useActiveProjectSkillRuntime()

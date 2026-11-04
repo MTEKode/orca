@@ -616,7 +616,6 @@ it('materializes legacy Codex into the system home and pins a verified selected 
 
 it.each([
   ['opencode', true],
-  ['opencode2', true],
   ['claude', false]
 ] as const)('lets a %s chat take over an `opencode` pane: %s', (agent, allowed) => {
   const sourcePath = () =>

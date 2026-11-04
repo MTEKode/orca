@@ -83,7 +83,6 @@ describe('one-time move of permission flags out of Arguments', () => {
       gemini: 'own',
       grok: 'own',
       opencode: 'own',
-      opencode2: 'own',
       omp: 'own'
     })
     // Terminals launch what they launched before the move.
@@ -637,12 +636,12 @@ describe('permission carrier ownership across save, reload and consumers', () =>
   })
 
   it('migrates agents without terminal flags to own, then retains explicit chat choices through Auto', () => {
-    const agents = ['antigravity', 'opencode', 'opencode2', 'omp'] as const
+    const agents = ['antigravity', 'opencode', 'omp'] as const
     const upgraded = {
       ...migrateAgentPermissionChoice(legacy({})),
       nativeChatPermissionMode: 'ask' as const
     }
-    for (const agent of ['opencode', 'opencode2', 'omp'] as const) {
+    for (const agent of ['opencode', 'omp'] as const) {
       expect(newChatPermissionModeForSettings(agent, upgraded)).toBe('own')
     }
     const ask = { ...upgraded, ...applyAllAgentsPermission(upgraded, 'ask') }
@@ -663,7 +662,7 @@ describe('permission carrier ownership across save, reload and consumers', () =>
     const own = { ...ask, agentPermissionOverrides: { omp: 'own' as const } }
     const auto = { ...own, ...applyAllAgentsPermission(own, 'auto') }
     expect(resolveAgentPermission('omp', auto).choice).toBe('own')
-    for (const agent of ['antigravity', 'opencode', 'opencode2'] as const) {
+    for (const agent of ['antigravity', 'opencode'] as const) {
       expect(newChatPermissionModeForSettings(agent, auto)).toBe('ask')
     }
   })

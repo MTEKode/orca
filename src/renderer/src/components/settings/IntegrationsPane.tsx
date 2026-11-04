@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+import { useAppStore } from '@/store'
 import {
   AzureDevOpsIntegrationCard,
   BitbucketIntegrationCard,
@@ -6,12 +8,19 @@ import {
   GitLabIntegrationCard
 } from './source-control-integration-cards'
 import { JiraIntegrationCard, LinearIntegrationCard } from './task-tracker-integration-cards'
+import { GoogleAiKeyCard } from './GoogleAiKeyCard'
+import { McpIntegrationCard } from './McpIntegrationCard'
+import { MCP_INTEGRATION_CATALOG } from '../../../../shared/mcp-integrations/catalog'
 import { useIntegrationProviderStatusRefresh } from './use-integration-provider-status-refresh'
 import { translate } from '@/i18n/i18n'
 export { getIntegrationsPaneSearchEntries } from './integrations-search'
 
 export function IntegrationsPane(): React.JSX.Element {
   useIntegrationProviderStatusRefresh()
+  const refreshMcpIntegrations = useAppStore((s) => s.refreshMcpIntegrations)
+  useEffect(() => {
+    void refreshMcpIntegrations()
+  }, [refreshMcpIntegrations])
 
   return (
     <div className="space-y-5">
@@ -52,6 +61,36 @@ export function IntegrationsPane(): React.JSX.Element {
           <LinearIntegrationCard />
           <JiraIntegrationCard />
         </div>
+      </section>
+      <section className="space-y-3">
+        <div className="space-y-1">
+          <h3 className="text-sm font-semibold text-foreground">
+            {translate(
+              'auto.components.settings.IntegrationsPane.mcpIntegrationsTitle',
+              'MCP integrations'
+            )}
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            {translate(
+              'auto.components.settings.IntegrationsPane.mcpIntegrationsDescription',
+              'Connect services Orca exposes to every agent as MCP tools (orca-tools server).'
+            )}
+          </p>
+        </div>
+        <div className="space-y-3">
+          {Object.values(MCP_INTEGRATION_CATALOG).map((definition) => (
+            <McpIntegrationCard key={definition.id} definition={definition} />
+          ))}
+        </div>
+      </section>
+      <section className="space-y-3">
+        <h3 className="text-sm font-semibold text-foreground">
+          {translate(
+            'auto.components.settings.IntegrationsPane.knowledgeGraphTitle',
+            'Knowledge graph'
+          )}
+        </h3>
+        <GoogleAiKeyCard />
       </section>
     </div>
   )

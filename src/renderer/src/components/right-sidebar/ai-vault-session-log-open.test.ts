@@ -127,7 +127,7 @@ describe('openAiVaultSessionLogInOrca', () => {
     const state = makeState()
     getStateMock.mockReturnValue(state)
     const session: Pick<AiVaultSession, 'agent' | 'filePath' | 'executionHostId'> = {
-      agent: 'opencode2',
+      agent: 'opencode',
       filePath: '/home/user/.local/share/opencode/opencode.db',
       executionHostId: 'local'
     }

@@ -164,6 +164,14 @@ export class AgentSessionRecordStore extends AgentSessionRecordTabs {
   compareAndSetConversationName: CompareAndSetConversationName = (id, name, expected, context) =>
     compareAndSetAgentSessionRecordName((apply) => this.mutate(id, apply), name, expected, context)
 
+  /** MTE planner marker: metadata, written unfenced right after the launch creates the session. */
+  markMtePlanner = (sessionId: string): Promise<AgentSessionRecord> =>
+    this.mutate(sessionId, (record) =>
+      record.mteRole === 'planner'
+        ? record
+        : { ...record, mteRole: 'planner', updatedAt: Date.now() }
+    )
+
   /** Launch history is metadata and does not contend with the writer lease. */
   pinLaunchDirectory = (sessionId: string, launchDirectory: string): Promise<AgentSessionRecord> =>
     this.mutate(sessionId, (record) =>

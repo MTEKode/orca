@@ -80,7 +80,7 @@ describe('AI Vault session continuation', () => {
     }
   )
 
-  it.each(['opencode', 'opencode2'] as const)(
+  it.each(['opencode'] as const)(
     'uses bounded %s vault previews for plain and synthetic database paths',
     (agent) => {
       for (const filePath of [

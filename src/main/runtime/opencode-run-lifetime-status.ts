@@ -20,7 +20,7 @@ function mayStillBecomeOpenCode(processName: string): boolean {
   return isShellProcess(processName) || OPENCODE_LAUNCHERS.has(base)
 }
 
-type OpenCodeAgent = 'opencode' | 'opencode2'
+type OpenCodeAgent = 'opencode'
 
 type Dependencies = {
   /** Local PTYs only: SSH and WSL foregrounds cannot be read on this host. */
@@ -50,10 +50,7 @@ export class OpenCodeRunLifetimeStatus {
   onCommandStarted(ptyId: string): void {
     // A new command proves the prior one ended even without OSC 133;D.
     this.onCommandFinished(ptyId, null)
-    if (
-      !this.deps.isObservablePty(ptyId) ||
-      (!this.deps.isStatusEnabled('opencode') && !this.deps.isStatusEnabled('opencode2'))
-    ) {
+    if (!this.deps.isObservablePty(ptyId) || !this.deps.isStatusEnabled('opencode')) {
       return
     }
     const state: CommandState = {
@@ -114,7 +111,7 @@ export class OpenCodeRunLifetimeStatus {
       if (!name || !this.isCurrent(ptyId, state)) {
         return
       }
-      if (agent !== 'opencode' && agent !== 'opencode2') {
+      if (agent !== 'opencode') {
         const retryDelay = FOREGROUND_COMMAND_READS.retryDelaysMs[retryIndex]
         if (retryDelay !== undefined && mayStillBecomeOpenCode(name)) {
           this.scheduleInspect(ptyId, state, retryDelay, retryIndex + 1)

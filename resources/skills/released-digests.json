@@ -13,6 +13,9 @@
       "da1df6e6dab96373add40b36a5dee7d6b29e5a92e0cf827466ea1ad364546961",
       "f49b29fb6b209956907688692387adcdc509fad344555f09badaf383106f5f39"
     ],
+    "graphify": [
+      "a772dcbee1c3cef7e093178e5cdd59177dd4f5a56af5c22baaa8baf95415004d"
+    ],
     "jira-tickets": [
       "5534da4000f4f4c87f7dbb263345a213068c0099a1440186adea865e17d90dfe"
     ],
@@ -32,6 +35,9 @@
     ],
     "mobile-fit-debug": [
       "84aa7cc18ed03df90f40c3c70650a0ad3df941a5e1f80870bd00cf6b9b7f7eab"
+    ],
+    "mte": [
+      "5e17f9e20c138539ee2b9a5f6205c87ea1641cacc05eb7d707c3db3b3ea6bea6"
     ],
     "orca-cli": [
       "1c7be78ed388d2c094967a007283ce73e95905a3d48effd858deef112583bab5",

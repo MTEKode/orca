@@ -28,10 +28,11 @@ import { isolatedScanRoots, writeJsonlFile } from './session-scanner-test-fixtur
 // Source fixtures exercise the real SQLite readers without a packaged worker bundle.
 vi.mock('./session-scanner-opencode-sqlite-worker-spawn', async () => {
   const { listOpenCodeSqliteSessions } = await import('./session-scanner-opencode-sqlite-list')
-  const { listOpenCode2SqliteSessions } = await import('./session-scanner-opencode2-sqlite-list')
+  const { listOpenCodeNextSqliteSessions } =
+    await import('./session-scanner-opencode-next-sqlite-list')
   const { parseOpenCodeSqliteSession } = await import('./session-scanner-opencode-sqlite')
   return {
-    listOpenCode2SqliteSessionsViaWorker: listOpenCode2SqliteSessions,
+    listOpenCodeNextSqliteSessionsViaWorker: listOpenCodeNextSqliteSessions,
     listOpenCodeSqliteSessionsViaWorker: listOpenCodeSqliteSessions,
     listZcodeSqliteSessionsViaWorker: (args: Parameters<typeof listOpenCodeSqliteSessions>[0]) =>
       listOpenCodeSqliteSessions({ ...args, agent: 'zcode' }),

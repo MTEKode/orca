@@ -11,7 +11,7 @@
     "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
   {
-    "provider": "opencode2",
+    "provider": "opencode",
     "version": "2.0.21",
     "exitCode": 0,
     "name": "QA2409-OPENCODE2-RECORDED-REAL-OUTPUT",

@@ -6,11 +6,11 @@ import type { AiVaultScanIssue } from '../../shared/ai-vault-types'
 import { captureOpenCodeSqliteSession } from './session-scanner-opencode-sqlite-capture'
 import { listOpenCodeSqliteSessions } from './session-scanner-opencode-sqlite-list'
 import { parseOpenCodeSqliteSession } from './session-scanner-opencode-sqlite'
-import { listOpenCode2SqliteSessions } from './session-scanner-opencode2-sqlite-list'
+import { listOpenCodeNextSqliteSessions } from './session-scanner-opencode-next-sqlite-list'
 import {
-  captureOpenCode2SqliteSession,
-  parseOpenCode2SqliteSession
-} from './session-scanner-opencode2-sqlite'
+  captureOpenCodeNextSqliteSession,
+  parseOpenCodeNextSqliteSession
+} from './session-scanner-opencode-next-sqlite'
 import type {
   OpenCodeSqliteWorkerRequest,
   OpenCodeSqliteWorkerResponse
@@ -32,8 +32,8 @@ export async function handleOpenCodeSqliteRequest(
     if (request.kind === 'list') {
       const issues: AiVaultScanIssue[] = []
       const candidates =
-        request.agent === 'opencode2'
-          ? await listOpenCode2SqliteSessions({
+        request.agent === 'opencode-next'
+          ? await listOpenCodeNextSqliteSessions({
               dbPaths: request.dbPaths,
               limit: request.limit ?? Infinity,
               issues,
@@ -50,8 +50,8 @@ export async function handleOpenCodeSqliteRequest(
     }
     if (request.kind === 'capture') {
       const capture =
-        request.agent === 'opencode2'
-          ? await captureOpenCode2SqliteSession(request)
+        request.agent === 'opencode-next'
+          ? await captureOpenCodeNextSqliteSession(request)
           : await captureOpenCodeSqliteSession({
               ...request,
               agent: request.agent === 'zcode' ? 'zcode' : 'opencode'
@@ -62,8 +62,8 @@ export async function handleOpenCodeSqliteRequest(
       throw new Error('Unsupported OpenCode SQLite request')
     }
     const parse = async () =>
-      request.agent === 'opencode2'
-        ? await parseOpenCode2SqliteSession({
+      request.agent === 'opencode-next'
+        ? await parseOpenCodeNextSqliteSession({
             dbPath: request.dbPath,
             sessionId: request.sessionId,
             platform: request.platform

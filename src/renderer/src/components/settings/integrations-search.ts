@@ -221,5 +221,57 @@ export const getIntegrationsPaneSearchEntries = createLocalizedCatalog(() => [
         'disconnect'
       )
     ]
+  },
+  {
+    title: translate('auto.components.settings.integrations.search.mcpTitle', 'MCP integrations'),
+    description: translate(
+      'auto.components.settings.integrations.search.mcpDescription',
+      'Connect services Orca exposes to every agent as MCP tools (orca-tools server).'
+    ),
+    keywords: [
+      ...translateSearchKeyword('auto.components.settings.integrations.search.mcpKeyword', 'mcp'),
+      ...translateSearchKeyword('auto.components.settings.integrations.search.mcpTools', 'tools'),
+      ...translateSearchKeyword(
+        'auto.components.settings.integrations.search.mcpPosthog',
+        'posthog'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.integrations.search.mcpBetterstack',
+        'better stack'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.integrations.search.mcpContext7',
+        'context7'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.integrations.search.mcpPixellab',
+        'pixellab'
+      )
+    ]
+  },
+  {
+    title: translate(
+      'auto.components.settings.integrations.search.graphKeyTitle',
+      'Google AI (Gemini) API key'
+    ),
+    description: translate(
+      'auto.components.settings.integrations.search.graphKeyDescription',
+      'Enables semantic extraction of docs when building knowledge graphs.'
+    ),
+    keywords: [
+      ...translateSearchKeyword('auto.components.settings.integrations.search.graphKw', 'graph'),
+      ...translateSearchKeyword(
+        'auto.components.settings.integrations.search.graphKwGemini',
+        'gemini'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.integrations.search.graphKwKg',
+        'knowledge graph'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.integrations.search.graphKwGoogle',
+        'google ai'
+      )
+    ]
   }
 ])

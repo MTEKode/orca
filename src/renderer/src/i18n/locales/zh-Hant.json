@@ -1353,7 +1353,6 @@
           "zcode_label": "ZCode",
           "d443a47995": "Prime Agent",
           "mimo_code_label": "MiMo Code",
-          "opencode2_label": "OpenCode 2",
           "codebuddy_label": "CodeBuddy",
           "qoder_cn_label": "Qoder CLI China",
           "jcode_label": "Jcode"
@@ -1917,8 +1916,6 @@
         "6a50cdcd7c": "語音",
         "0059bd17f3": "使代理程式能夠控制您電腦上的任何應用程式。",
         "b35e92364b": "電腦控制",
-        "cd50cec5d7": "透過 Orca 協調多個程式開發代理程式。",
-        "58a868e8e4": "編排",
         "7c79d3b7bf": "可選",
         "b1c2f8b0ac": "Claude、Codex、Gemini、OpenCode Go、MiniMax 和 Grok 的可選帳戶切換與用量設定。",
         "f70ac54d38": "AI 供應商帳戶",
@@ -8220,21 +8217,6 @@
           "3743ed080c": "設定命令",
           "f79084947b": "新應用程式"
         },
-        "OrchestrationPane": {
-          "52e0634e2c": "要求協調代理程式使用編排功能，進行交接、工作樹移交，並依序或平行執行子代理程式。",
-          "ae79504732": "如何使用",
-          "9bedd2a6e5": "使代理程式能夠透過 Orca 交接上下文並協調工作。",
-          "07641b9768": "編排技能",
-          "2aacdb0517": "協調程式設計代理程式進行交接、工作樹移交和子代理程式作業。",
-          "191ac34567": "代理程式編排",
-          "nestedWorkerDepthTitle": "巢狀工作者層數",
-          "nestedWorkerDepthDescription": "允許派出的工作者再派出工作者的最大層數。設為 1 時，代理程式樹維持單層：協調者可派出工作者，但工作者不能再派出其他工作者。",
-          "7bc082f4de": "複製安裝命令",
-          "workerAutoReleaseTitle": "自動關閉已完成的工作代理程式",
-          "workerAutoReleaseDescription": "除非選擇「保持開啟」，否則工作代理程式完成 2 分鐘後會關閉其終端機或聊天。如果它再次開始工作，完成後會重新計時 2 分鐘。",
-          "workerAutoReleaseKeywordClose": "關閉",
-          "workerAutoReleaseKeywordRelease": "釋放"
-        },
         "OrchestrationSetupCard": {
           "e7d2a5146c": "使代理程式能夠透過 Orca 交接上下文並協調工作。",
           "2777ff0fdc": "編排技能"
@@ -8707,8 +8689,6 @@
           "5063bb47a5": "語音",
           "7118953f14": "使代理程式能夠控制您電腦上的任何應用程式。",
           "c9841721cb": "電腦控制",
-          "475980f53d": "透過 Orca 協調多個程式開發代理程式。",
-          "00c3a7950d": "編排",
           "21f09426ea": "可選。 Orca 可與您現有的供應商登入配合使用；僅當您希望 Orca 幫助在帳戶之間切換時才新增帳戶。",
           "ad6c529693": "AI 供應商帳戶",
           "ec1ba547f7": "管理 AI 代理程式、設定預設代理程式並自訂命令。",
@@ -10473,9 +10453,7 @@
             "91fc8ab7e5": "協調",
             "13ba5c6cbd": "代理程式",
             "d86705ba77": "多代理程式",
-            "a7f76b4ca7": "編排",
-            "e05ff36753": "透過訊息傳遞、任務 DAG、派遣和決策關卡來協調多個程式設計代理程式。",
-            "c34045764e": "代理程式編排"
+            "a7f76b4ca7": "編排"
           }
         },
         "privacy": {

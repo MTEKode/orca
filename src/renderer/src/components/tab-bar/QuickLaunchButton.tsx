@@ -30,7 +30,11 @@ import { cn } from '@/lib/utils'
 import type { NewTabAgentMenuRow } from '@/lib/new-tab-agent-menu-rows'
 import { useNewTabAgentMenuRows, type NewTabAgentMenuModel } from './use-new-tab-agent-menu-rows'
 import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
-import { useMteFlowLaunchPrompt, type RunLaunchArgs } from './use-mte-flow-launch-prompt'
+import {
+  markMtePlannerSession,
+  useMteFlowLaunchPrompt,
+  type RunLaunchArgs
+} from './use-mte-flow-launch-prompt'
 import { chatUnavailableLabel, rowTitle, rowLabel, rowId } from './tab-agent-row-presentation'
 
 export type QuickLaunchAgentMenuItemsProps = {
@@ -125,6 +129,7 @@ export function useTabAgentMenuLaunch({
         )
         return false
       }
+      void markMtePlannerSession(mte, result.structuredSettlement, worktreeId)
       if (onPromptHandedOff && result.promptDeliveryResult) {
         const outcome = newAgentPromptOutcome({ delivery: result.promptDeliveryResult })
         onPromptHandedOff(outcome)

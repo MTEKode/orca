@@ -2,9 +2,9 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import Database from '../sqlite/sync-database'
 
-export async function writeOpenCode2SqliteFixture(root: string): Promise<string> {
-  const opencode2DbPath = join(root, 'opencode-next.db')
-  const db = new Database(opencode2DbPath)
+export async function writeOpenCodeNextSqliteFixture(root: string): Promise<string> {
+  const openCodeNextDbPath = join(root, 'opencode-next.db')
+  const db = new Database(openCodeNextDbPath)
   db.exec(`
     CREATE TABLE session_v2 (
       id TEXT PRIMARY KEY,
@@ -31,22 +31,22 @@ export async function writeOpenCode2SqliteFixture(root: string): Promise<string>
   db.prepare(
     `INSERT INTO session_v2
       (id, project_id, parent_id, slug, directory, title, version, time_created, time_updated)
-     VALUES (?, 'proj-1', NULL, 'slug', '/tmp/opencode2', 'OpenCode 2 title', '0.0.0-next-1', 1777634000000, 1777634001000)`
-  ).run('opencode2-session')
+     VALUES (?, 'proj-1', NULL, 'slug', '/tmp/opencode-next', 'OpenCode 2 title', '0.0.0-next-1', 1777634000000, 1777634001000)`
+  ).run('opencode-next-session')
   db.prepare(
     `INSERT INTO session_message (id, session_id, type, seq, time_created, time_updated, data)
-     VALUES (?, 'opencode2-session', 'user', 1, 1777634000500, 1777634000500, ?)`
+     VALUES (?, 'opencode-next-session', 'user', 1, 1777634000500, 1777634000500, ?)`
   ).run(
-    'msg_opencode2_1',
+    'msg_opencode_next_1',
     JSON.stringify({
-      id: 'msg_opencode2_1',
+      id: 'msg_opencode_next_1',
       type: 'user',
       text: 'OpenCode 2 title',
       time: { created: 1777634000500 }
     })
   )
   db.close()
-  return opencode2DbPath
+  return openCodeNextDbPath
 }
 
 export function isolatedScanRoots(root: string) {

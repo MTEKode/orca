@@ -358,6 +358,11 @@ import {
   WorkItemsList as WorkItemsListOfGitlabParams
 } from './gitlab-params'
 import {
+  GraphifyBuildParams,
+  GraphifyRepoParams,
+  GraphifySetGoogleAiKeyParams
+} from './graphify-params'
+import {
   HostedReviewCreate,
   HostedReviewCreationEligibility,
   HostedReviewForBranch
@@ -436,8 +441,16 @@ import {
   ManagedServerUpdate
 } from './managed-server-params'
 import {
+  McpIntegrationCallToolParams,
+  McpIntegrationIdParams,
+  McpIntegrationListToolsParams,
+  McpIntegrationSetApiKeyParams,
+  McpIntegrationSetConfigParams
+} from './mcp-integrations-params'
+import {
   MteDeployCheckConfigParams,
   MteDeployCheckReportParams,
+  MteMarkPlannerParams,
   MtePrepareWorkspaceParams
 } from './mte-params'
 import { NativeChatSession, NativeChatUnsubscribe } from './native-chat-params'
@@ -1159,6 +1172,14 @@ export const RPC_PARAMS_BY_METHOD = {
   'gitlab.updateMRState': UpdateMrState,
   'gitlab.workItemByPath': WorkItemByPath,
   'gitlab.workItemDetails': WorkItemDetailsOfGitlabParams,
+  'graphify.build': GraphifyBuildParams,
+  'graphify.cancel': GraphifyRepoParams,
+  'graphify.clearGoogleAiKey': null,
+  'graphify.log': GraphifyRepoParams,
+  'graphify.openViewer': GraphifyRepoParams,
+  'graphify.setGoogleAiKey': GraphifySetGoogleAiKeyParams,
+  'graphify.status': GraphifyRepoParams,
+  'graphify.update': GraphifyRepoParams,
   'host.declareClient': OrcadDeclareClientParamsSchema,
   'host.gitBash.isAvailable': null,
   'host.peerDesktops': OrcadPeerDesktopsParamsSchema,
@@ -1262,6 +1283,13 @@ export const RPC_PARAMS_BY_METHOD = {
   'managedServer.update': ManagedServerUpdate,
   'markdown.readTab': ActivateTab,
   'markdown.saveTab': SaveMarkdownTab,
+  'mcpIntegrations.callTool': McpIntegrationCallToolParams,
+  'mcpIntegrations.connectOAuth': McpIntegrationIdParams,
+  'mcpIntegrations.disconnect': McpIntegrationIdParams,
+  'mcpIntegrations.listTools': McpIntegrationListToolsParams,
+  'mcpIntegrations.setApiKey': McpIntegrationSetApiKeyParams,
+  'mcpIntegrations.setConfig': McpIntegrationSetConfigParams,
+  'mcpIntegrations.status': null,
   'mobileRelay.hosts.list': null,
   'mobileRelay.hosts.worktrees': MobileRelayHostWorktreesParamsSchema,
   'mobileRelay.projectSections': null,
@@ -1270,6 +1298,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'mobileWeb.bundle.range': MobileWebBundleChunkParamsSchema,
   'mte.deployCheckConfig': MteDeployCheckConfigParams,
   'mte.deployCheckReport': MteDeployCheckReportParams,
+  'mte.markPlanner': MteMarkPlannerParams,
   'mte.prepareWorkspace': MtePrepareWorkspaceParams,
   'nativeChat.readSession': NativeChatSession,
   'nativeChat.subscribe': NativeChatSession,

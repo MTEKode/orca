@@ -427,7 +427,7 @@ it('preserves case-distinct conversation heads and saved homes across the shared
       admitResumeSpawn(
         runtime,
         {
-          launchAgent: 'opencode2',
+          launchAgent: 'opencode',
           resumeOrigin: 'saved',
           resumeProviderSession: { key: 'session_id', id }
         },

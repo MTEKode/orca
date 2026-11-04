@@ -21,9 +21,7 @@ export async function detectOpenCodeCredentialBackend(
   cwd = process.cwd()
 ): Promise<OpenCodeCredentialBackend | null> {
   // The execution host's default CLI owns this lookup; table presence proves neither backend.
-  const program =
-    (await resolveCommandOnLocalPath('opencode', { env: environment, cwd })) ??
-    (await resolveCommandOnLocalPath('opencode2', { env: environment, cwd }))
+  const program = await resolveCommandOnLocalPath('opencode', { env: environment, cwd })
   if (!program) {
     return null
   }

@@ -83,7 +83,6 @@ function resumableStateFactoryFor(
     case 'kiro':
     case 'muse':
     case 'opencode':
-    case 'opencode2':
     case 'zcode':
     case 'rovo':
       return null

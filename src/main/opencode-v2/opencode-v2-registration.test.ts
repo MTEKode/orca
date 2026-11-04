@@ -8,12 +8,6 @@ import {
   structuredAgentRuntimeRegistration
 } from '../runtime/structured-agent-runtime-registrations'
 import { OPENCODE_V2_AGENT_ID } from './opencode-v2-agent-definition'
-import {
-  installOpenCodeV2ChatGate,
-  isOpenCodeV2ChatEnabled,
-  isOpenCodeV2ChatEnabledFor,
-  structuredAgentVisibleWithSettings
-} from './opencode-v2-gate'
 
 describe('opencode-v2 registration', () => {
   it('registers the agent in the runtime catalog and registrations', () => {
@@ -21,6 +15,11 @@ describe('opencode-v2 registration', () => {
       (candidate) => candidate.metadata.definition.agent === OPENCODE_V2_AGENT_ID
     )
     expect(entry?.kind).toBe('opencode-v2')
+    // One chat entry: the ACP specs for opencode/opencode2 are excluded from the catalog.
+    const ids = STRUCTURED_AGENT_RUNTIME_CATALOG.map((c) => c.metadata.definition.agent)
+    expect(ids.filter((id) => id === 'opencode')).toHaveLength(1)
+    expect(ids).not.toContain('opencode2')
+    expect(ids).not.toContain('opencode-v2')
     const registration = structuredAgentRuntimeRegistration(OPENCODE_V2_AGENT_ID)
     expect(registration).toBeTruthy()
     expect(typeof registration?.createAdapter).toBe('function')
@@ -47,38 +46,7 @@ describe('opencode-v2 registration', () => {
   })
 
   it('labels the agent for pickers', () => {
-    expect(formatAgentTypeLabel(OPENCODE_V2_AGENT_ID)).toBe('OpenCode v2')
-  })
-})
-
-describe('opencode-v2 gating', () => {
-  it('hides the agent while the experimental setting is off and shows it when on', () => {
-    expect(structuredAgentVisibleWithSettings(OPENCODE_V2_AGENT_ID, null)).toBe(false)
-    expect(
-      structuredAgentVisibleWithSettings(OPENCODE_V2_AGENT_ID, {
-        experimentalOpenCodeV2Chat: false
-      })
-    ).toBe(false)
-    expect(
-      structuredAgentVisibleWithSettings(OPENCODE_V2_AGENT_ID, { experimentalOpenCodeV2Chat: true })
-    ).toBe(true)
-    // Every other agent stays visible regardless of the flag.
-    expect(structuredAgentVisibleWithSettings('claude', null)).toBe(true)
-    expect(
-      structuredAgentVisibleWithSettings('opencode2', { experimentalOpenCodeV2Chat: false })
-    ).toBe(true)
-  })
-
-  it('defaults the module gate closed until installed', () => {
-    expect(isOpenCodeV2ChatEnabledFor(undefined)).toBe(false)
-    expect(isOpenCodeV2ChatEnabled()).toBe(false)
-    installOpenCodeV2ChatGate(() => ({ experimentalOpenCodeV2Chat: true }))
-    expect(isOpenCodeV2ChatEnabled()).toBe(true)
-    installOpenCodeV2ChatGate(() => {
-      throw new Error('store closed')
-    })
-    expect(isOpenCodeV2ChatEnabled()).toBe(false)
-    installOpenCodeV2ChatGate(() => null)
+    expect(formatAgentTypeLabel(OPENCODE_V2_AGENT_ID)).toBe('OpenCode')
   })
 })
 

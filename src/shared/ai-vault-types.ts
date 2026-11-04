@@ -18,7 +18,6 @@ export const AI_VAULT_AGENTS = [
   'rovo',
   'copilot',
   'opencode',
-  'opencode2',
   'zcode',
   'grok',
   'openclaw',
@@ -52,8 +51,7 @@ export function isAiVaultAgent(value: unknown): value is AiVaultAgent {
 
 /** The agents Session History may list `agent`'s sessions under. */
 export function aiVaultHistoryAgents(agent: AiVaultAgent): AiVaultAgent[] {
-  // One OpenCode store holds both versions' sessions, and the scanner labels current ones `opencode2`.
-  return agent === 'opencode' || agent === 'opencode2' ? ['opencode', 'opencode2'] : [agent]
+  return [agent]
 }
 
 export type AiVaultScope = 'workspace' | 'project' | 'all'
@@ -78,7 +76,6 @@ export const AI_VAULT_AGENT_LABELS = {
   rovo: 'Rovo Dev',
   copilot: 'GitHub Copilot',
   opencode: 'OpenCode',
-  opencode2: 'OpenCode 2',
   zcode: 'ZCode',
   grok: 'Grok',
   openclaw: 'OpenClaw',

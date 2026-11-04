@@ -154,7 +154,7 @@ export function buildPtyHostEnv(
       }
       // OpenCode must load status hooks from its guest-resident overlay.
       const opencodeOverlayDir = openCodeAgent
-        ? wslHookRelayManager.getOpenCodeOverlayDir(distro, openCodeAgent)
+        ? wslHookRelayManager.getOpenCodeOverlayDir(distro)
         : null
       if (opencodeOverlayDir) {
         baseEnv.OPENCODE_CONFIG_DIR = opencodeOverlayDir

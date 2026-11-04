@@ -227,7 +227,7 @@ describe('structured chat naming runtime', () => {
     const record = agentSessionRecordFixture()
     record.provider = provider
     record.accountHome =
-      provider === 'opencode' || provider === 'opencode2'
+      provider === 'opencode'
         ? { kind: 'opencode', locator: { kind: 'unmanaged' } }
         : {
             variable:

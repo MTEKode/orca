@@ -39,8 +39,8 @@ function isSessionHandle(handle: string): boolean {
 function dispatchIdentityLines(params: PreambleParams): string {
   return [
     isSessionHandle(params.coordinatorHandle)
-      ? `Your coordinator's Orca session ID is: ${params.coordinatorHandle}`
-      : `Your coordinator's terminal handle is: ${params.coordinatorHandle}`,
+      ? `Your planner's Orca session ID is: ${params.coordinatorHandle}`
+      : `Your planner's terminal handle is: ${params.coordinatorHandle}`,
     `Your task ID is: ${params.taskId}`,
     ...(isSessionHandle(params.workerHandle)
       ? [`Your Orca session ID is: ${params.workerHandle}`]
@@ -64,7 +64,7 @@ export function buildDispatchPreamble(params: PreambleParams): string {
   const header = `You are working inside Orca, a multi-agent IDE. You are a dispatched worker.
 ${dispatchIdentityLines(params)}
 
-The coordinator cannot see this ${surface}, so reach it only with the \`${cli} orchestration\`
+The planner cannot see this ${surface}, so reach it only with the \`${cli} orchestration\`
 commands below; a question or result left only in this ${surface} never gets to it.
 Don't post to Slack, GitHub, or other channels during the run.
 Do only this task, yourself: no subagents or helper workers unless the task asks.
@@ -79,12 +79,12 @@ ${
 
 `
     : ''
-}  # Ask the coordinator, then end your turn; Orca wakes you with the answer.
+}  # Ask the planner, then end your turn; Orca wakes you with the answer.
   # Never use a local question prompt such as AskUserQuestion; the
-  # coordinator cannot see or answer it.
+  # planner cannot see or answer it.
   ${cli} orchestration ask --from ${params.workerHandle} --question "<your question>"
 
-  # Blocked, and the coordinator must act before you can continue:
+  # Blocked, and the planner must act before you can continue:
   ${cli} orchestration send --from ${params.workerHandle} --type escalation --subject "Blocked: <reason>" --body "<details>" --task-id ${params.taskId} --dispatch-id ${params.dispatchId}
 
   # Finish: send exactly once. --body is three sentences: what you did, what
@@ -176,7 +176,7 @@ function buildSubDispatchSection(cli: string, workerHandle: string): string {
 === SUB-DISPATCH ===
 If the task asks for helper workers, start them here. They report to you: their
 questions, escalations, and worker_done arrive in your own \`check\`, next to
-your coordinator's mail.
+your planner's mail.
 
 \`\`\`sh
   ${cli} orchestration worker-start --from ${workerHandle} --spec "<sub-task>" --worktree current --agent <agent> --json
@@ -220,7 +220,7 @@ subjects on ${drift.base} NOT in your worktree:
 ${subjects}
 
 If any look relevant to your task, either pull them in (\`git pull --rebase
-${drift.base}\` or equivalent) or escalate to the coordinator before starting.
+${drift.base}\` or equivalent) or escalate to the planner before starting.
 
 ---`
 }

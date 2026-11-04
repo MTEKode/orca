@@ -59,9 +59,9 @@ export const SKILL_COMMAND_SPECS: CommandSpec[] = [
     ],
     examples: [
       'orca skills get orca-cli',
-      'orca skills get orchestration --full',
-      'orca skills get orchestration --references',
-      'orca skills get orchestration --reference recovery-and-cleanup'
+      'orca skills get mte --full',
+      'orca skills get mte --references',
+      'orca skills get mte --reference recovery-and-cleanup'
     ]
   },
   {
@@ -90,7 +90,7 @@ export const SKILL_COMMAND_SPECS: CommandSpec[] = [
       'Omit --skill and --all to list installable skill names.'
     ],
     examples: [
-      'orca skills install --skill orca-cli --skill orchestration',
+      'orca skills install --skill orca-cli --skill mte',
       'orca skills install --skill orca-cli --local',
       'orca skills install --skill orca-cli --agent claude,codex',
       'orca skills install --all --dry-run'

@@ -8,8 +8,8 @@ import { wslGatedStat } from '../native-chat/wsl-transcript-fs-access'
 import { parseAgentSessionFile } from './session-scanner-agent-parser'
 import { withFullFirstUserPromptCapture } from './session-scanner-first-user-prompt-capture'
 import {
+  parseOpenCodeNextSqliteSessionViaWorker,
   parseOpenCodeSqliteSessionViaWorker,
-  parseOpenCode2SqliteSessionViaWorker,
   parseZcodeSqliteSessionViaWorker
 } from './session-scanner-opencode-sqlite-worker-spawn'
 import { splitOpenCodeSqliteCandidate } from './session-scanner-opencode-sqlite-paths'
@@ -72,13 +72,16 @@ async function parseSessionForFullFirstUserPrompt(args: {
   codexHome: string | null
 }): Promise<AiVaultSession | null> {
   // Full capture must run in the actual reader, including WSL guests.
-  if (args.agent === 'opencode' || args.agent === 'opencode2' || args.agent === 'zcode') {
-    const parse =
-      args.agent === 'opencode2'
-        ? parseOpenCode2SqliteSessionViaWorker
-        : args.agent === 'zcode'
-          ? parseZcodeSqliteSessionViaWorker
-          : parseOpenCodeSqliteSessionViaWorker
+  if (args.agent === 'opencode' || args.agent === 'zcode') {
+    type ParseRequest = Parameters<typeof parseOpenCodeSqliteSessionViaWorker>[0]
+    const classic =
+      args.agent === 'zcode'
+        ? parseZcodeSqliteSessionViaWorker
+        : parseOpenCodeSqliteSessionViaWorker
+    // One store holds both schemas; the classic reader returns null for sessions it cannot read.
+    const parse = async (request: ParseRequest) =>
+      (await classic(request)) ??
+      (args.agent === 'opencode' ? parseOpenCodeNextSqliteSessionViaWorker(request) : null)
     const fromSynthetic = splitOpenCodeSqliteCandidate(args.filePath, args.agent)
     if (fromSynthetic) {
       return parse({

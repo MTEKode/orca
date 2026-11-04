@@ -342,7 +342,6 @@ describe('restartWslRelay', () => {
       claudeAgentViewDir: '/av',
       claudeConfigDir: '/cc',
       opencodeOverlayDir: '/oc',
-      opencode2OverlayDir: '/oc2',
       piAgentDir: '/pi',
       ompStatusExtension: '/omp',
       launchKinds: new Set(['pi', 'omp'])

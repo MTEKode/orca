@@ -233,8 +233,7 @@ describe('adopted conversation ownership', () => {
 
   // OpenCode variants share one conversation namespace; serialized adoption must reject the second writer.
   it.each([
-    ['opencode', 'opencode2', true],
-    ['opencode2', 'opencode', true],
+    ['opencode', 'opencode', true],
     ['grok', 'omp', false]
   ] as const)(
     'an %s adoption, then an %s one of the same id: refused %s',

@@ -94,7 +94,7 @@ async function fixture(
   })
   const connection = createOpenCodeAcpConnection(
     {
-      command: 'opencode2',
+      command: 'opencode',
       args: ['acp'],
       cwd: directory,
       env: { XDG_DATA_HOME: dataHome },
@@ -174,7 +174,7 @@ describe('OpenCode ACP native failure recovery', () => {
   )
 
   it('journals the recovered failure through the full chat adapter and accepts the next send', async () => {
-    const spec = acpLaunchSpecFor('opencode2')
+    const spec = acpLaunchSpecFor('opencode')
     if (!spec) {
       throw new Error('OpenCode 2 launch specification missing')
     }

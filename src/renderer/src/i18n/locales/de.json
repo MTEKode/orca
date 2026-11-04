@@ -1403,7 +1403,6 @@
           "zcode_label": "ZCode",
           "d443a47995": "Prime Agent",
           "mimo_code_label": "MiMo Code",
-          "opencode2_label": "OpenCode 2",
           "codebuddy_label": "CodeBuddy",
           "qoder_cn_label": "Qoder CLI China",
           "jcode_label": "Jcode"
@@ -1967,8 +1966,6 @@
         "6a50cdcd7c": "Spracheingabe",
         "0059bd17f3": "Agenten die Steuerung beliebiger Apps auf dem Computer ermöglichen.",
         "b35e92364b": "Computersteuerung",
-        "cd50cec5d7": "Mehrere Coding-Agenten über Orca koordinieren.",
-        "58a868e8e4": "Orchestrierung",
         "7c79d3b7bf": "Optional",
         "b1c2f8b0ac": "Optional: Konten wechseln und Nutzungsstatistiken für Claude, Codex, Gemini, OpenCode Go, MiniMax und Grok einrichten.",
         "f70ac54d38": "Konten bei KI-Anbietern",
@@ -8397,21 +8394,6 @@
           "3743ed080c": "Befehl festlegen",
           "f79084947b": "Neue App"
         },
-        "OrchestrationPane": {
-          "52e0634e2c": "Einen koordinierenden Agenten auffordern, die Orchestrierung für Kontextübergaben, Worktree-Übergaben und sequenzielle oder parallele Unteragenten zu verwenden.",
-          "ae79504732": "Verwendung",
-          "9bedd2a6e5": "Ermöglicht Agenten, Kontext zu übergeben und die Arbeit über Orca zu koordinieren.",
-          "07641b9768": "Orchestrierungs-Skill",
-          "2aacdb0517": "Coding-Agenten bei Kontextübergaben, Worktree-Übergaben und der Arbeit von Unteragenten koordinieren.",
-          "191ac34567": "Agenten-Orchestrierung",
-          "nestedWorkerDepthTitle": "Verschachtelungstiefe der Arbeitsagenten",
-          "nestedWorkerDepthDescription": "Wie viele Generationen beauftragter Arbeitsagenten eigene Arbeitsagenten starten dürfen. Bei 1 bleibt der Agentenbaum flach: Ein Koordinator beauftragt Arbeitsagenten, die selbst keine weiteren beauftragen.",
-          "7bc082f4de": "Installationsbefehl kopieren",
-          "workerAutoReleaseTitle": "Abgeschlossene Worker automatisch schließen",
-          "workerAutoReleaseDescription": "Schließt das Terminal oder den Chat eines Workers 2 Minuten nach Abschluss, sofern du nicht „Offen halten“ wählst. Wenn er erneut arbeitet, beginnen die 2 Minuten nach dem Abschluss von vorn.",
-          "workerAutoReleaseKeywordClose": "schließen",
-          "workerAutoReleaseKeywordRelease": "freigeben"
-        },
         "OrchestrationSetupCard": {
           "e7d2a5146c": "Ermöglicht Agenten, Kontext zu übergeben und die Arbeit über Orca zu koordinieren.",
           "2777ff0fdc": "Orchestrierungs-Skill"
@@ -8884,8 +8866,6 @@
           "5063bb47a5": "Spracheingabe",
           "7118953f14": "Agenten die Steuerung beliebiger Apps auf dem Computer ermöglichen.",
           "c9841721cb": "Computersteuerung",
-          "475980f53d": "Mehrere Coding-Agenten über Orca koordinieren.",
-          "00c3a7950d": "Orchestrierung",
           "21f09426ea": "Optional. Orca nutzt vorhandene Anmeldungen bei Anbietern. Konten nur hinzufügen, wenn Orca beim Wechsel zwischen ihnen helfen soll.",
           "ad6c529693": "Konten bei KI-Anbietern",
           "ec1ba547f7": "KI-Agenten verwalten, einen Standard festlegen und Befehle anpassen.",
@@ -10650,9 +10630,7 @@
             "91fc8ab7e5": "Koordination",
             "13ba5c6cbd": "Agenten",
             "d86705ba77": "Mehrere Agenten",
-            "a7f76b4ca7": "Orchestrierung",
-            "e05ff36753": "Mehrere Coding-Agenten über Nachrichten, Aufgaben-DAGs, Zuweisungen und Entscheidungspunkte koordinieren.",
-            "c34045764e": "Agenten-Orchestrierung"
+            "a7f76b4ca7": "Orchestrierung"
           }
         },
         "privacy": {

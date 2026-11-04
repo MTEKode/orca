@@ -148,9 +148,9 @@ describe('workspaceMayOverrideDefaultModel', () => {
   it('reads OpenCode 2 project config through the same layers as OpenCode', async () => {
     const worktree = join(root, 'oc2-plain')
     write(join(worktree, '.git'), 'gitdir: /elsewhere')
-    expect(await mayOverride('opencode2', worktree, null)).toBe(false)
+    expect(await mayOverride('opencode', worktree, null)).toBe(false)
     write(join(worktree, 'opencode.json'), '{"model":"x/y"}')
-    expect(await mayOverride('opencode2', worktree, null)).toBe(true)
+    expect(await mayOverride('opencode', worktree, null)).toBe(true)
   })
 
   it.each([

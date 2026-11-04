@@ -91,7 +91,7 @@ describe('addOrcaWslInteropEnv', () => {
       ORCA_WORKTREE_ID: 'repo::\\\\wsl.localhost\\Ubuntu\\home\\jin\\repo',
       ORCA_AGENT_LAUNCH_TOKEN: 'launch-secret',
       ORCA_AGENT_LAUNCH: 'launch-secret',
-      ORCA_OPENCODE_AGENT: 'opencode2',
+      ORCA_OPENCODE_AGENT: 'opencode',
       ORCA_AGENT_HOOK_PORT: '4567',
       ORCA_AGENT_HOOK_TOKEN: 'token',
       ORCA_AGENT_HOOK_ENV: 'dev',

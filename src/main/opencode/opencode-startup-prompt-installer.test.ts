@@ -75,7 +75,7 @@ describe('OpenCode startup prompt installer', () => {
     expect(readFileSync(join(foreign, 'untouched.txt'), 'utf8')).toBe('foreign bytes')
     expect(existsSync(join(foreign, 'plugins'))).toBe(false)
   })
-  it.each(['opencode', 'opencode2'] as const)(
+  it.each(['opencode'] as const)(
     'keeps real source provenance and composes the %s status and prompt in one final overlay',
     (agent) => {
       const source = join(root, 'real-source')

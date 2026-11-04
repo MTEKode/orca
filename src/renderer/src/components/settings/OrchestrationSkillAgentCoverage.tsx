@@ -7,7 +7,7 @@ import {
   getOrchestrationSkillAgentStatuses,
   sortOrchestrationAgents
 } from '@/lib/orchestration-skill-coverage'
-import { ORCHESTRATION_SKILL_NAME } from '@/lib/agent-feature-skill-names'
+import { MTE_SKILL_NAME } from '@/lib/agent-feature-skill-names'
 import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
 
@@ -114,7 +114,7 @@ export function OrchestrationSkillAgentCoverage(props: {
     props.plan ? undefined : { kind: 'local' }
   )
   const loading = !props.plan && (skillsLoading || agentsLoading || detectedIds === null)
-  const ops = props.plan?.skills.find((skill) => skill.name === ORCHESTRATION_SKILL_NAME)?.ops ?? []
+  const ops = props.plan?.skills.find((skill) => skill.name === MTE_SKILL_NAME)?.ops ?? []
   const plannedAgents = sortOrchestrationAgents([...new Set(ops.flatMap((op) => op.agents))])
   const shared = ops.find((op) => op.role === 'shared')?.observed
   const readableShared = shared?.kind === 'folder' && shared.skillDigest !== null

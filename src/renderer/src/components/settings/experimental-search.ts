@@ -6,7 +6,6 @@ import { getNewWorktreeCardStyleSearchEntry } from './new-worktree-card-style-se
 import { getEphemeralVmsSearchEntry } from './ephemeral-vms-search'
 import { getBrowserExtensionsExperimentalSearchEntry } from './browser-extensions-experimental-search'
 import { getWslHostsExperimentalSearchEntry } from './wsl-hosts-experimental-search'
-import { getOrchestrationPanelExperimentalSearchEntry } from './orchestration-panel-experimental-search'
 
 export const getExperimentalPaneSearchEntries = createLocalizedCatalog(
   (): SettingsSearchEntry[] => [
@@ -181,41 +180,8 @@ export const getExperimentalPaneSearchEntries = createLocalizedCatalog(
       ]
     },
     getNewWorktreeCardStyleSearchEntry(),
-    {
-      title: translate(
-        'auto.components.settings.experimental.search.opencodeV2Chat.title',
-        'OpenCode v2 chat'
-      ),
-      description: translate(
-        'auto.components.settings.experimental.search.opencodeV2Chat.description',
-        'Chat with OpenCode through its v2 HTTP service, with mid-turn steering and native compaction.'
-      ),
-      keywords: [
-        ...translateSearchKeyword(
-          'auto.components.settings.experimental.search.0d24759f14',
-          'experimental'
-        ),
-        ...translateSearchKeyword(
-          'auto.components.settings.experimental.search.opencodeV2Chat.opencode',
-          'opencode'
-        ),
-        ...translateSearchKeyword(
-          'auto.components.settings.experimental.search.opencodeV2Chat.chat',
-          'chat'
-        ),
-        ...translateSearchKeyword(
-          'auto.components.settings.experimental.search.opencodeV2Chat.http',
-          'http'
-        ),
-        ...translateSearchKeyword(
-          'auto.components.settings.experimental.search.opencodeV2Chat.agent',
-          'agent'
-        )
-      ]
-    },
     getEphemeralVmsSearchEntry(),
     getBrowserExtensionsExperimentalSearchEntry(),
-    getOrchestrationPanelExperimentalSearchEntry(),
     // Index WSL toggles only on Windows desktops that expose them.
     ...(typeof window !== 'undefined' && window.api?.runtimeEnvironments?.wslHosts
       ? [getWslHostsExperimentalSearchEntry()]
@@ -256,12 +222,6 @@ export function getExperimentalSearchEntry() {
         'New card style'
       )
     ),
-    opencodeV2Chat: findEntry(
-      translate(
-        'auto.components.settings.experimental.search.opencodeV2Chat.title',
-        'OpenCode v2 chat'
-      )
-    ),
     ephemeralVms: findEntry(
       translate('auto.components.settings.ephemeralVms.search.cloudVmTitle', 'Cloud VM')
     ),
@@ -269,12 +229,6 @@ export function getExperimentalSearchEntry() {
       translate(
         'auto.components.settings.experimental.search.browserExtensions.title',
         'Browser extensions'
-      )
-    ),
-    orchestrationPanel: findEntry(
-      translate(
-        'auto.components.settings.experimental.search.orchestrationPanel.title',
-        'Orchestration panel'
       )
     )
   } as const

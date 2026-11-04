@@ -106,7 +106,7 @@ describe('pty-bound agent draft readiness budget', () => {
     expect(onUnconfirmedDelivery).not.toHaveBeenCalled()
   })
 
-  it.each(['opencode', 'opencode2'] as const)(
+  it.each(['opencode'] as const)(
     'waits for the %s agent row only when Enter follows the paste',
     async (agent) => {
       const promise = pasteDraftToAgentPtyWhenReady({
@@ -126,9 +126,7 @@ describe('pty-bound agent draft readiness budget', () => {
 
   it.each([
     ['opencode', true, 'opencode-agent-row'],
-    ['opencode2', true, 'opencode-agent-row'],
-    ['opencode', false, 'render-cursor-after-bracketed-paste'],
-    ['opencode2', false, 'render-cursor-after-bracketed-paste']
+    ['opencode', false, 'render-cursor-after-bracketed-paste']
   ] as const)('a tab-bound %s paste with submit %s waits on %s', async (agent, submit, signal) => {
     const promise = pasteDraftWhenAgentReady({
       tabId: 'tab-1',

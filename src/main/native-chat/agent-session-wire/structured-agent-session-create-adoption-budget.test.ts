@@ -206,7 +206,7 @@ it('uses current selected ancestors, then refuses retargeted/foreign sources bef
   expect(await fixture.rig.host.create(CALLER, params)).toMatchObject({ ok: true, replayed: true })
 })
 
-it.each(['opencode', 'opencode2'] as const)(
+it.each(['opencode'] as const)(
   'commits %s actual database history using the same linked-cwd admission',
   async (agent) => {
     const definition = structuredAgentRuntimeRegistration(agent)!.definition

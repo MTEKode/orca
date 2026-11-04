@@ -4,7 +4,7 @@ import { readAiVaultFirstUserPrompt } from './session-first-user-prompt-read'
 const reader = vi.hoisted(() => ({ v1: vi.fn(), v2: vi.fn() }))
 vi.mock('./session-scanner-opencode-sqlite-worker-spawn', () => ({
   parseOpenCodeSqliteSessionViaWorker: reader.v1,
-  parseOpenCode2SqliteSessionViaWorker: reader.v2
+  parseOpenCodeNextSqliteSessionViaWorker: reader.v2
 }))
 
 beforeEach(() => {
@@ -46,9 +46,10 @@ it('keeps a WSL database address intact for host routing', async () => {
 })
 
 it('supports the v2 schema through the same full-prompt worker contract', async () => {
+  reader.v1.mockResolvedValue(null)
   expect(
     await readAiVaultFirstUserPrompt({
-      agent: 'opencode2',
+      agent: 'opencode',
       filePath: '/home/me/opencode.db',
       sessionId: 'channel/session-1'
     })
@@ -59,7 +60,7 @@ it('supports the v2 schema through the same full-prompt worker contract', async 
       fullFirstUserPrompt: true
     })
   )
-  expect(reader.v1).not.toHaveBeenCalled()
+  expect(reader.v1).toHaveBeenCalledOnce()
 })
 
 it('does not substitute local history for a remote session', async () => {

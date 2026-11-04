@@ -1200,7 +1200,6 @@
           "d443a47995": "Prime Agent",
           "mimo_code_label": "MiMo Code",
           "muse_label": "Muse",
-          "opencode2_label": "OpenCode 2",
           "codebuddy_label": "CodeBuddy",
           "zcode_label": "ZCode",
           "freebuff_label": "Freebuff",
@@ -1770,8 +1769,6 @@
         "6a50cdcd7c": "Voix",
         "0059bd17f3": "Permettez aux agents de contrôler n'importe quelle app de votre ordinateur.",
         "b35e92364b": "Computer Use",
-        "cd50cec5d7": "Coordonnez plusieurs agents de codage via Orca.",
-        "58a868e8e4": "Orchestration",
         "7c79d3b7bf": "Facultatif",
         "b1c2f8b0ac": "Configuration facultative de changement de compte et d'utilisation pour Claude, Codex, Gemini, OpenCode Go, MiniMax et Grok.",
         "f70ac54d38": "Comptes de fournisseurs d'IA",
@@ -8299,21 +8296,6 @@
           "3743ed080c": "Définir la commande",
           "f79084947b": "Nouvelle app"
         },
-        "OrchestrationPane": {
-          "52e0634e2c": "Demandez à un agent coordinateur d'utiliser l'orchestration pour les passations, les transferts de worktree et les agents enfants séquentiels ou parallèles.",
-          "ae79504732": "Comment l'utiliser",
-          "9bedd2a6e5": "Permet aux agents de transmettre le contexte et de coordonner le travail via Orca.",
-          "07641b9768": "Skill d'orchestration",
-          "2aacdb0517": "Coordonnez les agents de codage entre passations, transferts de worktree et travaux d'agents enfants.",
-          "191ac34567": "Orchestration d'agents",
-          "nestedWorkerDepthTitle": "Profondeur du travailleur imbriqué",
-          "nestedWorkerDepthDescription": "Combien de générations de travailleurs détachés peuvent engendrer leurs propres travailleurs. 1 maintient l'arborescence des agents à plat : un coordinateur répartit les travailleurs, et ces travailleurs ne répartissent pas.",
-          "7bc082f4de": "Copier la commande d'installation",
-          "workerAutoReleaseTitle": "Fermer automatiquement les workers terminés",
-          "workerAutoReleaseDescription": "Ferme le terminal ou le chat d’un worker 2 minutes après sa fin, sauf si vous choisissez Garder ouvert. S’il reprend son travail, le délai de 2 minutes recommence lorsqu’il termine.",
-          "workerAutoReleaseKeywordClose": "fermer",
-          "workerAutoReleaseKeywordRelease": "libérer"
-        },
         "OrchestrationSetupCard": {
           "e7d2a5146c": "Permet aux agents de transmettre le contexte et de coordonner le travail via Orca.",
           "2777ff0fdc": "Skill d'orchestration"
@@ -8805,8 +8787,6 @@
           "5063bb47a5": "Voix",
           "7118953f14": "Permettez aux agents de contrôler n'importe quelle app de votre ordinateur.",
           "c9841721cb": "Computer Use",
-          "475980f53d": "Coordonnez plusieurs agents de codage via Orca.",
-          "00c3a7950d": "Orchestration",
           "21f09426ea": "Facultatif. Orca fonctionne avec vos connexions de fournisseurs existantes ; ajoutez des comptes uniquement si vous voulez qu'Orca aide à basculer entre eux.",
           "ad6c529693": "Comptes de fournisseurs d'IA",
           "ec1ba547f7": "Gérez les agents IA, définissez-en un par défaut et personnalisez les commandes.",
@@ -10571,9 +10551,7 @@
             "91fc8ab7e5": "coordination",
             "13ba5c6cbd": "agents",
             "d86705ba77": "multi-agents",
-            "a7f76b4ca7": "orchestration",
-            "e05ff36753": "Coordonnez plusieurs agents de codage via messagerie, DAG de tâches, dispatch et points de décision.",
-            "c34045764e": "Orchestration d'agents"
+            "a7f76b4ca7": "orchestration"
           }
         },
         "privacy": {
@@ -23561,12 +23539,6 @@
     "terminalUnverifiable": "Orca n'a pas pu vérifier si la distribution WSL {{distro}} est en cours d'exécution, donc il n'a pas démarré ce terminal. Démarrez la distribution, puis réessayez."
   },
   "mte": {
-    "prompt": {
-      "title": "Utiliser l’orchestration MTE pour ce chat ?",
-      "description": "Le planificateur MTE vous interrogera sur l’objectif, puis pilotera les agents coder et validator selon le plan. Orca écrit la configuration des outils MTE dans cet espace de travail.",
-      "confirm": "Utiliser MTE",
-      "cancel": "Chat simple"
-    },
     "prepare": {
       "failed": "Impossible de préparer MTE : {{message}}"
     },

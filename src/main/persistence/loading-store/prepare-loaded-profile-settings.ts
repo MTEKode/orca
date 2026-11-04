@@ -17,6 +17,7 @@ import { hasUnsupportedTuiAgentArgs } from '../../../shared/tui-agent-launch-def
 import { normalizeTerminalCursorStyleDefault } from '../../../shared/terminal-cursor-style-settings'
 import { normalizeTerminalLineHeight } from '../../../shared/terminal-line-height-settings'
 import { migratePortugueseUiLanguageOnLoad } from '../../../shared/portuguese-ui-language-migration'
+import { migrateRetiredOpenCodeAgentIds } from '../applying-settings/opencode-agent-id-migration'
 import { migrateAgentYoloDefaults } from '../applying-settings/terminal-settings-migrations'
 import { hasTypedAgentPermission } from '../../../shared/tui-agent-permission-choice'
 import { migrateAgentPermissionChoice } from '../../../shared/tui-agent-permission-lift'
@@ -70,6 +71,11 @@ export function prepareLoadedProfileSettings(
   defaults: PersistedState,
   markNeedsSave: () => void
 ): PreparedLoadedProfileSettings {
+  const openCodeIds = migrateRetiredOpenCodeAgentIds(parsed.settings)
+  if (openCodeIds.changed) {
+    parsed.settings = openCodeIds.settings!
+    markNeedsSave()
+  }
   const migratedPortugueseUiLanguage = migratePortugueseUiLanguageOnLoad(parsed.settings)
   if (
     parsed.settings?.uiLanguage !== migratedPortugueseUiLanguage.uiLanguage ||

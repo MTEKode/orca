@@ -1381,7 +1381,6 @@
           "zcode_label": "ZCode",
           "d443a47995": "Prime Agent",
           "mimo_code_label": "MiMo Code",
-          "opencode2_label": "OpenCode 2",
           "codebuddy_label": "CodeBuddy",
           "qoder_cn_label": "Qoder CLI China",
           "jcode_label": "Jcode"
@@ -1945,8 +1944,6 @@
         "6a50cdcd7c": "Ses",
         "0059bd17f3": "Ajanların bilgisayarınızdaki herhangi bir uygulamayı kontrol etmesini etkinleştirin.",
         "b35e92364b": "Bilgisayar Kullanımı",
-        "cd50cec5d7": "Orca üzerinden birden fazla kodlama ajanını koordine edin.",
-        "58a868e8e4": "Orkestrasyon",
         "7c79d3b7bf": "Opsiyonel",
         "b1c2f8b0ac": "Claude, Codex, Gemini, OpenCode Go, MiniMax ve Grok için isteğe bağlı hesap değiştirme ve kullanım kurulumu.",
         "f70ac54d38": "AI Sağlayıcı Hesapları",
@@ -8383,21 +8380,6 @@
           "3743ed080c": "Komutu ayarla",
           "f79084947b": "Yeni uygulama"
         },
-        "OrchestrationPane": {
-          "52e0634e2c": "Devirler, worktree teslimleri ve sıralı ya da paralel alt ajanlar için orkestrasyon kullanmasını bir koordinatör ajandan isteyin.",
-          "ae79504732": "Nasıl kullanılır",
-          "9bedd2a6e5": "Ajanların Orca üzerinden bağlamı devretmesini ve işi koordine etmesini sağlar.",
-          "07641b9768": "Orkestrasyon becerisi",
-          "2aacdb0517": "Devirler, worktree teslimleri ve alt ajan işleri arasında kodlama ajanlarını koordine edin.",
-          "191ac34567": "Ajan Orkestrasyonu",
-          "nestedWorkerDepthTitle": "İç içe çalışan derinliği",
-          "nestedWorkerDepthDescription": "Gönderilen çalışanların kendi çalışanlarını kaç nesil boyunca oluşturabileceği. 1 değeri ajan ağacını düz tutar: bir koordinatör çalışanlar gönderir ve bu çalışanlar kendileri çalışan göndermez.",
-          "7bc082f4de": "Kurulum komutunu kopyala",
-          "workerAutoReleaseTitle": "Tamamlanan çalışanları otomatik kapat",
-          "workerAutoReleaseDescription": "Açık tut seçilmediği sürece çalışanın terminalini veya sohbetini tamamlandıktan 2 dakika sonra kapatır. Yeniden çalışmaya başlarsa tamamladığında 2 dakika yeniden başlar.",
-          "workerAutoReleaseKeywordClose": "kapat",
-          "workerAutoReleaseKeywordRelease": "serbest bırak"
-        },
         "OrchestrationSetupCard": {
           "e7d2a5146c": "Ajanların Orca üzerinden bağlamı devretmesini ve işi koordine etmesini sağlar.",
           "2777ff0fdc": "Orkestrasyon becerisi"
@@ -8870,8 +8852,6 @@
           "5063bb47a5": "Ses",
           "7118953f14": "Ajanların bilgisayarınızdaki herhangi bir uygulamayı kontrol etmesini sağlayın.",
           "c9841721cb": "Bilgisayar Kullanımı",
-          "475980f53d": "Orca üzerinden birden fazla kodlama ajanını koordine edin.",
-          "00c3a7950d": "Orkestrasyon",
           "21f09426ea": "İsteğe bağlı. Orca, mevcut sağlayıcı girişlerinizle çalışır; hesapları yalnızca Orca'nın aralarında geçiş yapmanıza yardımcı olmasını istiyorsanız ekleyin.",
           "ad6c529693": "AI Sağlayıcı Hesapları",
           "ec1ba547f7": "AI ajanlarını yönetin, bir varsayılan belirleyin ve komutları özelleştirin.",
@@ -10636,9 +10616,7 @@
             "91fc8ab7e5": "koordinasyon",
             "13ba5c6cbd": "ajanlar",
             "d86705ba77": "çoklu ajan",
-            "a7f76b4ca7": "orkestrasyon",
-            "e05ff36753": "Mesajlaşma, görev DAG'leri, dağıtım ve karar kapıları aracılığıyla birden fazla kodlama ajanını koordine edin.",
-            "c34045764e": "Ajan Orkestrasyonu"
+            "a7f76b4ca7": "orkestrasyon"
           }
         },
         "privacy": {

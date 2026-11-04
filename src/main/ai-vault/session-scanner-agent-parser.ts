@@ -15,9 +15,9 @@ import { parseJcodeSessionFile } from './session-scanner-jcode-parser'
 import { parseKiroSessionFile } from './session-scanner-kiro-parser'
 import {
   captureOpenCodeSqliteSessionViaWorker,
-  captureOpenCode2SqliteSessionViaWorker,
+  captureOpenCodeNextSqliteSessionViaWorker,
   captureZcodeSqliteSessionViaWorker,
-  parseOpenCode2SqliteSessionViaWorker,
+  parseOpenCodeNextSqliteSessionViaWorker,
   parseOpenCodeSqliteSessionViaWorker,
   parseZcodeSqliteSessionViaWorker
 } from './session-scanner-opencode-sqlite-worker-spawn'
@@ -37,14 +37,14 @@ async function readOpenCodeSqliteCandidate(
   platform: NodeJS.Platform,
   messages?: TranscriptMessageSink,
   signal?: AbortSignal,
-  agent?: 'opencode2' | 'zcode'
+  agent?: 'opencode-next' | 'zcode'
 ): Promise<AiVaultSession | null> {
   throwIfSignalAborted(signal)
   const request = { ...sqliteCandidate, platform, signal }
   if (!messages?.active) {
     const parse =
-      agent === 'opencode2'
-        ? parseOpenCode2SqliteSessionViaWorker
+      agent === 'opencode-next'
+        ? parseOpenCodeNextSqliteSessionViaWorker
         : agent === 'zcode'
           ? parseZcodeSqliteSessionViaWorker
           : parseOpenCodeSqliteSessionViaWorker
@@ -53,8 +53,8 @@ async function readOpenCodeSqliteCandidate(
     return session
   }
   const capture =
-    agent === 'opencode2'
-      ? captureOpenCode2SqliteSessionViaWorker
+    agent === 'opencode-next'
+      ? captureOpenCodeNextSqliteSessionViaWorker
       : agent === 'zcode'
         ? captureZcodeSqliteSessionViaWorker
         : captureOpenCodeSqliteSessionViaWorker
@@ -100,16 +100,19 @@ export async function parseAgentSessionFile(
       // Synthetic db#id paths identify SQLite sessions; real paths retain the legacy JSON parser.
       const sqliteCandidate = splitOpenCodeSqliteCandidate(candidate.file.path)
       if (sqliteCandidate) {
-        return readOpenCodeSqliteCandidate(sqliteCandidate, platform, messages, signal)
+        // One store holds both schemas; the classic reader returns null for sessions it cannot read.
+        return (
+          (await readOpenCodeSqliteCandidate(sqliteCandidate, platform, messages, signal)) ??
+          (await readOpenCodeSqliteCandidate(
+            sqliteCandidate,
+            platform,
+            messages,
+            signal,
+            'opencode-next'
+          ))
+        )
       }
       return parseOpenCodeSessionFile(candidate.file, platform, messages)
-    }
-    case 'opencode2': {
-      const sqliteCandidate = splitOpenCodeSqliteCandidate(candidate.file.path)
-      if (sqliteCandidate) {
-        return readOpenCodeSqliteCandidate(sqliteCandidate, platform, messages, signal, 'opencode2')
-      }
-      return null
     }
     case 'zcode': {
       const sqliteCandidate = splitOpenCodeSqliteCandidate(candidate.file.path, 'zcode')

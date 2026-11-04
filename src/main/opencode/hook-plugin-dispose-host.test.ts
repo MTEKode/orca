@@ -64,7 +64,7 @@ function createEventBus(): {
   }
 }
 
-describe.each(['opencode', 'opencode2'] as const)('%s plugin disposal by host', (agent) => {
+describe.each(['opencode'] as const)('%s plugin disposal by host', (agent) => {
   let tempDir: string
   let savedEnv: Record<string, string | undefined>
   let names: string[]
@@ -107,8 +107,8 @@ describe.each(['opencode', 'opencode2'] as const)('%s plugin disposal by host', 
     const pluginPath = join(tempDir, `orca-${agent}-status.mjs`)
     writeFileSync(
       pluginPath,
-      agent === 'opencode2'
-        ? _internals.getOpenCode2PluginSource()
+      agent === 'opencode'
+        ? _internals.getOpenCodePluginSource()
         : _internals.getOpenCodePluginSource()
     )
     // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the generated plugin module exports this shape.

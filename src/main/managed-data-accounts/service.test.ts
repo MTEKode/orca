@@ -86,7 +86,7 @@ describe('managed data accounts', () => {
     }
     const firstEnvironment = service.environmentForAccount('opencode', first)
     const row = {
-      agent: 'opencode2',
+      agent: 'opencode',
       filePath: buildOpenCodeSqliteCandidatePath(
         join(firstEnvironment.XDG_DATA_HOME, 'opencode', 'opencode.db'),
         'ses_1'

@@ -221,7 +221,7 @@ describe('OnboardingInlineCommandTerminal command-finished forwarding', () => {
     await act(async () => {
       root?.render(
         <OnboardingInlineCommandTerminal
-          command="npx skills add --skill orchestration --global"
+          command="npx skills add --skill mte --global"
           title="Skill setup"
           ariaLabel="Skill setup terminal"
           worktreeId="settings-orchestration-skill-terminal"

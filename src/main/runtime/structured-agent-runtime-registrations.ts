@@ -17,6 +17,7 @@ import type { AcpLaunchSpec } from '../acp/acp-launch-specs'
 import { acpStructuredAgentDefinition } from '../acp/acp-structured-agent-definitions'
 import { createAcpAgentConnection } from '../acp/acp-agent-connection'
 import { createOpenCodeAcpConnection } from '../opencode/opencode-acp-connection'
+import { withAcpToolsMcp } from '../acp/acp-tools-mcp-servers'
 import { acpStructuredLaunchPart } from '../acp/acp-structured-launch-resolution'
 import { AcpStructuredSessionAdapter } from '../acp/acp-structured-session-adapter'
 import { PI_RPC_RUNTIME_REGISTRATION } from '../pi/rpc-runtime-registration'
@@ -74,7 +75,10 @@ function createCodexAdapter(context: StructuredAgentAdapterContext): StructuredA
         structuredAgentLaunchSources(context),
         codexStructuredLaunchPart({
           resolveLaunchArgs: () => deps.resolveLaunchArgs('codex'),
-          ...(deps.resolveCodexCommand ? { resolveCommand: deps.resolveCodexCommand } : {})
+          ...(deps.resolveCodexCommand ? { resolveCommand: deps.resolveCodexCommand } : {}),
+          ...(deps.resolveToolsMcpServer
+            ? { resolveToolsMcpServer: deps.resolveToolsMcpServer }
+            : {})
         })
       ),
       deps.readCodexInstallation
@@ -130,7 +134,8 @@ function createClaudeAdapter(
         resolveAuthPolicy: deps.resolveClaudeAuthPolicy,
         attachmentDirectory: agentSessionAttachmentStoreRoot(deps.stateDirectory),
         ...(deps.claudeCliFlags ? { cliFlags: deps.claudeCliFlags } : {}),
-        ...(deps.reviewTools ? { reviewTools: deps.reviewTools } : {})
+        ...(deps.reviewTools ? { reviewTools: deps.reviewTools } : {}),
+        ...(deps.resolveToolsMcpServer ? { resolveToolsMcpServer: deps.resolveToolsMcpServer } : {})
       })
     ),
     ...(deps.resolveClaudeCommand ? { resolveClaudeCommand: deps.resolveClaudeCommand } : {}),
@@ -156,12 +161,16 @@ function createAcpAdapter(
     const readJournal = (sessionId: string) => restoreJournal(context.journalDatabase.db, sessionId)
     const definition = acpStructuredAgentDefinition(spec)
     const sources = structuredAgentLaunchSources(context)
-    const part = acpStructuredLaunchPart(spec, {
-      readJournal,
-      ...deps.acpLaunchCommand,
-      dataDirectory: deps.stateDirectory,
-      logger: deps.logger
-    })
+    const part = withAcpToolsMcp(
+      acpStructuredLaunchPart(spec, {
+        readJournal,
+        ...deps.acpLaunchCommand,
+        dataDirectory: deps.stateDirectory,
+        logger: deps.logger
+      }),
+      spec,
+      deps.resolveToolsMcpServer
+    )
     return new AcpStructuredSessionAdapter({
       spec,
       textTaskLaunch: {
@@ -196,9 +205,7 @@ function createAcpAdapter(
       resolveLaunchArgs: () => deps.resolveLaunchArgs(spec.agent),
       connect:
         deps.openAcpConnection ??
-        (spec.agent === 'opencode' || spec.agent === 'opencode2'
-          ? createOpenCodeAcpConnection
-          : createAcpAgentConnection),
+        (spec.agent === 'opencode' ? createOpenCodeAcpConnection : createAcpAgentConnection),
       onChildWorkEvidence: (sessionId, evidence, producer) =>
         context.host()?.publishChildWorkEvidence(sessionId, evidence, producer),
       ...(deps.readProcessStartTime ? { readProcessStartTime: deps.readProcessStartTime } : {}),

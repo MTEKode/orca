@@ -20,12 +20,7 @@ import {
   openCodeTuiPluginDirName,
   writeOpenCodeTuiPlugin
 } from '../../shared/opencode-tui-plugin-install'
-import {
-  OpenCodeHookService,
-  openCode2HookService,
-  getOpenCodePluginSource,
-  getOpenCode2PluginSource
-} from './hook-service'
+import { OpenCodeHookService, getOpenCodePluginSource } from './hook-service'
 
 const fsMock = vi.hoisted(() => ({
   writeFileSync: vi.fn<typeof NodeFs.writeFileSync>(),
@@ -52,12 +47,6 @@ const variants = [
     file: 'orca-opencode-status.js',
     service: new OpenCodeHookService(),
     source: getOpenCodePluginSource
-  },
-  {
-    hooks: 'opencode2-hooks',
-    file: 'orca-opencode2-status.js',
-    service: openCode2HookService,
-    source: getOpenCode2PluginSource
   }
 ]
 

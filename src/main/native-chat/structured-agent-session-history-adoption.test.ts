@@ -110,20 +110,20 @@ describe('findConflictingStructuredAdoption', () => {
     ).toBeNull()
   })
 
-  it.each([
-    ['opencode', 'opencode2'],
-    ['opencode2', 'opencode']
-  ] as const)('names an %s chat holding the conversation an %s chat would adopt', (held, agent) => {
-    const owner = ownership({ provider: held, providerSessionId: 'ses_same' })
-    expect(
-      findConflictingStructuredAdoption({
-        agent,
-        providerSessionId: 'ses_same',
-        selfSessionId: 'new',
-        ownership: [owner]
-      })
-    ).toBe(owner)
-  })
+  it.each([['opencode', 'opencode']] as const)(
+    'names an %s chat holding the conversation an %s chat would adopt',
+    (held, agent) => {
+      const owner = ownership({ provider: held, providerSessionId: 'ses_same' })
+      expect(
+        findConflictingStructuredAdoption({
+          agent,
+          providerSessionId: 'ses_same',
+          selfSessionId: 'new',
+          ownership: [owner]
+        })
+      ).toBe(owner)
+    }
+  )
 
   it('finds nothing when no session holds the conversation', () => {
     expect(

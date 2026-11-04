@@ -141,7 +141,7 @@ describe('OpenCode status plugin module contract', () => {
     process.env.ORCA_PANE_KEY = 'tab-1:leaf-1'
     const posts = captureHookPosts()
 
-    const module = await loadPluginModule(_internals.getOpenCode2PluginSource())
+    const module = await loadPluginModule(_internals.getOpenCodePluginSource())
     const hooks = await module.default?.server?.({
       client: { session: { get: async () => ({ data: { id: 'ses_root' } }) } }
     })
@@ -175,7 +175,7 @@ describe('OpenCode status plugin module contract', () => {
     process.env.ORCA_PANE_KEY = 'tab-1:leaf-1'
     const posts = captureHookPosts()
 
-    const module = await loadPluginModule(_internals.getOpenCode2PluginSource())
+    const module = await loadPluginModule(_internals.getOpenCodePluginSource())
     const hooks = await module.default?.server?.({
       client: { session: { get: async () => ({ data: { id: 'ses_root' } }) } }
     })
@@ -208,7 +208,7 @@ describe('OpenCode status plugin module contract', () => {
     process.env.ORCA_PANE_KEY = 'tab-1:leaf-1'
     const posts = captureHookPosts()
 
-    const module = await loadPluginModule(_internals.getOpenCode2PluginSource())
+    const module = await loadPluginModule(_internals.getOpenCodePluginSource())
     const hooks = await module.default?.server?.({
       client: { session: { get: async () => ({ data: { id: 'ses_root' } }) } }
     })
@@ -251,7 +251,7 @@ describe('OpenCode status plugin module contract', () => {
     process.env.ORCA_PANE_KEY = 'tab-1:leaf-1'
     const posts = captureHookPosts()
 
-    const module = await loadPluginModule(_internals.getOpenCode2PluginSource())
+    const module = await loadPluginModule(_internals.getOpenCodePluginSource())
     const hooks = await module.default?.server?.({
       client: { session: { get: async () => ({ data: { id: 'ses_root' } }) } }
     })

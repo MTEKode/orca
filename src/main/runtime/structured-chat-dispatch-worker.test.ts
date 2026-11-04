@@ -107,7 +107,7 @@ describe('a chat as the assignee of orchestration dispatch', () => {
     const task = turnText(worker.turns[0]!)
     expect(task).toContain('build it')
     expect(task).toContain(`Your Orca session ID is: ${WORKER}`)
-    expect(task).toContain('The coordinator cannot see this chat')
+    expect(task).toContain('The planner cannot see this chat')
     expect(task).toContain('More supervised work arrives in this chat')
     expect(task).not.toContain('this terminal')
     expect(task).not.toMatch(/exit the shell/i)

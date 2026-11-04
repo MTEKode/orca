@@ -375,7 +375,7 @@ describe('resolveTabSessionHistorySubject', () => {
     ).toEqual(cliSubject)
   })
 
-  it.each(['grok', 'omp', 'opencode', 'opencode2', 'pi'] as const)(
+  it.each(['grok', 'omp', 'opencode', 'pi'] as const)(
     'finds a %s terminal tab, whose conversation a chat can take over',
     (agentType) => {
       const state = makeState({
@@ -492,7 +492,7 @@ describe('one pane of a terminal tab', () => {
     expect(paneGate(state, geminiPane)).toBe(false)
   })
 
-  it.each(['grok', 'omp', 'opencode', 'opencode2', 'pi'] as const)(
+  it.each(['grok', 'omp', 'opencode', 'pi'] as const)(
     "finds a %s pane's own conversation",
     (agentType) => {
       const paneKey = 'term-1:leaf-1'
@@ -652,7 +652,7 @@ describe('findTabSessionHistoryRow', () => {
     })
     expect(findTabSessionHistoryRow([ownedRow], cliSubject)?.id).toBe('owned-row')
     expect(findTabSessionHistoryRow([row({ agent: 'codex' })], cliSubject)).toBeNull()
-    // An OpenCode 2.x pane reports `opencode`; Session History lists its conversation as `opencode2`.
+    // An OpenCode 2.x pane reports `opencode`; Session History lists its conversation as `opencode`.
     const openCodeSubject = {
       ...cliSubject,
       agent: 'opencode' as const,
@@ -660,7 +660,7 @@ describe('findTabSessionHistoryRow', () => {
     }
     expect(
       findTabSessionHistoryRow(
-        [row({ id: 'oc2-row', agent: 'opencode2', sessionId: 'ses_1' })],
+        [row({ id: 'oc2-row', agent: 'opencode', sessionId: 'ses_1' })],
         openCodeSubject
       )?.id
     ).toBe('oc2-row')

@@ -3,6 +3,7 @@ import type { OpenCodeAgentSessionAccountHome } from '../../shared/agent-session
 import type { StructuredAgentCommandSettings } from '../native-chat/structured-agent-command-resolution'
 import type { StructuredAgentSessionHistory } from '../native-chat/structured-agent-cli-conversations'
 import type { StructuredAgentRuntimeMetadata } from '../runtime/structured-agent-runtime-registration-types'
+import { OPENCODE_SESSION_HISTORY } from '../opencode/opencode-session-history'
 import { OPENCODE_V2_STRUCTURED_AGENT } from './opencode-v2-agent-definition'
 import { createOpenCodeV2ModelCatalogProbe } from './opencode-v2-model-catalog'
 import { supportsOpenCodeV2Location } from './opencode-v2-session-adapter'
@@ -11,12 +12,8 @@ import { openCodeV2ProcessService } from './opencode-v2-service'
 /** The floor the shared ACP registration uses for OpenCode 2.x. */
 export const OPENCODE_V2_MINIMUM_VERSIONS = ['2.0.14']
 
-export const OPENCODE_V2_SESSION_HISTORY: StructuredAgentSessionHistory = {
-  // Phase 1 adopts no terminal rows; resume rides the record's provider handle.
-  rowAgents: [],
-  rowSessionId: (link) => link.handle.nativeId,
-  parseResumeArgs: () => null
-}
+// The unified `opencode` chat owns the same terminal history rows and resume flags as before.
+export const OPENCODE_V2_SESSION_HISTORY: StructuredAgentSessionHistory = OPENCODE_SESSION_HISTORY
 
 function resolveOpenCodeV2Command(
   env: Record<string, string>,

@@ -17,7 +17,7 @@ vi.mock('node:fs/promises', async (importOriginal) => ({
 // The SQLite leg spawns a real worker thread, which fake timers cannot drive.
 vi.mock('./session-scanner-opencode-sqlite-worker-spawn', () => ({
   listOpenCodeSqliteSessionsViaWorker: async () => [],
-  listOpenCode2SqliteSessionsViaWorker: async () => []
+  listOpenCodeNextSqliteSessionsViaWorker: async () => []
 }))
 
 import { opencodeDiscoveries } from './session-scanner-opencode-sources'

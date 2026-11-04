@@ -60,19 +60,19 @@ describe('relay canonical tmux ownership and replay', () => {
     expect(server.snapshot().parents).toHaveLength(0)
     expect(server.replayCachedPayloadsForPanes()).toBe(0)
   })
-  it('replaces a legacy OpenCode 2 row with unavailable and preserves its launch identity', async () => {
+  it('replaces a legacy OpenCode row with unavailable and preserves its launch identity', async () => {
     const body = tmuxTestBody()
     const { tmux: _tmux, ...legacy } = body
-    expect((await post(legacy, 'opencode2')).status).toBe(204)
+    expect((await post(legacy, 'opencode')).status).toBe(204)
     probe.mockResolvedValue({ clients: [], rows: TMUX_TEST_ROWS })
-    await post(body, 'opencode2')
+    await post(body, 'opencode')
     await vi.waitFor(() => expect(unavailable).toHaveBeenCalled(), { timeout: 2500 })
     forward.mockClear()
     unavailable.mockClear()
     expect(server.replayCachedPayloadsForPanes()).toBe(1)
     expect(forward).not.toHaveBeenCalled()
     expect(unavailable.mock.lastCall?.[0]).toMatchObject({
-      source: 'opencode2',
+      source: 'opencode',
       tabId: 'tab-tmux',
       launchToken: 'generation',
       statusUnavailable: true
@@ -80,10 +80,10 @@ describe('relay canonical tmux ownership and replay', () => {
   })
   it('derives first unavailable identity from the same outer inner observation', async () => {
     probe.mockResolvedValue({ clients: [{ pid: 101, pane: '%9' }], rows: TMUX_TEST_ROWS })
-    await post(tmuxTestBody(), 'opencode2')
+    await post(tmuxTestBody(), 'opencode')
     await vi.waitFor(() => expect(unavailable).toHaveBeenCalled(), { timeout: 2500 })
     expect(unavailable.mock.lastCall?.[0]).toMatchObject({
-      source: 'opencode2',
+      source: 'opencode',
       tabId: 'tab-tmux',
       launchToken: 'generation'
     })

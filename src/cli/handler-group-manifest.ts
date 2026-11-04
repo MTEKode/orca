@@ -4,6 +4,7 @@ import { JIRA_HANDLER_GROUP } from './jira-handler-group'
 import { LINEAR_HANDLER_GROUP } from './linear-handler-group'
 import { REFERENCE_HANDLER_GROUP } from './reference-handler-group'
 import { PLUGIN_HANDLER_GROUPS } from './plugin-handler-groups'
+import { MCP_HANDLER_GROUPS } from './mcp-handler-group'
 import { MTE_HANDLER_GROUP } from './mte-handler-group'
 
 export type HandlerGroup = {
@@ -210,7 +211,7 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
   },
   {
     name: 'agent-launch',
-    keys: ['agent launch'],
+    keys: ['agent launch', 'agent models'],
     load: async () => (await import('./handlers/agent-launch.js')).AGENT_LAUNCH_HANDLERS
   },
   {
@@ -297,5 +298,6 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
     keys: ['ports'],
     load: async () => (await import('./handlers/ports.js')).PORTS_HANDLERS
   },
-  MTE_HANDLER_GROUP
+  MTE_HANDLER_GROUP,
+  ...MCP_HANDLER_GROUPS
 ]

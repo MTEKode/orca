@@ -87,7 +87,7 @@ describe('orchestration.callerShow: a session learns its Orca session ID from th
     const checked = resultOf(await asX('orchestration.check', { all: true, format: true }))
 
     expect(shown).toEqual({ caller: { orcaSessionId: ADDRESS_Y, live: true } })
-    expect(preamble).toContain(`Your coordinator's Orca session ID is: ${ADDRESS_X}\n`)
+    expect(preamble).toContain(`Your planner's Orca session ID is: ${ADDRESS_X}\n`)
     expect(preamble).toContain(`Your Orca session ID is: ${ADDRESS_Y}\n`)
     expect(preamble).not.toContain(handle)
     // Storage is unchanged: the mail it sends as either spelling is keyed by its minted handle.

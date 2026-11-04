@@ -83,6 +83,10 @@ type RetiredGlobalSettings = {
   orchestrationHeartbeatIntervalMinutes?: unknown
   // Full-access plugins now need only their own approval.
   pluginFullAccessEnabled?: unknown
+  // OpenCode v2 chat is now the only opencode chat transport.
+  experimentalOpenCodeV2Chat?: unknown
+  // The crew panel was removed; MTE is the only orchestration surface.
+  experimentalOrchestrationPanel?: unknown
 }
 
 export function stripRetiredGlobalSettings(
@@ -102,6 +106,8 @@ export function stripRetiredGlobalSettings(
     orchestrationHeartbeatsEnabled: _retiredHeartbeatsEnabled,
     orchestrationHeartbeatIntervalMinutes: _retiredHeartbeatInterval,
     pluginFullAccessEnabled: _retiredPluginFullAccessSwitch,
+    experimentalOpenCodeV2Chat: _retiredOpenCodeV2Chat,
+    experimentalOrchestrationPanel: _retiredOrchestrationPanel,
     ...rest
   } = (settings ?? {}) as Partial<GlobalSettings> & RetiredGlobalSettings
   void _retiredChatPermissionCopies
@@ -117,6 +123,8 @@ export function stripRetiredGlobalSettings(
   void _retiredHeartbeatsEnabled
   void _retiredHeartbeatInterval
   void _retiredPluginFullAccessSwitch
+  void _retiredOpenCodeV2Chat
+  void _retiredOrchestrationPanel
   return rest
 }
 

@@ -17,6 +17,7 @@ import {
 } from '../../shared/agent-session/lifecycle/agent-session-provider-handle'
 import { agentSessionProviderHandleKey } from '../../shared/agent-session/lifecycle/agent-session-provider-handle-encoding'
 import type { AgentSessionAccountHome } from '../../shared/agent-session/lifecycle/agent-session-account-home'
+import type { AcpToolsMcpServer } from './acp-tools-mcp-servers'
 import type { resolveCliCommand } from '../../shared/node-cli-command-resolution'
 import {
   checkAgentCliVersion,
@@ -55,6 +56,8 @@ export type AcpStructuredLaunch = StructuredAgentCommand & {
   env: Record<string, string>
   envToDelete: string[]
   fullAccess: boolean
+  /** The orca-tools bridge (opencode only); absent means none. */
+  mcpServers?: AcpToolsMcpServer[]
   resume: {
     sessionId: string
     key: string

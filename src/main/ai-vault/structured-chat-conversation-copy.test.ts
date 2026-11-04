@@ -36,7 +36,7 @@ afterEach(() => setStructuredAgentSessionHost(null))
 describe('copying a chat conversation for Resume in New CLI', () => {
   it.each([
     { agent: 'omp' as const, handle: acp('omp', OMP_ID), sessionId: OMP_ID },
-    { agent: 'opencode2' as const, handle: acp('opencode', OPENCODE_ID), sessionId: OPENCODE_ID }
+    { agent: 'opencode' as const, handle: acp('opencode', OPENCODE_ID), sessionId: OPENCODE_ID }
   ])(
     "has the chat's host copy a $agent row's conversation",
     async ({ agent, handle, sessionId }) => {

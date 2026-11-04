@@ -3,7 +3,7 @@ import { applyDocumentTheme } from '@/lib/document-theme'
 import { resolvePaintedTheme } from '@/lib/terminal-app-theme'
 import { useSettingsNavigationMetadata } from '@/hooks/useSettingsNavigationMetadata'
 import type { SettingsNavInstallStatus } from '@/lib/settings-navigation-types'
-import { COMPUTER_USE_SKILL_NAME, ORCHESTRATION_SKILL_NAME } from '@/lib/agent-feature-skill-names'
+import { COMPUTER_USE_SKILL_NAME, MTE_SKILL_NAME } from '@/lib/agent-feature-skill-names'
 import {
   getAgentSkillNavInstallStatus,
   getLinearAgentSkillNavInstallStatus
@@ -58,7 +58,7 @@ export function useSettingsNavigationModel(
       [
         'orchestration',
         getAgentSkillNavInstallStatus({
-          name: ORCHESTRATION_SKILL_NAME,
+          name: MTE_SKILL_NAME,
           installed: orchestrationSkillInstalled,
           loading: orchestrationSkillLoading,
           plan: applicableSkillPlan

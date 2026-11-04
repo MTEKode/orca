@@ -1521,7 +1521,6 @@
           "zcode_label": "ZCode",
           "d443a47995": "Prime Agent",
           "mimo_code_label": "MiMo Code",
-          "opencode2_label": "OpenCode 2",
           "codebuddy_label": "CodeBuddy",
           "qoder_cn_label": "Qoder CLI China",
           "jcode_label": "Jcode"
@@ -2089,8 +2088,6 @@
         "6a50cdcd7c": "Voice",
         "0059bd17f3": "Enable agents to control any app on your computer.",
         "b35e92364b": "Computer Use",
-        "cd50cec5d7": "Coordinate multiple coding agents through Orca.",
-        "58a868e8e4": "Orchestration",
         "7c79d3b7bf": "Optional",
         "b1c2f8b0ac": "Optional account switching and usage setup for Claude, Codex, Gemini, OpenCode Go, MiniMax, and Grok.",
         "f70ac54d38": "AI Provider Accounts",
@@ -2118,7 +2115,9 @@
         "automationsDescription": "Schedule agent work and choose whether Automations appears in the sidebar.",
         "shareSkillsTitle": "Share Skills",
         "shareSkillsDescription": "Share your skills with an unlisted link. Anyone who has it can install them.",
-        "floatingWorkspaceWebDescription": "Global terminal and markdown tabs."
+        "floatingWorkspaceWebDescription": "Global terminal and markdown tabs.",
+        "mteFlowTitle": "MTE flow",
+        "mteFlowDescription": "Settings for MTE orchestration runs: planner, workers and validation."
       },
       "useAppMenuPaste": {
         "pasteTooLarge": "Paste is too large."
@@ -8074,12 +8073,6 @@
             "title": "New card style",
             "toggleLabel": "Toggle new card style"
           },
-          "opencodeV2Chat": {
-            "copy": "Adds an “OpenCode v2” chat agent that talks to OpenCode 2.x over its background HTTP service, with mid-turn steering, native compaction and context usage. Requires OpenCode 2.x installed. Your existing OpenCode agents stay unchanged.",
-            "description": "Chat with OpenCode through its v2 HTTP service.",
-            "title": "OpenCode v2 chat (HTTP transport)",
-            "toggleLabel": "Toggle OpenCode v2 chat"
-          },
           "ca2219fe5e": "Shows a small animated pet pinned to the bottom-right corner. Pick a character (Claudino, OpenCode, Gremlin) or upload your own PNG, APNG, GIF, WebP, JPG, or SVG from the status-bar pet menu. Hide it any time from the same menu without disabling this setting.",
           "dd6f0a1d45": "Pet",
           "0e89a574ae": "Floating animated pet in the bottom-right corner.",
@@ -8111,9 +8104,6 @@
           "browserExtensions": {
             "copy": "Adds Settings › Browser › Extensions for local browser profiles.",
             "toggleLabel": "Toggle browser extensions"
-          },
-          "orchestrationPanel": {
-            "toggleLabel": "Toggle orchestration panel"
           }
         },
         "FloatingWorkspacePane": {
@@ -8364,7 +8354,10 @@
           "3ba07f933b": "Connect issue trackers Orca can use to browse tasks and start workspaces with linked context.",
           "70e885705b": "Task providers",
           "1683acbac4": "Connect the source hosts Orca can use for pull requests, merge requests, checks, and review status.",
-          "298c65ecac": "Review providers"
+          "298c65ecac": "Review providers",
+          "mcpIntegrationsTitle": "MCP integrations",
+          "mcpIntegrationsDescription": "Connect services Orca exposes to every agent as MCP tools (orca-tools server).",
+          "knowledgeGraphTitle": "Knowledge graph"
         },
         "KagiSessionLinkForm": {
           "92f0b4e472": "Clear",
@@ -8578,21 +8571,6 @@
           "3ebe650f74": "App name",
           "3743ed080c": "Set command",
           "f79084947b": "New app"
-        },
-        "OrchestrationPane": {
-          "52e0634e2c": "Ask a coordinator agent to use orchestration for handoffs, worktree handovers, and sequential or parallel child agents.",
-          "ae79504732": "How to use it",
-          "9bedd2a6e5": "Enables agents to hand off context and coordinate work through Orca.",
-          "07641b9768": "Orchestration skill",
-          "2aacdb0517": "Coordinate coding agents across handoffs, worktree handovers, and child-agent work.",
-          "191ac34567": "Agent Orchestration",
-          "nestedWorkerDepthTitle": "Nested worker depth",
-          "nestedWorkerDepthDescription": "How many generations of dispatched workers may spawn their own workers. 1 keeps the agent tree flat: a coordinator dispatches workers, and those workers do not dispatch.",
-          "workerAutoReleaseTitle": "Auto-close finished workers",
-          "workerAutoReleaseDescription": "Closes a worker's terminal or chat 2 minutes after it finishes, unless you choose Keep open. If it starts working again, the 2 minutes start over when it finishes.",
-          "workerAutoReleaseKeywordClose": "close",
-          "workerAutoReleaseKeywordRelease": "release",
-          "7bc082f4de": "Copy install command"
         },
         "OrchestrationSetupCard": {
           "e7d2a5146c": "Enables agents to hand off context and coordinate work through Orca.",
@@ -9096,8 +9074,6 @@
           "5063bb47a5": "Voice",
           "7118953f14": "Enable agents to control any app on your computer.",
           "c9841721cb": "Computer Use",
-          "475980f53d": "Coordinate multiple coding agents through Orca.",
-          "00c3a7950d": "Orchestration",
           "21f09426ea": "Optional. Orca works with your existing provider logins; add accounts only if you want Orca to help switch between them.",
           "ad6c529693": "AI Provider Accounts",
           "ec1ba547f7": "Manage AI agents, set a default, and customize commands.",
@@ -9119,7 +9095,9 @@
           "linearDescription": "How Linear works in Orca, setup checklist, agent skill, and example prompts.",
           "tasksDescription": "Connect providers, install the Linear skill, and choose what appears in Tasks.",
           "remoteServersDescription": "Run Orca on another machine and work on it from here.",
-          "noSettingsFoundForQuery": "No settings found for \"{{value0}}\""
+          "noSettingsFoundForQuery": "No settings found for \"{{value0}}\"",
+          "mteFlowTitle": "MTE flow",
+          "mteFlowDescription": "Settings for MTE orchestration runs: planner, workers and validation."
         },
         "SettingsFormControls": {
           "42a4d15a30": "No matching fonts.",
@@ -10330,14 +10308,6 @@
               "worktree": "worktree",
               "worktrees": "worktrees"
             },
-            "opencodeV2Chat": {
-              "agent": "agent",
-              "chat": "chat",
-              "description": "Chat with OpenCode through its v2 HTTP service, with mid-turn steering and native compaction.",
-              "http": "http",
-              "opencode": "opencode",
-              "title": "OpenCode v2 chat"
-            },
             "9af7a518db": "character",
             "791fefc0b0": "corner",
             "65df471ab2": "animated",
@@ -10364,14 +10334,6 @@
               "extension": "extension",
               "chrome": "chrome",
               "password": "password manager"
-            },
-            "orchestrationPanel": {
-              "title": "Orchestration panel",
-              "description": "Shows which agents each agent is working with, beside its chat or terminal.",
-              "orchestration": "orchestration",
-              "agents": "agents",
-              "workers": "workers",
-              "manager": "manager"
             }
           }
         },
@@ -10679,7 +10641,21 @@
             "7166b9090c": "GitHub authentication via the gh CLI.",
             "f16e41cc72": "GitHub Integration",
             "760e2446e0": "Bitbucket Cloud authentication with a saved API token or environment variables.",
-            "af5ae87847": "access token"
+            "af5ae87847": "access token",
+            "mcpTitle": "MCP integrations",
+            "mcpDescription": "Connect services Orca exposes to every agent as MCP tools (orca-tools server).",
+            "mcpKeyword": "mcp",
+            "mcpTools": "tools",
+            "mcpPosthog": "posthog",
+            "mcpBetterstack": "better stack",
+            "mcpContext7": "context7",
+            "mcpPixellab": "pixellab",
+            "graphKeyTitle": "Google AI (Gemini) API key",
+            "graphKeyDescription": "Enables semantic extraction of docs when building knowledge graphs.",
+            "graphKw": "graph",
+            "graphKwGemini": "gemini",
+            "graphKwKg": "knowledge graph",
+            "graphKwGoogle": "google ai"
           }
         },
         "jira": {
@@ -10888,9 +10864,7 @@
             "91fc8ab7e5": "coordination",
             "13ba5c6cbd": "agents",
             "d86705ba77": "multi-agent",
-            "a7f76b4ca7": "orchestration",
-            "e05ff36753": "Coordinate multiple coding agents via messaging, task DAGs, dispatch, and decision gates.",
-            "c34045764e": "Agent Orchestration"
+            "a7f76b4ca7": "orchestration"
           }
         },
         "privacy": {
@@ -13661,6 +13635,61 @@
           "kitty_title": "Import from Kitty",
           "kitty_description": "Review the settings that will be imported from your kitty.conf and the files it includes.",
           "kitty_not_found": "No kitty.conf found on this computer. Choose a config file to import one from another location."
+        },
+        "McpIntegrationCard": {
+          "statusNotConnected": "Not connected",
+          "statusApiKey": "Connected via API key",
+          "statusOAuth": "Connected via OAuth",
+          "failed": "Request failed",
+          "connected": "{{label}} connected",
+          "keySaved": "{{label}} API key saved",
+          "disconnected": "{{label}} disconnected",
+          "description": "Exposed to agents as MCP tools.",
+          "graphifyHint": "Build graphs from the Graph panel or `orca graph build`.",
+          "docs": "Docs",
+          "connect": "Connect",
+          "disconnect": "Disconnect",
+          "completeSignIn": "Complete the sign-in in your browser",
+          "keyPlaceholder": "API key",
+          "keyLabel": "{{label}} API key",
+          "saveKey": "Save key",
+          "statusLocal": "Configured (local server)",
+          "configSaved": "{{label}} settings saved",
+          "saveConfig": "Save",
+          "graphsAvailable": "Graphs available",
+          "noGraphs": "No graphs built yet"
+        },
+        "MteFlowPane": {
+          "title": "MTE flow",
+          "description": "Settings for MTE orchestration runs: planner, workers and validation.",
+          "skillTitle": "MTE skill",
+          "skillDescription": "Enables agents to start and drive MTE runs through Orca.",
+          "7bc082f4de": "Copy install command",
+          "ae79504732": "How to use it",
+          "examplesDescription": "Ask an agent to use the MTE skill to plan, dispatch workers and validate a goal.",
+          "nestedWorkerDepthTitle": "Nested worker depth",
+          "nestedWorkerDepthDescription": "How many generations of dispatched workers may spawn their own workers. 1 keeps the agent tree flat: a coordinator dispatches workers, and those workers do not dispatch.",
+          "workerAutoReleaseTitle": "Auto-close finished workers",
+          "workerAutoReleaseDescription": "Closes a worker's terminal or chat 2 minutes after it finishes, unless you choose Keep open. If it starts working again, the 2 minutes start over when it finishes."
+        },
+        "mteFlow": {
+          "search": {
+            "title": "MTE flow",
+            "description": "Settings for MTE orchestration runs: planner, workers and validation.",
+            "mte": "MTE",
+            "planner": "planner",
+            "validation": "validation"
+          }
+        },
+        "GoogleAiKeyCard": {
+          "saved": "API key saved",
+          "name": "Google AI (Gemini) API key",
+          "description": "Enables semantic extraction of docs when building knowledge graphs. Without it, graphs cover code only.",
+          "stored": "Key stored",
+          "notSet": "Not set",
+          "clear": "Clear",
+          "placeholder": "Paste Gemini API key",
+          "save": "Save"
         }
       },
       "right": {
@@ -15214,6 +15243,21 @@
             "createInProgress": "Create PR in progress...",
             "workspaceHostUnresolved": "The workspace host is unresolved. Refresh the workspace and retry.",
             "branchDiscoveryFailed": "Branch discovery failed."
+          },
+          "GraphPanel": {
+            "none": "No graph yet",
+            "building": "Building…",
+            "updating": "Updating…",
+            "built": "Built {{when}} · {{nodes}} nodes · {{edges}} edges · semantic {{semantic}}",
+            "yes": "yes",
+            "no": "no",
+            "build": "Build",
+            "deep": "Deep",
+            "update": "Update",
+            "cancel": "Cancel",
+            "openViewer": "Open viewer",
+            "installHint": "Graph builds need graphify, installed through uv (https://docs.astral.sh/uv/).",
+            "tabTitle": "Graph"
           }
         }
       },
@@ -20990,42 +21034,6 @@
     "diffComments": {
       "agentBadge": "AI"
     },
-    "orchestrationCrew": {
-      "mentionAll": "Mention all",
-      "mentionAgent": "Mention {{name}}:",
-      "mentionInMessage": "Mention in message",
-      "mentionRejected": "The terminal did not accept the agent reference. Try again.",
-      "title": "Orchestration",
-      "sendingUnavailable": "Sending unavailable",
-      "workers_one": "{{count}} worker",
-      "workers_other": "{{count}} workers",
-      "managedBy": "Managed by",
-      "managing": "Managing",
-      "talkingWith": "Talking with",
-      "collapse": "Collapse orchestration panel",
-      "show": "Show orchestration: {{counts}}",
-      "summary": "Orchestration: {{counts}}",
-      "needsYou_one": "{{count}} needs you",
-      "needsYou_other": "{{count}} need you",
-      "waitingPrefix": "Waiting for you · ",
-      "noTask": "No shared task",
-      "open": "Open {{name}}",
-      "more": "More for {{name}}",
-      "openChat": "Open its chat",
-      "copiedAddress": "Copied {{name}}'s address",
-      "copyAddress": "Copy address",
-      "showDetails": "Show {{name}}'s task and latest message",
-      "task": "Task",
-      "asksYou": "Asks you",
-      "openFailed": "{{name}}: {{detail}}",
-      "chatUnavailable": "This host cannot open the chat. Try again.",
-      "terminalExited": "This terminal has exited.",
-      "openOnHost": "Open this agent on {{host}}.",
-      "cannotLocate": "This host cannot locate this agent. Try again.",
-      "latest": "Latest",
-      "to": "To",
-      "from": "From"
-    },
     "orchestration": {
       "workerAutoClose": {
         "running": "Temporary orchestration worker · Closes 2 minutes after it finishes",
@@ -23683,12 +23691,6 @@
       "dontAskAgain": "Don't ask again for this project",
       "plainChat": "Plain chat",
       "useMte": "MTE orchestration"
-    },
-    "prompt": {
-      "title": "Use MTE orchestration for this chat?",
-      "description": "The MTE planner will interview you about the goal, then drive coder and validator agents through the plan. Orca writes the MTE tool config into this workspace.",
-      "confirm": "Use MTE",
-      "cancel": "Plain chat"
     },
     "prepare": {
       "failed": "Could not prepare MTE: {{message}}"

@@ -20,7 +20,7 @@ import { writeOpenCodeTuiPlugin } from './opencode-tui-plugin-install'
 
 const pluginSource = `const ORCA_STATUS_AGENT = "opencode";
 async function setupLegacyOpenCodeTui() {}
-async function setupOpenCode2Status() {}
+async function setupOpenCodeNextStatus() {}
 export default async function server() {}
 `
 

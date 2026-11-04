@@ -98,7 +98,7 @@ describe('the model catalog contract on every registration', () => {
       STRUCTURED_AGENT_RUNTIME_REGISTRATIONS,
       context()
     )
-    expect([...listsInChatFolder].sort()).toEqual(['omp', 'opencode', 'opencode-v2', 'opencode2'])
+    expect([...listsInChatFolder].sort()).toEqual(['omp', 'opencode', 'opencode-v2'])
   })
 
   it('maps an ACP agent with no session-free listing to an unavailable registration', () => {

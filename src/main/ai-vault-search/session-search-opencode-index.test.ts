@@ -8,10 +8,10 @@ vi.mock('../ai-vault/session-scanner-opencode-sqlite-worker-spawn', async () => 
   const parse = await import('../ai-vault/session-scanner-opencode-sqlite')
   const capture = await import('../ai-vault/session-scanner-opencode-sqlite-capture')
   const own = await import('./session-search-opencode-index.test')
-  const { listOpenCode2SqliteSessions } =
-    await import('../ai-vault/session-scanner-opencode2-sqlite-list')
+  const { listOpenCodeNextSqliteSessions } =
+    await import('../ai-vault/session-scanner-opencode-next-sqlite-list')
   return {
-    listOpenCode2SqliteSessionsViaWorker: listOpenCode2SqliteSessions,
+    listOpenCodeNextSqliteSessionsViaWorker: listOpenCodeNextSqliteSessions,
     resolveOpenCodeSqliteWorkerEntryPath: () => null,
     listOpenCodeSqliteSessionsViaWorker: (
       args: Parameters<typeof list.listOpenCodeSqliteSessions>[0]

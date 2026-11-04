@@ -456,7 +456,7 @@ describe('ACP structured session adapter: turns', () => {
       .map((line) => JSON.parse(line))
     const late = SessionNotificationSchema.parse(frames[1].message.params)
     const rig = await openAcpAdapterRig({
-      spec: acpLaunchSpecFor('opencode2')!,
+      spec: acpLaunchSpecFor('opencode')!,
       script: (agent) =>
         agent.on('session/new', (frame) =>
           agent.reply(frame, { ...startup, sessionId: PROVIDER_SESSION })

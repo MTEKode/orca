@@ -8,7 +8,6 @@ export function mteAdapterForAgent(agent: string): WorkspaceMcpAdapter | null {
     case 'codex':
       return 'codex'
     case 'opencode':
-    case 'opencode-v2':
       return 'opencode'
     default:
       return null

@@ -237,7 +237,7 @@ export function assertAdoptedConversationUnowned(
     const holdsSameConversation =
       !!head &&
       (agentSessionProviderHandleRoot(head.handle) === root ||
-        // One id from two chat agents that open the same conversations (`opencode`, `opencode2`).
+        // One id from chat agents that open the same conversations.
         (head.handle.transport === adopted.handle.transport &&
           head.handle.nativeId === adopted.handle.nativeId &&
           chatAgentsShareConversations(head.handle.agent, adopted.handle.agent)))

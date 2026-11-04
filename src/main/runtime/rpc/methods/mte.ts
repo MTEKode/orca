@@ -1,6 +1,10 @@
 import { defineMethod } from '../core'
+import { getStructuredAgentSessionHost } from '../../../native-chat/agent-session-wire/structured-agent-session-registry'
 import { MTE_DEPLOY_CHECK_METHODS } from './mte-deploy-check'
-import { MtePrepareWorkspaceParams } from '../../../../shared/rpc-contract/mte-params'
+import {
+  MteMarkPlannerParams,
+  MtePrepareWorkspaceParams
+} from '../../../../shared/rpc-contract/mte-params'
 import { resolveMteStartCliCommand } from '../../../../shared/mte/cli-command'
 import {
   applyWorkspaceMcpConfig,
@@ -23,6 +27,17 @@ export const MTE_METHODS = [
       const status = plan.nextContent === null ? 'already correct' : 'written'
       await applyWorkspaceMcpConfig(plan)
       return { configPath: plan.configPath, status }
+    }
+  }),
+  defineMethod({
+    // Marks a renderer-launched chat as an MTE planner (the CLI path marks it inside agent.launch).
+    name: 'mte.markPlanner',
+    permission: 'workspace',
+    params: MteMarkPlannerParams,
+    handler: async (params, { runtime }) => {
+      await runtime.ensureStructuredAgentSessionHost()
+      await getStructuredAgentSessionHost()?.deps.store.markMtePlanner(params.sessionId)
+      return { ok: true }
     }
   }),
   ...MTE_DEPLOY_CHECK_METHODS

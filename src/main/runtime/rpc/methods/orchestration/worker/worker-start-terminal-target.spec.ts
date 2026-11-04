@@ -215,7 +215,7 @@ export function registerWorkerStartTerminalTargetTests(): void {
     const h = createOrchestrationWorkerReleaseHarness()
     afterEach(() => h.cleanup())
 
-    it.each(['zcode', 'opencode', 'opencode2'] as const)(
+    it.each(['zcode', 'opencode'] as const)(
       '%s waits for the new composer before dispatch',
       async (agent) => {
         h.setup()

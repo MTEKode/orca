@@ -20,7 +20,7 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-function setup(revertTurn: (turnId: string, kind: 'start') => Promise<unknown | null>) {
+function setup(revertTurn: (turnId: string, kind: 'start') => Promise<unknown>) {
   const refreshCheckpoints = vi.fn()
   const hook = renderHook(() =>
     useNativeChatTurnRevert({ revertTurn, worktreeId: 'repo::/work', refreshCheckpoints })

@@ -2,6 +2,7 @@ import { defineMethod } from '../../../core'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import { readRunRemovedWork } from '../../../../orchestration/db/reset/removed-orchestration-work-read'
 import { assertCallerHandleMatchesEvidence, resolveOrchestrationCaller } from './run-scope'
+import { assertMtePlannerCaller } from './mte-planner-gate'
 import { exposeRun } from './run-receipt'
 import type { OrcaRuntimeService } from '../../../../orca-runtime'
 import type { OrchestrationCallerIdentity } from '../../../../orchestration/orchestration-caller-identity'
@@ -52,6 +53,7 @@ export const ORCHESTRATION_RUN_METHODS = [
     permission: 'workspace',
     params: RunCreateParams,
     handler: (params, { orchestrationCompatibilityEvidence, orchestrationCaller, runtime }) => {
+      assertMtePlannerCaller(runtime, orchestrationCaller)
       const caller = resolveOrchestrationCaller(runtime, {
         callerTerminalHandle: params.from,
         callerEvidence: orchestrationCompatibilityEvidence,
@@ -75,6 +77,7 @@ export const ORCHESTRATION_RUN_METHODS = [
         orchestrationCaller
       }
     ) => {
+      assertMtePlannerCaller(runtime, orchestrationCaller)
       const caller = resolveOrchestrationCaller(runtime, {
         callerTerminalHandle: params.from,
         callerEvidence: orchestrationCompatibilityEvidence,

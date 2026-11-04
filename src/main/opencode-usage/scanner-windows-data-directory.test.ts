@@ -9,11 +9,11 @@ import { scanOpenCodeUsageDatabases } from './scanner'
 vi.mock('../ai-vault/session-scanner-opencode-sqlite-worker-spawn', async () => {
   const { listOpenCodeSqliteSessions } =
     await import('../ai-vault/session-scanner-opencode-sqlite-list')
-  const { listOpenCode2SqliteSessions } =
-    await import('../ai-vault/session-scanner-opencode2-sqlite-list')
+  const { listOpenCodeNextSqliteSessions } =
+    await import('../ai-vault/session-scanner-opencode-next-sqlite-list')
   return {
     listOpenCodeSqliteSessionsViaWorker: listOpenCodeSqliteSessions,
-    listOpenCode2SqliteSessionsViaWorker: listOpenCode2SqliteSessions
+    listOpenCodeNextSqliteSessionsViaWorker: listOpenCodeNextSqliteSessions
   }
 })
 

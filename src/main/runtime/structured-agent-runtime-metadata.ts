@@ -149,11 +149,14 @@ export const STRUCTURED_AGENT_RUNTIME_CATALOG: readonly StructuredAgentRuntimeCa
         )
     }
   },
-  ...ACP_LAUNCH_SPECS.map((spec): StructuredAgentRuntimeCatalogEntry => ({
-    kind: 'acp',
-    metadata: acpMetadata(spec),
-    spec
-  })),
+  // opencode chat runs on the v2 HTTP transport; its ACP specs stay for naming and installs.
+  ...ACP_LAUNCH_SPECS.filter(({ agent }) => agent !== 'opencode').map(
+    (spec): StructuredAgentRuntimeCatalogEntry => ({
+      kind: 'acp',
+      metadata: acpMetadata(spec),
+      spec
+    })
+  ),
   // A new agent goes last: it shifts no configured agent's position.
   { kind: 'opencode-v2', metadata: OPENCODE_V2_RUNTIME_METADATA }
 ]

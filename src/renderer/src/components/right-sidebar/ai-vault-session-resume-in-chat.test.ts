@@ -115,7 +115,7 @@ describe('workspace matching, which binds the agents that store conversations pe
     ).toBe(true)
   })
 
-  it.each<AiVaultSession['agent']>(['claude', 'grok', 'omp', 'opencode', 'opencode2', 'pi'])(
+  it.each<AiVaultSession['agent']>(['claude', 'grok', 'omp', 'opencode', 'pi'])(
     'offers a %s row when its host proves the registered spelling of cwd',
     (agent) => {
       const row = {
@@ -136,7 +136,7 @@ describe('workspace matching, which binds the agents that store conversations pe
     }
   )
 
-  it.each<AiVaultSession['agent']>(['claude', 'grok', 'omp', 'opencode', 'opencode2', 'pi'])(
+  it.each<AiVaultSession['agent']>(['claude', 'grok', 'omp', 'opencode', 'pi'])(
     'refuses a %s row whose conversation was recorded in another workspace',
     (agent) => {
       // These key conversations by launch cwd, so resuming elsewhere finds or loads nothing.

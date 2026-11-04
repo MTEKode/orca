@@ -4229,27 +4229,6 @@
   "auto.lib.orchestration.usage.examples.childSequenceSummary": {
     "ko": "각 단계가 직전 단계에 의존할 때 하위 에이전트를 순서대로 사용합니다."
   },
-  "auto.hooks.useSettingsNavigationMetadata.cd50cec5d7": {
-    "ko": "Orca를 통해 여러 코딩 에이전트를 조율합니다."
-  },
-  "auto.components.settings.OrchestrationPane.52e0634e2c": {
-    "ko": "핸드오프, 작업 트리 핸드오버, 순차 또는 병렬 하위 에이전트 작업에 오케스트레이션을 사용하도록 조율 에이전트에게 요청하세요."
-  },
-  "auto.components.settings.OrchestrationPane.9bedd2a6e5": {
-    "ko": "에이전트가 Orca를 통해 컨텍스트를 인계하고 작업을 조율할 수 있습니다."
-  },
-  "auto.components.settings.OrchestrationPane.2aacdb0517": {
-    "ko": "핸드오프, 작업 트리 핸드오버, 하위 에이전트 작업 전반에 걸쳐 코딩 에이전트를 조율합니다."
-  },
-  "auto.components.settings.OrchestrationPane.191ac34567": {
-    "ko": "에이전트 오케스트레이션"
-  },
-  "auto.components.settings.OrchestrationPane.nestedWorkerDepthTitle": {
-    "ko": "하위 에이전트 최대 생성 단계"
-  },
-  "auto.components.settings.OrchestrationPane.nestedWorkerDepthDescription": {
-    "ko": "하위 에이전트를 몇 단계까지 생성할 수 있는지 설정합니다. 1이면 조율 에이전트만 하위 에이전트를 생성할 수 있고, 생성된 하위 에이전트는 자신의 하위 에이전트를 생성할 수 없습니다."
-  },
   "auto.components.settings.OrchestrationSkillAgentCoverage.6dec5ce2d2": {
     "ko": "에이전트별 스킬 설치 상태"
   },
@@ -4261,9 +4240,6 @@
   },
   "auto.components.settings.OrchestrationSkillAgentCoverage.partialCoverage": {
     "ko": "감지된 {{value1}}개 에이전트 중 {{value0}}개에 스킬이 설치되어 있습니다."
-  },
-  "auto.components.settings.Settings.475980f53d": {
-    "ko": "Orca를 통해 여러 코딩 에이전트를 조율합니다."
   },
   "sessionHistory.settings.computersConsent": {
     "ko": "각 컴퓨터는 자체 에이전트 대화와 도구 출력의 검색 가능한 사본을 보관합니다. 이 데이터는 해당 컴퓨터 밖으로 전송되지 않습니다."
@@ -5024,9 +5000,6 @@
   "auto.components.settings.AgentRuntimeSetting.label": {
     "ko": "에이전트 런타임"
   },
-  "auto.components.settings.OrchestrationPane.ae79504732": {
-    "ko": "사용 방법"
-  },
   "auto.components.settings.OrchestrationSetupCard.e7d2a5146c": {
     "ko": "에이전트가 Orca를 통해 컨텍스트를 인계하고 작업을 조율할 수 있습니다."
   },
@@ -5038,12 +5011,6 @@
   },
   "auto.components.settings.orchestration.search.d86705ba77": {
     "ko": "멀티 에이전트"
-  },
-  "auto.components.settings.orchestration.search.e05ff36753": {
-    "ko": "메시징, 작업 DAG, 디스패치 및 의사결정 게이트를 통해 여러 코딩 에이전트를 조율합니다."
-  },
-  "auto.components.settings.orchestration.search.c34045764e": {
-    "ko": "에이전트 오케스트레이션"
   },
   "auto.components.settings.MobileEmulatorAgentControlRow.d94ca6a623": {
     "ko": "에이전트가 모바일 에뮬레이터 제어를 포함하여 Orca CLI 명령을 사용할 수 있도록 합니다."

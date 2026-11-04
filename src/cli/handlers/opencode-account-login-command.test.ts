@@ -51,7 +51,7 @@ it('a timely root exit clears execution timeout while trailing help drains, then
   child.stderr.write('--standalone  trailing help')
   expect(signalTree).not.toHaveBeenCalled()
   await vi.advanceTimersByTimeAsync(800)
-  await expect(pending).resolves.toBe('opencode2')
+  await expect(pending).resolves.toBe('opencode')
   expect(child.stdout.destroyed && child.stderr.destroyed && child.stdin.destroyed).toBe(true)
   expect(owner).toMatchObject({ child: null, stopPhase: undefined, terminationPromise: null })
   // Late errors/close from this released handle cannot affect a later owner.
@@ -63,66 +63,17 @@ it('a timely root exit clears execution timeout while trailing help drains, then
   expect(vi.getTimerCount()).toBe(0)
 })
 
-it('Windows automatic timeout joins tracked tree lifetime beyond the caller wait before fallback', async () => {
-  vi.useFakeTimers()
-  Object.defineProperty(process, 'platform', { configurable: true, value: 'win32' })
-  const first = Object.assign(probe(), { pid: 4321 })
-  const second = probe()
-  spawn.mockReturnValueOnce(first).mockImplementationOnce(() => {
-    queueMicrotask(() => {
-      second.stdout.write('--standalone')
-      second.emit('exit', 0)
-      second.emit('close', 0)
-    })
-    return second
-  })
-  let finishCallerWait!: (signaled: boolean) => void
-  signalTree.mockReturnValue(
-    new Promise<boolean>((resolve) => {
-      finishCallerWait = resolve
-    })
-  )
-  let finishKill!: () => void
-  inFlightKill.mockReturnValue(
-    new Promise<void>((resolve) => {
-      finishKill = resolve
-    })
-  )
-  const owner = session()
-  const pending = resolveOpenCodeLoginCommand({}, owner)
-  await vi.advanceTimersByTimeAsync(15_000)
-  // Complete the five-second caller wait while the tracked tree operation remains live.
-  finishCallerWait(false)
-  first.emit('exit', null)
-  await vi.advanceTimersByTimeAsync(2_000)
-  expect(spawn).toHaveBeenCalledTimes(1)
-  expect(first.kill).not.toHaveBeenCalled()
-  expect(first.stdout.destroyed).toBe(false)
-  expect(owner.terminationPromise).toBeNull()
-  finishKill()
-  await expect(pending).resolves.toBe('opencode')
-  expect(first.stdout.destroyed && first.stderr.destroyed).toBe(true)
-  expect(signalTree).toHaveBeenCalledTimes(1)
-  expect(forceTree).not.toHaveBeenCalled()
-  expect(spawn.mock.calls.every(([spec]) => spec.detached === false)).toBe(true)
-  expect(vi.getTimerCount()).toBe(0)
-})
-
-it('asynchronous spawn error releases readers before synchronous fallback failure and final refusal', async () => {
+it('asynchronous spawn error releases readers before the final refusal', async () => {
   const child = probe()
-  spawn
-    .mockImplementationOnce(() => {
-      queueMicrotask(() => child.emit('error', new Error('ENOENT')))
-      return child
-    })
-    .mockImplementationOnce(() => {
-      throw new Error('unlaunchable fallback')
-    })
+  spawn.mockImplementationOnce(() => {
+    queueMicrotask(() => child.emit('error', new Error('ENOENT')))
+    return child
+  })
   const owner = session()
   await expect(resolveOpenCodeLoginCommand({}, owner)).rejects.toThrow(
-    'Install alongside your existing CLI'
+    'Install or repair OpenCode 2'
   )
-  expect(spawn).toHaveBeenCalledTimes(2)
+  expect(spawn).toHaveBeenCalledTimes(1)
   expect(child.stdout.destroyed && child.stderr.destroyed && child.stdin.destroyed).toBe(true)
   expect(owner.child).toBeNull()
   expect(owner.stopPhase).toBeUndefined()

@@ -726,25 +726,22 @@ describe('backslash mode reaches every command the user can type (#11375)', () =
 })
 
 describe('OpenCode format metadata respects option terminators', () => {
-  it.each(['opencode', 'opencode2'] as const)(
-    'ignores literal recipe format values for %s',
-    (agentId) => {
-      const result = planCommitMessageGeneration(
-        {
-          agentId,
-          model: 'opencode/gpt-5.4-mini',
-          agentArgs: '--format default -- --format json'
-        },
-        'PROMPT'
-      )
-      expect(result.ok).toBe(true)
-      if (!result.ok) {
-        throw new Error(result.error)
-      }
-      expect(result.plan.args).toContain('--')
-      expect(result.plan.outputFormat).toBeUndefined()
+  it.each(['opencode'] as const)('ignores literal recipe format values for %s', (agentId) => {
+    const result = planCommitMessageGeneration(
+      {
+        agentId,
+        model: 'opencode/gpt-5.4-mini',
+        agentArgs: '--format default -- --format json'
+      },
+      'PROMPT'
+    )
+    expect(result.ok).toBe(true)
+    if (!result.ok) {
+      throw new Error(result.error)
     }
-  )
+    expect(result.plan.args).toContain('--')
+    expect(result.plan.outputFormat).toBeUndefined()
+  })
 
   it('ignores literal equals-form flags after a command override terminator', () => {
     const result = planCommitMessageGeneration(

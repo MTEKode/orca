@@ -11,7 +11,6 @@ import { translate } from '@/i18n/i18n'
 import { AgentDashboardExperimentalSetting } from './AgentDashboardExperimentalSetting'
 import { EphemeralVmsExperimentalSetting } from './EphemeralVmsExperimentalSetting'
 import { BrowserExtensionsExperimentalSetting } from './BrowserExtensionsExperimentalSetting'
-import { OrchestrationPanelExperimentalSetting } from './OrchestrationPanelExperimentalSetting'
 import { WslHostsExperimentalSetting } from './WslHostsExperimentalSetting'
 import { wslHostsAvailable } from '../sidebar/use-wsl-hosts-enabled'
 import {
@@ -50,12 +49,8 @@ export function ExperimentalPane({
   const showNewWorktreeCardStyle = matchesSettingsSearch(searchQuery, [
     getExperimentalSearchEntry().newWorktreeCardStyle
   ])
-  const showOpenCodeV2Chat = matchesSettingsSearch(searchQuery, [
-    getExperimentalSearchEntry().opencodeV2Chat
-  ])
   const agentHibernationEnabled = settings.experimentalAgentHibernation === true
   const newWorktreeCardStyleEnabled = settings.experimentalNewWorktreeCardStyle === true
-  const openCodeV2ChatEnabled = settings.experimentalOpenCodeV2Chat === true
   // Use the planner’s clamped millisecond value/default while editing minutes.
   const agentHibernationIdleMinutes = Math.round(
     getEffectiveAgentHibernationIdleMs(settings.agentHibernationIdleMs) / MS_PER_MINUTE
@@ -263,57 +258,9 @@ export function ExperimentalPane({
         </SearchableSetting>
       ) : null}
 
-      {showOpenCodeV2Chat ? (
-        <SearchableSetting
-          title={translate(
-            'auto.components.settings.ExperimentalPane.opencodeV2Chat.title',
-            'OpenCode v2 chat (HTTP transport)'
-          )}
-          description={translate(
-            'auto.components.settings.ExperimentalPane.opencodeV2Chat.description',
-            'Chat with OpenCode through its v2 HTTP service.'
-          )}
-          keywords={getExperimentalSearchEntry().opencodeV2Chat.keywords}
-          className="space-y-3 py-2"
-          id="experimental-opencode-v2-chat"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0 shrink space-y-0.5">
-              <Label>
-                {translate(
-                  'auto.components.settings.ExperimentalPane.opencodeV2Chat.title',
-                  'OpenCode v2 chat (HTTP transport)'
-                )}
-              </Label>
-              <p className="text-xs text-muted-foreground">
-                {translate(
-                  'auto.components.settings.ExperimentalPane.opencodeV2Chat.copy',
-                  'Adds an “OpenCode v2” chat agent that talks to OpenCode 2.x over its background HTTP service, with mid-turn steering, native compaction and context usage. Requires OpenCode 2.x installed. Your existing OpenCode agents stay unchanged.'
-                )}
-              </p>
-            </div>
-            <SettingsSwitch
-              checked={openCodeV2ChatEnabled}
-              ariaLabel={translate(
-                'auto.components.settings.ExperimentalPane.opencodeV2Chat.toggleLabel',
-                'Toggle OpenCode v2 chat'
-              )}
-              onChange={() =>
-                updateSettings({
-                  experimentalOpenCodeV2Chat: !openCodeV2ChatEnabled
-                })
-              }
-            />
-          </div>
-        </SearchableSetting>
-      ) : null}
-
       <EphemeralVmsExperimentalSetting settings={settings} updateSettings={updateSettings} />
 
       <BrowserExtensionsExperimentalSetting settings={settings} updateSettings={updateSettings} />
-
-      <OrchestrationPanelExperimentalSetting settings={settings} updateSettings={updateSettings} />
-
       {wslHostsAvailable() ? (
         <WslHostsExperimentalSetting settings={settings} updateSettings={updateSettings} />
       ) : null}

@@ -89,7 +89,7 @@ async function accountFixture() {
       transports: [{ kind: process.platform === 'win32' ? 'named-pipe' : 'unix', endpoint }]
     })
   )
-  for (const name of ['opencode2', 'opencode']) {
+  for (const name of ['opencode']) {
     const script = join(tools, `${name}.cjs`)
     writeFileSync(
       script,
@@ -116,7 +116,7 @@ if (args[0] === 'owned' || args[0] === 'escaped') {
   return;
 }
 record(probe ? 'probe' : 'login');
-if (probe && name === 'opencode2' && mode.lifecycle) {
+if (probe && mode.lifecycle) {
   if (mode.lifecycle !== 'natural') cp.spawn(process.execPath, [__filename, 'owned'], {stdio:['ignore', 1, 2]});
   cp.spawn(process.execPath, [__filename, 'escaped'], {stdio:['ignore', 1, 2], detached:true});
   process.on('SIGTERM', () => {record('stopping'); process.exit(0)});
@@ -205,10 +205,9 @@ it('real account-add CLI probes, selects, logs in, hands off capture and cleans 
   const fixture = await accountFixture()
   try {
     for (const mode of [
-      { supported: 'opencode2' },
-      { supported: 'opencode', nonzero: 'opencode2' },
+      { supported: 'opencode' },
       { supported: 'neither' },
-      { supported: 'opencode2', loginExit: 7 }
+      { supported: 'opencode', loginExit: 7 }
     ]) {
       fixture.mode(mode)
       const result = await runProcess(fixture.spec)
@@ -216,13 +215,11 @@ it('real account-add CLI probes, selects, logs in, hands off capture and cleans 
       expect(result.code, result.stdout + result.stderr).toBe(success ? 0 : 1)
       expect(JSON.parse(result.stdout)).toMatchObject({ ok: success })
       const events = fixture.events()
-      expect(events[0]).toMatchObject({ name: 'opencode2', args: ['auth', 'login', '--help'] })
+      expect(events[0]).toMatchObject({ name: 'opencode', args: ['auth', 'login', '--help'] })
       const login = events.find(({ kind }) => kind === 'login')
       if (mode.supported === 'neither') {
         expect(login).toBeUndefined()
-        expect(JSON.parse(result.stdout).error.message).toMatch(
-          /npm install --prefix [^`\r\n]+ @opencode\/cli/
-        )
+        expect(JSON.parse(result.stdout).error.message).toMatch(/npm install -g @opencode\/cli/)
       } else {
         expect(login).toMatchObject({
           name: mode.supported,
@@ -312,8 +309,10 @@ function within<T>(promise: Promise<T>, ms: number): Promise<T> {
 it.skipIf(process.platform === 'win32').each(['timeout', 'natural', 'cancel'])(
   'real CLI %s probe settles with held pipes, owned descendants and private cleanup',
   async (lifecycle) => {
+    // A timed-out probe has no second binary to fall back to, so it ends in the install refusal.
+    const refused = lifecycle === 'timeout'
     const fixture = await accountFixture()
-    fixture.mode({ lifecycle, supported: lifecycle === 'natural' ? 'opencode2' : 'opencode' })
+    fixture.mode({ lifecycle, supported: 'opencode' })
     const child = spawnProcess(fixture.spec)
     const exited = once(child, 'close')
     let stdout = ''
@@ -339,7 +338,7 @@ it.skipIf(process.platform === 'win32').each(['timeout', 'natural', 'cancel'])(
       expect(
         await within(exited, lifecycle === 'natural' ? 5_000 : 24_000),
         stdout + stderr
-      ).toEqual([lifecycle === 'cancel' ? 143 : 0, null])
+      ).toEqual([lifecycle === 'cancel' ? 143 : refused ? 1 : 0, null])
       expect(fixtureProcessAlive(escaped)).toBe(true)
       const events = fixture.events()
       const owned = events.find(({ kind }) => kind === 'owned')
@@ -353,17 +352,19 @@ it.skipIf(process.platform === 'win32').each(['timeout', 'natural', 'cancel'])(
         expect(events.find(({ kind }) => kind === 'stopping')?.dataHomeExists).toBe(true)
       }
       expect(events.every(({ dataHome }) => !existsSync(dirname(dataHome)))).toBe(true)
-      expect(events.filter(({ kind }) => kind === 'probe').map(({ name }) => name)).toEqual(
-        lifecycle === 'timeout' ? ['opencode2', 'opencode'] : ['opencode2']
-      )
+      expect(events.filter(({ kind }) => kind === 'probe').map(({ name }) => name)).toEqual([
+        'opencode'
+      ])
       expect(events.filter(({ kind }) => kind === 'login').map(({ name }) => name)).toEqual(
-        lifecycle === 'cancel' ? [] : [lifecycle === 'natural' ? 'opencode2' : 'opencode']
+        lifecycle === 'cancel' || refused ? [] : ['opencode']
       )
       expect(fixture.requests.map(({ method }) => method)).toEqual(
-        lifecycle === 'cancel' ? ['status.get'] : ['status.get', 'accounts.addDataFromHome']
+        lifecycle === 'cancel' || refused
+          ? ['status.get']
+          : ['status.get', 'accounts.addDataFromHome']
       )
       if (lifecycle !== 'cancel') {
-        expect(JSON.parse(stdout)).toMatchObject({ ok: true })
+        expect(JSON.parse(stdout)).toMatchObject({ ok: !refused })
       }
     } finally {
       // Only recorded fixture identities and this test's own CLI handle may be stopped.

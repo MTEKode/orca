@@ -9,7 +9,6 @@ import gemini from './gemini.json'
 import hermes from './hermes.json'
 import omp from './omp.json'
 import opencode from './opencode.json'
-import opencode2 from './opencode2.json'
 import pi from './pi.json'
 import primeAgent from './prime-agent.json'
 import unknownPane from './unknown-pane.json'
@@ -44,7 +43,6 @@ export const RAW_BUNDLED_AGENT_STATE_RULE_FILES: readonly unknown[] = [
   hermes,
   omp,
   opencode,
-  opencode2,
   pi,
   primeAgent,
   unknownPane

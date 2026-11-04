@@ -41,7 +41,6 @@ describe('agent hook extraction boundaries', () => {
     ['qoder-cn', 'UserPromptSubmit'],
     ['qwen-code', 'UserPromptSubmit'],
     ['codebuddy', 'UserPromptSubmit'],
-    ['opencode2', 'SessionBusy'],
     ['muse', 'UserPromptSubmit'],
     ['zcode', 'UserPromptSubmit'],
     ['dsh', 'UserPromptSubmit'],

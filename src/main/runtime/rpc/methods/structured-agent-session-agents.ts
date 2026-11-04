@@ -10,7 +10,6 @@ import {
   type AgentSessionAvailabilityFrame
 } from '../../../../shared/agent-session/agent-session-agent-availability'
 import { STRUCTURED_AGENT_RUNTIME_METADATA } from '../../structured-agent-runtime-metadata'
-import { structuredAgentVisibleWithSettings } from '../../../opencode-v2/opencode-v2-gate'
 import { defineMethod, defineStreamingMethod } from '../core'
 import { requireStructuredCapability } from './structured-agent-session-gate'
 import { AgentsParams, AvailabilityParams } from './structured-agent-session-schemas'
@@ -26,12 +25,9 @@ export const STRUCTURED_AGENT_SESSION_AGENTS_METHODS = [
     // Read build-time registrations without installing the host, matching createSupport.
     handler: async (_params, ctx): Promise<AgentSessionAgentsResult> => {
       requireStructuredCapability(ctx)
-      const settings = ctx.runtime.requireStore().getSettings()
       return {
-        agents: STRUCTURED_AGENT_RUNTIME_METADATA.filter(
-          ({ definition }) =>
-            clientReadsStructuredSessionAgent(ctx, definition.agent) &&
-            structuredAgentVisibleWithSettings(definition.agent, settings)
+        agents: STRUCTURED_AGENT_RUNTIME_METADATA.filter(({ definition }) =>
+          clientReadsStructuredSessionAgent(ctx, definition.agent)
         ).map(({ definition }) => ({
           agent: definition.agent,
           capabilities: { ...definition.capabilities },

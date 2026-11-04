@@ -279,9 +279,7 @@ export function planCommitMessageGeneration(
     args
   )
   const formatOption =
-    input.agentId === 'opencode' || input.agentId === 'opencode2'
-      ? findOptionOccurrence(generationArgs, ['--format'], true)
-      : null
+    input.agentId === 'opencode' ? findOptionOccurrence(generationArgs, ['--format'], true) : null
   const kimiFormatOption =
     input.agentId === 'kimi'
       ? findRecipeOption(generationArgs, ['--output-format'], KIMI_VALUE_OPTIONS)

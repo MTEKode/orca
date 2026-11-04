@@ -12,6 +12,8 @@ import { createKeybindingsSlice } from './keybindings'
 import { createGitHubSlice } from './github'
 import { createHostedReviewSlice } from './hosted-review'
 import { createLinearSlice } from './linear'
+import { createMcpIntegrationsSlice } from './mcp-integrations'
+import { createGraphifySlice } from './graphify'
 import { createPreflightSlice } from './preflight'
 import { createJiraSlice } from './jira'
 import { createEditorSlice } from './editor'
@@ -84,6 +86,8 @@ export function createTestStore() {
         ...createGitHubSlice(...a),
         ...createHostedReviewSlice(...a),
         ...createLinearSlice(...a),
+        ...createMcpIntegrationsSlice(...a),
+        ...createGraphifySlice(...a),
         ...createPreflightSlice(...a),
         ...createJiraSlice(...a),
         ...createEditorSlice(...a),

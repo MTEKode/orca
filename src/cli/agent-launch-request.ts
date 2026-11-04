@@ -38,6 +38,7 @@ export type CliAgentLaunch = {
   sessionOptions?: Record<string, string>
   operationId?: string
   surface?: AgentLaunchSurface
+  mteRole?: 'planner'
 }
 
 function readSurfaceFlag(flags: Flags): AgentLaunchSurface | undefined {

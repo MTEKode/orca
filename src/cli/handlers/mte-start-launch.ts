@@ -54,7 +54,7 @@ export async function launchPlannerChat(args: MteStartLaunchArgs): Promise<MteSt
   }
   const result = await callAgentLaunch(
     args.client,
-    launch,
+    { ...launch, mteRole: 'planner' },
     { target: { kind: 'existing', worktree }, presentation: 'background' },
     capabilities
   )

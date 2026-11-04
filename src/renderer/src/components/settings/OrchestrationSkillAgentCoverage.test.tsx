@@ -33,14 +33,14 @@ describe('OrchestrationSkillAgentCoverage', () => {
         skills={[
           {
             id: 'claude-skill',
-            name: 'orchestration',
+            name: 'mte',
             description: null,
             providers: ['claude'],
             sourceKind: 'home',
             sourceLabel: 'Claude Code home',
             rootPath: '/Users/test/.claude/skills',
-            directoryPath: '/Users/test/.claude/skills/orchestration',
-            skillFilePath: '/Users/test/.claude/skills/orchestration/SKILL.md',
+            directoryPath: '/Users/test/.claude/skills/mte',
+            skillFilePath: '/Users/test/.claude/skills/mte/SKILL.md',
             installed: true,
             updatedAt: null
           }
@@ -63,12 +63,12 @@ it('uses the install plan to mark an agent missing even when discovery finds a s
     <OrchestrationSkillAgentCoverage
       loading={false}
       plan={planOf([
-        planEntry('orchestration', [
-          planOp('keep', '/home/u/.agents/skills/orchestration', {
+        planEntry('mte', [
+          planOp('keep', '/home/u/.agents/skills/mte', {
             agents: ['codex'],
             observed: { kind: 'folder', entries: ['SKILL.md:file'], skillDigest: 'a'.repeat(64) }
           }),
-          planOp('link', '/home/u/.claude/skills/orchestration', { agents: ['claude'] })
+          planOp('link', '/home/u/.claude/skills/mte', { agents: ['claude'] })
         ])
       ])}
       sources={['claude', 'codex'].map((owner) => ({
@@ -83,14 +83,14 @@ it('uses the install plan to mark an agent missing even when discovery finds a s
       skills={[
         {
           id: 'skill',
-          name: 'orchestration',
+          name: 'mte',
           description: null,
           providers: ['claude', 'codex'],
           sourceKind: 'home',
           sourceLabel: 'Shared',
           rootPath: '/home/u/.agents/skills',
-          directoryPath: '/home/u/.agents/skills/orchestration',
-          skillFilePath: '/home/u/.agents/skills/orchestration/SKILL.md',
+          directoryPath: '/home/u/.agents/skills/mte',
+          skillFilePath: '/home/u/.agents/skills/mte/SKILL.md',
           installed: true,
           updatedAt: null
         }
@@ -109,16 +109,16 @@ it('uses the remote plan for coverage when local discovery and detection disagre
       sources={[]}
       skills={[]}
       plan={planOf([
-        planEntry('orchestration', [
-          planOp('keep', '/home/remote/.agents/skills/orchestration', {
+        planEntry('mte', [
+          planOp('keep', '/home/remote/.agents/skills/mte', {
             agents: ['opencode'],
             observed: { kind: 'folder', entries: ['SKILL.md:file'], skillDigest: 'a'.repeat(64) }
           }),
-          planOp('keep', '/home/remote/.cursor/skills/orchestration', {
+          planOp('keep', '/home/remote/.cursor/skills/mte', {
             agents: ['cursor'],
-            observed: { kind: 'link', target: '/home/remote/.agents/skills/orchestration' }
+            observed: { kind: 'link', target: '/home/remote/.agents/skills/mte' }
           }),
-          planOp('link', '/home/remote/.gemini/skills/orchestration', { agents: ['gemini'] })
+          planOp('link', '/home/remote/.gemini/skills/mte', { agents: ['gemini'] })
         ])
       ])}
     />
@@ -140,14 +140,14 @@ it('shows full host coverage without waiting for discovery to see the installed 
       sources={[]}
       skills={[]}
       plan={planOf([
-        planEntry('orchestration', [
-          planOp('keep', '/home/remote/.agents/skills/orchestration', {
+        planEntry('mte', [
+          planOp('keep', '/home/remote/.agents/skills/mte', {
             agents: ['opencode', 'codex'],
             observed: { kind: 'folder', entries: ['SKILL.md:file'], skillDigest: 'a'.repeat(64) }
           }),
-          planOp('keep', '/home/remote/.claude/skills/orchestration', {
+          planOp('keep', '/home/remote/.claude/skills/mte', {
             agents: ['claude'],
-            observed: { kind: 'link', target: '/home/remote/.agents/skills/orchestration' }
+            observed: { kind: 'link', target: '/home/remote/.agents/skills/mte' }
           })
         ])
       ])}
@@ -178,8 +178,8 @@ it.each([
       sources={[]}
       skills={[]}
       plan={planOf([
-        planEntry('orchestration', [
-          planOp('leave', '/home/u/.claude/skills/orchestration', {
+        planEntry('mte', [
+          planOp('leave', '/home/u/.claude/skills/mte', {
             observed,
             reason: observed.kind === 'unreadable' ? 'unreadable' : 'other'
           })
@@ -203,15 +203,15 @@ it('counts readable edited copies and verified links to them as usable', () => {
       sources={[]}
       skills={[]}
       plan={planOf([
-        planEntry('orchestration', [
-          planOp('leave', '/home/u/.agents/skills/orchestration', {
+        planEntry('mte', [
+          planOp('leave', '/home/u/.agents/skills/mte', {
             agents: ['codex'],
             reason: 'edited',
             observed: { kind: 'folder', entries: ['SKILL.md:file'], skillDigest: 'c'.repeat(64) }
           }),
-          planOp('leave', '/home/u/.claude/skills/orchestration', {
+          planOp('leave', '/home/u/.claude/skills/mte', {
             reason: 'shared-not-current',
-            observed: { kind: 'link', target: '/home/u/.agents/skills/orchestration' }
+            observed: { kind: 'link', target: '/home/u/.agents/skills/mte' }
           })
         ])
       ])}
@@ -233,14 +233,14 @@ it.each([
         sources={[]}
         skills={[]}
         plan={planOf([
-          planEntry('orchestration', [
-            planOp('leave', '/home/u/.agents/skills/orchestration', {
+          planEntry('mte', [
+            planOp('leave', '/home/u/.agents/skills/mte', {
               observed,
               reason: observed.kind === 'unreadable' ? 'unreadable' : 'other'
             }),
-            planOp('leave', '/home/u/.claude/skills/orchestration', {
+            planOp('leave', '/home/u/.claude/skills/mte', {
               reason: 'shared-not-current',
-              observed: { kind: 'link', target: '/home/u/.agents/skills/orchestration' }
+              observed: { kind: 'link', target: '/home/u/.agents/skills/mte' }
             })
           ])
         ])}

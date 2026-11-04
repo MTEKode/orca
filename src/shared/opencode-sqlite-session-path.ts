@@ -7,7 +7,7 @@ export function buildOpenCodeSqliteCandidatePath(dbPath: string, sessionId: stri
 // A database row reference is metadata, never a transcript file path.
 export function splitOpenCodeSqliteCandidate(
   candidatePath: string,
-  agent: 'opencode' | 'opencode2' | 'zcode' = 'opencode'
+  agent: 'opencode' | 'zcode' = 'opencode'
 ): { dbPath: string; sessionId: string } | null {
   const separatorIndex = candidatePath.lastIndexOf(OPENCODE_SQLITE_PATH_SEPARATOR)
   if (separatorIndex <= 0 || separatorIndex === candidatePath.length - 1) {

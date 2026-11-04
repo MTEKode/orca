@@ -8,7 +8,7 @@ import { getLinearAgentSkillPaneSearchEntries } from '@/components/settings/line
 import { getMobileSettingsPaneSearchEntries } from '@/components/settings/mobile-settings-search'
 import { getOrcaAccountSettingsSearchEntries } from '@/components/settings/orca-account-settings-search'
 import { OrcaLogoSettingsIcon } from '@/components/settings/orca-logo-settings-icon'
-import { getOrchestrationPaneSearchEntries } from '@/components/settings/orchestration-search'
+import { getMteFlowPaneSearchEntries } from '@/components/settings/mte-flow-search'
 import { getVoicePaneSearchEntries } from '@/components/settings/voice-pane-search'
 import { translate } from '@/i18n/i18n'
 import type { SettingsNavSection } from '@/lib/settings-navigation-types'
@@ -66,13 +66,13 @@ export function buildCapabilitySettingsSections({
     },
     {
       id: 'orchestration',
-      title: translate('auto.hooks.useSettingsNavigationMetadata.58a868e8e4', 'Orchestration'),
+      title: translate('auto.hooks.useSettingsNavigationMetadata.mteFlowTitle', 'MTE flow'),
       description: translate(
-        'auto.hooks.useSettingsNavigationMetadata.cd50cec5d7',
-        'Coordinate multiple coding agents through Orca.'
+        'auto.hooks.useSettingsNavigationMetadata.mteFlowDescription',
+        'Settings for MTE orchestration runs: planner, workers and validation.'
       ),
       icon: Network,
-      searchEntries: getOrchestrationPaneSearchEntries({
+      searchEntries: getMteFlowPaneSearchEntries({
         includeLocalRuntimeSettings: !isWebClient
       }),
       group: 'capabilities'

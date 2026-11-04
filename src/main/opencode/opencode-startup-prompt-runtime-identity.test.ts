@@ -12,7 +12,7 @@ vi.mock('electron', () => ({
   app: { getPath: vi.fn(() => '/tmp') }
 }))
 
-async function fixture(launchAgent?: 'opencode' | 'opencode2' | 'zcode') {
+async function fixture(launchAgent?: 'opencode' | 'zcode') {
   const { runtime } = await createTranscriptPane({
     paneTitle: 'Terminal',
     foregroundProcess: null,
@@ -30,7 +30,7 @@ async function fixture(launchAgent?: 'opencode' | 'opencode2' | 'zcode') {
 
 describe('runtime-owned startup prompt identity', () => {
   it('refuses same-ID replay after the execution owner or launch token changes', async () => {
-    const f = await fixture('opencode2')
+    const f = await fixture('opencode')
     const claims = new OpenCodeStartupPromptClaims()
     claims.register('owned-operation', 'digest', () => f.read())
     const body = { nonce: 'owned-operation', digest: 'digest', requestId: 'stable-operation' }
@@ -41,7 +41,7 @@ describe('runtime-owned startup prompt identity', () => {
       tabId: 'tab-1',
       leafId: '11111111-1111-4111-8111-111111111111',
       incarnationId: 'inc-2',
-      agentLaunchAuthority: { launchToken: 'replacement-launch', launchAgent: 'opencode2' }
+      agentLaunchAuthority: { launchToken: 'replacement-launch', launchAgent: 'opencode' }
     })
     f.runtime.terminalRunFacts.recordSpawnCommit({
       id: TRANSCRIPT_PANE_PTY_ID,

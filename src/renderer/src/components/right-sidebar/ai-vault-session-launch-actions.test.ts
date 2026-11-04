@@ -126,13 +126,11 @@ describe('Switch to Terminal launch', () => {
   // Either OpenCode chat may own a 2.x conversation, so the copy may open in either CLI.
   it.each([
     ['command', 'opencode'],
-    ['arguments', 'opencode'],
-    ['command', 'opencode2'],
-    ['arguments', 'opencode2']
+    ['arguments', 'opencode']
   ] as const)(
     'refuses %s server routing on %s before asking for any copy',
     async (location, cli) => {
-      const chat = { ...owned, agent: 'opencode2' as const }
+      const chat = { ...owned, agent: 'opencode' as const }
       const agentCmdOverrides =
         location === 'command' ? { [cli]: `${cli} --server http://synthetic-server` } : {}
       mocks.getState.mockReturnValue({
@@ -170,7 +168,7 @@ describe('Switch to Terminal launch', () => {
     expect(mocks.toastError).not.toHaveBeenCalled()
   })
 
-  it.each(['omp', 'opencode2'] as const)(
+  it.each(['omp'] as const)(
     'opens the %s copy with the actual CLI in the chosen workspace',
     async (agent) => {
       const chat = { ...owned, agent, executionHostId: 'runtime:paired-host' as const }

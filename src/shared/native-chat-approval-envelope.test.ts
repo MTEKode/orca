@@ -16,7 +16,6 @@ describe('parseNativeChatApprovalEnvelope', () => {
     ['claude', '1'],
     ['codex', '1'],
     ['opencode', '\r'],
-    ['opencode2', '\r'],
     ['zcode', '\r']
   ])('allows a %s prompt with %j', (agent, allowSend) => {
     expect(

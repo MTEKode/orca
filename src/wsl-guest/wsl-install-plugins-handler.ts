@@ -14,7 +14,6 @@ export type InstallPluginsResult = {
   installed: {
     opencodeStartupPrompt?: boolean
     opencode: boolean
-    opencode2?: boolean
     pi: boolean
     omp: boolean
     primeAgent: boolean
@@ -23,7 +22,6 @@ export type InstallPluginsResult = {
     claudeAgentView?: string
     claudeConfig?: string
     opencode?: string
-    opencode2?: string
     pi?: string
     omp?: string
   }
@@ -39,21 +37,18 @@ export function createInstallPluginsHandler(
 ): InstallPluginsHandler {
   // Rebuild only changed sources: repeat installs share an instance overlay that running/spawning agents may already use.
   let materialized: { source: string; sourceDir: string | undefined; dir: string } | null = null
-  let materialized2: { source: string; sourceDir: string | undefined; dir: string } | null = null
 
   return (params) => {
     const claudeAgentView = params.claudeAgentViewSource
     assertPluginSourceUnderByteCap('claudeAgentViewSource', claudeAgentView)
     const startupPrompt = params.opencodeStartupPromptSource
     const opencode = params.opencodePluginSource
-    const opencode2 = params.opencode2PluginSource
     const pi = params.piExtensionSource
     const omp = params.ompExtensionSource
     const primeAgent = params.primeAgentExtensionSource
     // Why: bound per-source bytes so a buggy/hostile host can't OOM the guest relay.
     assertPluginSourceUnderByteCap('opencodeStartupPromptSource', startupPrompt)
     assertPluginSourceUnderByteCap('opencodePluginSource', opencode)
-    assertPluginSourceUnderByteCap('opencode2PluginSource', opencode2)
     assertPluginSourceUnderByteCap('piExtensionSource', pi)
     assertPluginSourceUnderByteCap('ompExtensionSource', omp)
     assertPluginSourceUnderByteCap('primeAgentExtensionSource', primeAgent)
@@ -61,7 +56,6 @@ export function createInstallPluginsHandler(
       ...(typeof claudeAgentView === 'string' ? { claudeAgentViewSource: claudeAgentView } : {}),
       opencodeStartupPromptSource: typeof startupPrompt === 'string' ? startupPrompt : undefined,
       opencodePluginSource: typeof opencode === 'string' ? opencode : undefined,
-      opencode2PluginSource: typeof opencode2 === 'string' ? opencode2 : undefined,
       piExtensionSource: typeof pi === 'string' ? pi : undefined,
       ompExtensionSource: typeof omp === 'string' ? omp : undefined,
       primeAgentExtensionSource: typeof primeAgent === 'string' ? primeAgent : undefined
@@ -99,31 +93,6 @@ export function createInstallPluginsHandler(
             : null
       }
     }
-    let opencode2Dir: string | undefined
-    if (pluginOverlay.hasOpenCode2Source()) {
-      const incoming = typeof opencode2 === 'string' ? opencode2 : null
-      const sourceDir =
-        resolveOpenCodeSourceConfigDir(env as Record<string, string>, env.SHELL) ??
-        resolveOpenCodeConfigDirectory(env as Record<string, string>, env.HOME)
-      const existingSourceDir = sourceDir && existsSync(sourceDir) ? sourceDir : undefined
-      const cached = materialized2
-      if (
-        cached &&
-        (incoming === null || incoming === cached.source) &&
-        existingSourceDir === cached.sourceDir &&
-        existsSync(getRelayOpenCodePluginPath(cached.dir, 'opencode2'))
-      ) {
-        opencode2Dir = cached.dir
-      } else {
-        const overlayId =
-          sanitizeWslHookInstanceKey(env[WSL_HOOK_RELAY_INSTANCE_ENV]) ?? 'wsl-opencode2'
-        opencode2Dir = pluginOverlay.materializeOpenCode2(overlayId, existingSourceDir) ?? undefined
-        materialized2 =
-          opencode2Dir && incoming !== null
-            ? { source: incoming, sourceDir: existingSourceDir, dir: opencode2Dir }
-            : null
-      }
-    }
     // Materialize only the explicitly requested agent. Bare shells must not create
     // ~/.pi/agent or ~/.omp/agent (#10196).
     if (launchKind === 'pi' || launchKind === 'omp') {
@@ -139,9 +108,7 @@ export function createInstallPluginsHandler(
         }
       }
     }
-    const promptConfigDirs = [opencodeDir, opencode2Dir].filter(
-      (dir): dir is string => typeof dir === 'string'
-    )
+    const promptConfigDirs = [opencodeDir].filter((dir): dir is string => typeof dir === 'string')
     if (promptConfigDirs.length === 0) {
       promptConfigDirs.push(
         resolveOpenCodeSourceConfigDir(
@@ -166,7 +133,6 @@ export function createInstallPluginsHandler(
       installed: {
         opencodeStartupPrompt: startupPromptInstalled,
         opencode: pluginOverlay.hasOpenCodeSource(),
-        opencode2: pluginOverlay.hasOpenCode2Source(),
         pi: pluginOverlay.hasPiSource('pi'),
         omp: pluginOverlay.hasPiSource('omp'),
         primeAgent: pluginOverlay.hasPiSource('prime-agent')
@@ -174,7 +140,6 @@ export function createInstallPluginsHandler(
       overlayDirs: {
         ...(claude ? { claudeAgentView: claude.pluginDir, claudeConfig: claude.configDir } : {}),
         ...(opencodeDir ? { opencode: opencodeDir } : {}),
-        ...(opencode2Dir ? { opencode2: opencode2Dir } : {}),
         ...(piDir ? { pi: piDir } : {}),
         ...(ompDir ? { omp: ompDir } : {})
       }

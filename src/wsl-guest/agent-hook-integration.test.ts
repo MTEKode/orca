@@ -145,7 +145,7 @@ describe('Integration: relay hook server → mux → AgentHookServer.ingestRemot
   it.each([
     { agent: 'claude', input: { hook_event_name: 'UserPromptSubmit', prompt: 'roundtrip' } },
     {
-      agent: 'opencode2',
+      agent: 'opencode',
       input: { hook_event_name: 'MessagePart', role: 'user', text: 'roundtrip' }
     }
   ])('forwards a $agent prompt through the relay to ingestRemote', async ({ agent, input }) => {

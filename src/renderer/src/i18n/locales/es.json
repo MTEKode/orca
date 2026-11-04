@@ -986,7 +986,6 @@
           "freebuff_label": "Freebuff",
           "dsh_label": "DeepSeek Harness",
           "qoder_label": "Qoder CLI",
-          "opencode2_label": "OpenCode 2",
           "qoder_cn_label": "Qoder CLI China"
         },
         "skill": {
@@ -1550,8 +1549,6 @@
         "6a50cdcd7c": "Voz",
         "0059bd17f3": "Permite que los agentes controlen cualquier app en tu computadora.",
         "b35e92364b": "Computer Use",
-        "cd50cec5d7": "Coordina múltiples coding agents a través de Orca.",
-        "58a868e8e4": "Orquestación",
         "7c79d3b7bf": "Opcional",
         "b1c2f8b0ac": "Configuración opcional de cuentas y uso para Claude, Codex, Gemini, OpenCode Go, MiniMax y Grok.",
         "f70ac54d38": "Cuentas de proveedores de IA",
@@ -8039,21 +8036,6 @@
           "3743ed080c": "Establecer comando",
           "f79084947b": "Nueva aplicación"
         },
-        "OrchestrationPane": {
-          "52e0634e2c": "Pídele a un agente coordinador que use la orquestación para handoffs, handoffs de worktree y agentes secundarios secuenciales o paralelos.",
-          "ae79504732": "Cómo usarlo",
-          "9bedd2a6e5": "Permite a los agentes transferir contexto y coordinar el trabajo a través de Orca.",
-          "07641b9768": "Skill de orquestación",
-          "2aacdb0517": "Coordina agentes de programación en handoffs, handoffs de worktree y trabajo de agentes secundarios.",
-          "191ac34567": "Orquestación de agentes",
-          "nestedWorkerDepthTitle": "Profundidad del trabajador anidado",
-          "nestedWorkerDepthDescription": "¿Cuántas generaciones de trabajadores despedidos pueden engendrar sus propios trabajadores? 1 mantiene el árbol de agentes plano: un coordinador envía trabajadores y esos trabajadores no envían.",
-          "7bc082f4de": "Copiar comando de instalación",
-          "workerAutoReleaseTitle": "Cerrar automáticamente los trabajadores finalizados",
-          "workerAutoReleaseDescription": "Cierra el terminal o chat de un trabajador 2 minutos después de que termine, salvo que elijas Mantener abierto. Si vuelve a trabajar, los 2 minutos empiezan de nuevo cuando termina.",
-          "workerAutoReleaseKeywordClose": "cerrar",
-          "workerAutoReleaseKeywordRelease": "liberar"
-        },
         "OrchestrationSetupCard": {
           "e7d2a5146c": "Permite a los agentes transferir contexto y coordinar el trabajo a través de Orca.",
           "2777ff0fdc": "Skill de orquestación"
@@ -8539,8 +8521,6 @@
           "5063bb47a5": "Voz",
           "7118953f14": "Permite que los agentes controlen cualquier app en tu computadora.",
           "c9841721cb": "Computer Use",
-          "475980f53d": "Coordina varios agentes de codificación a través de Orca.",
-          "00c3a7950d": "Orquestación",
           "21f09426ea": "Opcional. Orca funciona con tus inicios de sesión de proveedores existentes; agrega cuentas solo si quieres que Orca te ayude a cambiar entre ellas.",
           "ad6c529693": "Cuentas de proveedores de IA",
           "ec1ba547f7": "Administra agentes de IA, define uno predeterminado y personaliza comandos.",
@@ -10301,9 +10281,7 @@
             "91fc8ab7e5": "coordinación",
             "13ba5c6cbd": "agentes",
             "d86705ba77": "multi-agent",
-            "a7f76b4ca7": "orquestación",
-            "e05ff36753": "Coordina varios agentes de codificación mediante mensajería, DAG de tareas, dispatch y controles de decisión.",
-            "c34045764e": "Orquestación de agentes"
+            "a7f76b4ca7": "orquestación"
           }
         },
         "privacy": {
@@ -23572,12 +23550,6 @@
       "dontAskAgain": "No volver a preguntar en este proyecto",
       "plainChat": "Chat normal",
       "useMte": "Orquestación MTE"
-    },
-    "prompt": {
-      "title": "¿Usar la orquestación MTE en este chat?",
-      "description": "El planificador MTE te preguntará por el objetivo y después dirigirá a los agentes coder y validator a lo largo del plan. Orca escribe la configuración de herramientas de MTE en este espacio de trabajo.",
-      "confirm": "Usar MTE",
-      "cancel": "Chat normal"
     },
     "prepare": {
       "failed": "No se pudo preparar MTE: {{message}}"

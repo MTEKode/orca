@@ -1,3 +1,4 @@
+import { createToolsMcpServerResolver } from '../../mcp-integrations/tools-server'
 import { getRepoHostIdentityForParts } from '../../../shared/repo-host-identity'
 import { createRepoRowExecutionHostLookup } from '../../../shared/worktree-execution-host-resolution'
 import { resolveWorktreeHostRouting } from '../worktree-launch-host-repo'
@@ -262,6 +263,7 @@ export abstract class OrcaRuntimeWithGetWorktreePs extends OrcaRuntimeWithWorktr
       },
       resolveTurnCheckpointsEnabled: () =>
         this.requireStore().getSettings().nativeChatTurnCheckpoints !== false,
+      resolveToolsMcpServer: createToolsMcpServerResolver(() => this.requireStore().getSettings()),
       // In-process review MCP tools for structured Claude launches; the setting gates each launch.
       reviewTools: createClaudeReviewMcpRuntime({
         isEnabled: () => this.requireStore().getSettings().nativeChatReviewTools !== false,

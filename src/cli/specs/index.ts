@@ -28,6 +28,8 @@ import { SEARCH_COMMAND_SPECS } from './search'
 import { PROFILE_STATE_COMMAND_SPECS } from './profile-state'
 import { REFERENCE_COMMAND_SPECS } from './reference'
 import { PORTS_COMMAND_SPECS } from './ports'
+import { MCP_COMMAND_SPECS } from './mcp'
+import { GRAPH_COMMAND_SPECS } from './graph'
 import { MTE_COMMAND_SPECS } from './mte'
 import { PLUGIN_AUTHORING_COMMAND_SPECS, PLUGIN_RUNTIME_COMMAND_SPECS } from './plugin'
 import { PLUGIN_VIEW_COMMAND_SPECS } from './plugin-view'
@@ -62,6 +64,8 @@ export const COMMAND_SPECS: CommandSpec[] = [
   ...PROFILE_STATE_COMMAND_SPECS,
   ...PORTS_COMMAND_SPECS,
   ...MTE_COMMAND_SPECS,
+  ...MCP_COMMAND_SPECS,
+  ...GRAPH_COMMAND_SPECS,
   ...PLUGIN_AUTHORING_COMMAND_SPECS,
   ...PLUGIN_RUNTIME_COMMAND_SPECS,
   ...PLUGIN_VIEW_COMMAND_SPECS

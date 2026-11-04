@@ -12,9 +12,10 @@ vi.mock('./session-scanner-opencode-sqlite-worker-spawn', async () => {
     import('./session-scanner-opencode-sqlite-list'),
     import('./session-scanner-opencode-sqlite')
   ])
-  const { listOpenCode2SqliteSessions } = await import('./session-scanner-opencode2-sqlite-list')
+  const { listOpenCodeNextSqliteSessions } =
+    await import('./session-scanner-opencode-next-sqlite-list')
   return {
-    listOpenCode2SqliteSessionsViaWorker: listOpenCode2SqliteSessions,
+    listOpenCodeNextSqliteSessionsViaWorker: listOpenCodeNextSqliteSessions,
     listOpenCodeSqliteSessionsViaWorker: listOpenCodeSqliteSessions,
     listZcodeSqliteSessionsViaWorker: (args: Parameters<typeof listOpenCodeSqliteSessions>[0]) =>
       listOpenCodeSqliteSessions({ ...args, agent: 'zcode' }),

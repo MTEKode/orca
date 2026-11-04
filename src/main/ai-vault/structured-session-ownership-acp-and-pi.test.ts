@@ -21,10 +21,7 @@ const OTHER_UUID = '019fd633-4d5e-7f60-b172-8d9e0f1a2b3c'
 const OMP_FILE = `/Users/me/.omp/agent/sessions/--Users-me-repo--/2026-10-09T10-00-00-000Z_${OMP_ID}.jsonl`
 const PI_FILE = `/Users/me/.pi/agent/sessions/--Users-me-repo--/2026-10-09T10-00-00-000Z_${PI_ID}.jsonl`
 
-const acp = (
-  agent: 'opencode' | 'opencode2' | 'grok' | 'omp',
-  nativeId: string
-): AgentSessionProviderHandle => ({
+const acp = (agent: 'opencode' | 'grok' | 'omp', nativeId: string): AgentSessionProviderHandle => ({
   transport: 'acp',
   agent,
   nativeId
@@ -75,19 +72,19 @@ describe('Session History rows owned by OpenCode, Grok, OMP and Pi chats', () =>
     },
     {
       handle: acp('opencode', OPENCODE_ID),
-      rowAgent: 'opencode2' as const,
+      rowAgent: 'opencode' as const,
       sessionId: OPENCODE_ID,
       filePath: `/Users/me/.local/share/opencode/opencode.db#${OPENCODE_ID}`
     },
     // Upgraded OpenCode databases can retain both history formats under one conversation id.
     {
-      handle: acp('opencode2', OPENCODE_ID),
-      rowAgent: 'opencode2' as const,
+      handle: acp('opencode', OPENCODE_ID),
+      rowAgent: 'opencode' as const,
       sessionId: OPENCODE_ID,
       filePath: `/Users/me/.local/share/opencode/opencode.db#${OPENCODE_ID}`
     },
     {
-      handle: acp('opencode2', OPENCODE_ID),
+      handle: acp('opencode', OPENCODE_ID),
       rowAgent: 'opencode' as const,
       sessionId: OPENCODE_ID,
       filePath: `/Users/me/.local/share/opencode/opencode.db#${OPENCODE_ID}`
@@ -182,7 +179,7 @@ describe('terminal resumes of a conversation an OpenCode chat owns', () => {
     `opencode --session ${OPENCODE_ID}`,
     `opencode -s ${OPENCODE_ID}`,
     `opencode --session=${OPENCODE_ID}`,
-    `opencode2 --standalone --session '${OPENCODE_ID}'`,
+    `opencode --session '${OPENCODE_ID}'`,
     `cd '/Users/me/repo' && opencode run -s ${OPENCODE_ID} "keep going"`,
     `opencode -c`,
     `opencode --continue`,
@@ -207,13 +204,13 @@ describe('terminal resumes of a conversation an OpenCode chat owns', () => {
     await allowed(command)
   })
 
-  it.each([
-    `opencode --session ${OPENCODE_ID}`,
-    `opencode2 --standalone --session '${OPENCODE_ID}'`
-  ])('refuses %s while an OpenCode 2 chat owns it', async (command) => {
-    installOwnership({ handle: acp('opencode2', OPENCODE_ID) })
-    await refused(command)
-  })
+  it.each([`opencode --session ${OPENCODE_ID}`, `opencode --session '${OPENCODE_ID}'`])(
+    'refuses %s while an OpenCode 2 chat owns it',
+    async (command) => {
+      installOwnership({ handle: acp('opencode', OPENCODE_ID) })
+      await refused(command)
+    }
+  )
 })
 
 describe('terminal resumes of a conversation a Grok chat owns', () => {

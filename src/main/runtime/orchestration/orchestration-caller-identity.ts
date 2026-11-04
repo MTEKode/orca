@@ -21,6 +21,8 @@ export type OrchestrationSessionCaller = OrchestrationCallerIdentity &
     sessionId: OrcaSessionId
     /** Where the session runs, from its record; `worker-start --worktree current` places here. */
     workspaceId: string
+    /** From the session record: set only on chats the MTE start entry points launched. */
+    mteRole?: 'planner'
   }>
 
 /** A caller with neither a pane nor an Orca session id can never be bound to a Run. */

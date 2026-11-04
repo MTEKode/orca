@@ -141,7 +141,7 @@ describe.each(['v1', 'v2'] as const)('%s byte-bounded semantic pages', (version)
         (reply) => replies.push(reply)
       )
       await method.handler(
-        method.params?.parse({ agent: 'opencode2', sessionId: 'session', limit: 2000 }),
+        method.params?.parse({ agent: 'opencode', sessionId: 'session', limit: 2000 }),
         ctx,
         emitter.emit
       )
@@ -322,7 +322,7 @@ it('preserves empty append lifecycle frames', async () => {
   }
   const frames: unknown[] = []
   await method.handler(
-    method.params?.parse({ agent: 'opencode2', sessionId: 'session' }),
+    method.params?.parse({ agent: 'opencode', sessionId: 'session' }),
     context(),
     (frame) => frames.push(frame)
   )

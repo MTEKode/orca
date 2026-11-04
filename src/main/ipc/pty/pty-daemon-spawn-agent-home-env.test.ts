@@ -6,7 +6,6 @@ import {
   createDaemonActiveProviderFixtures
 } from './pty-ipc-daemon-provider-fixtures'
 import { delimiter, join } from 'node:path'
-import type { TuiAgent } from '../../../shared/tui-agent'
 import { LEGACY_TERMINAL_SHIM_REMOTE_ENV_KEYS } from '../../pty/legacy-terminal-shim-dir'
 import { wslHookRelayManager } from '../../agent-hooks/wsl-hook-relay-manager'
 import { registerPtyHandlers } from './register-handlers'
@@ -330,40 +329,23 @@ describe('registerPtyHandlers', () => {
           spy.mockRestore()
         }
       })
-      // Guest overlays are OpenCode-major-specific; the wrong variant silently disables hooks.
-      const guestOverlayCases: {
-        launchAgent?: TuiAgent
-        expectedAgent: 'opencode' | 'opencode2'
-      }[] = [
-        { expectedAgent: 'opencode' },
-        { launchAgent: 'opencode2', expectedAgent: 'opencode2' }
-      ]
-      it.each(guestOverlayCases)(
-        'selects the $expectedAgent guest overlay for a WSL spawn',
-        async ({ launchAgent, expectedAgent }) => {
-          const guestDirs = {
-            opencode: '/home/jin/.orca-relay/opencode-overlays/abc',
-            opencode2: '/home/jin/.orca-relay/opencode2-overlays/def'
-          }
-          const spy = vi
-            .spyOn(wslHookRelayManager, 'getOpenCodeOverlayDir')
-            .mockImplementation((_distro, agent = 'opencode') => guestDirs[agent])
-          try {
-            await withWin32Platform(async () => {
-              const env = await daemonSpawnAndGetEnv({}, undefined, undefined, undefined, {
-                shellOverride: 'wsl.exe',
-                ...(launchAgent ? { launchAgent } : {})
-              })
-              expect(spy.mock.calls.map(([, agent]) => agent)).toEqual([expectedAgent])
-              expect(env.ORCA_OPENCODE_AGENT).toBe(expectedAgent)
-              expect(env.OPENCODE_CONFIG_DIR).toBe(guestDirs[expectedAgent])
-              expect(env.ORCA_OPENCODE_CONFIG_DIR).toBe(guestDirs[expectedAgent])
+      it('selects the guest overlay for a WSL spawn', async () => {
+        const guestDir = '/home/jin/.orca-relay/opencode-overlays/abc'
+        const spy = vi.spyOn(wslHookRelayManager, 'getOpenCodeOverlayDir').mockReturnValue(guestDir)
+        try {
+          await withWin32Platform(async () => {
+            const env = await daemonSpawnAndGetEnv({}, undefined, undefined, undefined, {
+              shellOverride: 'wsl.exe'
             })
-          } finally {
-            spy.mockRestore()
-          }
+            expect(spy).toHaveBeenCalledTimes(1)
+            expect(env.ORCA_OPENCODE_AGENT).toBe('opencode')
+            expect(env.OPENCODE_CONFIG_DIR).toBe(guestDir)
+            expect(env.ORCA_OPENCODE_CONFIG_DIR).toBe(guestDir)
+          })
+        } finally {
+          spy.mockRestore()
         }
-      )
+      })
       it('strips the daemon-inherited Orca-owned CODEX_HOME for real-home routing', async () => {
         const spawnOptions = await daemonSpawnAndGetOptions(
           {},

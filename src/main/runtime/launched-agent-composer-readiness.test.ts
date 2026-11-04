@@ -29,7 +29,6 @@ import { waitForWorktreeStartupDraft } from './runtime-worktree-startup-readines
 const EXPECTED_LANES: Record<TuiAgent, LaunchedAgentReadinessLane> = {
   zcode: 'composer-marker',
   opencode: 'composer-marker',
-  opencode2: 'composer-marker',
   // mimo-code shares OpenCode's signal by parity only; no mimo boot has been recorded.
   'mimo-code': 'tui-idle',
   // Grok's inline mode never fires its marker; its marker is not proven at the box for every mode.
@@ -146,7 +145,7 @@ describe('which idle-lane worker starts also answer on their composer marker', (
 describe('every capture a row cites proves its input-box marker', () => {
   it('cites at least the rows worker start moved', () => {
     expect(CITED_CAPTURES.map(([agent]) => agent)).toEqual(
-      expect.arrayContaining(['zcode', 'opencode', 'opencode2'])
+      expect.arrayContaining(['zcode', 'opencode'])
     )
   })
 

@@ -70,7 +70,7 @@ describe('buildAgentSessionContinuationPrompt', () => {
     )
     expect(buildAgentSessionContinuationPrompt(source, 'full')).toBeNull()
   })
-  it.each(['opencode', 'opencode2'] as const)(
+  it.each(['opencode'] as const)(
     'uses captured context for %s SQLite references',
     (sourceAgent) => {
       const source = {
@@ -138,29 +138,26 @@ describe('prepareAgentSessionContinuationFromPane', () => {
     })
   })
 
-  it.each(['opencode', 'opencode2'] as const)(
-    'captures scrollback for a %s SQLite session',
-    (sourceAgent) => {
-      store.agentStatusByPaneKey[`tab-1:${LEAF_ID}`] = {
-        agentType: sourceAgent,
-        providerSession: { transcriptPath: '/tmp/opencode.db#ses_proof' }
-      }
-      const pane = makePane('latest terminal context')
-      const request = prepareAgentSessionContinuationFromPane({
-        pane,
-        tabId: 'tab-1',
-        worktreeId: 'wt-1',
-        groupId: null,
-        workspacePath: '/repo',
-        initialCwd: '/repo'
-      })
-      expect(pane.serializeAddon.serialize).toHaveBeenCalledWith({ scrollback: 800 })
-      expect(request?.source.capturedText).toBe('latest terminal context')
-      expect(buildAgentSessionContinuationPrompt(request!.source, 'focused')).toContain(
-        'latest terminal context'
-      )
+  it.each(['opencode'] as const)('captures scrollback for a %s SQLite session', (sourceAgent) => {
+    store.agentStatusByPaneKey[`tab-1:${LEAF_ID}`] = {
+      agentType: sourceAgent,
+      providerSession: { transcriptPath: '/tmp/opencode.db#ses_proof' }
     }
-  )
+    const pane = makePane('latest terminal context')
+    const request = prepareAgentSessionContinuationFromPane({
+      pane,
+      tabId: 'tab-1',
+      worktreeId: 'wt-1',
+      groupId: null,
+      workspacePath: '/repo',
+      initialCwd: '/repo'
+    })
+    expect(pane.serializeAddon.serialize).toHaveBeenCalledWith({ scrollback: 800 })
+    expect(request?.source.capturedText).toBe('latest terminal context')
+    expect(buildAgentSessionContinuationPrompt(request!.source, 'focused')).toContain(
+      'latest terminal context'
+    )
+  })
 
   it('falls back to terminal capture when the provider transcript path is blank', () => {
     store.agentStatusByPaneKey[`tab-1:${LEAF_ID}`]!.providerSession = { transcriptPath: '   ' }

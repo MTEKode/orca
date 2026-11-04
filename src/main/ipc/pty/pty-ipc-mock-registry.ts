@@ -22,7 +22,6 @@ export const getPathMock: Mock = vi.fn()
 export const loginPreflightExecFileMock: Mock = vi.fn()
 export const spawnMock: Mock = vi.fn()
 export const openCodeBuildPtyEnvMock: Mock = vi.fn()
-export const openCode2BuildPtyEnvMock: Mock = vi.fn()
 export const mimoCodeBuildPtyEnvMock: Mock = vi.fn()
 export const isPwshAvailableMock: Mock = vi.fn()
 export const wslUncDirectoryExistsAsyncMock: Mock = vi.fn()
@@ -111,12 +110,6 @@ export const openCodeHookServiceModuleMock = () => ({
   },
   openCodeHookService: {
     buildPtyEnv: openCodeBuildPtyEnvMock,
-    refreshLegacySharedPlugin: vi.fn<() => void>(),
-    clearPty: openCodeClearPtyMock
-  },
-  // Independent variant spies expose accidental v1 plugin injection into OpenCode 2 panes.
-  openCode2HookService: {
-    buildPtyEnv: openCode2BuildPtyEnvMock,
     refreshLegacySharedPlugin: vi.fn<() => void>(),
     clearPty: openCodeClearPtyMock
   }

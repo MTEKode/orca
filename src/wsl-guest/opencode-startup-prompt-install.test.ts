@@ -44,7 +44,7 @@ describe('execution-host startup prompt installation', () => {
     expect(readFileSync(join(overlay, 'opencode.json'), 'utf8')).toContain('user/model')
     expect(existsSync(join(overlay, 'plugins', 'orca-opencode-status.js'))).toBe(false)
   })
-  it('installs through WSL with both status sources disabled and preserves explicit config', () => {
+  it('installs through WSL with the status source disabled and preserves explicit config', () => {
     const config = join(root, 'custom')
     const manager = new PluginOverlayManager({ homeDir: root })
     const install = createInstallPluginsHandler(manager, {
@@ -53,30 +53,27 @@ describe('execution-host startup prompt installation', () => {
     })
     const result = install({
       opencodeStartupPromptSource: 'first',
-      opencodePluginSource: '',
-      opencode2PluginSource: ''
+      opencodePluginSource: ''
     })
     expect(result.installed).toMatchObject({
       opencodeStartupPrompt: true,
-      opencode: false,
-      opencode2: false
+      opencode: false
     })
     expect(result.overlayDirs).toEqual({})
     expect(readFileSync(promptPath(config), 'utf8')).toBe('first')
     install({ opencodeStartupPromptSource: 'second' })
     expect(readFileSync(promptPath(config), 'utf8')).toBe('second')
   })
-  it('refreshes prompt source in both cached status overlays without rebuilding them', () => {
+  it('refreshes prompt source in the cached status overlay without rebuilding them', () => {
     const manager = new PluginOverlayManager({ homeDir: root })
     const install = createInstallPluginsHandler(manager, { HOME: root })
     const first = install({
       opencodeStartupPromptSource: 'first',
-      opencodePluginSource: 'status v1',
-      opencode2PluginSource: 'status v2'
+      opencodePluginSource: 'status v1'
     })
     const second = install({ opencodeStartupPromptSource: 'second' })
     expect(second.overlayDirs).toEqual(first.overlayDirs)
-    for (const config of [second.overlayDirs.opencode, second.overlayDirs.opencode2]) {
+    for (const config of [second.overlayDirs.opencode]) {
       if (!config) {
         throw new Error('Missing status overlay')
       }

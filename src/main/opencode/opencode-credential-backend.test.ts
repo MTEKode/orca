@@ -67,24 +67,6 @@ describe('OpenCode credential execution backend', () => {
     })
   })
 
-  it('probes opencode2 only when the default opencode command is absent', async () => {
-    vi.mocked(resolveCommandOnLocalPath)
-      .mockResolvedValueOnce(null)
-      .mockResolvedValueOnce('/task/bin/opencode2')
-    vi.mocked(runProcess).mockResolvedValue({
-      code: 0,
-      signal: null,
-      stdout: 'opencode v2.0.16',
-      stderr: '',
-      timedOut: false
-    })
-
-    expect(await detectOpenCodeCredentialBackend()).toBe('v2')
-    expect(runProcess).toHaveBeenCalledWith(
-      expect.objectContaining({ program: '/task/bin/opencode2' })
-    )
-  })
-
   it.each([
     { code: 1, timedOut: false },
     { code: 0, timedOut: true },

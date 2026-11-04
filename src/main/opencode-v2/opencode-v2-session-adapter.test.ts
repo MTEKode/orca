@@ -65,7 +65,7 @@ async function openAdapter(
   permissionMode: 'ask' | 'full-access' = 'ask',
   readRecord: () => StoredResume | null = () => null
 ) {
-  const rig = await openProviderTimelineRig({}, { agent: 'opencode-v2', providerHandle: null })
+  const rig = await openProviderTimelineRig({}, { agent: 'opencode', providerHandle: null })
   const sse = createSseStream()
   const routes: FetchFakeRoute[] = [
     (call) => {
@@ -159,7 +159,7 @@ async function openAdapter(
     sessionId: SESSION,
     workspaceId: 'workspace-1',
     hostId: 'local',
-    agent: 'opencode-v2',
+    agent: 'opencode',
     providerHandle: null
   }
   const acquisition = await adapter.acquire({
@@ -183,7 +183,7 @@ describe('OpenCodeV2SessionAdapter integration', () => {
     const { opened, calls } = await openAdapter()
     expect(opened.link).toMatchObject({
       origin: 'created',
-      handle: { transport: 'opencode-v2', agent: 'opencode-v2', nativeId: PROVIDER_SESSION }
+      handle: { transport: 'opencode-v2', agent: 'opencode', nativeId: PROVIDER_SESSION }
     })
     expect(opened.reportedOptions.model).toBe(MODEL.id)
     expect(opened.catalogListing?.models.map((model) => model.id)).toEqual([MODEL.id])
@@ -314,7 +314,7 @@ describe('OpenCodeV2SessionAdapter integration', () => {
       providerHandleChain: [
         {
           linkId: 'link-1',
-          handle: { transport: 'opencode-v2', agent: 'opencode-v2', nativeId: PROVIDER_SESSION },
+          handle: { transport: 'opencode-v2', agent: 'opencode', nativeId: PROVIDER_SESSION },
           origin: 'created',
           mintedAtFence: 0,
           observedAt: 1

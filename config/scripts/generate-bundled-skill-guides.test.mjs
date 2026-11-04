@@ -26,12 +26,13 @@ const projectDir = path.resolve(import.meta.dirname, '..', '..')
 const temporaryDirectories = []
 const execFileAsync = promisify(execFile)
 const GUIDE_REFERENCES = {
-  orchestration: [
-    'coordinator-loop.md',
+  graphify: ['query.md'],
+  mte: [
     'legacy-contract-migration.md',
     'low-level-topology.md',
     'messaging-and-gates.md',
     'placement-and-remote.md',
+    'planner-loop.md',
     'recovery-and-cleanup.md'
   ],
   'orca-cli': ['artifacts.md', 'automations.md', 'browser.md', 'plugins.md', 'skill-sharing.md'],
