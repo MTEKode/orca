@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 vi.mock('sonner', () => ({ toast: { message: vi.fn(), error: vi.fn() } }))
 
 import { toast } from 'sonner'
-import type { AgentPickerEntry } from '../../../../shared/agent-launch-picker'
-import type { NewTabAgentMenuRow } from '@/lib/new-tab-agent-menu-rows'
+import type { AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'
+import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
 import { plannerKickoffPrompt } from '../../../../shared/mte/planner-prompt'
 import { mteStartGoal } from '../../../../shared/mte/start-goal'
 import {

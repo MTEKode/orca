@@ -7,7 +7,7 @@ import { useMountedRef } from '@/hooks/useMountedRef'
 import { useAppStore } from '@/store'
 import { translate } from '@/i18n/i18n'
 import type { McpIntegrationDefinition } from '../../../../shared/mcp-integrations/catalog'
-import { IntegrationCardShell } from './integration-card-shell'
+import { IntegrationCardShell } from '../integrations/presentation/integration-card-shell'
 
 function statusLabel(
   connected: boolean,

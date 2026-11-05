@@ -1,5 +1,6 @@
 import type * as NodeCliCommandResolutionModule from '../../shared/node-cli-command-resolution'
 import type * as ProcessHostModule from '@orca/process-host'
+import type { ProcessSpec } from '@orca/process-host/process-spec'
 import { EventEmitter } from 'node:events'
 import { existsSync } from 'node:fs'
 import { PassThrough } from 'node:stream'
@@ -11,7 +12,7 @@ const {
   getVersionManagerBinPathsMock,
   readKeychainMock,
   resolveCliCommandMock,
-  spawnProcessMock,
+  probeMock,
   rmSyncMock,
   spawnMock,
   stdioForWindowsInteractiveChildMock,
@@ -21,7 +22,7 @@ const {
   getVersionManagerBinPathsMock: vi.fn(),
   readKeychainMock: vi.fn(),
   resolveCliCommandMock: vi.fn(),
-  spawnProcessMock: vi.fn(),
+  probeMock: vi.fn(),
   rmSyncMock: vi.fn(),
   spawnMock: vi.fn(),
   stdioForWindowsInteractiveChildMock: vi.fn(),
@@ -38,11 +39,12 @@ vi.mock('node:fs', async (importOriginal) => {
 vi.mock('node:child_process', () => ({
   execFile: vi.fn(),
   execFileSync: vi.fn(),
-  spawn: spawnMock
+  spawn: vi.fn()
 }))
 vi.mock('@orca/process-host', async (importOriginal) => ({
   ...(await importOriginal<typeof ProcessHostModule>()),
-  spawnProcess: spawnProcessMock
+  spawnProcess: (spec: ProcessSpec) =>
+    spec.args?.includes('--help') ? probeMock(spec) : spawnMock(spec.program, spec.args, spec)
 }))
 vi.mock('../../main/claude-accounts/keychain', () => ({
   deleteActiveClaudeKeychainCredentialsStrict: deleteKeychainMock,
@@ -60,13 +62,9 @@ vi.mock('../../shared/windows-console-input', () => ({
 }))
 
 import { ACCOUNT_HANDLERS } from './account'
+import { REPEATED_FLAG_SEPARATOR } from '../args'
 import type { HandlerContext } from '../dispatch'
 import type { RuntimeClient } from '../runtime-client'
-import {
-  getCmdExePath,
-  WINDOWS_BATCH_UNSAFE_ARGUMENTS_ERROR,
-  WINDOWS_BATCH_UNSAFE_CHARACTERS_LABEL
-} from '../../shared/windows-batch-spawn'
 import {
   ACCOUNT_IMPORT_RUNTIME_CAPABILITY,
   CLAUDE_SIGN_IN_RUNTIME_CAPABILITY,
@@ -137,7 +135,7 @@ describe('account CLI handlers', () => {
       dispose: vi.fn()
     }))
     resolveCliCommandMock.mockReset().mockImplementation((command: string) => command)
-    spawnProcessMock.mockReset()
+    probeMock.mockReset()
     getVersionManagerBinPathsMock.mockReset().mockReturnValue([])
     readKeychainMock.mockReset().mockResolvedValue(null)
     deleteKeychainMock.mockReset().mockResolvedValue(undefined)
@@ -200,18 +198,18 @@ describe('account CLI handlers', () => {
       _meta: { runtimeId: 'test-runtime' }
     })
     resolveCliCommandMock.mockImplementation((command: string) => `/tools/${command}`)
-    spawnProcessMock.mockImplementation(({ program }) => {
+    probeMock.mockImplementation(({ program }) => {
       if (program !== `/tools/${supportedCommand}`) {
         throw new Error('ENOENT')
       }
       return helpChild('--standalone  Run with a private server instead of the background service')
     })
     await ACCOUNT_HANDLERS['account add'](context('opencode', true))
-    expect(spawnProcessMock.mock.calls.map(([spec]) => spec.program)).toEqual(['/tools/opencode'])
+    expect(probeMock.mock.calls.map(([spec]) => spec.program)).toEqual(['/tools/opencode'])
     const [command, args, options] = spawnMock.mock.calls[0]
     expect(command).toBe(`/tools/${supportedCommand}`)
     expect(args).toEqual(['auth', 'login', '--standalone'])
-    expect(spawnProcessMock).toHaveBeenLastCalledWith(
+    expect(probeMock).toHaveBeenLastCalledWith(
       expect.objectContaining({
         args: ['auth', 'login', '--help'],
         env: options.env
@@ -279,33 +277,27 @@ describe('account CLI handlers', () => {
     expect(dispose).toHaveBeenCalledOnce()
   })
 
-  it('launches a Windows shim installed under Program Files (x86)', async () => {
+  it('forwards Windows form text literally through the process launcher', async () => {
     Object.defineProperty(process, 'platform', { configurable: true, value: 'win32' })
-    const shim = 'C:\\Program Files (x86)\\nodejs\\codex.cmd'
-    resolveCliCommandMock.mockReturnValue(shim)
-
-    await ACCOUNT_HANDLERS['account add'](context('codex'))
-
-    expect(spawnMock).toHaveBeenCalledWith(
-      getCmdExePath(),
-      ['/d', '/c', '@', shim, 'login', '--device-auth'],
-      expect.anything()
-    )
-  })
-
-  it('explains an unspawnable Windows shim path instead of leaking the error sentinel', async () => {
-    Object.defineProperty(process, 'platform', { configurable: true, value: 'win32' })
-    resolveCliCommandMock.mockReturnValue('C:\\Users\\A&B\\codex.cmd')
-
-    const error = await ACCOUNT_HANDLERS['account add'](context('codex')).catch(
-      (thrown: unknown) => thrown
-    )
-
-    expect(spawnMock).not.toHaveBeenCalled()
-    const message = error instanceof Error ? error.message : String(error)
-    expect(message).not.toBe(WINDOWS_BATCH_UNSAFE_ARGUMENTS_ERROR)
-    expect(message).toContain('C:\\Users\\A&B\\codex.cmd')
-    expect(message).toContain(WINDOWS_BATCH_UNSAFE_CHARACTERS_LABEL)
+    callMock.mockResolvedValue({ result: { capabilities: [DATA_ACCOUNT_RUNTIME_CAPABILITY] } })
+    resolveCliCommandMock.mockImplementation((command: string) => `C:\\tools\\${command}.cmd`)
+    probeMock.mockImplementation(() => helpChild('--standalone'))
+    const answer = 'instance URL=https://gitlab.example.test/a%20b?x="quoted"&y=a=b!'
+    await ACCOUNT_HANDLERS['account add']({
+      ...context('opencode', true),
+      flags: new Map([
+        ['agent', 'opencode'],
+        ['answer', answer]
+      ])
+    })
+    expect(spawnMock.mock.calls[0][1]).toEqual([
+      'auth',
+      'login',
+      '--answer',
+      answer,
+      '--standalone'
+    ])
+    expect(callMock).toHaveBeenLastCalledWith('accounts.addDataFromHome', expect.anything())
   })
 
   it('runs login in the final profile without accessing a locked Keychain', async () => {
@@ -629,6 +621,54 @@ describe('account CLI handlers', () => {
 
     await expect(ACCOUNT_HANDLERS['account add'](context('codex', true))).rejects.toThrow('EBUSY')
     expect(logSpy).not.toHaveBeenCalled()
+  })
+
+  it.each(['claude', 'codex'])(
+    'rejects OpenCode login flags for %s before login',
+    async (agent) => {
+      await expect(
+        ACCOUNT_HANDLERS['account add']({
+          ...context(agent),
+          flags: new Map([
+            ['agent', agent],
+            ['method', 'device']
+          ])
+        })
+      ).rejects.toThrow('only supported with --agent opencode')
+      expect(callMock).not.toHaveBeenCalled()
+      expect(spawnMock).not.toHaveBeenCalled()
+    }
+  )
+
+  it('keeps OpenCode form answer values out of the login failure message', async () => {
+    callMock.mockResolvedValue({
+      id: 'test',
+      ok: true,
+      result: { capabilities: [DATA_ACCOUNT_RUNTIME_CAPABILITY] },
+      _meta: { runtimeId: 'test-runtime' }
+    })
+    resolveCliCommandMock.mockImplementation((command: string) => `/tools/${command}`)
+    probeMock.mockImplementation(() => helpChild('--standalone'))
+    spawnMock.mockImplementation(() => {
+      const child = new EventEmitter()
+      queueMicrotask(() => child.emit('exit', 1))
+      return child
+    })
+    const failure = ACCOUNT_HANDLERS['account add']({
+      ...context('opencode'),
+      flags: new Map([
+        ['agent', 'opencode'],
+        ['answer', ['token=secret-value', 'note=second-secret'].join(REPEATED_FLAG_SEPARATOR)]
+      ])
+    })
+    await expect(failure).rejects.toThrow(
+      '--answer token=<redacted> --answer note=<redacted> --standalone'
+    )
+    await expect(failure).rejects.not.toThrow('secret-value')
+    await expect(failure).rejects.not.toThrow('second-secret')
+    expect(spawnMock.mock.calls[0][1]).toEqual(
+      expect.arrayContaining(['token=secret-value', 'note=second-secret'])
+    )
   })
 
   it('rejects `--agent` with no value instead of defaulting to Claude', async () => {

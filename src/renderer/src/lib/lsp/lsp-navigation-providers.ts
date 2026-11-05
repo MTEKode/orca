@@ -24,7 +24,10 @@ export function registerLspNavigationProviders(
   const locationsFor = async (
     model: Monaco.editor.ITextModel,
     method: string,
-    extra: object,
+    extra: {
+      position: ReturnType<typeof toLspPosition>
+      context?: { includeDeclaration: boolean }
+    },
     fallback: () => Promise<Monaco.languages.Location[] | null>
   ) => {
     const client = await sync.clientFor(model)

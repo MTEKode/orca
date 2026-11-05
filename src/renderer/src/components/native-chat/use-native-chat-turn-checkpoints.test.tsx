@@ -2,13 +2,13 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AgentJournalRenderItem } from '../../../../shared/agent-session/journal/agent-session-journal-types'
-import type * as StructuredAgentClient from '@/runtime/structured-agent-session-client'
+import type * as StructuredAgentClient from '@/runtime/structured-agent-session-turn-checkpoint-client'
 import { useNativeChatTurnCheckpoints } from './use-native-chat-turn-checkpoints'
 
 const mocks = vi.hoisted(() => ({
   list: vi.fn()
 }))
-vi.mock('@/runtime/structured-agent-session-client', async (importOriginal) => ({
+vi.mock('@/runtime/structured-agent-session-turn-checkpoint-client', async (importOriginal) => ({
   ...(await importOriginal<typeof StructuredAgentClient>()),
   listStructuredAgentSessionTurnCheckpoints: mocks.list
 }))

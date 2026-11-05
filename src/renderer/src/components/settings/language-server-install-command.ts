@@ -1,6 +1,6 @@
-import type { AgentStartupShell } from '../../../../shared/tui-agent-startup-shell'
+import type { AgentStartupShell } from '../../../../shared/agent-launch/startup/tui-agent-startup-shell'
 import { resolveWindowsShellStartupFamily } from '../../../../shared/windows-terminal-shell'
-import { quotePosixShell } from '../../../../shared/shell-argument-quoting'
+import { quotePosixShell } from '../../../../shared/shell/launch/shell-argument-quoting'
 import { quotePowerShellLiteral } from '../../../../shared/powershell-native-argument'
 import { isWslShellName } from '../../../../shared/local-windows-terminal-runtime'
 

@@ -6,15 +6,16 @@ import {
   flattenTerminalQuickCommand,
   isTerminalAgentQuickCommand,
   supportsTerminalAgentQuickCommand
-} from '../../../shared/terminal-quick-commands'
+} from '../../../shared/terminal/quick-commands/terminal-quick-commands'
 import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../shared/constants'
-import { shellEscapePath } from '../../../shared/shell-path-quoting'
+import { shellEscapePath } from '../../../shared/shell/launch/shell-path-quoting'
 import { findWorktreeById, getRepoIdFromWorktreeId } from '@/store/slices/worktree-helpers'
+import { selectWorktreesByRepo } from '@/store/workspace-record-selectors'
 import { revealFloatingWorkspacePanel } from '@/lib/floating-workspace-panel-reveal'
 import type {
   TerminalCommandQuickCommand,
   TerminalQuickCommand
-} from '../../../shared/terminal-quick-command-types'
+} from '../../../shared/terminal/quick-commands/terminal-quick-command-types'
 
 export type RunQuickCommandInNewTabArgs = {
   command: TerminalQuickCommand
@@ -57,7 +58,7 @@ function quickCommandFloatingCwd(
   if (!repo || (repo.quickCommandsInFloatingTerminal ?? true) === false) {
     return null
   }
-  return findWorktreeById(state.worktreesByRepo ?? {}, worktreeId)?.path ?? null
+  return findWorktreeById(selectWorktreesByRepo(state) ?? {}, worktreeId)?.path ?? null
 }
 
 function cdPrefixedCommand(cwd: string, command: string): string {

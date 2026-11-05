@@ -1,6 +1,7 @@
 import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
 import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-target'
 import { findWorktreeById } from '@/store/slices/worktree-helpers'
+import { selectWorktreesByRepo } from '@/store/workspace-record-selectors'
 import { useAppStore } from '@/store'
 import type { MteWorkerPin } from '../../../../shared/mte/worker-pin'
 
@@ -15,7 +16,7 @@ export async function persistMteWorkerChange(
 ): Promise<void> {
   const state = useAppStore.getState()
   const worktree = transport.worktreeId
-    ? findWorktreeById(state.worktreesByRepo, transport.worktreeId)
+    ? findWorktreeById(selectWorktreesByRepo(state), transport.worktreeId)
     : undefined
   const repo = worktree ? state.repos.find((r) => r.id === worktree.repoId) : undefined
   if (repo) {

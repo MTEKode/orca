@@ -8,7 +8,7 @@ import {
   parseWorkspaceAttachmentInput,
   workspaceAttachmentLabel,
   workspaceAttachmentProviderLabel
-} from '@/components/sidebar/worktree-attachment-editing'
+} from '@/components/sidebar/workspace-card/metadata/worktree-attachment-editing'
 import type { WorkspaceAttachment } from '../../../../shared/worktree/types'
 
 export function itemKey(item: WorkspaceAttachment): string {

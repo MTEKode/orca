@@ -12,6 +12,9 @@ const comments = [
 vi.mock('@/store', () => ({
   useAppStore: { getState: () => ({ clearDeliveredDiffComments }) }
 }))
+vi.mock('@/store/diff-comment-owner', () => ({
+  selectDiffCommentView: () => ({ owner: { kind: 'folder', worktreeId: 'w1' }, comments })
+}))
 vi.mock('@/store/worktree-diff-comments-selector', () => ({
   selectWorktreeDiffCommentsOrEmpty: () => comments
 }))

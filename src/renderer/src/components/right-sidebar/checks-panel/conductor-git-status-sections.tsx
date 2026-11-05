@@ -69,7 +69,7 @@ export function ChecksPanelConductorSections({
   const summary = useAppStore((s) =>
     worktreeId ? (s.gitBranchCompareSummaryByWorktree[worktreeId] ?? null) : null
   )
-  const { comments } = useVisibleWorktreeDiffComments(worktreeId)
+  const { comments } = useVisibleWorktreeDiffComments(worktreeId, 'selection')
   const behind = summary?.status === 'ready' ? (summary.commitsBehind ?? 0) : 0
   const baseLabel = summary?.baseRef ? formatSourceControlRefLabel(summary.baseRef) : ''
   const notes = useMemo(() => [...comments].sort((a, b) => b.createdAt - a.createdAt), [comments])

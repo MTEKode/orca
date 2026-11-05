@@ -1,4 +1,4 @@
-import { isRecord } from '../../shared/agent-status-child-work-value-guards'
+import { isRecord } from '../../shared/agent-status/child-work/agent-status-child-work-value-guards'
 import {
   isSemanticTokensLegend,
   type SemanticTokensLegend

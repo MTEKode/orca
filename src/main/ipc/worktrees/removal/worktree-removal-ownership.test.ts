@@ -17,26 +17,28 @@ vi.mock('../../../lsp/lsp-session-registry', () => ({
 vi.mock('../../../agent-hooks/server', () => ({
   agentHookServer: { dropStatusEntriesForRemovedWorktree: vi.fn() }
 }))
-vi.mock('../../../worktree-removal-repo-owner', () => ({
+vi.mock('../../../workspaces/removal/worktree-removal-repo-owner', () => ({
   hasWorktreeRemovalRepoOwnerOnOtherHost: () => false
 }))
 vi.mock('../../../ports/advertised-url-watcher', () => ({
   advertisedUrlWatcher: { forgetWorktree: vi.fn() }
 }))
-vi.mock('../../../localhost-worktree-label-proxy', () => ({
+vi.mock('../../../ports/workspace-labels/localhost-worktree-label-proxy', () => ({
   localhostWorktreeLabelProxy: { unregisterWorktree: vi.fn() }
 }))
-vi.mock('../../../terminal-history-deletion', () => ({ deleteWorktreeHistoryDir: vi.fn() }))
+vi.mock('../../../pty/history/terminal-history-deletion', () => ({
+  deleteWorktreeHistoryDir: vi.fn()
+}))
 vi.mock('../../../github/pr-refresh-coordinator', () => ({
   pruneWorktreePRRefreshAliases: vi.fn()
 }))
-vi.mock('../../../workspace-cleanup-removal-snapshot-prune', () => ({
+vi.mock('../../../workspaces/cleanup/workspace-cleanup-removal-snapshot-prune', () => ({
   recordWorkspaceCleanupRemovalSnapshotPrune: vi.fn()
 }))
-vi.mock('../../../workspace-cleanup-scan-snapshot', () => ({
+vi.mock('../../../workspaces/cleanup/workspace-cleanup-scan-snapshot', () => ({
   pruneWorkspaceCleanupScanSnapshot: vi.fn()
 }))
-vi.mock('../../../workspace-space-analysis-snapshot', () => ({
+vi.mock('../../../workspaces/space-analysis/workspace-space-analysis-snapshot', () => ({
   pruneWorkspaceSpaceAnalysisSnapshot: vi.fn()
 }))
 

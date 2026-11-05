@@ -21,7 +21,7 @@ const m = vi.hoisted(() => ({
   }
 }))
 
-vi.mock('../use-saved-source-control-action-start', () => ({
+vi.mock('../source-control/ai/use-saved-source-control-action-start', () => ({
   useSavedSourceControlActionStart: () => ({ start: m.start, isStarting: false })
 }))
 vi.mock('@/components/native-chat/native-chat-composer-draft-insertion', () => ({
@@ -40,12 +40,15 @@ vi.mock('@/runtime/forge-credential-target', () => ({
   forgeOwnerHostIdForWorkspace: () => 'host'
 }))
 vi.mock('../SourceControl', () => ({ buildResolvePullRequestConflictsPrompt: vi.fn() }))
-vi.mock('../../../../../shared/github/pr-comments-resolution-prompt', () => ({
-  buildPRCommentsResolutionPrompt: () => 'PROMPT'
-}))
+vi.mock(
+  '../../../../../shared/source-control/review-comments/pr-comments-resolution-prompt',
+  () => ({
+    buildPRCommentsResolutionPrompt: () => 'PROMPT'
+  })
+)
 
 import { structuredAgentSessionDraftScopeKey } from '@/components/native-chat/native-chat-composer-draft-store'
-import { useChecksPanelAiQueue } from './use-checks-panel-ai-queue'
+import { useChecksPanelAiQueue } from './review-actions/use-checks-panel-ai-queue'
 
 function model() {
   return {

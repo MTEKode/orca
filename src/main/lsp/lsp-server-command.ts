@@ -8,7 +8,10 @@ import type {
   RepoLanguageServerSettings
 } from '../../shared/language-server-types'
 import { resolveLoginShellEnvironment } from '../startup/login-shell-environment'
-import { resolveCommandOnLocalPath, type ResolveCommandOptions } from '../ipc/command-path-resolver'
+import {
+  resolveCommandOnLocalPath,
+  type ResolveCommandOptions
+} from '../ipc/command-path/command-path-resolver'
 
 export type ResolvedLspCommand = { program: string; args: string[]; env: NodeJS.ProcessEnv }
 export type ResolvedLspServer = { command: ResolvedLspCommand; initializationOptions: unknown }

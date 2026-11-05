@@ -1,5 +1,5 @@
 import { resolveExecutableCommand } from '../../shared/node-cli-command-resolution'
-import { hydrateShellPathForAgentDetection } from '../ipc/agent-detection-shell-path'
+import { hydrateShellPathForAgentDetection } from '../ipc/command-path/agent-detection-shell-path'
 import type { StructuredAgentCommandSettings } from '../native-chat/structured-agent-command-resolution'
 import type { OpenCodeV2ServiceLaunch } from './opencode-v2-service'
 

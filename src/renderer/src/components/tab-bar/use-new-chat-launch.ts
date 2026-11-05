@@ -4,9 +4,10 @@ import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
 import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-target'
 import { runtimeEnvironmentIdOrLocalUnlessTwin } from '@/lib/worktree-runtime-owner'
 import { findWorktreeById } from '@/store/slices/worktree-helpers'
+import { selectWorktreesByRepo } from '@/store/workspace-record-selectors'
 import { useAppStore } from '@/store'
 import { getAgentCatalog } from '@/lib/agent-catalog'
-import type { NewTabAgentMenuRow } from '@/lib/new-tab-agent-menu-rows'
+import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
 import { translate } from '@/i18n/i18n'
 import { workspaceKindForWorktreeId } from '../../../../shared/workspace-launch-kind'
 import { isFolderRepo } from '../../../../shared/repo-kind'
@@ -17,7 +18,10 @@ import type { WorkspaceAttachment } from '../../../../shared/worktree/types'
 import type { NewChatDefaults, NewChatPick } from '../../../../shared/new-chat-defaults'
 import type { MteWorkerPin } from '../../../../shared/mte/worker-pin'
 import type { WorkspaceMcpAdapter } from '../../../../shared/mte/mcp/workspace-mcp-config'
-import type { AgentPickerDraft, AgentPickerEntry } from '../../../../shared/agent-launch-picker'
+import type {
+  AgentPickerDraft,
+  AgentPickerEntry
+} from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { StructuredAgentLaunchSettlement } from '@/lib/structured-agent-launch-settlement'
 import type { Repo } from '../../../../shared/repo-types'
 import {
@@ -188,7 +192,7 @@ export function openNewChatForWorktree(
   seed?: { row: NewTabAgentMenuRow; draft?: AgentPickerDraft }
 ): boolean {
   const state = useAppStore.getState()
-  const worktree = findWorktreeById(state.worktreesByRepo, worktreeId)
+  const worktree = findWorktreeById(selectWorktreesByRepo(state), worktreeId)
   const repo = worktree ? state.repos.find((r) => r.id === worktree.repoId) : undefined
   const { draft } = seed ?? {}
   return openNewChatLaunch({

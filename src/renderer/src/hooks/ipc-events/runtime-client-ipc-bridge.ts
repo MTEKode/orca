@@ -24,6 +24,7 @@ import { useAppStore } from '../../store'
 import { invalidateRemoteWorktreeLineage } from '../../store/slices/worktrees/metadata/worktree-lineage-readiness'
 import { adoptFromEndpoint, type OwnedWorktreeEvent } from '../../store/adopt-from-endpoint'
 import { createRuntimeClientEventsSync } from '../runtime-client-events-sync'
+import { applyRuntimeFeatureEvent } from './runtime-client-feature-events'
 import {
   createRuntimeProjectRefreshScheduler,
   refreshRuntimeProjectWorktreesAndLineage
@@ -98,6 +99,14 @@ export function registerRuntimeClientIpcBridge(
     event: RuntimeClientEvent,
     generation = getEnvironmentSshStateGeneration(environmentId)
   ): void => {
+    if (event.type === 'notificationAttentionAcknowledged') {
+      void window.api.notifications
+        .acknowledgeAttention(event.acknowledgement, toRuntimeExecutionHostId(environmentId))
+        .catch((error: unknown) =>
+          console.warn('[notifications] Remote acknowledgement failed', error)
+        )
+      return
+    }
     if (event.type === 'worktreeTerminalSleepState') {
       applyHostWorktreeTerminalSleepState(environmentId, event)
       return
@@ -118,12 +127,7 @@ export function registerRuntimeClientIpcBridge(
       void useAppStore.getState().fetchHostWorkspaceStatuses(environmentId)
       return
     }
-    if (event.type === 'graphifyChanged') {
-      void useAppStore.getState().refreshGraphify(event.repoId)
-      return
-    }
-    if (event.type === 'mcpIntegrationsChanged') {
-      void useAppStore.getState().refreshMcpIntegrations()
+    if (applyRuntimeFeatureEvent(event)) {
       return
     }
     if (event.type === 'reposChanged') {

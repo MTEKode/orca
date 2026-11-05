@@ -1,0 +1,114 @@
+import { translate } from '@/i18n/i18n'
+import { translateSearchKeyword } from '../search/settings-search-keywords'
+import { createLocalizedCatalog } from '@/i18n/localized-catalog'
+import {
+  getNestedWorkerDepthDescription,
+  getNestedWorkerDepthSearchKeywords,
+  getNestedWorkerDepthTitle
+} from './nested-worker-depth-copy'
+import {
+  getWorkerAutoReleaseDescription,
+  getWorkerAutoReleaseSearchKeywords,
+  getWorkerAutoReleaseTitle
+} from './worker-auto-release-copy'
+
+type MteFlowPaneSearchOptions = {
+  includeLocalRuntimeSettings?: boolean
+}
+
+const NESTED_WORKER_DEPTH_SEARCH_ENTRY_ID = 'nested-worker-depth'
+const WORKER_AUTO_RELEASE_SEARCH_ENTRY_ID = 'worker-auto-release'
+const LOCAL_RUNTIME_SEARCH_ENTRY_IDS: ReadonlySet<string | undefined> = new Set([
+  NESTED_WORKER_DEPTH_SEARCH_ENTRY_ID,
+  WORKER_AUTO_RELEASE_SEARCH_ENTRY_ID
+])
+
+const getAllMteFlowPaneSearchEntries = createLocalizedCatalog(() => [
+  {
+    title: translate('auto.components.settings.mteFlow.search.title', 'MTE flow'),
+    description: translate(
+      'auto.components.settings.mteFlow.search.description',
+      'Settings for MTE orchestration runs: planner, workers and validation.'
+    ),
+    keywords: [
+      ...translateSearchKeyword('auto.components.settings.mteFlow.search.mte', 'MTE'),
+      ...translateSearchKeyword('auto.components.settings.mteFlow.search.planner', 'planner'),
+      ...translateSearchKeyword('auto.components.settings.mteFlow.search.validation', 'validation'),
+      ...translateSearchKeyword(
+        'auto.components.settings.orchestration.search.a7f76b4ca7',
+        'orchestration'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.orchestration.search.d86705ba77',
+        'multi-agent'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.orchestration.search.13ba5c6cbd',
+        'agents'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.orchestration.search.91fc8ab7e5',
+        'coordination'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.orchestration.search.9a5ebdca31',
+        'messaging'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.orchestration.search.eee028ae14',
+        'dispatch'
+      ),
+      ...translateSearchKeyword('auto.components.settings.orchestration.search.7ad948b714', 'task'),
+      ...translateSearchKeyword('auto.components.settings.orchestration.search.ca54c69806', 'DAG'),
+      ...translateSearchKeyword(
+        'auto.components.settings.orchestration.search.741dfc03fa',
+        'worker'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.orchestration.search.21c28ccdf7',
+        'coordinator'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.orchestration.search.32c5098e7b',
+        'claude'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.orchestration.search.f278fd04db',
+        'codex'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.orchestration.search.08c65b12a2',
+        'examples'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.orchestration.search.c766a01978',
+        'handoff'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.orchestration.search.f5d39af41e',
+        'child agents'
+      )
+    ]
+  },
+  {
+    id: NESTED_WORKER_DEPTH_SEARCH_ENTRY_ID,
+    title: getNestedWorkerDepthTitle(),
+    description: getNestedWorkerDepthDescription(),
+    keywords: getNestedWorkerDepthSearchKeywords()
+  },
+  {
+    id: WORKER_AUTO_RELEASE_SEARCH_ENTRY_ID,
+    title: getWorkerAutoReleaseTitle(),
+    description: getWorkerAutoReleaseDescription(),
+    keywords: getWorkerAutoReleaseSearchKeywords()
+  }
+])
+
+export function getMteFlowPaneSearchEntries({
+  includeLocalRuntimeSettings = true
+}: MteFlowPaneSearchOptions = {}) {
+  const entries = getAllMteFlowPaneSearchEntries()
+  return includeLocalRuntimeSettings
+    ? entries
+    : entries.filter((entry) => !('id' in entry) || !LOCAL_RUNTIME_SEARCH_ENTRY_IDS.has(entry.id))
+}

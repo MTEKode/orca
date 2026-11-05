@@ -7,10 +7,6 @@ import {
 import { inFlightWindowsTreeKill } from '@orca/process-host/windows-tree-kill'
 import { createOutputSink } from '@orca/process-host/bounded-output-sink'
 import { resolveCliCommand, withCliRuntimeOnPath } from '../../shared/node-cli-command-resolution'
-import {
-  getSpawnArgsForWindows,
-  UnsafeWindowsBatchArgumentsError
-} from '../../shared/windows-batch-spawn'
 import { RuntimeClientError } from '../runtime-client'
 import {
   type InteractiveLoginSession,
@@ -22,24 +18,13 @@ export async function resolveOpenCodeLoginCommand(
   env: NodeJS.ProcessEnv,
   session: InteractiveLoginSession
 ): Promise<string> {
-  const unsafeLauncherPaths: string[] = []
   for (const command of ['opencode']) {
     try {
       const resolvedCommand = resolveCliCommand(command)
-      let prepared: ReturnType<typeof getSpawnArgsForWindows>
-      try {
-        prepared = getSpawnArgsForWindows(resolvedCommand, ['auth', 'login', '--help'])
-      } catch (error) {
-        if (error instanceof UnsafeWindowsBatchArgumentsError) {
-          unsafeLauncherPaths.push(resolvedCommand)
-        }
-        throw error
-      }
-      const { spawnCmd, spawnArgs } = prepared
       if (
         await probeStandaloneLogin(
-          spawnCmd,
-          spawnArgs,
+          resolvedCommand,
+          ['auth', 'login', '--help'],
           withCliRuntimeOnPath(resolvedCommand, env),
           session
         )
@@ -53,14 +38,11 @@ export async function resolveOpenCodeLoginCommand(
       // A missing or unusable candidate does not rule out the other installed binary.
     }
   }
-  const preparationDiagnosis = unsafeLauncherPaths.length
-    ? ` Windows could not start the OpenCode batch launchers from these paths: ${unsafeLauncherPaths.map((path) => `\`${path}\``).join(', ')}.`
-    : ''
   const installGuidance =
     'Install or repair OpenCode 2 (`npm install -g @opencode/cli`) so `opencode auth login` is on PATH, then run this command again.'
   throw new RuntimeClientError(
     'invalid_environment',
-    `Could not find an OpenCode login. Managed OpenCode accounts require OpenCode 2.${preparationDiagnosis} ${installGuidance}`
+    `Could not find an OpenCode login. Managed OpenCode accounts require OpenCode 2. ${installGuidance}`
   )
 }
 

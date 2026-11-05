@@ -1,5 +1,5 @@
 import { ipcMain, MessageChannelMain, type MessagePortMain } from 'electron'
-import { isRecord } from '../../shared/agent-status-child-work-value-guards'
+import { isRecord } from '../../shared/agent-status/child-work/agent-status-child-work-value-guards'
 import {
   LSP_PORT_CHANNEL,
   type LspOpenArgs,

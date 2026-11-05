@@ -1,20 +1,22 @@
 // Open the sender through chat or terminal-handle routes; choose feedback from the answering host’s evidence, never the sender’s address shape.
 
+import { toast } from 'sonner'
 import type { AgentMessageSource } from '../../../shared/agent-session/agent-session-message-source'
-import {
-  structuredSessionOpenFeedback,
-  openDesktopStructuredSession,
-  type StructuredSessionOpenFeedback
-} from './activate-ai-vault-structured-session'
+import { openDesktopStructuredSession } from './activate-ai-vault-structured-session'
 import { useAppStore } from '@/store'
-import { RuntimeRpcCallError } from '@/runtime/runtime-rpc-result'
 import type { RuntimeClientTarget } from '../../../shared/runtime-client-target'
-import { isRuntimeCompatBlockError } from '@/runtime/runtime-protocol-compat'
 import {
-  focusRendererTerminalHandle,
-  focusRuntimeTerminalHandle
-} from '@/components/terminal-pane/terminal-handle-links'
-import { showAgentPaneUnavailable } from '@/components/terminal-pane/stale-agent-row'
+  focusTerminal,
+  openLocatedAgentMessageSender,
+  showLookupFailure
+} from './open-located-agent-message-sender'
+import { unnamedSenderLabel } from '@/components/native-chat/native-chat-agent-message-sender-label'
+import {
+  agentMessageSenderOpens,
+  agentMessageSenderReplacedOnHandle,
+  agentMessageSenderUnavailableText,
+  resolveAgentMessageSenderTarget
+} from '@/components/native-chat/native-chat-agent-message-sender-target'
 import { getKnownExecutionHostIdForWorktree } from './worktree-runtime-owner'
 import {
   executionHostIdForStructuredTarget,
@@ -24,17 +26,6 @@ import {
 } from '@/runtime/structured-agent-session-owner'
 
 type Sender = AgentMessageSource['senders'][number]
-/** older-host identifies the chat host; update may mean either side, and unreachable proves nothing. */
-type LookupFailure = 'older-host' | 'update' | 'unreachable'
-
-/** The answers that prove the terminal is gone; anything else proves nothing about it. */
-const TERMINAL_GONE_CODES = new Set([
-  'terminal_exited',
-  'terminal_gone',
-  'terminal_handle_stale',
-  'terminal_not_found'
-])
-
 const opensInFlight = new Map<string, Promise<void>>()
 
 /** Route all sender lookups to the host of the chat displaying the message. */
@@ -42,9 +33,42 @@ export function openAgentMessageSender(
   source: AgentMessageSource,
   sender: Sender,
   chatWorktreeId: string,
-  target?: RuntimeClientTarget
+  target?: RuntimeClientTarget,
+  dispatchId?: string,
+  name?: string
 ): Promise<void> {
   const state = useAppStore.getState()
+  // Read at click time, so a stale render cannot open what the host has since rejected.
+  const resolved = resolveAgentMessageSenderTarget(
+    state,
+    sender,
+    chatWorktreeId,
+    target,
+    dispatchId
+  )
+  const label = name ?? sender.name ?? unnamedSenderLabel()
+  if (resolved.kind === 'located') {
+    return openLocatedAgentMessageSender(resolved.location, label, {
+      current: () =>
+        resolveAgentMessageSenderTarget(
+          useAppStore.getState(),
+          sender,
+          chatWorktreeId,
+          target,
+          dispatchId
+        ),
+      reopen: () => openAgentMessageSender(source, sender, chatWorktreeId, target, dispatchId, name)
+    })
+  }
+  // Only a publishing host's answer can say nothing opens; an older host keeps its own lookup.
+  if (
+    resolved.kind !== 'none' &&
+    resolved.kind !== 'legacy' &&
+    !agentMessageSenderOpens(resolved, sender)
+  ) {
+    toast.info(agentMessageSenderUnavailableText(resolved, label))
+    return Promise.resolve()
+  }
   const host =
     target ??
     (getKnownExecutionHostIdForWorktree(state, chatWorktreeId)
@@ -53,19 +77,19 @@ export function openAgentMessageSender(
         )
       : null)
   if (!host) {
-    showLookupFailure('unreachable', sender.name ?? '')
+    showLookupFailure('unreachable', label)
     return Promise.resolve()
   }
-  const key = `${executionHostIdForStructuredTarget(host)}\0${chatWorktreeId}\0${sender.party.address}`
+  const key = `${executionHostIdForStructuredTarget(host)}\0${chatWorktreeId}\0${sender.party.address}\0${dispatchId ?? ''}`
   const inFlight = opensInFlight.get(key)
   if (inFlight) {
     return inFlight
   }
-  const opening = openSender(source, sender, host)
+  const opening = openSender(source, sender, host, label)
     .catch((error: unknown) => {
       // Every answer above shows its own words; one that threw showed none.
       console.warn('[agent-message-sender] opening the sender failed', error)
-      showLookupFailure('unreachable', sender.name ?? '')
+      showLookupFailure('unreachable', label)
     })
     .finally(() => opensInFlight.delete(key))
   opensInFlight.set(key, opening)
@@ -74,9 +98,11 @@ export function openAgentMessageSender(
 
 async function openSender(
   source: AgentMessageSource,
-  { party, name }: Sender,
-  host: RuntimeClientTarget
+  sender: Sender,
+  host: RuntimeClientTarget,
+  name: string
 ): Promise<void> {
+  const { party } = sender
   const environmentId = host.kind === 'environment' ? host.environmentId : null
   // Mail identifies senders beyond old terminal handles; tasks carry no mail and resolve coordinators by address.
   const mail = source.orchestration?.message === 'mail-notice' ? source.orchestration.messages : []
@@ -107,40 +133,19 @@ async function openSender(
     host
   )
   if (result.kind === 'terminal') {
-    await focusTerminal(result.handle, environmentId, {
-      gone: showAgentPaneUnavailable,
-      lookupFailure: (failure) => showLookupFailure(failure, name ?? '')
-    })
-  }
-}
-
-async function focusTerminal(
-  handle: string,
-  environmentId: string | null,
-  feedback: { gone: () => void; lookupFailure: (failure: LookupFailure) => void }
-): Promise<void> {
-  if (focusRendererTerminalHandle(handle, environmentId)) {
-    return
-  }
-  try {
-    await focusRuntimeTerminalHandle(handle, environmentId)
-  } catch (error) {
-    if (error instanceof RuntimeRpcCallError && TERMINAL_GONE_CODES.has(error.code)) {
-      feedback.gone()
-    } else {
-      feedback.lookupFailure(isRuntimeCompatBlockError(error) ? 'update' : 'unreachable')
+    if (
+      agentMessageSenderReplacedOnHandle(
+        useAppStore.getState(),
+        sender,
+        executionHostIdForStructuredTarget(host),
+        result.handle
+      )
+    ) {
+      toast.info(agentMessageSenderUnavailableText({ kind: 'replaced' }, name))
+      return
     }
-  }
-}
-
-function showLookupFailure(
-  failure: LookupFailure,
-  agent: string,
-  feedback: StructuredSessionOpenFeedback = structuredSessionOpenFeedback
-): void {
-  if (failure === 'unreachable') {
-    feedback.unavailable(agent)
-  } else {
-    feedback.hostCannotOpen(agent)
+    await focusTerminal(result.handle, environmentId, {
+      lookupFailure: (failure) => showLookupFailure(failure, name)
+    })
   }
 }

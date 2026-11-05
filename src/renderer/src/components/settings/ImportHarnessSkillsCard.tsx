@@ -10,7 +10,7 @@ import {
   type ImportableSkill,
   type ImportableSkillOrigin
 } from '../../../../shared/skills/importable-skill'
-import { SettingsSwitchRow } from './SettingsFormControls'
+import { SettingsSwitchRow } from './form-controls/SettingsFormControls'
 
 const LOCAL_TARGET = { kind: 'local' } as const
 
@@ -28,7 +28,7 @@ function originLabel(origin: ImportableSkillOrigin): string {
       return translate('auto.components.settings.skillsImport.originAntigravity', 'Antigravity')
     case 'plugins':
       return translate('auto.components.settings.skillsImport.originPlugins', 'Plugins')
-    default:
+    case 'other':
       return translate('auto.components.settings.skillsImport.originOther', 'Other')
   }
 }

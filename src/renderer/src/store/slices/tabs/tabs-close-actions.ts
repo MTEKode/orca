@@ -32,8 +32,8 @@ import {
   landOnEmptiedWorktree,
   landsOnEmptiedWorktree
 } from './emptied-worktree-landing'
-import type { TuiAgent } from '../../../../../shared/tui-agent'
-import { isTuiAgent } from '../../../../../shared/tui-agent-config'
+import type { TuiAgent } from '../../../../../shared/agent-launch/catalog/tui-agent'
+import { isTuiAgent } from '../../../../../shared/agent-launch/catalog/tui-agent-config'
 import { LOCAL_EXECUTION_HOST_ID } from '../../../../../shared/execution-host'
 import { hideRevealedWorkerTab } from './worker-tab-hide'
 import { forgetDesktopCreatedServerTab } from '@/lib/desktop-created-server-tabs'

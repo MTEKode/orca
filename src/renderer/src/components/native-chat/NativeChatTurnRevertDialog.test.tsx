@@ -2,13 +2,13 @@
 import '@testing-library/jest-dom/vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type * as StructuredAgentClient from '@/runtime/structured-agent-session-client'
+import type * as StructuredAgentClient from '@/runtime/structured-agent-session-turn-checkpoint-client'
 import { NativeChatTurnRevertDialog } from './NativeChatTurnRevertDialog'
 
 const mocks = vi.hoisted(() => ({
   diff: vi.fn()
 }))
-vi.mock('@/runtime/structured-agent-session-client', async (importOriginal) => ({
+vi.mock('@/runtime/structured-agent-session-turn-checkpoint-client', async (importOriginal) => ({
   ...(await importOriginal<typeof StructuredAgentClient>()),
   diffStructuredAgentSessionTurnCheckpoint: mocks.diff
 }))

@@ -1,5 +1,5 @@
 import { translate } from '@/i18n/i18n'
-import { formatAgentTypeLabel } from '../../../../shared/agent-type-label'
+import { formatAgentTypeLabel } from '../../../../shared/agent-status/presentation/agent-type-label'
 import {
   composerAgentLabel,
   composerSideLabel,

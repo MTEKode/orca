@@ -1,8 +1,14 @@
+import { useAgentPickerDraftScope } from '../agent/AgentLaunchSetupButton'
 import { agentsOfferedForLaunch } from '@/lib/host-chat-program'
 import { worktreeLaunchWorkspace } from '@/lib/agent-launch-route-input'
 import { useEffect, useRef, useState } from 'react'
 import { Loader2, MessageSquarePlus } from 'lucide-react'
-import AgentCombobox from '@/components/agent/AgentCombobox'
+import { AgentLaunchPicker } from '@/components/agent/AgentLaunchPicker'
+import {
+  agentPickerFreshLaunchInputs,
+  type AgentPickerDraft,
+  type AgentPickerEntry
+} from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import { useAgentMenuObservation } from '@/components/tab-bar/use-new-tab-agent-menu-rows'
 import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
 import type { AgentLaunchSurface } from '@/lib/agent-session-launch-plan'
@@ -32,13 +38,14 @@ import {
 } from '@/lib/agent-session-continuation'
 import { launchAgentSessionContinuation } from '@/lib/launch-agent-session-continuation'
 import { useAppStore } from '@/store'
-import { isTuiAgentEnabled } from '../../../../shared/tui-agent-selection'
-import type { TuiAgent } from '../../../../shared/tui-agent'
+import { isTuiAgentEnabled } from '../../../../shared/agent-launch/catalog/tui-agent-selection'
+import type { TuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent'
 import {
   chooseInitialContinuationAgent,
   isContinuationAgentAllowed
 } from './agent-session-continuation-selection'
 import { ContinuationChatPickFields } from './ContinuationChatPickFields'
+import { ContinuationAgentStatus } from './ContinuationAgentStatus'
 import { useContinuationModelPick } from './use-continuation-model-pick'
 
 type AgentSessionContinuationDialogProps = {
@@ -68,6 +75,8 @@ export function AgentSessionContinuationDialog({
     surface?: AgentLaunchSurface
     model?: string
     effort?: string
+    draft?: AgentPickerDraft
+    entry?: AgentPickerEntry
   } | null>(null)
   const detectionTarget = useAgentDetectionTargetForWorktree(request?.worktreeId ?? null)
   const [contextPick, setContextPick] = useState<{
@@ -147,6 +156,7 @@ export function AgentSessionContinuationDialog({
     return () => abort?.abort()
   }, [open, request])
 
+  const draftScope = useAgentPickerDraftScope(request)
   const currentPick = pick?.request === request && pickable.includes(pick.agent) ? pick : null
   const selectedAgent =
     currentPick?.agent ??
@@ -179,7 +189,14 @@ export function AgentSessionContinuationDialog({
   }, [starting])
 
   const handleStart = async (): Promise<void> => {
-    if (!request || detecting || !selectedAgent || starting || !selection.ready) {
+    if (
+      !request ||
+      detecting ||
+      !selectedAgent ||
+      starting ||
+      !selection.ready ||
+      !selection.choice
+    ) {
       return
     }
     const prompt = buildAgentSessionContinuationPrompt(request.source, contextMode)
@@ -195,6 +212,16 @@ export function AgentSessionContinuationDialog({
       groupId: request.groupId,
       initialCwd: request.initialCwd,
       launchChoice: selection.choice,
+      ...(currentPick?.draft
+        ? agentPickerFreshLaunchInputs(
+            currentPick.draft,
+            {
+              surface: selection.choice.route === 'terminal-tui' ? 'terminal' : 'chat',
+              executionHostId: selection.choice.executionHostId
+            },
+            currentPick.entry
+          )
+        : {}),
       ...(launchOptions ? { launchOptions } : {}),
       launchSource: request.launchSource,
       signal: abortRef.current?.signal
@@ -261,58 +288,26 @@ export function AgentSessionContinuationDialog({
             <label className="text-xs font-medium">
               {translate('components.agentSessionContinuation.agent', 'Agent')}
             </label>
-            <AgentCombobox
+            <AgentLaunchPicker
+              draftScope={draftScope}
               disabled={controlsDisabled}
-              agents={agents}
-              value={selectedAgent}
-              onValueChange={(agent) => setPick({ request, agent })}
-              surfaceRows={{
-                model: destinationModel,
-                selection,
-                contextKey: observation.contextKey,
-                surface: currentPick?.surface,
-                onPick: (agent, surface) => setPick({ request, agent, surface })
-              }}
-              allowNarrowTrigger
-              triggerClassName="min-w-0 w-full"
+              model={destinationModel}
+              worktreeId={request?.worktreeId}
+              agent={selectedAgent}
+              cli={selection.cli}
+              value={currentPick?.draft}
+              onPick={(agent, draft, entry) =>
+                setPick({ request, agent, surface: draft?.surface, draft, entry })
+              }
             />
-            <div className="min-h-4">
-              {preparing ? (
-                <p className="text-[11px] text-muted-foreground">
-                  {translate(
-                    'components.agentSessionContinuation.preparingContext',
-                    'Preparing saved chat context…'
-                  )}
-                </p>
-              ) : detecting ? (
-                <p className="text-[11px] text-muted-foreground">
-                  {translate(
-                    'components.agentSessionContinuation.detectingAgents',
-                    'Detecting Agents on this workspace host…'
-                  )}
-                </p>
-              ) : detectionFailed ? (
-                <p className="text-[11px] text-destructive">
-                  {translate(
-                    'components.agentSessionContinuation.detectionFailed',
-                    'Could not detect Agents on this workspace host.'
-                  )}
-                </p>
-              ) : destinationModel.state === 'settled' && rows.length === 0 ? (
-                <p className="text-[11px] text-muted-foreground">
-                  {onlySourceFamilyOffered && sourceAgentLabel
-                    ? translate(
-                        'components.agentSessionContinuation.onlySourceFamilyDetected',
-                        'Only Agents sharing the usage limit with {{agent}} are available on this workspace host. Enable or install a different Agent.',
-                        { agent: sourceAgentLabel }
-                      )
-                    : translate(
-                        'components.agentSessionContinuation.noAgents',
-                        'No enabled Agents were detected on this workspace host.'
-                      )}
-                </p>
-              ) : null}
-            </div>
+            <ContinuationAgentStatus
+              preparing={preparing}
+              detecting={detecting}
+              detectionFailed={detectionFailed}
+              noAgents={destinationModel.state === 'settled' && rows.length === 0}
+              onlySourceFamilyOffered={onlySourceFamilyOffered}
+              sourceAgentLabel={sourceAgentLabel}
+            />
           </div>
 
           {chatRoute ? (

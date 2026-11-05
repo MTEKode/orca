@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { DiffComment } from '../../shared/diff-comment-types'
-import type { FolderWorkspace } from '../../shared/folder-workspace-types'
+import type { FolderWorkspace } from '../../shared/folder-workspaces/folder-workspace-types'
 import type { Repo } from '../../shared/repo-types'
 import type { WorktreeMeta } from '../../shared/worktree/meta-types'
 import {

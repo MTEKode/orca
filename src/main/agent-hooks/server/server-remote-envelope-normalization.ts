@@ -3,7 +3,10 @@ import {
   normalizeClaudePromptId,
   normalizeGrokPromptId
 } from '../../../shared/agent-hook-listener/listener-limits'
-import { normalizeAgentHookSource, type AgentHookSource } from '../../../shared/agent-hook-relay'
+import {
+  normalizeAgentHookSource,
+  type AgentHookSource
+} from '../../../shared/agent-hook-listener/transport/agent-hook-relay'
 import {
   readClaudeSettledRequests,
   type ClaudeSettledRequest

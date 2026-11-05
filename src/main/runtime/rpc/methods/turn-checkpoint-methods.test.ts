@@ -37,7 +37,7 @@ const getConversation = vi.fn()
 
 /** Point the host stub's store at this suite's record/fence mocks (deps is Reflect-set). */
 function adoptStubStore(): void {
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the fixture Reflect-sets deps to a plain { logger, store } object, not a Mock.
+  // oxlint-disable-next-line anti-slop/no-reflect-get, typescript/consistent-type-assertions -- SAFETY: the fixture Reflect-sets deps to a plain { logger, store } object, not a Mock.
   const deps = Reflect.get(hostCalls, 'deps') as unknown as { store: Record<string, unknown> }
   deps.store.getRecord = getRecord
   deps.store.getConversation = getConversation

@@ -1,6 +1,9 @@
 import type { Repo } from '../../../../../../shared/repo-types'
 import { translate } from '@/i18n/i18n'
-import { normalizeSettingsSearchQuery, type SettingsSearchEntry } from '../../settings-search'
+import {
+  normalizeSettingsSearchQuery,
+  type SettingsSearchEntry
+} from '../../search/settings-search'
 
 export function matchesRepositoryIdentitySearch(query: string, repo: Repo): boolean {
   const normalizedQuery = normalizeSettingsSearchQuery(query)

@@ -1,19 +1,23 @@
-import type { BrowserExtensionGlobalSettings } from './browser-extension-settings'
+import type { BrowserExtensionGlobalSettings } from './browser/extensions/browser-extension-settings'
 import type { ClaudeAgentViewSettings } from './claude-agent-view'
 import type { BrowserLinkOpeningSettings } from './browser-link-opening-settings'
+import type { BrowserPasswordsGlobalSettings } from './browser-passwords-types'
 import type { ClaudeAccountSwitchSettings } from './claude-account-switch-settings'
 import type { ExternalConversationSettings } from './external-conversation-settings'
 import type { NativeChatGlobalSettings } from './native-chat/native-chat-appearance-settings'
+import type { NativeChatIdleStopSettings } from './native-chat/native-chat-idle-stop'
 import type { EditorTypographySettings } from './editor-typography-settings-types'
 import type { PluginAppearanceSettings } from './plugin-appearance-settings-types'
 import type { PluginFileTypeSuggestionSettings } from './plugins/contributions/plugin-file-type'
 import type { PluginUpdatePolicySettings } from './plugins/catalog/plugin-update-policy'
 import type { PluginSystemSettings } from './plugins/plugin-system-settings'
+import type { TerminalScrollSettings } from './terminal/appearance/terminal-scroll-settings'
 import type { WorktreeDeletionPreferences } from './worktree-deletion-preferences'
-import type { AgentPermissionGlobalSettings } from './tui-agent-permission-choice'
-import type { TerminalColorOverrideGlobalSettings } from './terminal-color-overrides'
+import type { AgentPermissionGlobalSettings } from './agent-launch/permissions/tui-agent-permission-choice'
+import type { TerminalColorOverrideGlobalSettings } from './terminal-themes/terminal-color-overrides'
 import type { WindowMaterialSettings } from './window-material'
 import type { ImportedHarnessSkillsSettings } from './skills/imported-harness-skills-settings'
+import type { EditorSaveSettings } from './editor-save-settings'
 
 /** Registers the orca-tools MCP bridge in agent launches; absent means on. */
 export type McpIntegrationsSettings = {
@@ -22,11 +26,16 @@ export type McpIntegrationsSettings = {
   graphifyAutoUpdate?: boolean
   /** Plain (non-secret) per-integration settings, e.g. the Godot plugin directory. */
   mcpIntegrationConfig?: Partial<Record<string, Record<string, string>>>
+  /** Snapshot the worktree at turn boundaries so a turn can be reverted; absent means on. */
+  nativeChatTurnCheckpoints?: boolean
+  /** Give structured Claude chats the in-process review tools (workspace diff + review comments); absent means on. */
+  nativeChatReviewTools?: boolean
 }
 
 /** Settings groups owned by their feature modules and composed into GlobalSettings. */
 export type GlobalSettingsBase = ClaudeAgentViewSettings &
   NativeChatGlobalSettings &
+  NativeChatIdleStopSettings &
   WorktreeDeletionPreferences &
   ClaudeAccountSwitchSettings &
   AgentPermissionGlobalSettings &
@@ -38,7 +47,10 @@ export type GlobalSettingsBase = ClaudeAgentViewSettings &
   PluginFileTypeSuggestionSettings &
   PluginUpdatePolicySettings &
   PluginSystemSettings &
+  TerminalScrollSettings &
   TerminalColorOverrideGlobalSettings &
   WindowMaterialSettings &
   ImportedHarnessSkillsSettings &
-  McpIntegrationsSettings
+  McpIntegrationsSettings &
+  EditorSaveSettings &
+  BrowserPasswordsGlobalSettings

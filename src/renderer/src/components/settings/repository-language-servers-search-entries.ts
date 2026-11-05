@@ -1,7 +1,7 @@
 import { translate } from '@/i18n/i18n'
 import type { Repo } from '../../../../shared/repo-types'
-import type { SettingsSearchEntry } from './settings-search'
-import { translateSearchKeyword } from './settings-search-keywords'
+import type { SettingsSearchEntry } from './search/settings-search'
+import { translateSearchKeyword } from './search/settings-search-keywords'
 
 const KEY = 'auto.components.settings.RepositoryLanguageServersSection'
 

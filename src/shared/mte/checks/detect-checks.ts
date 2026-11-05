@@ -1,6 +1,6 @@
-import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { runShellSync } from './run-shell-sync'
 
 export type DetectedChecks = {
   lint: string
@@ -31,7 +31,7 @@ function readText(file: string): string | null {
 
 function commandExists(cmd: string): boolean {
   const probe = process.platform === 'win32' ? `where ${cmd}` : `command -v ${cmd}`
-  return spawnSync(probe, { shell: true, stdio: 'ignore' }).status === 0
+  return runShellSync(probe, {}).code === 0
 }
 
 function hasBin(root: string, name: string): boolean {

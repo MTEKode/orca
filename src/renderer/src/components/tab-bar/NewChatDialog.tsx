@@ -18,7 +18,7 @@ import {
 } from '@/components/agent/use-agent-launch-picker-inventory'
 import { useNewTabAgentMenuRows } from './use-new-tab-agent-menu-rows'
 import { isMteOrchestrationAgent } from '../../../../shared/mte/orchestration-agents'
-import type { AgentPickerEntry } from '../../../../shared/agent-launch-picker'
+import type { AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { WorkspaceAttachment } from '../../../../shared/worktree/types'
 import type { NewChatPick } from '../../../../shared/new-chat-defaults'
 import { useNewChatDialogStore, type NewChatRequest } from './new-chat-dialog-store'

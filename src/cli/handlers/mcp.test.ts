@@ -8,9 +8,14 @@ const TOOLS = [
   { name: 'linear__b', inputSchema: { type: 'object' } }
 ]
 
+type ServeClient = Parameters<typeof runMcpServe>[0]['client']
+// The tests' call mocks return fixed payloads, so they cannot satisfy the generic RPC signature.
+const asClient = (call: (m: string, p?: unknown) => Promise<{ result: unknown }>) =>
+  ({ call }) as unknown as ServeClient
+
 async function connect(call: (m: string, p?: unknown) => Promise<{ result: unknown }>) {
   const [serverSide, clientSide] = InMemoryTransport.createLinkedPair()
-  const serve = await runMcpServe({ client: { call }, transport: serverSide })
+  const serve = await runMcpServe({ client: asClient(call), transport: serverSide })
   const client = new Client({ name: 't', version: '0' })
   await client.connect(clientSide)
   return { client, serve }
@@ -38,7 +43,7 @@ describe('mcp serve', () => {
     const call = vi.fn(async () => ({ result: { tools: [], content: [] } }))
     const [serverSide, clientSide] = InMemoryTransport.createLinkedPair()
     const serve = await runMcpServe({
-      client: { call },
+      client: asClient(call),
       transport: serverSide,
       workspaceRoot: '/w/repo'
     })

@@ -1,8 +1,8 @@
 import type { Repo } from '../../../../../../shared/repo-types'
 import { translate } from '@/i18n/i18n'
-import { SearchableSetting } from '../../SearchableSetting'
-import { SettingsRow, SettingsSwitch } from '../../SettingsFormControls'
-import { searchKeywords } from '../../settings-search-keywords'
+import { SearchableSetting } from '../../section-layout/SearchableSetting'
+import { SettingsRow, SettingsSwitch } from '../../form-controls/SettingsFormControls'
+import { searchKeywords } from '../../search/settings-search-keywords'
 
 type RepositoryQuickCommandsFloatingSectionProps = {
   repo: Repo

@@ -21,6 +21,7 @@ import {
   STRUCTURED_AGENT_SESSION_RENAME_RUNTIME_CAPABILITY
 } from '../../../shared/agent-session/structured-agent-session-surface-capabilities'
 import type { RuntimeCapability } from '../../../shared/protocol-version'
+import type { StructuredAgentSessionHostCapabilityState } from '../../../shared/agent-session/structured-agent-session-host-capability'
 import {
   AGENT_SESSION_PROMPT_CANCEL_RUNTIME_CAPABILITY,
   AGENT_SESSION_REPEATED_STOP_RUNTIME_CAPABILITY
@@ -43,15 +44,29 @@ export async function structuredAgentSessionHostSupports(
   target: RuntimeClientTarget,
   capability: RuntimeCapability
 ): Promise<boolean> {
+  return (await structuredAgentSessionHostCapabilityState(target, capability)) === 'supported'
+}
+
+/** The same read, keeping a failed or unanswered probe (`unknown`) apart from a host that
+ *  answered without the capability, for a decision an unverified host must not pass. */
+export async function structuredAgentSessionHostCapabilityState(
+  target: RuntimeClientTarget,
+  capability: RuntimeCapability
+): Promise<StructuredAgentSessionHostCapabilityState> {
   try {
-    if (target.kind === 'local') {
-      const known = readLocalRuntimeCapabilitiesOrUnknown()
-      const capabilities = known ?? (await ensureLocalRuntimeCapabilities())
-      return capabilities?.includes(capability) === true
+    if (target.kind !== 'local') {
+      const supported = await runtimeEnvironmentSupportsCapability(target.environmentId, capability)
+      return supported ? 'supported' : 'unsupported'
     }
-    return await runtimeEnvironmentSupportsCapability(target.environmentId, capability)
+    const capabilities =
+      readLocalRuntimeCapabilitiesOrUnknown() ?? (await ensureLocalRuntimeCapabilities())
+    return capabilities?.includes(capability)
+      ? 'supported'
+      : capabilities
+        ? 'unsupported'
+        : 'unknown'
   } catch {
-    return false
+    return 'unknown'
   }
 }
 
@@ -151,12 +166,6 @@ export async function readStructuredAgentSessionItem(
   )
   return result?.item ?? null
 }
-
-/** Turn-checkpoint reads live in their own module to keep this file under its line budget. */
-export {
-  listStructuredAgentSessionTurnCheckpoints,
-  diffStructuredAgentSessionTurnCheckpoint
-} from './structured-agent-session-turn-checkpoint-client'
 
 const STRUCTURED_AGENT_SESSION_METHOD_TIMEOUT_MS: ReadonlyMap<string, number> = new Map([
   ['agentSession.conversationCommand', AGENT_SESSION_CONVERSATION_COMMAND_TIMEOUT_MS],

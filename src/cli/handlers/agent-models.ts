@@ -5,7 +5,7 @@ import { getRequiredWorktreeSelector } from '../selectors'
 import { resolveCurrentAgentWorkspaceSelector } from '../agent-workspace-selector'
 import { parseCliAgent } from '../agent-launch-request'
 import type { AgentSessionModelCatalogResult } from '../../shared/agent-session/agent-session-wire'
-import type { TuiAgent } from '../../shared/tui-agent'
+import type { TuiAgent } from '../../shared/agent-launch/catalog/tui-agent'
 import { getAgentSessionOptionCatalog } from '../../shared/agent-session/options/agent-session-option-catalog'
 
 export type AgentModelRow = {

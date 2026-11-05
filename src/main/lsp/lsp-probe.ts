@@ -13,7 +13,10 @@ import type { Repo } from '../../shared/repo-types'
 import { runProcess } from '@orca/process-host'
 import type { ProcessResult, ProcessSpec } from '@orca/process-host/process-spec'
 import { resolveLoginShellEnvironment } from '../startup/login-shell-environment'
-import { resolveCommandOnLocalPath, type ResolveCommandOptions } from '../ipc/command-path-resolver'
+import {
+  resolveCommandOnLocalPath,
+  type ResolveCommandOptions
+} from '../ipc/command-path/command-path-resolver'
 
 export type LspProbeDeps = {
   loginShellEnv: () => Promise<NodeJS.ProcessEnv>
