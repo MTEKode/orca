@@ -2,18 +2,13 @@
 
 import { toast } from 'sonner'
 import type { AgentMessageSource } from '../../../shared/agent-session/agent-session-message-source'
-import {
-  openDesktopStructuredSession,
-  structuredSessionOpenFeedbackText,
-  type StructuredSessionOpenFeedback
-} from './activate-ai-vault-structured-session'
+import { openDesktopStructuredSession } from './activate-ai-vault-structured-session'
 import { useAppStore } from '@/store'
 import type { RuntimeClientTarget } from '../../../shared/runtime-client-target'
 import {
   focusTerminal,
   openLocatedAgentMessageSender,
-  showLookupFailure,
-  type LookupFailure
+  showLookupFailure
 } from './open-located-agent-message-sender'
 import { unnamedSenderLabel } from '@/components/native-chat/native-chat-agent-message-sender-label'
 import {

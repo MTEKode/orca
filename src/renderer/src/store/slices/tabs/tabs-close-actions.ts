@@ -32,7 +32,6 @@ import {
   landOnEmptiedWorktree,
   landsOnEmptiedWorktree
 } from './emptied-worktree-landing'
-import type { AppState } from '../../types'
 import type { TuiAgent } from '../../../../../shared/agent-launch/catalog/tui-agent'
 import { isTuiAgent } from '../../../../../shared/agent-launch/catalog/tui-agent-config'
 import { LOCAL_EXECUTION_HOST_ID } from '../../../../../shared/execution-host'

@@ -12,7 +12,6 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { agentLaunchPromptScopeKey } from './AgentLaunchPromptComposer'
 import { changePrompt } from '../native-chat/native-chat-prompt-editor.test-support'
 import { readNativeChatComposerDraft } from '../native-chat/native-chat-composer-draft-store'
-import { EntryActionRow } from '../tab-bar/TabBarCreateEntryRow'
 import { AgentLaunchPickerMenu } from './AgentLaunchPickerMenu'
 import {
   DropdownMenu,

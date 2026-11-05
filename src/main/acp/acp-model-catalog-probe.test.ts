@@ -175,7 +175,7 @@ describe('ACP model catalog probes', () => {
   it('keeps a slow startup listing when effort discovery uses its full budget', async () => {
     vi.useFakeTimers()
     try {
-      const { agent, deps, closed } = scriptedOpenCode2(true)
+      const { agent, deps, closed } = scriptedOpenCodeNext(true)
       agent.on('session/new', (frame) => {
         setTimeout(
           () => agent.reply(frame, { sessionId: 'probe-session', ...recordedEfforts.new }),
@@ -202,7 +202,7 @@ describe('ACP model catalog probes', () => {
   it('deletes a session before closing when cancelled during effort discovery', async () => {
     vi.useFakeTimers()
     try {
-      const { agent, deps, closed } = scriptedOpenCode2(true)
+      const { agent, deps, closed } = scriptedOpenCodeNext(true)
       agent.on('session/new', (frame) =>
         agent.reply(frame, { sessionId: 'probe-session', ...recordedEfforts.new })
       )
@@ -237,7 +237,7 @@ describe('ACP model catalog probes', () => {
   ])(
     'discovers actual model-owned menus before deleting its session ($selectedModels)',
     async ({ selectedModels }) => {
-      const { agent, deps, closed } = scriptedOpenCode2(true)
+      const { agent, deps, closed } = scriptedOpenCodeNext(true)
       agent.on('session/new', (frame) =>
         agent.reply(frame, { sessionId: 'probe-session', ...recordedEfforts.new })
       )
@@ -278,7 +278,7 @@ describe('ACP model catalog probes', () => {
   )
 
   it('keeps a rejected or mismatched target unknown and an observed empty menu known', async () => {
-    const { agent, deps } = scriptedOpenCode2(true)
+    const { agent, deps } = scriptedOpenCodeNext(true)
     agent.on('session/new', (frame) =>
       agent.reply(frame, { sessionId: 'probe-session', ...recordedEfforts.new })
     )

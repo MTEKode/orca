@@ -79,7 +79,7 @@ export function structuredRewindCut(
     return {
       beforeTurnId: key.recordId,
       keptTurnId: keptIdentity?.provider === 'legacy' ? keptIdentity.recordId : null,
-      kept: keptRows.map((item) => keptRow(journal, item, providerKey))
+      kept: keptRows.map((item) => keptRow(journal, item))
     }
   }
   if (

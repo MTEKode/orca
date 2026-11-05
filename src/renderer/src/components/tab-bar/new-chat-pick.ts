@@ -1,5 +1,5 @@
+import { agentPickerModels } from '../../../../shared/agent-launch/picker/agent-launch-picker-catalog'
 import {
-  agentPickerModels,
   editAgentPickerDraft,
   type AgentPickerDraft,
   type AgentPickerEntry,
@@ -7,7 +7,7 @@ import {
   type AgentPickerSurface
 } from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { NewChatPick } from '../../../../shared/new-chat-defaults'
-import type { NewTabAgentMenuRow } from '@/lib/new-tab-agent-menu-rows'
+import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
 import type { NewChatSelection } from './new-chat-dialog-store'
 
 /** Chat-capable entries; `allow` narrows to a harness subset (orchestration). */

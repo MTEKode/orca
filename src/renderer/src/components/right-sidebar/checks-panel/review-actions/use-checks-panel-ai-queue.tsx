@@ -15,7 +15,7 @@ import { buildPRCommentsResolutionPrompt } from '../../../../../../shared/source
 import { parseGitHubIssueOrPRLink } from '../../../../../../shared/github/links'
 import type { PRCommentGroup } from '../../../../../../shared/source-control/review-comments/pr-comment-groups'
 import { translate } from '@/i18n/i18n'
-import { appendCommentsPromptToVisibleChat } from './use-checks-panel-comment-append'
+import { appendCommentsPromptToVisibleChat } from '../use-checks-panel-comment-append'
 
 import type { ChecksPanelContextState } from '../use-checks-panel-context-state'
 import type { ChecksPanelControllerState } from '../use-checks-panel-controller-state'

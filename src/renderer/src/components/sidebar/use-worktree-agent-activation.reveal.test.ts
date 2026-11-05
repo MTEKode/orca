@@ -33,7 +33,7 @@ vi.mock('@/runtime/runtime-client-target', () => ({
 vi.mock('@/runtime/runtime-rpc-client', () => ({ callRuntimeRpc: vi.fn(async () => ({})) }))
 
 import { hideWorkerSession, isHiddenWorkerTab } from '@/lib/agent-session/revealed-worker-tabs'
-import { useWorktreeAgentActivation } from './use-worktree-agent-activation'
+import { useWorktreeAgentActivation } from './workspace-card/activity/use-worktree-agent-activation'
 
 const LEAF = '11111111-1111-4111-8111-111111111111'
 const PANE_KEY = `structured-agent-session-s-w:${LEAF}`

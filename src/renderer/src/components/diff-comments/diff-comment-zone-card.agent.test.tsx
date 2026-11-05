@@ -11,6 +11,7 @@ import {
 
 function makeContext(): DiffCommentZoneCardContext {
   return {
+    owner: null,
     worktreeId: 'w1',
     filePath: 'src/a.ts',
     activeGroupId: 'w1',

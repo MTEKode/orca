@@ -1,7 +1,9 @@
 import { SubscribedAgentLaunchPickerMenu } from '@/components/agent/AgentLaunchPickerMenu'
 import {
   agentPickerFreshLaunchInputs,
-  type AgentPickerEntry
+  type AgentPickerDraft,
+  type AgentPickerEntry,
+  type AgentPickerSurface
 } from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import React, { useCallback } from 'react'
 import { toast } from 'sonner'
@@ -29,7 +31,11 @@ import { cn } from '@/lib/utils'
 import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
 import { useNewTabAgentMenuRows, type NewTabAgentMenuModel } from './use-new-tab-agent-menu-rows'
 import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
-import { markMtePlannerSession, useNewChatLaunch, type RunLaunchArgs } from './use-new-chat-launch'
+import {
+  markMtePlannerSession,
+  useNewChatLaunch,
+  type LaunchOverride
+} from './use-new-chat-launch'
 import { chatUnavailableLabel, rowTitle, rowLabel, rowId } from './tab-agent-row-presentation'
 import { SurfaceChoiceRow } from './SurfaceChoiceRow'
 
@@ -77,7 +83,15 @@ export function useTabAgentMenuLaunch({
 }) {
   const tryNewChat = useNewChatLaunch(worktreeId)
   const runLaunch = useCallback(
-    (...[row, draft, pickerEntry, override]: RunLaunchArgs): boolean | Promise<boolean> => {
+    (
+      row: NewTabAgentMenuRow,
+      draft?: AgentPickerDraft,
+      pickerEntry?: AgentPickerEntry,
+      // The picker menu's select mode names a surface here; it carries no dialog override.
+      requested?: LaunchOverride | AgentPickerSurface
+    ): boolean | Promise<boolean> => {
+      const override: LaunchOverride | undefined =
+        requested === 'chat' || requested === 'terminal' ? undefined : requested
       if (disabled || row.kind === 'chat-unavailable') {
         return false
       }

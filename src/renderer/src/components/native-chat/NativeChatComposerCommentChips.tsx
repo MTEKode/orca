@@ -2,6 +2,7 @@ import { FileText, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import { useAppStore } from '@/store'
+import { useDiffCommentView } from '@/components/diff-comments/use-diff-comment-owner'
 import type { DiffComment } from '../../../../shared/diff-comment-types'
 import { useNativeChatQueuedDiffComments } from './use-native-chat-queued-diff-comments'
 
@@ -25,6 +26,7 @@ export function NativeChatComposerCommentChips({
 }): React.JSX.Element | null {
   const comments = useNativeChatQueuedDiffComments(worktreeId)
   const deleteDiffComment = useAppStore((s) => s.deleteDiffComment)
+  const { owner } = useDiffCommentView(worktreeId, 'selection')
   return (
     <>
       {comments.map((comment) => {
@@ -46,7 +48,7 @@ export function NativeChatComposerCommentChips({
               'Remove comment on {{path}} lines {{lines}}',
               { path: comment.filePath, lines }
             )}
-            onClick={() => void deleteDiffComment(worktreeId, comment.id)}
+            onClick={() => owner && void deleteDiffComment(owner, comment.id)}
             className="group/comment-chip"
           >
             <FileText

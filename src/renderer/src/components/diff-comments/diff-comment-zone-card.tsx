@@ -1,6 +1,7 @@
 import type { DiffCommentOwner } from '@/store/diff-comment-owner'
 import type { RefObject } from 'react'
 import type { Root } from 'react-dom/client'
+import { formatDiffComments } from '@/lib/diff-comments-format'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import type { DiffCommentDeliverySnapshot } from '@/store/slices/diffComments'
 import { DiffCommentCard } from './DiffCommentCard'
@@ -28,6 +29,26 @@ export function getRenderSignature(
     canEdit: comment.canEdit ?? null,
     sendPrompt: formatCommentPrompt ? formatCommentPrompt(comment) : null
   })
+}
+
+function getSingleCommentSendScopes(
+  comment: DecoratedDiffComment,
+  formatCommentPrompt?: (comment: DecoratedDiffComment) => string
+): NotesSendMenuScope<DecoratedDiffComment>[] {
+  return [
+    {
+      id: 'note',
+      label: translate(
+        'auto.components.diff.comments.useDiffCommentDecorator.995fa28b50',
+        'This note'
+      ),
+      notes: comment.sentAt ? [] : [comment],
+      formatPrompt: () =>
+        formatCommentPrompt
+          ? formatCommentPrompt(comment)
+          : formatDiffComments([{ ...comment, author: undefined }])
+    }
+  ]
 }
 
 // Callbacks arrive as refs so the rendered props keep the decorator's identity semantics.
@@ -94,7 +115,7 @@ export function renderDiffCommentZoneCard(
         onContentResize={() => resizeZone(comment.id)}
         observeRenderedSize
         headerActions={
-          worktreeId && comment.author === undefined ? (
+          worktreeId && !agentAuthored && comment.author === undefined ? (
             <NotesSendMenu
               owner={owner}
               worktreeId={worktreeId}

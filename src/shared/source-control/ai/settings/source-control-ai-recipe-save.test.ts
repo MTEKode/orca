@@ -308,7 +308,7 @@ describe('text action model and effort writes', () => {
         }
       },
       actionId: 'branchName',
-      agentId: 'opencode2',
+      agentId: 'opencode',
       change: { field: 'effort', modelId: 'opencode/gpt-5.4-mini', value: 'low' }
     })
     if (!('sourceControlAi' in variant)) {

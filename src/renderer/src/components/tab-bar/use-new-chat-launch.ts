@@ -6,7 +6,7 @@ import { runtimeEnvironmentIdOrLocalUnlessTwin } from '@/lib/worktree-runtime-ow
 import { findWorktreeById } from '@/store/slices/worktree-helpers'
 import { useAppStore } from '@/store'
 import { getAgentCatalog } from '@/lib/agent-catalog'
-import type { NewTabAgentMenuRow } from '@/lib/new-tab-agent-menu-rows'
+import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
 import { translate } from '@/i18n/i18n'
 import { workspaceKindForWorktreeId } from '../../../../shared/workspace-launch-kind'
 import { isFolderRepo } from '../../../../shared/repo-kind'

@@ -8,7 +8,6 @@ import type { NativeChatStructuredComposerTransport } from './native-chat-compos
 import type { NativeChatComposerInput } from './native-chat-composer-input'
 import { NativeChatPromptEditor } from './NativeChatPromptEditor'
 import { promptEditor } from './native-chat-prompt-editor.test-support'
-import { agentReferenceToken } from '../../../../shared/orchestration-agent-reference'
 
 import { useNativeChatStructuredComposerSend } from './use-native-chat-structured-composer-send'
 

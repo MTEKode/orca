@@ -72,6 +72,8 @@ export function AgentSessionContinuationDialog({
     request: AgentSessionContinuationRequest | null
     agent: TuiAgent
     surface?: AgentLaunchSurface
+    model?: string
+    effort?: string
     draft?: AgentPickerDraft
     entry?: AgentPickerEntry
   } | null>(null)
@@ -219,6 +221,7 @@ export function AgentSessionContinuationDialog({
             currentPick.entry
           )
         : {}),
+      ...(launchOptions ? { launchOptions } : {}),
       launchSource: request.launchSource,
       signal: abortRef.current?.signal
     })

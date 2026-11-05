@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { loadNodeOniguruma } from '../syntax-highlighting/oniguruma-test-harness'
 import { loadLeanTextMateGrammar } from './register-lean'
 import { loadNimTextMateGrammar } from './register-nim'
-import { loadRubyTextMateGrammar } from './register-ruby'
 import { loadTypstTextMateGrammar } from './register-typst'
 import { createTextMateTokensProvider } from './textmate-token-provider'
 

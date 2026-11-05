@@ -1,6 +1,7 @@
 import { net } from 'electron'
 import { parse } from 'yaml'
 
+export { getReleaseDownloadUrl } from '../../updater-release-urls'
 import {
   RELEASES_DOWNLOAD_BASE,
   getReleaseAssetUrl,
