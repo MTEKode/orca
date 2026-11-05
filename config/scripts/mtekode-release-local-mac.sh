@@ -18,8 +18,8 @@ npm pkg set version="$version"
 
 [ -d mobile/node_modules ] || (cd mobile && pnpm install --frozen-lockfile)
 NODE_OPTIONS=--max-old-space-size=4096 ORCA_BUILD_IDENTITY=stable pnpm run build:release
-node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON config/scripts/pinned-node-downloads.mjs darwin-arm64
-node config/scripts/ensure-native-runtime.mjs --runtime=electron
+node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON config/scripts/orcad-distribution/prebuilds/pinned-node-downloads.mjs darwin-arm64
+node config/scripts/native-build/node-addons/ensure-native-runtime.mjs --runtime=electron
 pnpm exec electron-builder --config config/electron-builder.config.cjs --mac dmg zip --arm64 \
   -c.mac.identity=- --publish always -c.publish.releaseType=draft
 

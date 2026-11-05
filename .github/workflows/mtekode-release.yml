@@ -59,10 +59,10 @@ jobs:
           set -euo pipefail
           include='[]'
           if [[ ",$PLATFORMS," == *",windows,"* ]]; then
-            include="$(jq -c '. + [{"os":"windows-2022","install":"pnpm install --frozen-lockfile","publish":"node config/scripts/ensure-native-runtime.mjs --runtime=electron && pnpm exec electron-builder --config config/electron-builder.config.cjs --win --publish always -c.publish.releaseType=draft -c.win.verifyUpdateCodeSignature=false"}]' <<<"$include")"
+            include="$(jq -c '. + [{"os":"windows-2022","install":"pnpm install --frozen-lockfile","publish":"node config/scripts/native-build/node-addons/ensure-native-runtime.mjs --runtime=electron && pnpm exec electron-builder --config config/electron-builder.config.cjs --win --publish always -c.publish.releaseType=draft -c.win.verifyUpdateCodeSignature=false"}]' <<<"$include")"
           fi
           if [[ ",$PLATFORMS," == *",mac,"* ]]; then
-            include="$(jq -c '. + [{"os":"macos-15","install":"pnpm install --frozen-lockfile","publish":"node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON config/scripts/pinned-node-downloads.mjs darwin-arm64 && node config/scripts/ensure-native-runtime.mjs --runtime=electron && pnpm exec electron-builder --config config/electron-builder.config.cjs --mac dmg zip --arm64 -c.mac.identity=- --publish always -c.publish.releaseType=draft"}]' <<<"$include")"
+            include="$(jq -c '. + [{"os":"macos-15","install":"pnpm install --frozen-lockfile","publish":"node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON config/scripts/orcad-distribution/prebuilds/pinned-node-downloads.mjs darwin-arm64 && node config/scripts/native-build/node-addons/ensure-native-runtime.mjs --runtime=electron && pnpm exec electron-builder --config config/electron-builder.config.cjs --mac dmg zip --arm64 -c.mac.identity=- --publish always -c.publish.releaseType=draft"}]' <<<"$include")"
           fi
           echo "include=$include" >> "$GITHUB_OUTPUT"
 
