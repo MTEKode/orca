@@ -31,7 +31,7 @@ import {
   type NativeChatPickerItem,
   type NativeChatSendClassification
 } from '../../../../shared/native-chat-composer-autocomplete'
-import { appendSkillInstruction } from '../../../../shared/native-chat/input/skill-instruction'
+import { withPickedSkillInstruction } from '../../../../shared/native-chat/input/skill-instruction'
 import { nativeChatPickerCommands } from '../../../../shared/native-chat-skill-visibility'
 import { useNativeChatSkills } from './use-native-chat-skills'
 import {
@@ -292,13 +292,11 @@ export function useNativeChatPickerState(args: {
     skillOriginRef.current = null
     unifiedOriginRef.current = null
   }, [])
-  const withSkillInstruction = useCallback((text: string) => {
-    const token = skillOriginRef.current
-    const firstToken = text.split(/\s/, 1)[0] ?? ''
-    return token && token === unifiedOriginRef.current && token === firstToken
-      ? appendSkillInstruction(text, token.slice(1))
-      : text
-  }, [])
+  const withSkillInstruction = useCallback(
+    (text: string) =>
+      withPickedSkillInstruction(text, skillOriginRef.current, unifiedOriginRef.current, agent),
+    [agent]
+  )
   const isPickedSkill = useCallback(
     (value: string) => skillOriginRef.current === (value.split(/\s/, 1)[0] ?? ''),
     []
