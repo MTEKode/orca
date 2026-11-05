@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 @source not '../**/*.test.{ts,tsx}';
 @source not '../**/*.spec.{ts,tsx}';
+/* Tailwind only scans the renderer root; the shared tone classes need an explicit source. */
+@source '../../../shared/native-chat/tools/native-chat-tool-tone.ts';
 @import 'tw-animate-css';
 @import '@xterm/xterm/css/xterm.css';
 @import 'katex/dist/katex.min.css';

@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
   NATIVE_CHAT_TOOL_TONE_CLASSES,
@@ -28,6 +29,26 @@ describe('nativeChatToolTone', () => {
   it('has static surface and border classes per tone', () => {
     for (const [tone, classes] of Object.entries(NATIVE_CHAT_TOOL_TONE_CLASSES)) {
       expect(classes).toBe(`bg-chat-action-${tone}-surface border-chat-action-${tone}-border`)
+    }
+  })
+})
+
+describe('tone classes reach the compiled renderer CSS', () => {
+  const css = readFileSync(
+    new URL('../../../renderer/src/assets/main.css', import.meta.url),
+    'utf8'
+  )
+
+  it('sources this file, since Tailwind does not scan src/shared', () => {
+    expect(css).toContain("@source '../../../shared/native-chat/tools/native-chat-tool-tone.ts'")
+  })
+
+  it('maps every tone class to a --color-* theme token', () => {
+    for (const classes of Object.values(NATIVE_CHAT_TOOL_TONE_CLASSES)) {
+      for (const cls of classes.split(' ')) {
+        const token = cls.replace(/^(bg|border)-/, '--color-')
+        expect(css).toMatch(new RegExp(`${token}:\\s*var\\(--chat-action-`))
+      }
     }
   })
 })
