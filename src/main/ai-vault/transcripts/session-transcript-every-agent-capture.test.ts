@@ -8,7 +8,8 @@ vi.mock(
   '../scanners/opencode/reader-transport/session-scanner-opencode-sqlite-worker-spawn',
   async () => {
     const list = await import('../scanners/opencode/sqlite/session-scanner-opencode-sqlite-list')
-    const list2 = await import('../scanners/opencode-next/session-scanner-opencode-next-sqlite-list')
+    const list2 =
+      await import('../scanners/opencode-next/session-scanner-opencode-next-sqlite-list')
     const parse = await import('../scanners/opencode/sqlite/session-scanner-opencode-sqlite')
     const parse2 = await import('../scanners/opencode-next/session-scanner-opencode-next-sqlite')
     const capture =

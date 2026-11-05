@@ -293,9 +293,7 @@ describe('parseOpenCodeNextSqliteSession', () => {
         timestamp: new Date(1_777_634_000_900).toISOString()
       }
     ])
-    expect(session!.resumeCommand).toBe(
-      "cd '/repo' && opencode --session 'session_1'"
-    )
+    expect(session!.resumeCommand).toBe("cd '/repo' && opencode --session 'session_1'")
   })
 
   it('extracts assistant text from content arrays and falls back to raw model ids', async () => {

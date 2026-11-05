@@ -15,7 +15,7 @@ import type {
   AgentSessionTurnCheckpointDiffResult,
   AgentSessionTurnCheckpointKind
 } from '../../../../shared/agent-session-turn-checkpoints'
-import { diffStructuredAgentSessionTurnCheckpoint } from '@/runtime/structured-agent-session-client'
+import { diffStructuredAgentSessionTurnCheckpoint } from '@/runtime/structured-agent-session-turn-checkpoint-client'
 import { DiffLineCounts } from '../right-sidebar/source-control/listing/diff-line-counts'
 import { focusDiscardDialogConfirmButton } from '../right-sidebar/source-control/commit/discard-dialog'
 

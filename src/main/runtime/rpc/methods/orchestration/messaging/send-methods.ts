@@ -5,7 +5,6 @@ import {
   dispatchReportMailbox,
   isDispatchReportType
 } from '../../../../orchestration/dispatch-report-mailbox'
-import { orchestrationSkillRecoveryData } from '../../../../../../shared/orchestration-rpc-contract'
 import {
   SendParams,
   isDispatchMutationMessageType,
@@ -27,6 +26,7 @@ import {
 import { replayMutationNudge } from './mutation-replay-nudge'
 import { handBackReplayTargets } from '../../../../orchestration/db/messages/helper-mailbox-hand-back'
 import { assertWorkerMayAddress } from './worker-send-acl'
+import { requireSendRecipient } from './require-send-recipient'
 import { sendRemoteMessage } from './send-remote'
 import { mayNameSession } from './session-recipient'
 import { sendPointToPointMessage } from './send-point-to-point'
@@ -168,13 +168,7 @@ export const ORCHESTRATION_SEND_METHODS = [
             : undefined
         to = reporting ? dispatchReportMailbox(db, reporting) : `run:${routing.run.id}`
       }
-      if (!to) {
-        throw new OrchestrationError(
-          'run_required',
-          'No recipient or active Dispatch Run could be resolved. No effects were applied.',
-          orchestrationSkillRecoveryData()
-        )
-      }
+      to = requireSendRecipient(to)
 
       const sendWarnings: SendRecipientWarning[] = []
       let messageRunId = routing.run?.id
@@ -199,10 +193,7 @@ export const ORCHESTRATION_SEND_METHODS = [
           sendWarnings.push(recipient.warning)
         }
       }
-      // Only explicit recipients are policed; derived ones are lifecycle reports to the coordinator.
-      if (params.to) {
-        assertWorkerMayAddress(db, sender, to)
-      }
+      assertWorkerMayAddress(db, sender, to, !!params.to)
       const withSendWarnings = <T extends object>(
         receipt: T
       ): T & { warnings?: SendRecipientWarning[] } =>

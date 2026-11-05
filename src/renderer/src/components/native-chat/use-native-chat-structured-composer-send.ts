@@ -123,7 +123,9 @@ export function useNativeChatStructuredComposerSend({
       const state = useAppStore.getState()
       const queued = hostCommand ? [] : readQueuedDiffCommentsSafely(state, worktreeId)
       // The copy these notes belong to, captured now so a later tab switch cannot redirect the clear.
-      const commentOwner = worktreeId ? selectDiffCommentView(state, worktreeId, 'selection').owner : null
+      const commentOwner = worktreeId
+        ? selectDiffCommentView(state, worktreeId, 'selection').owner
+        : null
       const isCurrent = structuredTransport.capturePresentation()
       const revealAdmitted =
         structuredTransport.captureAdmittedReveal?.() ?? structuredTransport.onSubmitted

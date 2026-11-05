@@ -45,6 +45,7 @@ import {
   isContinuationAgentAllowed
 } from './agent-session-continuation-selection'
 import { ContinuationChatPickFields } from './ContinuationChatPickFields'
+import { ContinuationAgentStatus } from './ContinuationAgentStatus'
 import { useContinuationModelPick } from './use-continuation-model-pick'
 
 type AgentSessionContinuationDialogProps = {
@@ -299,43 +300,14 @@ export function AgentSessionContinuationDialog({
                 setPick({ request, agent, surface: draft?.surface, draft, entry })
               }
             />
-            <div className="min-h-4">
-              {preparing ? (
-                <p className="text-[11px] text-muted-foreground">
-                  {translate(
-                    'components.agentSessionContinuation.preparingContext',
-                    'Preparing saved chat context…'
-                  )}
-                </p>
-              ) : detecting ? (
-                <p className="text-[11px] text-muted-foreground">
-                  {translate(
-                    'components.agentSessionContinuation.detectingAgents',
-                    'Detecting Agents on this workspace host…'
-                  )}
-                </p>
-              ) : detectionFailed ? (
-                <p className="text-[11px] text-destructive">
-                  {translate(
-                    'components.agentSessionContinuation.detectionFailed',
-                    'Could not detect Agents on this workspace host.'
-                  )}
-                </p>
-              ) : destinationModel.state === 'settled' && rows.length === 0 ? (
-                <p className="text-[11px] text-muted-foreground">
-                  {onlySourceFamilyOffered && sourceAgentLabel
-                    ? translate(
-                        'components.agentSessionContinuation.onlySourceFamilyDetected',
-                        'Only Agents sharing the usage limit with {{agent}} are available on this workspace host. Enable or install a different Agent.',
-                        { agent: sourceAgentLabel }
-                      )
-                    : translate(
-                        'components.agentSessionContinuation.noAgents',
-                        'No enabled Agents were detected on this workspace host.'
-                      )}
-                </p>
-              ) : null}
-            </div>
+            <ContinuationAgentStatus
+              preparing={preparing}
+              detecting={detecting}
+              detectionFailed={detectionFailed}
+              noAgents={destinationModel.state === 'settled' && rows.length === 0}
+              onlySourceFamilyOffered={onlySourceFamilyOffered}
+              sourceAgentLabel={sourceAgentLabel}
+            />
           </div>
 
           {chatRoute ? (

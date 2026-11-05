@@ -127,6 +127,7 @@ describe('memory store', () => {
     expect(() => store.record_decision('   ', 'd', 'r', [])).toThrow(TypeError)
     expect(() => store.record_decision('f', 'd', 'r', ['ok', ''])).toThrow(/affected_files/)
     // Deliberately invalid runtime type; Reflect.apply bypasses the typed signature without assertions.
+    // oxlint-disable-next-line anti-slop/no-reflect-apply -- deliberate untyped call to prove the runtime guard.
     expect(() => Reflect.apply(store.record_decision, store, ['f', 'd', 'r', 'src/a.ts'])).toThrow(
       TypeError
     )
@@ -256,6 +257,7 @@ describe('memory store', () => {
     expect(() => store.ask_question('coder', 's', '   ', 'q')).toThrow(TypeError)
     expect(() => store.ask_question('coder', 's', 't', '  ')).toThrow(TypeError)
     // Deliberately invalid runtime role; Reflect.apply bypasses the typed signature without assertions.
+    // oxlint-disable-next-line anti-slop/no-reflect-apply -- deliberate untyped call to prove the runtime guard.
     expect(() => Reflect.apply(store.ask_question, store, ['orchestrator', 's', 't', 'q'])).toThrow(
       'role must be coder or validator'
     )

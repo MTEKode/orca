@@ -14,7 +14,8 @@ vi.mock(
   async () => {
     const v1List = await import('./scanners/opencode/sqlite/session-scanner-opencode-sqlite-list')
     const v1Parse = await import('./scanners/opencode/sqlite/session-scanner-opencode-sqlite')
-    const v2List = await import('./scanners/opencode-next/session-scanner-opencode-next-sqlite-list')
+    const v2List =
+      await import('./scanners/opencode-next/session-scanner-opencode-next-sqlite-list')
     const v2Parse = await import('./scanners/opencode-next/session-scanner-opencode-next-sqlite')
     return {
       listOpenCodeSqliteSessionsViaWorker: (

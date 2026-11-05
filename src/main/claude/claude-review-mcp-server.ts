@@ -4,6 +4,7 @@
 // its executable-search env mutation.
 
 import { z } from 'zod'
+import { getAppEnvironment, hasAppEnvironment } from '../../shared/app-environment'
 import type { McpServerConfig } from '@anthropic-ai/claude-agent-sdk'
 import type { AgentSessionRecord } from '../../shared/agent-session/lifecycle/agent-session-record'
 import { loadClaudeAgentSdk } from './claude-stream-json-connection'
@@ -102,16 +103,12 @@ export function buildClaudeReviewToolDefinitions(
   ]
 }
 
-async function resolveServerVersion(deps: ClaudeReviewMcpServerDeps): Promise<string> {
+function resolveServerVersion(deps: ClaudeReviewMcpServerDeps): string {
   if (deps.version) {
     return deps.version
   }
-  try {
-    const { app } = await import('electron')
-    return app.getVersion()
-  } catch {
-    return '0.0.0'
-  }
+  // The app environment port stands in for Electron here, so headless hosts report the host's version.
+  return hasAppEnvironment() ? getAppEnvironment().getVersion() : '0.0.0'
 }
 
 /** Build the session-bound `orca` MCP server; null when the record names no reviewable workspace. */
@@ -127,7 +124,7 @@ export async function createClaudeReviewMcpServer(
   const sdk = await (deps.loadSdk ?? loadClaudeAgentSdk)()
   return sdk.createSdkMcpServer({
     name: 'orca',
-    version: await resolveServerVersion(deps),
+    version: resolveServerVersion(deps),
     tools: buildClaudeReviewToolDefinitions(sdk, handlers)
   })
 }

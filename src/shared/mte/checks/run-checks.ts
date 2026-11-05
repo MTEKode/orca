@@ -1,8 +1,8 @@
-import { spawnSync } from 'node:child_process'
 import { readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { detectChecks } from './detect-checks'
+import { runShellSync } from './run-shell-sync'
 
 export type CheckGroup = 'lint' | 'typecheck' | 'test'
 
@@ -91,34 +91,29 @@ function runOneGroup(
   const started = Date.now()
   // Output goes to a temp log so a timeout-killed shell cannot leave orphaned children holding our pipes open.
   const logFile = join(tmpdir(), `mte-check-${process.pid}-${group}.log`)
-  const res = spawnSync(`${command} > "${logFile}" 2>&1`, {
-    shell: true,
+  const res = runShellSync(`${command} > "${logFile}" 2>&1`, {
     cwd: options.workspaceRoot,
-    timeout: timeoutSeconds * 1000,
-    stdio: 'ignore',
-    maxBuffer: MAX_BUFFER_BYTES
+    timeoutMs: timeoutSeconds * 1000,
+    maxOutputBytes: MAX_BUFFER_BYTES
   })
   const durationMs = Date.now() - started
-  const timedOut =
-    (res.error !== undefined && 'code' in res.error && res.error.code === 'ETIMEDOUT') ||
-    res.signal === 'SIGTERM'
+  const timedOut = res.timedOut
   // Spawn failures co-travel with the log so timeouts still leave a readable tail.
-  const output =
-    `${readTextOrEmpty(logFile)}${res.error === undefined ? '' : String(res.error)}`.trimEnd()
+  const output = `${readTextOrEmpty(logFile)}${res.stderr}`.trimEnd()
   try {
     rmSync(logFile, { force: true })
   } catch {
     // Best effort; the report is already captured.
   }
-  const passed = res.status === 0 && res.error === undefined
+  const passed = res.code === 0
   const tail = passed ? '' : lastLines(output, tailLines)
-  const exitText = res.status === null ? 'signal' : String(res.status)
+  const exitText = res.code === null ? 'signal' : String(res.code)
   options.onProgress?.(`${group}: ${passed ? 'passed' : 'failed'} exit=${exitText}`)
   return {
     group,
     command,
     status: passed ? 'passed' : 'failed',
-    exitCode: res.status ?? null,
+    exitCode: res.code ?? null,
     tail,
     timedOut,
     durationMs

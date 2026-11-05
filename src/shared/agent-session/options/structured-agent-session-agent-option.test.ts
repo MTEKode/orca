@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { structuredAgentSessionOptionSnapshot } from './structured-agent-session-option-snapshot'
-import { canSetStructuredAgentSessionOption } from './structured-agent-session-option-snapshot'
+import {
+  canSetStructuredAgentSessionOption,
+  structuredAgentSessionOptionSnapshot
+} from './structured-agent-session-option-snapshot'
 import {
   applyStructuredAgentSessionOptions,
   commitStructuredAgentSessionOption,

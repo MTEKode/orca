@@ -1,4 +1,7 @@
-import { codexToolsMcpConfigArgs, type ToolsMcpServer } from '../../../mcp-integrations/tools-server'
+import {
+  codexToolsMcpConfigArgs,
+  type ToolsMcpServer
+} from '../../../mcp-integrations/tools-server'
 import { pathEnvRelativeTo } from '../../../../shared/node-cli-command-resolution'
 import { waitForPromiseWithSignal } from '../../../../shared/abort-signal-reason'
 import {

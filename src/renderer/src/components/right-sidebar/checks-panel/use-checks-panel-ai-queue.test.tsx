@@ -40,9 +40,12 @@ vi.mock('@/runtime/forge-credential-target', () => ({
   forgeOwnerHostIdForWorkspace: () => 'host'
 }))
 vi.mock('../SourceControl', () => ({ buildResolvePullRequestConflictsPrompt: vi.fn() }))
-vi.mock('../../../../../shared/source-control/review-comments/pr-comments-resolution-prompt', () => ({
-  buildPRCommentsResolutionPrompt: () => 'PROMPT'
-}))
+vi.mock(
+  '../../../../../shared/source-control/review-comments/pr-comments-resolution-prompt',
+  () => ({
+    buildPRCommentsResolutionPrompt: () => 'PROMPT'
+  })
+)
 
 import { structuredAgentSessionDraftScopeKey } from '@/components/native-chat/native-chat-composer-draft-store'
 import { useChecksPanelAiQueue } from './review-actions/use-checks-panel-ai-queue'

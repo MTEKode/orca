@@ -1,4 +1,5 @@
 import React from 'react'
+import { ChecksPanelNoWorkspace } from './empty-content-no-workspace'
 import { Button } from '@/components/ui/button'
 import { DetachedHeadBadge } from '@/components/DetachedHeadBadge'
 import { CreateHostedReviewComposer } from '../../hosted-review/creation/CreateHostedReviewComposer'
@@ -97,22 +98,7 @@ export function ChecksPanelEmptyContent({
     suppressedGitHubPR
   } = model
   if (!activeWorktree) {
-    return (
-      <div className="px-4 py-6">
-        <div className="text-sm font-medium text-foreground">
-          {translate(
-            'auto.components.right.sidebar.ChecksPanel.a4ef4e0832',
-            'No workspace selected'
-          )}
-        </div>
-        <div className="mt-1 text-xs text-muted-foreground">
-          {translate(
-            'auto.components.right.sidebar.ChecksPanel.b5dd73a105',
-            'Select a workspace to view checks'
-          )}
-        </div>
-      </div>
-    )
+    return <ChecksPanelNoWorkspace />
   }
   if (isFolder) {
     return (

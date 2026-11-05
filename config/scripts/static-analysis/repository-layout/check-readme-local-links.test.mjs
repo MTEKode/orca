@@ -5,7 +5,6 @@ import path from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { findBrokenReadmeLinks, main } from './check-readme-local-links.mjs'
 
-const projectDir = path.resolve(import.meta.dirname, '../../../..')
 const tempDirs = []
 
 function git(cwd, args) {

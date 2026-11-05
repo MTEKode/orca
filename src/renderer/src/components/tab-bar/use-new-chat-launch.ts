@@ -17,7 +17,10 @@ import type { WorkspaceAttachment } from '../../../../shared/worktree/types'
 import type { NewChatDefaults, NewChatPick } from '../../../../shared/new-chat-defaults'
 import type { MteWorkerPin } from '../../../../shared/mte/worker-pin'
 import type { WorkspaceMcpAdapter } from '../../../../shared/mte/mcp/workspace-mcp-config'
-import type { AgentPickerDraft, AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'
+import type {
+  AgentPickerDraft,
+  AgentPickerEntry
+} from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { StructuredAgentLaunchSettlement } from '@/lib/structured-agent-launch-settlement'
 import type { Repo } from '../../../../shared/repo-types'
 import {

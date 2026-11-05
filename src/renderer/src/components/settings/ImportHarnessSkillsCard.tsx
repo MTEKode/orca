@@ -28,7 +28,7 @@ function originLabel(origin: ImportableSkillOrigin): string {
       return translate('auto.components.settings.skillsImport.originAntigravity', 'Antigravity')
     case 'plugins':
       return translate('auto.components.settings.skillsImport.originPlugins', 'Plugins')
-    default:
+    case 'other':
       return translate('auto.components.settings.skillsImport.originOther', 'Other')
   }
 }

@@ -26,6 +26,10 @@ export type McpIntegrationsSettings = {
   graphifyAutoUpdate?: boolean
   /** Plain (non-secret) per-integration settings, e.g. the Godot plugin directory. */
   mcpIntegrationConfig?: Partial<Record<string, Record<string, string>>>
+  /** Snapshot the worktree at turn boundaries so a turn can be reverted; absent means on. */
+  nativeChatTurnCheckpoints?: boolean
+  /** Give structured Claude chats the in-process review tools (workspace diff + review comments); absent means on. */
+  nativeChatReviewTools?: boolean
 }
 
 /** Settings groups owned by their feature modules and composed into GlobalSettings. */

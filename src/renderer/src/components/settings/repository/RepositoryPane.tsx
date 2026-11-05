@@ -25,9 +25,7 @@ import { getRepositoryPaneSearchEntries } from './repository-search'
 import { RepositoryHostSetupsSection } from './execution/RepositoryHostSetupsSection'
 import { RepoSettingsDraftInput } from './RepositorySettingsDraftInput'
 import { RepositoryForkSyncSection } from './execution/RepositoryForkSyncSection'
-import { RepositoryMteFlowPromptSection } from './identity/RepositoryMteFlowPromptSection'
-import { RepositoryQuickCommandsFloatingSection } from './identity/RepositoryQuickCommandsFloatingSection'
-import { RepositoryDeployCheckSection } from './RepositoryDeployCheckSection'
+import { RepositoryMteSections } from './identity/RepositoryMteSections'
 import { RepositoryGitHubAccountSection } from './RepositoryGitHubAccountSection'
 import { translate } from '@/i18n/i18n'
 import { RepositoryWindowsRuntimeSection } from './execution/RepositoryWindowsRuntimeSection'
@@ -341,19 +339,7 @@ export function RepositoryPane({
               forceVisible={forceFullPaneForRepoMatch}
             />
 
-            <RepositoryMteFlowPromptSection
-              repo={repo}
-              updateRepo={updateSelectedRepo}
-              forceVisible={forceFullPaneForRepoMatch}
-            />
-
-            <RepositoryDeployCheckSection
-              repo={repo}
-              updateRepo={updateSelectedRepo}
-              forceVisible={forceFullPaneForRepoMatch}
-            />
-
-            <RepositoryQuickCommandsFloatingSection
+            <RepositoryMteSections
               repo={repo}
               updateRepo={updateSelectedRepo}
               forceVisible={forceFullPaneForRepoMatch}

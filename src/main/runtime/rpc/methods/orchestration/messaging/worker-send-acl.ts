@@ -11,11 +11,16 @@ const NOT_ALLOWED_MESSAGE =
  * A dispatched worker may address only its run coordinator or Dispatches the coordinator linked to
  * it. Call with the recipient after bare-handle resolution (`run:`, `dispatch:` or a group).
  */
+/** Only explicit recipients are policed; derived ones are lifecycle reports to the coordinator. */
 export function assertWorkerMayAddress(
   db: OrchestrationDb,
   sender: OrchestrationCoordinatorKey,
-  to: string
+  to: string,
+  explicit: boolean
 ): void {
+  if (!explicit) {
+    return
+  }
   const own = findCallerWorkerDispatches(db, sender)
   // Coordinators (including nested ones that also work a Dispatch) keep their rights.
   if (own.length === 0 || db.runsBoundToCoordinator(sender).length > 0) {

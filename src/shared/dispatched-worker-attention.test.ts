@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import type { AgentSessionAttentionEdge } from './agent-session/agent-session-attention'
-import type { AgentStatusOrchestrationContext, AgentStatusState } from './agent-status/contracts/agent-status-types'
+import type {
+  AgentStatusOrchestrationContext,
+  AgentStatusState
+} from './agent-status/contracts/agent-status-types'
 import { isCoordinatorOnlyChatNews, isCoordinatorOnlyNews } from './dispatched-worker-attention'
 
 const SCOPE = {

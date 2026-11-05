@@ -209,10 +209,6 @@ export type GlobalSettings = GlobalSettingsBase & {
   nativeChatResumeWorkOnRestart?: boolean
   /** Queue follow-ups while the agent works on capable hosts; absent means on. */
   nativeChatQueueFollowUps?: boolean
-  /** Snapshot the worktree at turn boundaries so a turn can be reverted; absent means on. */
-  nativeChatTurnCheckpoints?: boolean
-  /** Give structured Claude chats the in-process review tools (workspace diff + review comments); absent means on. */
-  nativeChatReviewTools?: boolean
   /** Opt-in: when a chat stops on a usage limit with a known reset time, send it "Continue where
    *  you left off." once the limit resets, unless that chat was told not to. */
   nativeChatAutoContinueAfterUsageLimit?: boolean

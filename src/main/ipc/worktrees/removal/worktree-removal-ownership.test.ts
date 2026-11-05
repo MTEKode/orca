@@ -26,7 +26,9 @@ vi.mock('../../../ports/advertised-url-watcher', () => ({
 vi.mock('../../../ports/workspace-labels/localhost-worktree-label-proxy', () => ({
   localhostWorktreeLabelProxy: { unregisterWorktree: vi.fn() }
 }))
-vi.mock('../../../pty/history/terminal-history-deletion', () => ({ deleteWorktreeHistoryDir: vi.fn() }))
+vi.mock('../../../pty/history/terminal-history-deletion', () => ({
+  deleteWorktreeHistoryDir: vi.fn()
+}))
 vi.mock('../../../github/pr-refresh-coordinator', () => ({
   pruneWorktreePRRefreshAliases: vi.fn()
 }))

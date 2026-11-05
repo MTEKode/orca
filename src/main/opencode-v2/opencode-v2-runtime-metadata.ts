@@ -1,4 +1,7 @@
-import { getTuiAgentLaunchCommand, TUI_AGENT_CONFIG } from '../../shared/agent-launch/catalog/tui-agent-config'
+import {
+  getTuiAgentLaunchCommand,
+  TUI_AGENT_CONFIG
+} from '../../shared/agent-launch/catalog/tui-agent-config'
 import type { OpenCodeAgentSessionAccountHome } from '../../shared/agent-session/lifecycle/agent-session-account-home'
 import type { StructuredAgentCommandSettings } from '../native-chat/structured-agent-command-resolution'
 import type { StructuredAgentSessionHistory } from '../native-chat/structured-agent-cli-conversations'

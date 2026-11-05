@@ -24,6 +24,7 @@ import { useAppStore } from '../../store'
 import { invalidateRemoteWorktreeLineage } from '../../store/slices/worktrees/metadata/worktree-lineage-readiness'
 import { adoptFromEndpoint, type OwnedWorktreeEvent } from '../../store/adopt-from-endpoint'
 import { createRuntimeClientEventsSync } from '../runtime-client-events-sync'
+import { applyRuntimeFeatureEvent } from './runtime-client-feature-events'
 import {
   createRuntimeProjectRefreshScheduler,
   refreshRuntimeProjectWorktreesAndLineage
@@ -126,12 +127,7 @@ export function registerRuntimeClientIpcBridge(
       void useAppStore.getState().fetchHostWorkspaceStatuses(environmentId)
       return
     }
-    if (event.type === 'graphifyChanged') {
-      void useAppStore.getState().refreshGraphify(event.repoId)
-      return
-    }
-    if (event.type === 'mcpIntegrationsChanged') {
-      void useAppStore.getState().refreshMcpIntegrations()
+    if (applyRuntimeFeatureEvent(event)) {
       return
     }
     if (event.type === 'reposChanged') {

@@ -31,11 +31,7 @@ import { cn } from '@/lib/utils'
 import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
 import { useNewTabAgentMenuRows, type NewTabAgentMenuModel } from './use-new-tab-agent-menu-rows'
 import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
-import {
-  markMtePlannerSession,
-  useNewChatLaunch,
-  type LaunchOverride
-} from './use-new-chat-launch'
+import { markMtePlannerSession, useNewChatLaunch, type LaunchOverride } from './use-new-chat-launch'
 import { chatUnavailableLabel, rowTitle, rowLabel, rowId } from './tab-agent-row-presentation'
 import { SurfaceChoiceRow } from './SurfaceChoiceRow'
 
