@@ -7,6 +7,8 @@ import { parseAgentJournalItemKey } from '../../shared/agent-session/journal/age
 import { JsonlRpcTimelineLane } from '../jsonl-rpc/timeline-lane'
 import type { ProviderTimelineSink } from '../native-chat/agent-session-timeline/provider-timeline-plan'
 import { spellProviderTimelineKey } from '../native-chat/agent-session-timeline/provider-timeline-identity'
+import { TOOLS_MCP_SERVER_ID } from '../../shared/mte/mcp/mcp-server-specs'
+import type { ToolsMcpServer } from '../mcp-integrations/tools-server'
 import type { StructuredAgentSessionLogger } from '../native-chat/agent-session-wire/structured-agent-session-logger'
 import { OPENCODE_V2_AGENT_ID, OPENCODE_V2_HANDLE_TRANSPORT } from './opencode-v2-agent-definition'
 import type { OpenCodeV2Client } from './opencode-v2-client'
@@ -41,17 +43,10 @@ export type OpenCodeV2SessionRuntimeDeps = {
   now: () => number
 }
 
-export type OpenCodeV2SessionRuntime = {
-  lane: JsonlRpcTimelineLane
-  translator: OpenCodeV2TurnTranslator
-  permissions: OpenCodeV2PermissionRequests
-  forms: OpenCodeV2FormRequests
-}
+export type OpenCodeV2SessionRuntime = ReturnType<typeof createOpenCodeV2SessionRuntime>
 
 /** Lane + translator + permission cards for one freshly opened provider session. */
-export function createOpenCodeV2SessionRuntime(
-  deps: OpenCodeV2SessionRuntimeDeps
-): OpenCodeV2SessionRuntime {
+export function createOpenCodeV2SessionRuntime(deps: OpenCodeV2SessionRuntimeDeps) {
   const lane = new JsonlRpcTimelineLane({
     sink: deps.sink,
     sessionId: deps.orcaSessionId,
@@ -70,20 +65,20 @@ export function createOpenCodeV2SessionRuntime(
     commandTurnOpen: () => lane.openTurnId !== null && translator.openTurnId === null,
     autoApprovePermissions: () => deps.permissionMode === 'full-access',
     onPermissionAsked: ({ id, autoApproved }) => {
-      if (autoApproved) {
-        void deps
-          .connection()
-          ?.replyPermission(id, 'once')
-          .catch((error: unknown) =>
-            deps.logger.warn('OpenCode v2 auto-approval failed', {
-              scope: 'opencode-v2-permissions',
-              sessionId: deps.orcaSessionId,
-              error
-            })
-          )
+      if (!autoApproved) {
+        deps.permissions()?.track(id)
         return
       }
-      deps.permissions()?.track(id)
+      void deps
+        .connection()
+        ?.replyPermission(id, 'once')
+        .catch((error: unknown) =>
+          deps.logger.warn('OpenCode v2 auto-approval failed', {
+            scope: 'opencode-v2-permissions',
+            sessionId: deps.orcaSessionId,
+            error
+          })
+        )
     },
     onModelSelected: deps.onModelSelected,
     onAgentSelected: deps.onAgentSelected,
@@ -93,14 +88,13 @@ export function createOpenCodeV2SessionRuntime(
   const permissions = new OpenCodeV2PermissionRequests({
     isRequestRow: (itemId, key) => lane.isRequestRow(itemId, key),
     apply: (events) => lane.apply(events),
-    reply: (requestID, decision) =>
-      deps.connection()?.replyPermission(requestID, decision) ?? Promise.resolve()
+    reply: (id, dec) => deps.connection()?.replyPermission(id, dec) ?? Promise.resolve()
   })
   const forms = new OpenCodeV2FormRequests({
     isRequestRow: (itemId, key) => lane.isRequestRow(itemId, key),
     apply: (events) => lane.apply(events),
-    reply: (formID, answer) => deps.connection()?.replyForm(formID, answer) ?? Promise.resolve(),
-    cancel: (formID) => deps.connection()?.cancelForm(formID) ?? Promise.resolve()
+    reply: (id, ans) => deps.connection()?.replyForm(id, ans) ?? Promise.resolve(),
+    cancel: (id) => deps.connection()?.cancelForm(id) ?? Promise.resolve()
   })
   return { lane, translator, permissions, forms }
 }
@@ -126,10 +120,7 @@ export function buildOpenCodeV2Link(params: {
     ...(params.replacedNativeId
       ? {
           replaces: {
-            key: agentSessionProviderHandleKey({
-              ...handle,
-              nativeId: params.replacedNativeId
-            }),
+            key: agentSessionProviderHandleKey({ ...handle, nativeId: params.replacedNativeId }),
             reason: 'restore-failed',
             replacedAt: params.observedAt
           }
@@ -156,18 +147,16 @@ export async function catchUpOpenCodeV2History(input: {
   }
   const turnRows = new Set<string>()
   const journal = input.sink.journalItems?.()
-  if (journal) {
-    journal.visitItems((key) => {
-      const item = journal.item(key)
-      if (item?.body.kind !== 'turn') {
-        return
-      }
-      const parsed = parseAgentJournalItemKey(item.itemId)
-      if (parsed?.provider === 'legacy') {
-        turnRows.add(parsed.recordId)
-      }
-    })
-  }
+  journal?.visitItems((key) => {
+    const item = journal.item(key)
+    if (item?.body.kind !== 'turn') {
+      return
+    }
+    const parsed = parseAgentJournalItemKey(item.itemId)
+    if (parsed?.provider === 'legacy') {
+      turnRows.add(parsed.recordId)
+    }
+  })
   const hasTurn = (turnKey: string): boolean =>
     turnRows.has(
       `turn-lifecycle:${spellProviderTimelineKey(input.providerSessionId, {
@@ -189,11 +178,11 @@ export async function readOpenCodeV2Models(
   directory: string,
   signal: AbortSignal
 ): Promise<OpenCodeV2ModelListing> {
-  const location = { location: { directory } }
-  const options = { signal }
+  const loc = { location: { directory } }
+  const opt = { signal }
   const [listed, fallbackDefault] = await Promise.all([
-    client.model.list({ ...location, types: ['chat'] }, options),
-    client.model.default(location, options).catch(() => null)
+    client.model.list({ ...loc, types: ['chat'] }, opt),
+    client.model.default(loc, opt).catch(() => null)
   ])
   return openCodeV2ModelListing(listed.data, fallbackDefault?.data ?? null)
 }
@@ -223,7 +212,7 @@ export async function resyncOpenCodeV2Session(input: {
   }
 }
 
-const EMPTY_MODEL_LISTING: OpenCodeV2ModelListing = {
+export const EMPTY_MODEL_LISTING: OpenCodeV2ModelListing = {
   models: [],
   refs: new Map(),
   contextWindows: new Map(),
@@ -259,6 +248,33 @@ export async function loadOpenCodeV2Listings(input: {
   return { models, agents }
 }
 
+export async function attachOpenCodeV2ToolsMcp(input: {
+  client: OpenCodeV2Client
+  directory: string
+  signal: AbortSignal
+  logger: StructuredAgentSessionLogger
+  sessionId: string
+  resolveToolsMcpServer?: () => ToolsMcpServer | null
+}): Promise<void> {
+  try {
+    const server = input.resolveToolsMcpServer?.() ?? null
+    if (!server) {
+      return
+    }
+    const target = { server: TOOLS_MCP_SERVER_ID, location: { directory: input.directory } }
+    const opt = { signal: input.signal }
+    const cmd = [server.command, ...server.args]
+    await input.client.mcp.add({ ...target, config: { type: 'local', command: cmd } }, opt)
+    await input.client.mcp.connect(target, opt)
+  } catch (error) {
+    input.logger.warn('OpenCode v2 MCP attachment failed: opencode-v2-mcp', {
+      scope: 'opencode-v2-mcp',
+      sessionId: input.sessionId,
+      error
+    })
+  }
+}
+
 /** The provider answered a card elsewhere: forget it unless this host holds the claim. */
 export function settleOpenCodeV2Requests(
   event: OpenCodeEvent,
@@ -268,8 +284,7 @@ export function settleOpenCodeV2Requests(
   const data = ('data' in event ? event.data : {}) as { requestID?: unknown; id?: unknown }
   if (event.type === 'permission.replied' && typeof data.requestID === 'string') {
     permissions?.replied(data.requestID)
-  }
-  if (
+  } else if (
     (event.type === 'form.replied' || event.type === 'form.cancelled') &&
     typeof data.id === 'string'
   ) {
@@ -284,12 +299,12 @@ export function openCodeV2OpenResult(
     listing: OpenCodeV2ModelListing
   }
 ): StructuredAgentSessionProviderOpenResult {
-  const { currentModelId, listing } = params
+  const { currentModelId: model, listing } = params
   return {
     link: buildOpenCodeV2Link(params),
     reportedOptions: {
-      model: currentModelId ?? '',
-      ...(currentModelId ? { confirmed: ['model'] as readonly string[] } : {})
+      model: model ?? '',
+      ...(model ? { confirmed: ['model'] as readonly string[] } : {})
     },
     catalogListing: {
       models: listing.models,

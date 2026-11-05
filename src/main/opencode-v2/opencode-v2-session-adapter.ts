@@ -24,6 +24,7 @@ import {
 } from './opencode-v2-dispatch'
 import { openCodeV2RewindOps } from './opencode-v2-rewind'
 import { OpenCodeV2EventHub, openCodeV2EventHub } from './opencode-v2-events'
+import type { ToolsMcpServer } from '../mcp-integrations/tools-server'
 import { OpenCodeV2Session, type OpenCodeV2SessionDeps } from './opencode-v2-session'
 import type { OpenCodeV2Service, ResolvedOpenCodeV2Endpoint } from './opencode-v2-service'
 
@@ -39,6 +40,7 @@ export type OpenCodeV2SessionAdapterDeps = {
   ) => OpenCodeV2Client | Promise<OpenCodeV2Client>
   readProcessStartTime?: (pid: number) => Promise<number | null>
   now?: () => number
+  resolveToolsMcpServer?: () => ToolsMcpServer | null
 }
 
 /** The saved provider session id this chat resumes; null starts a fresh one. */
@@ -107,7 +109,10 @@ export class OpenCodeV2SessionAdapter implements StructuredAgentSessionAdapter {
         onLifecycle: this.deps.onLifecycle,
         onSettled: this.deps.onSettled,
         logger: this.deps.logger,
-        ...(this.deps.now ? { now: this.deps.now } : {})
+        ...(this.deps.now ? { now: this.deps.now } : {}),
+        ...(this.deps.resolveToolsMcpServer
+          ? { resolveToolsMcpServer: this.deps.resolveToolsMcpServer }
+          : {})
       })
       // The shared service process is the lease's owner proof; this adapter never kills it.
       const spawned = providerSpawnedProcessIdentity(

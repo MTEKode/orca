@@ -27,7 +27,8 @@ function createOpenCodeV2Adapter(
       })
     },
     logger: deps.logger,
-    ...(deps.readProcessStartTime ? { readProcessStartTime: deps.readProcessStartTime } : {})
+    ...(deps.readProcessStartTime ? { readProcessStartTime: deps.readProcessStartTime } : {}),
+    ...(deps.resolveToolsMcpServer ? { resolveToolsMcpServer: deps.resolveToolsMcpServer } : {})
   })
 }
 
