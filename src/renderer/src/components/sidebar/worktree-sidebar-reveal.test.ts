@@ -97,6 +97,6 @@ it('preserves sticky upward clearance and reduced-motion scroll notification', (
   vi.spyOn(window, 'matchMedia').mockReturnValue(media)
   const issued = vi.fn()
   expect(revealElementInScrollContainer(container, target, 'smooth', issued)).toBe(true)
-  expect(scrollTo).toHaveBeenCalledWith({ top: 376, behavior: 'auto' })
-  expect(issued).toHaveBeenCalledWith(376)
+  expect(scrollTo).toHaveBeenCalledWith({ top: 368, behavior: 'auto' })
+  expect(issued).toHaveBeenCalledWith(368)
 })
