@@ -15,7 +15,7 @@ import {
   type ProviderTimelineSink
 } from '../native-chat/agent-session-timeline/provider-timeline-plan'
 import type { JsonlRpcTimelineLane } from '../jsonl-rpc/timeline-lane'
-import type { AgentChatPermissionChoice } from '../../shared/agent-chat-permission-mode'
+import type { AgentChatPermissionChoice } from '../../shared/agent-launch/permissions/agent-chat-permission-mode'
 import type { AgentJournalItemIdentity } from '../../shared/agent-session/journal/agent-session-journal-identity'
 import { OPENCODE_V2_AGENT_ID } from './opencode-v2-agent-definition'
 import { OpenCodeV2Connection } from './opencode-v2-connection'

@@ -2,7 +2,7 @@ import React from 'react'
 import { NewChatModelFields } from '@/components/tab-bar/NewChatModelFields'
 import { translate } from '@/i18n/i18n'
 import type { AgentLaunchSurface } from '@/lib/agent-session-launch-plan'
-import type { AgentPickerEntry } from '../../../../shared/agent-launch-picker'
+import type { AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { NewChatPick } from '../../../../shared/new-chat-defaults'
 
 /** The handoff's model and effort, shown while the target agent opens as a chat. */

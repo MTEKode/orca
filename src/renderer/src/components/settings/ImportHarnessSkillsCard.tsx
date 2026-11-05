@@ -10,7 +10,7 @@ import {
   type ImportableSkill,
   type ImportableSkillOrigin
 } from '../../../../shared/skills/importable-skill'
-import { SettingsSwitchRow } from './SettingsFormControls'
+import { SettingsSwitchRow } from './form-controls/SettingsFormControls'
 
 const LOCAL_TARGET = { kind: 'local' } as const
 

@@ -5,8 +5,8 @@ import { translate } from '@/i18n/i18n'
 import { Button } from '../../ui/button'
 import { Input } from '../../ui/input'
 import { Label } from '../../ui/label'
-import { SearchableSetting } from '../SearchableSetting'
-import { searchKeywords } from '../settings-search-keywords'
+import { SearchableSetting } from '../section-layout/SearchableSetting'
+import { searchKeywords } from '../search/settings-search-keywords'
 import { RepoSettingsDraftInput } from './RepositorySettingsDraftInput'
 
 type DeployCheckValue = NonNullable<Repo['deployCheck']>

@@ -13,7 +13,7 @@ import type { Repo } from '../../../../shared/repo-types'
 import {
   buildWrappedLogicalLine,
   rangeForParsedFileLink
-} from '../../../../shared/wrapped-terminal-link-ranges'
+} from '../../../../shared/terminal/links/wrapped-terminal-link-ranges'
 
 const SYMBOL_TOKEN = /[A-Za-z_][A-Za-z0-9_]*(?:(?:::|#|\.)[A-Za-z_][A-Za-z0-9_]*)*[?!]?/g
 // ponytail: skips prose words like "for"/"the"; lower it if 3-letter symbols matter.

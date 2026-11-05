@@ -1,7 +1,7 @@
 import { useAppStore } from '@/store'
 import { selectKnownWorktreeById } from '@/store/selectors'
 import { resolveWorktreeGitCopyNow, worktreeCopyPushTarget } from '@/lib/worktree-git-copy'
-import { refreshGitStatusForWorktree } from '../right-sidebar/git-status-refresh'
+import { refreshGitStatusForWorktree } from '../right-sidebar/source-control/sync/git-status-refresh'
 
 /**
  * Refresh one worktree's git status after a turn revert moved HEAD/index/files, so the source-control

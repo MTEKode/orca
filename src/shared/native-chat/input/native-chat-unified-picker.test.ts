@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { deriveComposerAutocomplete } from '../../native-chat-composer-autocomplete'
-import { unifiedCatalogPickerSkills } from '../../native-chat-skill-visibility'
+import { deriveComposerAutocomplete } from './native-chat-composer-autocomplete'
+import { unifiedCatalogPickerSkills } from './native-chat-skill-visibility'
 import { getNativeChatAgentProfile } from '../native-chat-agent-profiles'
-import type { AgentType } from '../../agent-status-types'
+import type { AgentType } from '../../agent-status/contracts/agent-status-types'
 import type { SlashCommandSuggestion } from './native-chat-slash-commands'
 
 const unifiedSkills = unifiedCatalogPickerSkills([

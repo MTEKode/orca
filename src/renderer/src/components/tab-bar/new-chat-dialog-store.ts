@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { WorkspaceAttachment } from '../../../../shared/worktree/types'
-import type { AgentPickerEntry } from '../../../../shared/agent-launch-picker'
+import type { AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { MteWorkerPin } from '../../../../shared/mte/worker-pin'
 import type { NewChatDefaults, NewChatPick } from '../../../../shared/new-chat-defaults'
 

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 const resolveExecutableCommand = vi.hoisted(() => vi.fn())
 vi.mock('../../shared/node-cli-command-resolution', () => ({ resolveExecutableCommand }))
-vi.mock('../ipc/agent-detection-shell-path', () => ({
+vi.mock('../ipc/command-path/agent-detection-shell-path', () => ({
   hydrateShellPathForAgentDetection: async () => undefined
 }))
 

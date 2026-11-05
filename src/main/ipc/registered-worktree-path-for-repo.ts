@@ -4,7 +4,7 @@ import type { RegisteredWorktreeRootStore as Store } from './registered-worktree
 import {
   resolveRegisteredOwnerForRepo,
   resolveRegisteredWorktreePath
-} from './registered-worktree-roots-cache'
+} from './worktrees/removal/registered-worktree-roots-cache'
 
 export async function resolveRegisteredWorktreePathForRepo(
   worktreePath: string,

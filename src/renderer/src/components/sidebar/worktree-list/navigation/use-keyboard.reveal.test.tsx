@@ -19,7 +19,7 @@ import { repo, worktree } from '../grouping/worktree-list-groups-test-fixtures'
 
 import { type WorktreeItemRow, buildRenderableRows } from '../listing/renderable-rows'
 import { getWorktreeOptionId } from '../rows/option-dom'
-import { WORKTREE_SIDEBAR_REVEAL_TOP_INSET } from '../../worktree-sidebar-reveal'
+import { WORKTREE_SIDEBAR_REVEAL_TOP_INSET } from './worktree-sidebar-reveal'
 import { usePendingSidebarReveal } from './use-pending-reveal'
 import { useWorktreeListKeyboardNavigation } from './use-keyboard'
 

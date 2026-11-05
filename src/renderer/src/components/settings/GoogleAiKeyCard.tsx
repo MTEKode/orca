@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { useAppStore } from '@/store'
 import { useActiveRepo } from '@/store/selectors'
 import { translate } from '@/i18n/i18n'
-import { IntegrationCardShell } from './integration-card-shell'
+import { IntegrationCardShell } from '../integrations/presentation/integration-card-shell'
 
 /** Write-only: the stored key is never read back into the UI, so the input never pre-fills. */
 export function GoogleAiKeyCard(): React.JSX.Element {

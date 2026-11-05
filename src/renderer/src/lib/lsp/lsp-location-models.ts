@@ -1,5 +1,5 @@
 // src/renderer/src/lib/lsp/lsp-location-models.ts
-import { toEditorModelUri } from '@/components/editor/editor-model-uri'
+import { toEditorModelUri } from '@/components/editor/model-lifetime/identity/editor-model-uri'
 import { toMonacoRange, type LspLocation, type MonacoRangeLike } from './lsp-conversions'
 
 export const LSP_PEEK_SCHEME = 'orca-lsp-peek'

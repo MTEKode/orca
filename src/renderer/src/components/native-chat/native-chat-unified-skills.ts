@@ -1,6 +1,6 @@
 import type { DiscoveredSkill } from '../../../../shared/skills'
 import type { UnifiedCatalogSkill } from '../../../../shared/skills/unified-skill-catalog'
-import { unifiedCatalogPickerSkills } from '../../../../shared/native-chat-skill-visibility'
+import { unifiedCatalogPickerSkills } from '../../../../shared/native-chat/input/native-chat-skill-visibility'
 import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
 import type { NativeChatSkillDiscoveryContext } from './native-chat-skill-discovery-context'
 

@@ -6,7 +6,7 @@
 import { randomUUID } from 'node:crypto'
 import type { DiffComment } from '../../shared/diff-comment-types'
 import type { DiffCommentBaseMutation } from '../../shared/diff-comment-mutation'
-import type { FolderWorkspace } from '../../shared/folder-workspace-types'
+import type { FolderWorkspace } from '../../shared/folder-workspaces/folder-workspace-types'
 import type { Repo } from '../../shared/repo-types'
 import type { HostWorktreeTarget } from '../../shared/worktree/host-qualified-identity'
 import type { WorktreeMeta } from '../../shared/worktree/meta-types'

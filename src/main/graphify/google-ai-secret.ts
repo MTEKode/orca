@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, unlinkSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { getSecretStore } from '../../shared/secret-store'
-import { writeCredentialFileAtomic } from '../integration-credential-file'
+import { writeCredentialFileAtomic } from '../credentials/integration-credential-file'
 
 // Same file-backed pattern as the MCP secrets: OS-keyring sealed blob, plaintext only if sealing is unavailable.
 export const GOOGLE_AI_SECRET_ID = 'google-ai'

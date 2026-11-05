@@ -51,7 +51,7 @@ describe('verify-localization-catalog', () => {
   it('bootstraps keys referenced only through translateSearchKeyword', async () => {
     const { root, localesDir } = makeProject({
       sourceText:
-        "import { translateSearchKeyword } from '@/components/settings/settings-search-keywords'\nexport const keywords = translateSearchKeyword('auto.components.settings.example.search.scroll', 'scroll')\n"
+        "import { translateSearchKeyword } from '@/components/settings/search/settings-search-keywords'\nexport const keywords = translateSearchKeyword('auto.components.settings.example.search.scroll', 'scroll')\n"
     })
 
     await expect(verifyLocalizationCatalog(root, { fix: false })).resolves.toBe(1)

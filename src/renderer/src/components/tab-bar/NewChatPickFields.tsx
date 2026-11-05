@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/select'
 import { translate } from '@/i18n/i18n'
 import { NewChatEffortLabel, NewChatHarnessLabel } from './NewChatOptionIcons'
-import type { AgentPickerEntry } from '../../../../shared/agent-launch-picker'
+import type { AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { NewChatPick } from '../../../../shared/new-chat-defaults'
 import type { NewChatSelection } from './new-chat-dialog-store'
 import {

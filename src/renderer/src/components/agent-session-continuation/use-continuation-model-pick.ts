@@ -6,10 +6,10 @@ import { newChatDraftForPick, resolveNewChatPick } from '@/components/tab-bar/ne
 import { useAppStore } from '@/store'
 import { findWorktreeById } from '@/store/slices/worktree-helpers'
 import type { NewTabAgentMenuModel } from '@/components/tab-bar/new-tab-agent-menu-model'
-import { agentPickerLaunchInputs } from '../../../../shared/agent-launch-picker'
-import type { AgentPickerEntry } from '../../../../shared/agent-launch-picker'
+import { agentPickerLaunchInputs } from '../../../../shared/agent-launch/picker/agent-launch-picker'
+import type { AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { NewChatPick } from '../../../../shared/new-chat-defaults'
-import type { TuiAgent } from '../../../../shared/tui-agent'
+import type { TuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent'
 
 /** The repo's own New Chat choice for this agent, which prefills a handoff to it. */
 function savedChatPick(worktreeId: string | undefined, agent: TuiAgent | null): NewChatPick | null {

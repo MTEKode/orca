@@ -5,7 +5,7 @@ import {
   type AgentPickerEntry,
   type AgentPickerModel,
   type AgentPickerSurface
-} from '../../../../shared/agent-launch-picker'
+} from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { NewChatPick } from '../../../../shared/new-chat-defaults'
 import type { NewTabAgentMenuRow } from '@/lib/new-tab-agent-menu-rows'
 import type { NewChatSelection } from './new-chat-dialog-store'
