@@ -209,6 +209,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
     starting: provisionalLaunch.starting,
     transportEnabled: provisionalLaunch.transportEnabled,
     worktreeId: ownerWorktreeId ?? undefined,
+    onSwitchHarness: handOff.available ? handOff.handOffTo : undefined,
     optionPickerRequest,
     setOptionPickerRequest,
     onError: reportComposerError,

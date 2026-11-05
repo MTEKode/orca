@@ -1,9 +1,8 @@
-import {
-  getTuiAgentLaunchCommand,
-  TUI_AGENT_CONFIG
-} from '../../shared/agent-launch/catalog/tui-agent-config'
 import type { OpenCodeAgentSessionAccountHome } from '../../shared/agent-session/lifecycle/agent-session-account-home'
-import type { StructuredAgentCommandSettings } from '../native-chat/structured-agent-command-resolution'
+import {
+  resolveStructuredAgentCommand,
+  type StructuredAgentCommandSettings
+} from '../native-chat/structured-agent-command-resolution'
 import type { StructuredAgentSessionHistory } from '../native-chat/structured-agent-cli-conversations'
 import type { StructuredAgentRuntimeMetadata } from '../runtime/structured-agent-runtime-registration-types'
 import { OPENCODE_SESSION_HISTORY } from '../opencode/opencode-session-history'
@@ -18,16 +17,16 @@ export const OPENCODE_V2_MINIMUM_VERSIONS = ['2.0.14']
 // The unified `opencode` chat owns the same terminal history rows and resume flags as before.
 export const OPENCODE_V2_SESSION_HISTORY: StructuredAgentSessionHistory = OPENCODE_SESSION_HISTORY
 
-function resolveOpenCodeV2Command(
+export function resolveOpenCodeV2Command(
   env: Record<string, string>,
   commandSettings: StructuredAgentCommandSettings
 ): { command: string; prefixArgs: string[]; env: Record<string, string> } {
-  const override = commandSettings?.agentCmdOverrides?.opencode?.trim()
-  return {
-    command: override || getTuiAgentLaunchCommand(TUI_AGENT_CONFIG.opencode, process.platform),
-    prefixArgs: [],
-    env
-  }
+  const homePath = env.HOME ?? env.USERPROFILE
+  const resolved = resolveStructuredAgentCommand('opencode', commandSettings, {
+    pathEnv: env.PATH ?? env.Path ?? null,
+    ...(homePath ? { homePath } : {})
+  })
+  return { ...resolved, env }
 }
 
 export const OPENCODE_V2_RUNTIME_METADATA: StructuredAgentRuntimeMetadata = {

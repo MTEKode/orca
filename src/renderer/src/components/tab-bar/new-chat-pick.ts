@@ -79,6 +79,14 @@ export function resolveNewChatPick(
     return null
   }
   const models = agentPickerModels(entry).filter((m) => !m.hidden)
+  if (models.length === 0) {
+    return {
+      agent: entry.agent,
+      ...(raw?.agent === entry.agent && raw?.model ? { model: raw.model } : {}),
+      ...(raw?.agent === entry.agent && raw?.effort ? { effort: raw.effort } : {}),
+      entry
+    }
+  }
   const model =
     models.find((m) => m.id === raw?.model) ?? models.find((m) => m.isDefault) ?? models[0]
   const efforts = model?.efforts ?? []

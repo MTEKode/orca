@@ -1,6 +1,17 @@
-import { memo, useEffect, useRef, useState } from 'react'
-import { ChevronDown } from 'lucide-react'
+/* eslint-disable max-lines -- Why: SessionOptionPopover and HarnessModelSubmenu keep popover trigger, model combobox, option rows, and direct handoff harness picker cohesive without separate lifecycle state. */
+
+import React, { memo, useEffect, useRef, useState } from 'react'
+import { ChevronDown, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { translate } from '@/i18n/i18n'
@@ -20,6 +31,31 @@ import {
   nativeChatSessionOptionDisabledReason
 } from '../../../../shared/native-chat/input/native-chat-session-option-labels'
 import type { MteWorkerPin } from '../../../../shared/mte/worker-pin'
+import type { TuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent'
+import type { AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'
+import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
+import { useNewTabAgentMenuRows } from '../tab-bar/use-new-tab-agent-menu-rows'
+import {
+  useAgentLaunchPickerInventorySource,
+  useAgentPickerInventoryEntries
+} from '@/components/agent/use-agent-launch-picker-inventory'
+import { newChatEntries, newChatModels, resolveNewChatPick } from '../tab-bar/new-chat-pick'
+
+const LazyNewChatHarnessLabel = React.lazy(async () => {
+  const { NewChatHarnessLabel: Component } = await import('../tab-bar/NewChatOptionIcons')
+  return { default: Component }
+})
+
+function NewChatHarnessLabel(props: {
+  agent: TuiAgent
+  children: React.ReactNode
+}): React.JSX.Element {
+  return (
+    <React.Suspense fallback={<span className="truncate">{props.children}</span>}>
+      <LazyNewChatHarnessLabel agent={props.agent}>{props.children}</LazyNewChatHarnessLabel>
+    </React.Suspense>
+  )
+}
 import {
   composerAgentPillLabel,
   composerSidePillLabel
@@ -43,6 +79,12 @@ export type NativeChatSessionOptionPickersProps = {
   agent?: string
   /** Set on an MTE planner chat: this pill then reads "Orchestrator: …" (the worker has its own selector). */
   mteWorker?: MteWorkerPin
+  worktreeId?: string
+  onSwitchHarness?: (pick: {
+    agent: TuiAgent
+    model?: string
+    effort?: string
+  }) => void | Promise<void>
 }
 
 /** A descriptor write in flight; its value shows until it settles. */
@@ -96,6 +138,7 @@ function PickerTrigger(props: {
   disabledReason: string | null
   dispatched: boolean
   triggerRef: React.Ref<HTMLButtonElement>
+  onClick?: () => void
   onKeyDown: React.KeyboardEventHandler<HTMLButtonElement>
 }): React.JSX.Element {
   const [tooltipOpen, setTooltipOpen] = useState(false)
@@ -113,6 +156,7 @@ function PickerTrigger(props: {
             aria-label={props.accessibleName}
             disabled={props.disabled}
             className={props.wide ? 'max-w-md' : 'max-w-64'}
+            onClick={props.onClick}
             onKeyDown={props.onKeyDown}
           >
             {props.agentLabel ? (
@@ -144,6 +188,120 @@ function PickerTrigger(props: {
   )
 }
 
+function HarnessModelSubmenu({
+  worktreeId,
+  open,
+  currentAgent,
+  model,
+  onSetModel,
+  onSwitchHarness,
+  onClosePopover
+}: {
+  worktreeId: string
+  open: boolean
+  currentAgent?: string
+  model: SessionOptionDescriptor
+  onSetModel: (descriptor: SessionOptionDescriptor, value: SessionOptionValue) => void
+  onSwitchHarness?: (pick: {
+    agent: TuiAgent
+    model?: string
+    effort?: string
+  }) => void | Promise<void>
+  onClosePopover: () => void
+}): React.JSX.Element {
+  const [selectedAgent, setSelectedAgent] = useState<TuiAgent | undefined>(undefined)
+  const target = useAgentDetectionTargetForWorktree(worktreeId)
+  const menuModel = useNewTabAgentMenuRows(worktreeId, open, target)
+  const source = useAgentLaunchPickerInventorySource(worktreeId, menuModel, open, selectedAgent)
+  const rawEntries = useAgentPickerInventoryEntries(source)
+  const entries = newChatEntries(rawEntries)
+
+  const handlePick = (entry: AgentPickerEntry, pickedModelId?: string) => {
+    const resolved = resolveNewChatPick(entries, {
+      agent: entry.agent,
+      ...(pickedModelId ? { model: pickedModelId } : {})
+    })
+    if (entry.agent === currentAgent) {
+      if (pickedModelId) {
+        onSetModel(model, pickedModelId)
+      }
+    } else {
+      onClosePopover()
+      void onSwitchHarness?.({
+        agent: entry.agent,
+        ...(pickedModelId ? { model: pickedModelId } : {}),
+        ...(resolved?.effort ? { effort: resolved.effort } : {})
+      })
+    }
+  }
+
+  return (
+    <div className="border-b p-1">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className="w-full justify-between px-2 text-xs text-muted-foreground hover:text-foreground"
+          >
+            <span>
+              {translate('components.native-chat.composer.switchHarness', 'Switch harness…')}
+            </span>
+            <ChevronRight className="size-3" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-56">
+          {entries.map((entry) => {
+            const models = newChatModels(entry)
+            const isPending = entry.catalogRead === 'pending'
+            return (
+              <DropdownMenuSub key={entry.agent}>
+                <DropdownMenuSubTrigger
+                  onPointerEnter={() => setSelectedAgent(entry.agent)}
+                  onMouseEnter={() => setSelectedAgent(entry.agent)}
+                  onFocus={() => setSelectedAgent(entry.agent)}
+                >
+                  <NewChatHarnessLabel agent={entry.agent}>{entry.label}</NewChatHarnessLabel>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className="w-56">
+                  {models.length > 0 ? (
+                    models.map((m) => {
+                      const onPick = () => handlePick(entry, m.id)
+                      return (
+                        <DropdownMenuItem key={m.id} onSelect={onPick} onClick={onPick}>
+                          {m.label}
+                        </DropdownMenuItem>
+                      )
+                    })
+                  ) : (
+                    <>
+                      <DropdownMenuItem
+                        onSelect={() => handlePick(entry, undefined)}
+                        onClick={() => handlePick(entry, undefined)}
+                      >
+                        {entry.label}
+                      </DropdownMenuItem>
+                      {isPending ? (
+                        <DropdownMenuItem disabled>
+                          {translate(
+                            'components.native-chat.composer.loadingModels',
+                            'Loading models…'
+                          )}
+                        </DropdownMenuItem>
+                      ) : null}
+                    </>
+                  )}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+            )
+          })}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  )
+}
+
 function SessionOptionPopover(props: {
   demandModelCatalog?: () => void
   model: SessionOptionDescriptor
@@ -157,6 +315,12 @@ function SessionOptionPopover(props: {
   focusComposer?: () => void
   agent?: string
   mteWorker?: MteWorkerPin
+  worktreeId?: string
+  onSwitchHarness?: (pick: {
+    agent: TuiAgent
+    model?: string
+    effort?: string
+  }) => void | Promise<void>
 }): React.JSX.Element {
   const { model, options, pendingIds, demandModelCatalog } = props
   const canOpen = [model, ...options].some(
@@ -262,6 +426,7 @@ function SessionOptionPopover(props: {
           sessionOptionDispatchUnconfirmed(model) || options.some(sessionOptionDispatchUnconfirmed)
         }
         triggerRef={focusReturn.triggerRef}
+        onClick={() => setOpen((prev) => !prev && canOpen)}
         // Why: a popover trigger opens on Enter and Space only; a menu also takes ArrowDown.
         onKeyDown={(event) => {
           if (event.key === 'ArrowDown' && canOpen) {
@@ -301,6 +466,17 @@ function SessionOptionPopover(props: {
           }
         }}
       >
+        {props.worktreeId && props.onSwitchHarness ? (
+          <HarnessModelSubmenu
+            worktreeId={props.worktreeId}
+            open={open}
+            currentAgent={props.agent}
+            model={model}
+            onSetModel={set}
+            onSwitchHarness={props.onSwitchHarness}
+            onClosePopover={() => setOpen(false)}
+          />
+        ) : null}
         {model.kind.type === 'select' && !model.action ? (
           <NativeChatModelCombobox
             choices={model.kind.choices}
@@ -349,7 +525,9 @@ function NativeChatSessionOptionPickersInner({
   pickerRequest,
   focusComposer,
   agent,
-  mteWorker
+  mteWorker,
+  worktreeId,
+  onSwitchHarness
 }: NativeChatSessionOptionPickersProps): React.JSX.Element | null {
   useUiLanguageRevision()
   const [pending, setPending] = useState<ReadonlyMap<string, PendingPick>>(() => new Map())
@@ -408,6 +586,8 @@ function NativeChatSessionOptionPickersInner({
         focusComposer={focusComposer}
         agent={agent}
         mteWorker={mteWorker}
+        worktreeId={worktreeId}
+        onSwitchHarness={onSwitchHarness}
       />
     </div>
   )

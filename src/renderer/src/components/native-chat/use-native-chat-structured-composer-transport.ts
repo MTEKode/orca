@@ -12,6 +12,7 @@ import type { AgentType } from '../../../../shared/agent-status/contracts/agent-
 import type { AgentSessionThreadGoalChange } from '../../../../shared/agent-session/agent-session-thread-goal-wire'
 import { translate } from '@/i18n/i18n'
 import { structuredAgentLabel } from '@/lib/agent-session/launch/structured-agent-session-launch-label'
+import type { TuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent'
 
 function nativeChatSessionAttachmentNotReadyNotice(agent: AgentType, starting: boolean): string {
   const label = structuredAgentLabel(agent)
@@ -40,6 +41,11 @@ export function useNativeChatStructuredComposerTransport(args: {
   starting: boolean
   transportEnabled: boolean
   worktreeId: string | undefined
+  onSwitchHarness?: (pick: {
+    agent: TuiAgent
+    model?: string
+    effort?: string
+  }) => void | Promise<void>
   optionPickerRequest: NativeChatOptionPickerRequest | null
   setOptionPickerRequest: Dispatch<SetStateAction<NativeChatOptionPickerRequest | null>>
   onError: NativeChatStructuredComposerTransport['onError']
@@ -47,7 +53,15 @@ export function useNativeChatStructuredComposerTransport(args: {
   /** Host reason for refusing turns and holding Send. */
   sendBlockedReason?: string | null
 }): NativeChatStructuredComposerTransport {
-  const { props, controller, sendThroughLaunch, starting, worktreeId, optionPickerRequest } = args
+  const {
+    props,
+    controller,
+    sendThroughLaunch,
+    starting,
+    worktreeId,
+    onSwitchHarness,
+    optionPickerRequest
+  } = args
   const { setOptionPickerRequest, onError } = args
   const { revealLatest: onSubmitted, captureRevealLatest: captureAdmittedReveal } = args.reveal
   const { transportEnabled } = args
@@ -124,6 +138,7 @@ export function useNativeChatStructuredComposerTransport(args: {
       acceptsImages,
       contextUsage: controller.contextUsage,
       worktreeId,
+      ...(onSwitchHarness ? { onSwitchHarness } : {}),
       onError,
       onSubmitted,
       captureAdmittedReveal,
@@ -142,6 +157,7 @@ export function useNativeChatStructuredComposerTransport(args: {
     acceptsImages,
     controller,
     worktreeId,
+    onSwitchHarness,
     onError,
     onSubmitted,
     captureAdmittedReveal,

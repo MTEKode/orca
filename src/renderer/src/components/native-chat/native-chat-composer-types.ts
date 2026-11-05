@@ -20,6 +20,7 @@ import type { NativeChatAfterStopSend } from './native-chat-composer-target'
 import type { NativeChatLocalCommandAnswer } from './use-native-chat-local-command-answer'
 import type { NativeChatRecallSource } from './native-chat-sent-prompt-history'
 import type { NativeChatSendFollowUp } from '../../../../shared/native-chat/input/native-chat-follow-up-behavior'
+import type { TuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent'
 
 export type NativeChatComposerErrorDetail = {
   /** Error text Orca did not write, shown apart and copyable. */
@@ -67,6 +68,11 @@ export type NativeChatStructuredComposerTransport = {
   /** The session's context usage; null until the journal can state it. */
   contextUsage?: StructuredAgentContextUsage | null
   worktreeId?: string
+  onSwitchHarness?: (pick: {
+    agent: TuiAgent
+    model?: string
+    effort?: string
+  }) => void | Promise<void>
   /** Present only where the host can set this session's goal. */
   threadGoal?: { setObjective: (objective: string) => Promise<boolean> }
   onError: (message: string | null, detail?: NativeChatComposerErrorDetail) => void

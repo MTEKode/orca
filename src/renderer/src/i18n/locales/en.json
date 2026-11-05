@@ -24080,6 +24080,7 @@
     "worker": "Worker",
     "model": "Model",
     "effort": "Effort",
+    "loadingModels": "Loading models…",
     "catalogFallback": "Model list may be incomplete",
     "cancel": "Cancel",
     "start": "Start",

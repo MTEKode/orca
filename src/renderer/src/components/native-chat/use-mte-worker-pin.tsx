@@ -5,9 +5,19 @@ import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
 import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-target'
 import { isMteWorkerPin, type MteWorkerPin } from '../../../../shared/mte/worker-pin'
 import { isMteOrchestrationAgent } from '../../../../shared/mte/orchestration-agents'
+import type { TuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent'
 
 /** The worker pinned on an MTE planner chat; undefined for plain chats or until the host answers. */
-type PinTransport = { sessionId: string; runtimeEnvironmentId: string | null; worktreeId?: string }
+type PinTransport = {
+  sessionId: string
+  runtimeEnvironmentId: string | null
+  worktreeId?: string
+  onSwitchHarness?: (pick: {
+    agent: TuiAgent
+    model?: string
+    effort?: string
+  }) => void | Promise<void>
+}
 
 function useMteWorkerPinState(
   transport: PinTransport | undefined
@@ -54,12 +64,25 @@ export function useMteWorkerPin(transport: PinTransport | undefined): MteWorkerP
 export function useComposerAgentIdentity(
   agent: string,
   transport: PinTransport | undefined
-): { agent: string; mteWorker?: MteWorkerPin; mteWorkerPicker?: ReactNode } {
+): {
+  agent: string
+  mteWorker?: MteWorkerPin
+  mteWorkerPicker?: ReactNode
+  onSwitchHarness?: (pick: {
+    agent: TuiAgent
+    model?: string
+    effort?: string
+  }) => void | Promise<void>
+} {
   const [planner, setMteWorker] = useMteWorkerPinState(transport)
+  const onSwitchHarness = transport?.onSwitchHarness
   // ponytail: with no pin yet the selector starts on the chat's own agent (model/effort unset).
   const mteWorker = planner?.worker ?? (isMteOrchestrationAgent(agent) ? { agent } : undefined)
   if (!planner || !mteWorker || !transport) {
-    return { agent }
+    return {
+      agent,
+      ...(onSwitchHarness ? { onSwitchHarness } : {})
+    }
   }
   const change = (worker: MteWorkerPin): void => {
     setMteWorker(worker)
@@ -74,6 +97,7 @@ export function useComposerAgentIdentity(
         worktreeId={transport.worktreeId}
         onChange={change}
       />
-    )
+    ),
+    ...(onSwitchHarness ? { onSwitchHarness } : {})
   }
 }

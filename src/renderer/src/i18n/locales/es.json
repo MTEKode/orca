@@ -23702,6 +23702,7 @@
     "worker": "Worker",
     "model": "Modelo",
     "effort": "Esfuerzo",
+    "loadingModels": "Cargando modelos…",
     "catalogFallback": "Puede que la lista de modelos esté incompleta",
     "cancel": "Cancelar",
     "start": "Iniciar",

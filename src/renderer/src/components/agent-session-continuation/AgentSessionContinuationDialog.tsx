@@ -297,7 +297,15 @@ export function AgentSessionContinuationDialog({
               cli={selection.cli}
               value={currentPick?.draft}
               onPick={(agent, draft, entry) =>
-                setPick({ request, agent, surface: draft?.surface, draft, entry })
+                setPick({
+                  request,
+                  agent,
+                  surface: draft?.surface,
+                  model: draft?.choices.model,
+                  effort: draft?.choices.options?.effort,
+                  draft,
+                  entry
+                })
               }
             />
             <ContinuationAgentStatus
