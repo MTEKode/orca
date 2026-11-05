@@ -27,7 +27,7 @@ export function readGraphStatus(repoId: string): GraphStatus {
   if (!existsSync(file)) {
     return { state: 'missing', builtAt: null, nodeCount: 0, edgeCount: 0, semantic: false }
   }
-  let nodes: { source_type?: string; file_type?: string }[] = []
+  let nodes: { _origin?: string; file_type?: string }[] = []
   let edges: unknown[] = []
   try {
     // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: parsed JSON/error shape is checked at this boundary
@@ -38,9 +38,14 @@ export function readGraphStatus(repoId: string): GraphStatus {
   } catch {
     // Corrupt/partial file: report built with zero counts rather than throwing from status polls.
   }
-  // ponytail: semantic == any non-code node (doc/paper/image); 'concept' nodes also appear in --code-only builds; revisit if graphify adds a manifest flag.
+  // Why: AST extraction also emits markdown `document` and docstring `rationale` nodes (tagged `_origin: "ast"`), so file_type alone mislabels code-only/update graphs as semantic. Semantic = a non-code/concept node that did not come from the AST pass.
+  // ponytail: untagged legacy graphs fall back to the file_type check; revisit if graphify adds a manifest flag.
   const semantic = nodes.some(
-    (n) => n.file_type !== undefined && n.file_type !== 'code' && n.file_type !== 'concept'
+    (n) =>
+      n._origin !== 'ast' &&
+      n.file_type !== undefined &&
+      n.file_type !== 'code' &&
+      n.file_type !== 'concept'
   )
   return {
     state: 'built',
