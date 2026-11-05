@@ -322,7 +322,11 @@ describe('picker window launch contract', () => {
         agentPickerLaunchInputs({ ...setup, surface: 'terminal' }, entry)
       )
       expect(await perform({}, 'searched')).toEqual(expectedSearch)
-      expect(expectedSearch.command ?? expectedSearch.remote?.command ?? '').toContain('opus')
+      if (target === 'paired') {
+        expect(expectedSearch.remote).toMatchObject({ sessionOptions: { model: 'opus' } })
+      } else {
+        expect(expectedSearch.command ?? expectedSearch.remote?.command ?? '').toContain('opus')
+      }
       dispatch.mockRestore()
     }
   )

@@ -209,7 +209,7 @@ it('real CLI rejects every missing repeated answer before runtime lookup without
       ['--answer', 'a=fixture-private', '--answer', '--answer', 'b=2'],
       ['--answer', 'a=fixture-private', '--answer']
     ]) {
-      fixture.mode({ supported: 'opencode2' })
+      fixture.mode({ supported: 'opencode' })
       const result = await runProcess({ ...fixture.spec, args: [...fixture.spec.args, ...options] })
       expect(result.code).toBe(1)
       expect(JSON.parse(result.stdout)).toMatchObject({
@@ -230,7 +230,7 @@ it('real CLI forwards form text through a spaced launcher path and imports only 
   const fixture = await accountFixture('bin tools & 100%')
   const answers = ['instance URL=https://example.test/a%20b?x="quoted"&y=a=b!', 'note=']
   try {
-    fixture.mode({ supported: 'opencode2' })
+    fixture.mode({ supported: 'opencode' })
     const result = await runProcess({
       ...fixture.spec,
       args: [...fixture.spec.args, '--method', 'pkce', ...answers.flatMap((a) => ['--answer', a])]

@@ -27,10 +27,6 @@ it('removes each text CLI model/effort spelling without changing unrelated Argum
       model: ['-m provider/model', '--model=provider/model'],
       effort: ['--variant high', '--variant=high']
     },
-    opencode2: {
-      model: ['--model provider/model#high', '-m=provider/model#high'],
-      effort: ['--model provider/model#high', '--model=provider/model']
-    },
     pi: { model: ['--model provider/model'], effort: ['--thinking high', '--thinking=high'] },
     amp: { model: ['--mode smart', '--mode=deep'], effort: ['--effort high'] },
     cursor: { model: ['--model auto', '--model=auto'], effort: [] },

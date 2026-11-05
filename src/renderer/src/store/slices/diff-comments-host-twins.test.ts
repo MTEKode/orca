@@ -346,7 +346,7 @@ describe('captured note owners across delivery and selection', () => {
     expect(updateMeta).toHaveBeenCalledExactlyOnceWith({
       worktreeId: WT,
       executionHostId: 'ssh:box',
-      updates: { diffComments: [] }
+      updates: { diffComments: [], diffCommentsBase: expect.any(Array) }
     })
     expect(isNoteInFlight(diffCommentSendKey(ownerA, sent))).toBe(false)
   })
@@ -399,7 +399,10 @@ describe('captured note owners across delivery and selection', () => {
     expect(updateMeta).toHaveBeenCalledExactlyOnceWith({
       worktreeId: WT,
       executionHostId: 'ssh:box',
-      updates: { diffComments: [expect.objectContaining({ body: 'ssh note' })] }
+      updates: {
+        diffComments: [expect.objectContaining({ body: 'ssh note' })],
+        diffCommentsBase: expect.any(Array)
+      }
     })
   })
 
@@ -512,7 +515,8 @@ describe('captured note owners across delivery and selection', () => {
         diffComments: [
           expect.objectContaining({ body: 'listed' }),
           expect.objectContaining({ body: 'ssh note' })
-        ]
+        ],
+        diffCommentsBase: expect.any(Array)
       }
     })
   })
