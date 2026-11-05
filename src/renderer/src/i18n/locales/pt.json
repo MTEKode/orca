@@ -15167,7 +15167,7 @@
             "5e8fe5a72d": "Dê aos agentes acesso direto ao navegador do Orca para que possam testar páginas, capturar screenshots e agir sobre o que veem.",
             "e638da007a": "Uso do Navegador pelo Agente",
             "c61c91e642": "Permita que os agentes se coordenem através do Orca para manter tarefas grandes de várias etapas avançando até a conclusão.",
-            "ac07f8887f": "Orquestração de Agentes",
+            "ac07f8887f": "MTE flow",
             "e9eb197e12": "Permissões de Uso do Computador abertas",
             "c605f51f2b": "Configuração de capacidade pronta",
             "1aa657d8f4": "Alguma configuração de capacidade precisa de atenção",

@@ -7812,7 +7812,9 @@
           "3ba07f933b": "Conecta issue trackers que Orca puede usar para explorar tareas e iniciar espacios de trabajo con contexto vinculado.",
           "70e885705b": "Proveedores de tareas",
           "1683acbac4": "Conecta los hosts de código que Orca puede usar para pull requests, merge requests, checks y estado de revisión.",
-          "298c65ecac": "Proveedores de revisión"
+          "298c65ecac": "Proveedores de revisión",
+          "mcpIntegrationsTitle": "Integraciones MCP",
+          "mcpIntegrationsDescription": "Conecta los servicios que Orca expone a todos los agentes como herramientas MCP (servidor orca-tools)."
         },
         "KagiSessionLinkForm": {
           "92f0b4e472": "Borrar",
@@ -10067,7 +10069,15 @@
             "7166b9090c": "Autenticación de GitHub a través de la CLI de gh.",
             "f16e41cc72": "Integración de GitHub",
             "760e2446e0": "Autenticación de Bitbucket Cloud con un token API guardado o variables de entorno.",
-            "af5ae87847": "token de acceso"
+            "af5ae87847": "token de acceso",
+            "mcpTitle": "Integraciones MCP",
+            "mcpDescription": "Conecta los servicios que Orca expone a todos los agentes como herramientas MCP (servidor orca-tools).",
+            "mcpKeyword": "mcp",
+            "mcpTools": "herramientas",
+            "mcpPosthog": "posthog",
+            "mcpBetterstack": "better stack",
+            "mcpContext7": "context7",
+            "mcpPixellab": "pixellab"
           }
         },
         "jira": {
@@ -13039,6 +13049,29 @@
         },
         "PluginContributionActionNewFile": {
           "create": "Crear"
+        },
+        "McpIntegrationCard": {
+          "statusNotConnected": "No conectado",
+          "statusApiKey": "Conectado mediante clave de API",
+          "statusOAuth": "Conectado mediante OAuth",
+          "failed": "La solicitud ha fallado",
+          "connected": "{{label}} conectado",
+          "keySaved": "Clave de API de {{label}} guardada",
+          "disconnected": "{{label}} desconectado",
+          "description": "Expuesto a los agentes como herramientas MCP.",
+          "graphifyHint": "Genera grafos desde el panel Graph o con `orca graph build`.",
+          "docs": "Documentación",
+          "connect": "Conectar",
+          "disconnect": "Desconectar",
+          "completeSignIn": "Completa el inicio de sesión en tu navegador",
+          "keyPlaceholder": "Clave de API",
+          "keyLabel": "Clave de API de {{label}}",
+          "saveKey": "Guardar clave",
+          "statusLocal": "Configurado (servidor local)",
+          "configSaved": "Ajustes de {{label}} guardados",
+          "saveConfig": "Guardar",
+          "graphsAvailable": "Grafos disponibles",
+          "noGraphs": "Aún no se ha generado ningún grafo"
         }
       },
       "right": {
@@ -15206,7 +15239,7 @@
             "5e8fe5a72d": "Da a los agentes acceso directo al navegador de Orca para que puedan probar páginas, hacer capturas de pantalla y actuar según lo que ven.",
             "e638da007a": "Uso del navegador por agentes",
             "c61c91e642": "Permite que los agentes se coordinen a través de Orca para mantener en marcha tareas grandes de varios pasos hasta completarlas.",
-            "ac07f8887f": "Orquestación de agentes",
+            "ac07f8887f": "MTE flow",
             "e9eb197e12": "Permisos de uso de computadora abiertos",
             "c605f51f2b": "Configuración de capacidades lista",
             "1aa657d8f4": "La configuración de algunas capacidades necesita atención",

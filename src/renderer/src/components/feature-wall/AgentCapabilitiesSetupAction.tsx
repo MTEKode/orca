@@ -208,7 +208,7 @@ const AGENT_CAPABILITY_SETUP_ROWS: readonly AgentCapabilitySetupRow[] = [
     get title() {
       return translate(
         'auto.components.feature.wall.AgentCapabilitiesSetupAction.ac07f8887f',
-        'Agent Orchestration'
+        'MTE flow'
       )
     },
     get description() {
