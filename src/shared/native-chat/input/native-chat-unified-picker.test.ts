@@ -39,12 +39,22 @@ function slashItems(
 }
 
 describe('unified catalog in the / picker', () => {
-  it.each(['claude', 'codex', 'opencode'] as const)('lists the catalog for %s', (agent) => {
-    const names = slashItems(agent, [], agent === 'opencode' ? undefined : []).flatMap((item) =>
-      item.kind === 'skill' ? [item.name] : []
-    )
-    expect(names).toEqual(expect.arrayContaining(['deploy', 'review']))
+  it('gives antigravity a slash-skills profile', () => {
+    expect(getNativeChatAgentProfile('antigravity')).toMatchObject({
+      skillPrefix: '/',
+      skillSourceOwner: 'antigravity'
+    })
   })
+
+  it.each(['claude', 'codex', 'opencode', 'antigravity'] as const)(
+    'lists the catalog for %s',
+    (agent) => {
+      const names = slashItems(agent, [], agent === 'opencode' ? undefined : []).flatMap((item) =>
+        item.kind === 'skill' ? [item.name] : []
+      )
+      expect(names).toEqual(expect.arrayContaining(['deploy', 'review']))
+    }
+  )
 
   it('lets the unified entry win over a same-named reported skill', () => {
     const items = slashItems(
