@@ -19,6 +19,7 @@ import { repo, worktree } from '../../worktree-list-groups-test-fixtures'
 import type { WorktreeItemRow } from '../listing/renderable-rows'
 import { buildRenderableRows } from '../listing/renderable-rows'
 import { getWorktreeOptionId } from '../rows/option-dom'
+import { WORKTREE_SIDEBAR_REVEAL_TOP_INSET } from '../../worktree-sidebar-reveal'
 import { usePendingSidebarReveal } from './use-pending-reveal'
 import { useWorktreeListKeyboardNavigation } from './use-keyboard'
 
@@ -476,7 +477,8 @@ it('retires an old header, rejects stale preprocessing, and gives a same-key req
   drain()
   expect(store.getState().pendingRevealWorktree).toBeNull()
   expectVisible(child, 1020)
-  expect(list.scrollTop).toBe(866)
+  // The child row starts at 900; a top reveal parks it just under the sticky header inset.
+  expect(list.scrollTop).toBe(900 - WORKTREE_SIDEBAR_REVEAL_TOP_INSET)
   expect(toastError).not.toHaveBeenCalled()
 })
 

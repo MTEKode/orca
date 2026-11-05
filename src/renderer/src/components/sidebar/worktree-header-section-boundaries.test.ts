@@ -5,6 +5,7 @@ import {
   getRepoHeaderSectionEndByRepoId
 } from './worktree-header-section-boundaries'
 import type { RenderRow } from './worktree-list/listing/render-row'
+import { GROUP_HEADER_ROW_HEIGHT } from './worktree-list/viewport/virtual-rows'
 
 const repoHeader = (id: string): RenderRow =>
   // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the boundary reader only reads type, key, repo.id and projectGroup.id.
@@ -20,10 +21,12 @@ const groupHeader = (id: string): RenderRow =>
   }) as RenderRow
 const item = { type: 'item' } as RenderRow
 
-// Estimated starts: first header 28, later headers 32, items 116.
+// Estimated starts: first header H, later headers H + 4 (top spacing), items 116.
+const SECONDARY_HEADER_TOP_SPACING = 4
+const ITEM_ROW_HEIGHT = 116
 const rows = [repoHeader('a'), item, repoHeader('b'), item, repoHeader('c'), item]
-const startOfB = 28 + 116
-const startOfC = startOfB + 32 + 116
+const startOfB = GROUP_HEADER_ROW_HEIGHT + ITEM_ROW_HEIGHT
+const startOfC = startOfB + GROUP_HEADER_ROW_HEIGHT + SECONDARY_HEADER_TOP_SPACING + ITEM_ROW_HEIGHT
 
 describe('getRepoHeaderSectionEndByRepoId', () => {
   it('ends a section at the successor from the header’s own bucket', () => {
