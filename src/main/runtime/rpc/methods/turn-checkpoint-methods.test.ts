@@ -69,8 +69,8 @@ describe('turn checkpoint RPC surface', () => {
     expect(names.has('agentSession.restoreTurnCheckpoint')).toBe(true)
   })
 
-  it('rejects malformed turn ids at the params schema', () => {
-    for (const turnId of ['..', '.', 'a/b', 'has space', '']) {
+  it('rejects empty turn ids and accepts provider-shaped ids at the params schema', () => {
+    for (const turnId of ['', ' ', 'x'.repeat(513)]) {
       expect(
         RestoreTurnCheckpointParams.safeParse({ envelope: envelope(), turnId, kind: 'start' })
           .success
@@ -79,13 +79,12 @@ describe('turn checkpoint RPC surface', () => {
         DiffTurnCheckpointParams.safeParse({ sessionId: SESSION, turnId, kind: 'start' }).success
       ).toBe(false)
     }
-    expect(
-      RestoreTurnCheckpointParams.safeParse({
-        envelope: envelope(),
-        turnId: 'turn-1',
-        kind: 'start'
-      }).success
-    ).toBe(true)
+    for (const turnId of ['turn-1', 'p:ses_abc:run%3A1', '..', 'a/b']) {
+      expect(
+        RestoreTurnCheckpointParams.safeParse({ envelope: envelope(), turnId, kind: 'start' })
+          .success
+      ).toBe(true)
+    }
     expect(
       RestoreTurnCheckpointParams.safeParse({
         envelope: envelope(),
