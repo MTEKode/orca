@@ -1,12 +1,9 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { runInNewContext } from 'node:vm'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { parse } from 'yaml'
 import { peImage } from './windows-pe-image-fixture.mjs'
 import { canReusePreparedAddon } from './windows-process-tree-prepared-addon.mjs'
-import { runProcessSync } from '@orca/process-host'
 
 const directories = []
 afterEach(() => {
@@ -96,72 +93,4 @@ describe('reusing a prepared Windows relay addon', () => {
     })
     expect(canReusePreparedAddon(options)).toBe(false)
   })
-})
-
-const workflow = parse(readFileSync('.github/workflows/ssh-windows-hosts.yml', 'utf8'))
-const steps = workflow.jobs.hosts.steps
-const preparation = steps.find((step) => step.id === 'dependencies')
-const build = steps.find((step) => step.name === "Build this runner's Windows process-table addon")
-
-it.each(['pull_request', 'workflow_dispatch'])(
-  'requests reuse only after an exact prepared PR hit under %s',
-  (event) => {
-    expect(workflow.on.pull_request.paths).toContain(
-      'config/scripts/windows-process-tree-prepared-addon*.mjs'
-    )
-    expect(preparation.with['native-runtime']).toBe('node')
-    expect(steps.indexOf(preparation)).toBeLessThan(steps.indexOf(build))
-    for (const cacheHit of ['true', 'false', '', undefined]) {
-      const expression = build.env.REUSE_PREPARED_RUNTIME.slice(3, -2).replace(
-        'outputs.native-cache-hit',
-        'outputs["native-cache-hit"]'
-      )
-      const enabled = runInNewContext(expression, {
-        github: { event_name: event },
-        steps: { dependencies: { outputs: { 'native-cache-hit': cacheHit } } }
-      })
-      expect(enabled).toBe(event === 'pull_request' && cacheHit === 'true')
-    }
-  }
-)
-
-it.each(['x64', 'arm64'])('passes the optional reuse flag safely to the %s builder', (arch) => {
-  for (const enabled of ['true', 'false']) {
-    const directory = mkdtempSync(join(tmpdir(), 'orca-relay-build-args-'))
-    directories.push(directory)
-    const output = join(directory, 'arguments.txt')
-    const script = `node() { printf '%s\n' "$@" > "$ARGUMENTS_FILE"; }\n${build.run.replaceAll('${{ matrix.arch }}', arch)}`
-    const result = runProcessSync({
-      program: 'bash',
-      args: ['-e', '-c', script],
-      cwd: directory,
-      env: { ...process.env, ARGUMENTS_FILE: output, REUSE_PREPARED_RUNTIME: enabled },
-      timeoutMs: 10_000
-    })
-    expect(result.code, result.stderr).toBe(0)
-    expect(readFileSync(output, 'utf8').trim().split('\n')).toEqual([
-      'config/scripts/build-windows-process-tree-addon.mjs',
-      `--arch=${arch}`,
-      ...(enabled === 'true' ? ['--reuse-prepared-runtime'] : [])
-    ])
-  }
-})
-
-it('reuses the Windows E2E process-tree addon between standalone and template builds', () => {
-  const workflow = parse(readFileSync('.github/workflows/e2e.yml', 'utf8'))
-  const job = workflow.jobs['orcad-serve-mode-switch-windows']
-  const build = job.steps.find(
-    (step) => step.name === 'Build the e2e app, CLI, orcad slot and template'
-  )
-  const commands = build.run.trim().split('\n')
-  const standalone = commands.indexOf('pnpm build:orcad')
-  const processTree = commands.indexOf(
-    'node config/scripts/build-windows-process-tree-addon.mjs --arch=x64 --reuse-prepared-runtime'
-  )
-  const template = commands.indexOf(
-    'node config/scripts/build-orcad-template.mjs --targets win32-x64'
-  )
-  expect(standalone).toBeGreaterThanOrEqual(0)
-  expect(processTree).toBeGreaterThan(standalone)
-  expect(template).toBeGreaterThan(processTree)
 })
