@@ -25,9 +25,15 @@ export function sanitizeCheckpointIdSegment(segment: string, what: string): stri
 // segment contains, so the two forms never collide and the escape is reversible.
 const MAX_TURN_SEGMENT_LENGTH = 240 // a refname component is one file name (255 bytes max)
 
+/** Strict segment plus the git rule the shared validator lacks: a component cannot start with '.'.
+ *  (The other component rules -- no `..`, `@{`, trailing `.`/`.lock` -- are enforced there.) */
+function isStrictRefSegment(segment: string): boolean {
+  return isAgentSessionTurnCheckpointIdSegment(segment) && !segment.startsWith('.')
+}
+
 /** True for a strict segment, or an escaped one (`+` stands in for `_` for the strict rules). */
 function isCheckpointRefSegment(segment: string): boolean {
-  return isAgentSessionTurnCheckpointIdSegment(segment.replaceAll('+', '_'))
+  return isStrictRefSegment(segment.replaceAll('+', '_'))
 }
 
 export function sanitizeCheckpointRefSegment(segment: string, what: string): string {
@@ -55,12 +61,12 @@ export function encodeTurnIdSegment(turnId: string): string {
   if (turnId.length === 0) {
     throw new Error('Invalid checkpoint turn id: ""')
   }
-  if (isAgentSessionTurnCheckpointIdSegment(turnId)) {
+  if (isStrictRefSegment(turnId)) {
     return turnId
   }
   let encoded = escapeTurnId(turnId, /^[A-Za-z0-9_.-]$/)
   if (!isCheckpointRefSegment(encoded)) {
-    // `..`, a leading `-`, a trailing `.`/`.lock`: escape the dots and dashes too.
+    // `..`, a leading `-`, a leading/trailing `.`, `.lock`: escape the dots and dashes too.
     encoded = escapeTurnId(turnId, /^[A-Za-z0-9_]$/)
   }
   if (encoded.length > MAX_TURN_SEGMENT_LENGTH || !isCheckpointRefSegment(encoded)) {
@@ -72,7 +78,7 @@ export function encodeTurnIdSegment(turnId: string): string {
 /** Inverse of encodeTurnIdSegment; null for a segment that is not a valid encoding. */
 export function decodeTurnIdSegment(segment: string): string | null {
   if (!segment.includes('+')) {
-    return isAgentSessionTurnCheckpointIdSegment(segment) ? segment : null
+    return isStrictRefSegment(segment) ? segment : null
   }
   if (!isCheckpointRefSegment(segment) || /\+(?![0-9a-f]{2})/.test(segment)) {
     return null

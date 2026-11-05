@@ -321,6 +321,52 @@ describe('turn checkpoint git primitives', () => {
     }
   })
 
+  it('fuzzed turn ids always yield refs git accepts and decode back exactly', () => {
+    const prefix = turnCheckpointSessionPrefix('s-1')
+    const pieces = [
+      '.',
+      '..',
+      '.lock',
+      '@{',
+      '@',
+      '-',
+      '+',
+      '%3A',
+      ':',
+      '/',
+      ' ',
+      'é',
+      'a',
+      '_',
+      '\\',
+      '~',
+      '\n'
+    ]
+    let seed = 12345
+    const rand = (n: number): number => {
+      seed = (seed * 1103515245 + 12345) & 0x7fffffff
+      return seed % n
+    }
+    const ids = new Set<string>(['.x', '.é', '.lock', 'a.lock', '..a', 'a@{b', '.', '@{'])
+    for (let i = 0; i < 150; i += 1) {
+      let id = ''
+      for (let n = 1 + rand(5); n > 0; n -= 1) {
+        id += pieces[rand(pieces.length)]
+      }
+      ids.add(id)
+    }
+    const refs: string[] = []
+    for (const turnId of ids) {
+      const ref = turnCheckpointRef({ sessionId: 's-1', turnId, kind: 'end' })
+      expect(parseTurnCheckpointRef(ref, prefix)).toEqual({ turnId, kind: 'end' })
+      refs.push(ref)
+    }
+    expect(new Set(refs).size).toBe(ids.size)
+    for (const ref of refs) {
+      expect(() => execFileSync('git', ['check-ref-format', ref], { stdio: 'pipe' })).not.toThrow()
+    }
+  })
+
   it('refuses over-long escaped turn ids and ignores undecodable ref segments', () => {
     const prefix = turnCheckpointSessionPrefix('s-1')
     expect(() =>
