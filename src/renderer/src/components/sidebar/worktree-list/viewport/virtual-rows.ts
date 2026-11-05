@@ -7,7 +7,8 @@ import {
 import { getRenderRowKey } from '../listing/render-row'
 import type { RenderRow } from '../listing/render-row'
 
-export const GROUP_HEADER_ROW_HEIGHT = 28
+// Why: header rows are never DOM-measured (see use-virtualizer), so this must equal SectionHeader's h-9 or the next row slides under the sticky header and its title is clipped.
+export const GROUP_HEADER_ROW_HEIGHT = 36
 // Why: HostSectionHeader wraps its h-8 (32px) card in pt-1 (4px), so the row is 36px.
 export const HOST_HEADER_ROW_HEIGHT = 36
 export const WORKTREE_SIDEBAR_VIRTUAL_ROW_GAP = 6
