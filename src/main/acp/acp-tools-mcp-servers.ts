@@ -12,12 +12,12 @@ export type AcpToolsMcp = {
   mcpServers?: AcpToolsMcpServer[]
 }
 
-/** Only opencode gets the orca-tools bridge; every other ACP agent keeps an empty list. */
+/** opencode and antigravity get the orca-tools bridge; every other ACP agent keeps an empty list. */
 export function acpToolsMcpServers(
   spec: { agent: string },
   resolve: (() => ToolsMcpServer | null) | undefined
 ): AcpToolsMcpServer[] {
-  const server = spec.agent === 'opencode' ? resolve?.() : null
+  const server = spec.agent === 'opencode' || spec.agent === 'antigravity' ? resolve?.() : null
   return server ? [{ name: 'orca-tools', ...server, env: [] }] : []
 }
 
@@ -46,7 +46,9 @@ export function withAcpToolsMcp(
       spec.agent === 'antigravity' && basis.record.mteRole === 'planner'
         ? acpMteMcpServers(resolve, await basis.launchDirectory())
         : acpToolsMcpServers(spec, resolve)
-    const launch = { ...resolved.launch, mcpServers: mteServers }
+    // One entry per server name: a planner's list already carries orca-tools.
+    const mcpServers = [...new Map(mteServers.map((server) => [server.name, server])).values()]
+    const launch = { ...resolved.launch, mcpServers }
     return { ...resolved, launch }
   }
 }
