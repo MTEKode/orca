@@ -16,7 +16,7 @@ import {
   createCheckpointTempIndex
 } from './turn-checkpoint-temp-index'
 import {
-  sanitizeCheckpointIdSegment,
+  sanitizeCheckpointRefSegment,
   TURN_CHECKPOINT_REF_PREFIX,
   turnCheckpointRef,
   type TurnCheckpointId
@@ -44,7 +44,7 @@ function requireCheckpointRef(ref: string): string {
     throw new Error(`Not a turn-checkpoint ref: ${JSON.stringify(ref)}`)
   }
   for (const segment of segments) {
-    sanitizeCheckpointIdSegment(segment, 'ref segment')
+    sanitizeCheckpointRefSegment(segment, 'ref segment')
   }
   return ref
 }
@@ -103,7 +103,7 @@ export async function saveCheckpoint(
   } finally {
     await tempIndex.dispose()
   }
-  const id = `${options.id.sessionId}/${options.id.turnId}/${options.id.kind}`
+  const id = ref.slice(TURN_CHECKPOINT_REF_PREFIX.length)
   const message = [
     `checkpoint:${id}`,
     `head ${head}`,

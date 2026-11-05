@@ -6,7 +6,11 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { restoreCheckpoint, saveCheckpoint } from './turn-checkpoint-git'
 import { diffCheckpoint, listCheckpoints, pruneCheckpointTurns } from './turn-checkpoint-git-read'
 import { TURN_CHECKPOINT_KEEP_TURNS } from './turn-checkpoint-service'
-import { turnCheckpointRef, turnCheckpointSessionPrefix } from './turn-checkpoint-ids'
+import {
+  parseTurnCheckpointRef,
+  turnCheckpointRef,
+  turnCheckpointSessionPrefix
+} from './turn-checkpoint-ids'
 
 const TURN = { sessionId: 'sess-1', turnId: 'turn-1', kind: 'start' } as const
 
@@ -245,16 +249,85 @@ describe('turn checkpoint git primitives', () => {
     }
   })
 
-  it('rejects ids that are not ref-safe segments', () => {
-    expect(() => turnCheckpointRef({ sessionId: 'a', turnId: '..', kind: 'start' })).toThrow()
-    expect(() => turnCheckpointRef({ sessionId: 'a', turnId: '.', kind: 'start' })).toThrow()
-    expect(() => turnCheckpointRef({ sessionId: 'a', turnId: 'x/y', kind: 'start' })).toThrow()
-    expect(() =>
-      turnCheckpointRef({ sessionId: 'a', turnId: 'has space', kind: 'start' })
-    ).toThrow()
+  it('saves, lists, restores and prunes checkpoints for an OpenCode-shaped turn id', async () => {
+    const repo = initRepo()
+    commitBase(repo)
+    const turnId = 'p:ses_e57c64532ffeWEfImrMYIMBfYx:run%3A1'
+    const id = { sessionId: 'sess-1', turnId, kind: 'start' } as const
+    const saved = await saveCheckpoint(repo.path, { id })
+    expect(saved.status).toBe('saved')
+    if (saved.status !== 'saved') {
+      return
+    }
+    writeFileSync(join(repo.path, 'tracked.txt'), 'edited\n')
+    const prefix = turnCheckpointSessionPrefix('sess-1')
+    const entries = await listCheckpoints(repo.path, { prefix })
+    expect(entries.map((entry) => parseTurnCheckpointRef(entry.ref, prefix)?.turnId)).toEqual([
+      turnId
+    ])
+    expect((await diffCheckpoint(repo.path, { ref: saved.ref })).totals.files).toBe(1)
+    await restoreCheckpoint(repo.path, { ref: saved.ref })
+    expect(readFileSync(join(repo.path, 'tracked.txt'), 'utf8')).toBe('base\n')
+    expect(await pruneCheckpointTurns(repo.path, { prefix, keepTurns: 0 })).toBe(1)
+    expect(await listCheckpoints(repo.path, { prefix })).toEqual([])
+  })
+
+  it('rejects session ids and empty turn ids that are not ref-safe segments', () => {
     expect(() => turnCheckpointRef({ sessionId: '', turnId: 't', kind: 'start' })).toThrow()
+    expect(() => turnCheckpointRef({ sessionId: 'a/b', turnId: 't', kind: 'start' })).toThrow()
+    expect(() => turnCheckpointRef({ sessionId: 'a', turnId: '', kind: 'start' })).toThrow()
     expect(turnCheckpointRef({ sessionId: 's-1', turnId: 't_1.2', kind: 'end' })).toBe(
       'refs/orca-checkpoints/s-1/t_1.2/end'
     )
+  })
+
+  it('keeps legacy turn ids on the same ref and round-trips OpenCode-shaped ids', () => {
+    const prefix = turnCheckpointSessionPrefix('s-1')
+    const legacy = turnCheckpointRef({ sessionId: 's-1', turnId: 'turn_1.2-x', kind: 'start' })
+    expect(legacy).toBe(`${prefix}turn_1.2-x/start`)
+    const oc = 'p:ses_e57c64532ffeWEfImrMYIMBfYx:run%3A1'
+    const ref = turnCheckpointRef({ sessionId: 's-1', turnId: oc, kind: 'end' })
+    expect(ref).toBe(`${prefix}p+3ases_e57c64532ffeWEfImrMYIMBfYx+3arun+253A1/end`)
+    expect(parseTurnCheckpointRef(ref, prefix)).toEqual({ turnId: oc, kind: 'end' })
+  })
+
+  it('encodes hostile turn ids into safe, reversible, git-valid ref segments', () => {
+    const prefix = turnCheckpointSessionPrefix('s-1')
+    const hostile = [
+      '..',
+      '.',
+      '../x',
+      'a..b',
+      'has space',
+      'x/y',
+      '-rf',
+      'a.',
+      'a.lock',
+      '+',
+      'a+3a',
+      '~^:?*[\\',
+      'é\n',
+      '{@}',
+      '@'
+    ]
+    const seen = new Set<string>()
+    for (const turnId of hostile) {
+      const ref = turnCheckpointRef({ sessionId: 's-1', turnId, kind: 'start' })
+      expect(seen.has(ref)).toBe(false)
+      seen.add(ref)
+      expect(ref.slice(prefix.length).split('/')).toHaveLength(2)
+      expect(parseTurnCheckpointRef(ref, prefix)).toEqual({ turnId, kind: 'start' })
+      expect(() => execFileSync('git', ['check-ref-format', ref])).not.toThrow()
+    }
+  })
+
+  it('refuses over-long escaped turn ids and ignores undecodable ref segments', () => {
+    const prefix = turnCheckpointSessionPrefix('s-1')
+    expect(() =>
+      turnCheckpointRef({ sessionId: 's-1', turnId: ':'.repeat(300), kind: 'start' })
+    ).toThrow()
+    expect(parseTurnCheckpointRef(`${prefix}a+zz/start`, prefix)).toBeNull()
+    expect(parseTurnCheckpointRef(`${prefix}+ff/start`, prefix)).toBeNull()
+    expect(parseTurnCheckpointRef(`${prefix}a+/start`, prefix)).toBeNull()
   })
 })
