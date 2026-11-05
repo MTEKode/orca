@@ -22,6 +22,7 @@ import {
   refuseUnclassified
 } from '../../../shared/agent-session/failures/agent-session-wire-refusals'
 import { readAgentSessionErrorRefusal } from '../../../shared/agent-session/failures/agent-session-write-failure'
+import { assertMtePlannerCaller } from './methods/orchestration/runs/mte-planner-gate'
 import { WslHostWindowsDriveRefusalError } from '../../../shared/wsl-host-windows-drive-refusal'
 
 class LineageError extends Error {
@@ -375,6 +376,22 @@ describe('nested worker depth cap', () => {
       effectsApplied: false,
       nextSteps: [...NESTED_WORKER_DEPTH_EXCEEDED_NEXT_STEPS]
     })
+  })
+})
+
+describe('MTE planner gate', () => {
+  it('keeps mte_planner_required and its next steps instead of collapsing to runtime_error', () => {
+    const runtime = { requireStore: () => ({ getSettings: () => ({}) }) }
+    let thrown: unknown
+    try {
+      assertMtePlannerCaller(runtime as never, { mteRole: 'worker' } as never)
+    } catch (error) {
+      thrown = error
+    }
+    const failure = mapRuntimeError('rpc_mte_gate', { runtimeId: 'runtime-1' }, thrown)
+
+    expect(failure.error.code).toBe('mte_planner_required')
+    expect(failure.error.data).toMatchObject({ effectsApplied: false })
   })
 })
 

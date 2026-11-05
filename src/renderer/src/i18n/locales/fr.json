@@ -15430,7 +15430,7 @@
             "5e8fe5a72d": "Donnez aux agents un accès direct au navigateur d'Orca pour tester des pages, capturer des captures d'écran et agir sur ce qu'ils voient.",
             "e638da007a": "Agent Browser Use",
             "c61c91e642": "Laissez les agents se coordonner via Orca pour faire avancer jusqu'au bout les grandes tâches en plusieurs étapes.",
-            "ac07f8887f": "Orchestration d'agents",
+            "ac07f8887f": "MTE flow",
             "e9eb197e12": "Autorisations Computer Use ouvertes",
             "c605f51f2b": "Configuration des capacités prête",
             "1aa657d8f4": "Certaines configurations de capacités demandent votre attention",
