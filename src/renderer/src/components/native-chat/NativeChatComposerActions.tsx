@@ -11,6 +11,7 @@ import type {
   SessionOptionDescriptor,
   SessionOptionsSurface
 } from '../../../../shared/native-chat/input/native-chat-session-options'
+import type { TuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent'
 import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
 import { NativeChatComposerPermissionPicker } from './NativeChatPermissionModePicker'
 import { NativeChatComposerGoalChip } from './NativeChatComposerGoalChip'
@@ -55,6 +56,12 @@ export type NativeChatComposerActionsProps = {
   /** The worker pinned on an MTE planner chat; labels the pill beside the orchestrator. */
   mteWorker?: MteWorkerPin
   mteWorkerPicker?: React.ReactNode
+  worktreeId?: string
+  onSwitchHarness?: (pick: {
+    agent: TuiAgent
+    model?: string
+    effort?: string
+  }) => void | Promise<void>
   /** A launch prompt: Attach and dictation are its only controls; launching is the panel's. */
   launchPrompt?: boolean
 }
@@ -88,6 +95,8 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
   agent,
   mteWorker,
   mteWorkerPicker,
+  worktreeId,
+  onSwitchHarness,
   launchPrompt = false
 }: NativeChatComposerActionsProps): React.JSX.Element {
   useUiLanguageRevision()
@@ -244,6 +253,8 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
           focusComposer={focusComposer}
           {...(agent ? { agent } : {})}
           {...(mteWorker ? { mteWorker } : {})}
+          {...(worktreeId ? { worktreeId } : {})}
+          {...(onSwitchHarness ? { onSwitchHarness } : {})}
         />
         {mteWorkerPicker}
         {contextUsage ? <NativeChatContextUsageRing usage={contextUsage} /> : null}

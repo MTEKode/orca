@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -12,6 +13,7 @@ import { NewChatPickFields } from '../tab-bar/NewChatPickFields'
 import { newChatEntries, resolveNewChatPick } from '../tab-bar/new-chat-pick'
 import { composerSidePillLabel } from './native-chat-composer-agent-label-text'
 import { isMteOrchestrationAgent } from '../../../../shared/mte/orchestration-agents'
+import type { AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { MteWorkerPin } from '../../../../shared/mte/worker-pin'
 
 /** Harness + model + effort fields over the inventory; mounted only while the popover is open. */
@@ -24,10 +26,13 @@ function WorkerFields({
   worktreeId: string
   onChange: (worker: MteWorkerPin) => void
 }): React.JSX.Element {
+  const [selectedAgent, setSelectedAgent] = useState<AgentPickerEntry['agent'] | undefined>()
   const target = useAgentDetectionTargetForWorktree(worktreeId)
   const model = useNewTabAgentMenuRows(worktreeId, true, target)
   const entries = newChatEntries(
-    useAgentPickerInventoryEntries(useAgentLaunchPickerInventorySource(worktreeId, model, true)),
+    useAgentPickerInventoryEntries(
+      useAgentLaunchPickerInventorySource(worktreeId, model, true, selectedAgent)
+    ),
     isMteOrchestrationAgent
   )
   return (
@@ -35,6 +40,7 @@ function WorkerFields({
       id="composer-mte-worker"
       entries={entries}
       value={resolveNewChatPick(entries, worker)}
+      onSelectAgent={setSelectedAgent}
       onChange={(pick) => {
         if (isMteOrchestrationAgent(pick.agent)) {
           onChange({

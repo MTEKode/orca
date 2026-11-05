@@ -184,6 +184,73 @@ describe('NewChatDialogForm', () => {
     })
     expect(choice.orchestrator).toMatchObject({ agent: 'claude', model: 'claude-large' })
   })
+
+  it('shows harness submenu and allows picking a harness with pending models', () => {
+    const onSelectAgent = vi.fn()
+    const onSettle = vi.fn()
+    const pendingEntry: AgentPickerEntry = {
+      agent: 'opencode',
+      label: 'OpenCode',
+      rows: [{ agent: 'opencode', kind: 'chat' }],
+      surfaces: ['chat'],
+      defaultSurface: 'chat',
+      terminal: {},
+      structured: {},
+      catalogRead: 'pending',
+      catalog: { origin: 'unknown' }
+    }
+    const mixedEntries = [entries[0], pendingEntry]
+    act(() =>
+      root.render(
+        <Dialog open>
+          <NewChatDialogForm
+            request={{ ...request, defaults: undefined, initial: undefined }}
+            entries={mixedEntries}
+            onSelectAgent={onSelectAgent}
+            onSettle={onSettle}
+          />
+        </Dialog>
+      )
+    )
+    const trigger = document.body.querySelector('#new-chat-model')!
+    act(() => {
+      fireEvent.pointerDown(trigger, { button: 0, pointerType: 'mouse', ctrlKey: false })
+    })
+    const opencodeSubTrigger = [...document.body.querySelectorAll('[role="menuitem"]')].find((el) =>
+      el.textContent?.includes('OpenCode')
+    )
+    expect(opencodeSubTrigger).not.toBeUndefined()
+    act(() => {
+      fireEvent.focus(opencodeSubTrigger!)
+    })
+    expect(onSelectAgent).toHaveBeenCalledWith('opencode')
+
+    act(() => {
+      fireEvent.click(opencodeSubTrigger!)
+    })
+    expect(queryByText(document.body, 'Loading models…')).not.toBeNull()
+
+    const opencodeItem = [...document.body.querySelectorAll('[role="menuitem"]')].find(
+      (el) => el !== opencodeSubTrigger && el.textContent?.trim() === 'OpenCode'
+    )
+    expect(opencodeItem).not.toBeUndefined()
+    act(() => {
+      fireEvent.click(opencodeItem!)
+    })
+
+    act(() => {
+      ;[...document.body.querySelectorAll('button')].find((b) => b.textContent === 'Start')!.click()
+    })
+    expect(onSettle).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mode: 'chat',
+        chat: expect.objectContaining({
+          agent: 'opencode',
+          entry: pendingEntry
+        })
+      })
+    )
+  })
 })
 
 describe('New Chat locale coverage', () => {

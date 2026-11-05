@@ -33,6 +33,7 @@ import { useLatestHandler } from '@/lib/use-latest-handler'
 import { imeComposedSegment } from './native-chat-ime-composed-segment'
 import type { MteWorkerPin } from '../../../../shared/mte/worker-pin'
 import type { NativeChatFollowUpBehavior } from '../../../../shared/native-chat/input/native-chat-follow-up-behavior'
+import type { TuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent'
 
 function noop(): void {}
 
@@ -101,6 +102,11 @@ export type NativeChatComposerFieldProps = {
   mteWorker?: MteWorkerPin
   /** The composer's Worker selector, on an MTE planner chat. */
   mteWorkerPicker?: React.ReactNode
+  onSwitchHarness?: (pick: {
+    agent: TuiAgent
+    model?: string
+    effort?: string
+  }) => void | Promise<void>
   launchPrompt?: { placeholder: string }
 }
 
@@ -173,6 +179,7 @@ export function NativeChatComposerField({
   agent,
   mteWorker,
   mteWorkerPicker,
+  onSwitchHarness,
   launchPrompt
 }: NativeChatComposerFieldProps): React.JSX.Element {
   const draftNotSaved = useNativeChatComposerDraftUnsaved(draftScopeKey)
@@ -419,6 +426,8 @@ export function NativeChatComposerField({
                 {...(agent ? { agent } : {})}
                 {...(mteWorker ? { mteWorker } : {})}
                 {...(mteWorkerPicker ? { mteWorkerPicker } : {})}
+                {...(worktreeId ? { worktreeId } : {})}
+                {...(onSwitchHarness ? { onSwitchHarness } : {})}
               />
             </div>
           </div>

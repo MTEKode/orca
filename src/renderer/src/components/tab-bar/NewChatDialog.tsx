@@ -35,11 +35,13 @@ export function NewChatDialogForm({
   request,
   entries,
   preferredAgent,
+  onSelectAgent,
   onSettle
 }: {
   request: NewChatRequest
   entries: readonly AgentPickerEntry[]
   preferredAgent?: string
+  onSelectAgent?: (agent: AgentPickerEntry['agent']) => void
   onSettle: ReturnType<typeof useNewChatDialogStore.getState>['settle']
 }): React.JSX.Element {
   const { defaults } = request
@@ -113,6 +115,7 @@ export function NewChatDialogForm({
               entries={mteEntries}
               value={orchSel}
               onChange={setOrch}
+              onSelectAgent={onSelectAgent}
             />
             <NewChatPickFields
               id="new-chat-worker"
@@ -120,6 +123,7 @@ export function NewChatDialogForm({
               entries={mteEntries}
               value={workerSel}
               onChange={setWorker}
+              onSelectAgent={onSelectAgent}
             />
             <NewChatGoalFields
               goal={goal}
@@ -134,6 +138,7 @@ export function NewChatDialogForm({
             entries={chatEntries}
             value={chatSel}
             onChange={setChat}
+            onSelectAgent={onSelectAgent}
           />
         )}
         {newChatCatalogIsFallback(entries) ? (
@@ -156,9 +161,10 @@ export function NewChatDialogForm({
 
 function NewChatDialogLive({ request }: { request: NewChatRequest }): React.JSX.Element {
   const settle = useNewChatDialogStore((s) => s.settle)
+  const [selectedAgent, setSelectedAgent] = useState<AgentPickerEntry['agent'] | undefined>()
   const detectionTarget = useAgentDetectionTargetForWorktree(request.worktreeId)
   const model = useNewTabAgentMenuRows(request.worktreeId, true, detectionTarget)
-  const source = useAgentLaunchPickerInventorySource(request.worktreeId, model, true)
+  const source = useAgentLaunchPickerInventorySource(request.worktreeId, model, true, selectedAgent)
   const entries = useAgentPickerInventoryEntries(source)
   const preferred = model.state === 'settled' ? model.defaultTuiAgent : undefined
   return (
@@ -166,6 +172,7 @@ function NewChatDialogLive({ request }: { request: NewChatRequest }): React.JSX.
       request={request}
       entries={entries}
       preferredAgent={preferred && preferred !== 'blank' ? preferred : undefined}
+      onSelectAgent={setSelectedAgent}
       onSettle={settle}
     />
   )

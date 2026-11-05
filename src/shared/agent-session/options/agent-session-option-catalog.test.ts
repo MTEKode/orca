@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { getAgentSessionOptionCatalog } from './agent-session-option-catalog'
+import {
+  getAgentSessionOptionCatalog,
+  getAgentSessionOptionLaunchCatalog
+} from './agent-session-option-catalog'
 import './agent-session-option-launch'
 import {
   resolveNativeChatSessionOptionDefaults,
@@ -87,5 +90,11 @@ describe('agent session option catalog', () => {
       model: 'sonnet'
     })
     expect(persisted.claude?.valuesByModel?.opus).toEqual({ effort: 'xhigh' })
+  })
+
+  it('registers opencode launch option catalog and delegates getAgentSessionOptionLaunchCatalog to it', () => {
+    const catalog = getAgentSessionOptionCatalog('opencode')
+    expect(catalog).not.toBeNull()
+    expect(getAgentSessionOptionLaunchCatalog('opencode')).toBe(catalog)
   })
 })
