@@ -1,3 +1,4 @@
+import type { DiffCommentOwner } from '@/store/diff-comment-owner'
 import type { RefObject } from 'react'
 import type { Root } from 'react-dom/client'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -5,6 +6,11 @@ import type { DiffCommentDeliverySnapshot } from '@/store/slices/diffComments'
 import { DiffCommentCard } from './DiffCommentCard'
 import { DiffCommentDraftCard } from './DiffCommentDraftCard'
 import { isAgentDecoratedDiffComment, type DecoratedDiffComment } from './decorated-diff-comment'
+import {
+  NotesSendMenu,
+  type NotesSendMenuScope
+} from '../editor/review-note-delivery/NotesSendMenu'
+import { translate } from '@/i18n/i18n'
 
 export function getRenderSignature(
   comment: DecoratedDiffComment,
@@ -26,6 +32,7 @@ export function getRenderSignature(
 
 // Callbacks arrive as refs so the rendered props keep the decorator's identity semantics.
 export type DiffCommentZoneCardContext = {
+  owner: DiffCommentOwner | null
   worktreeId: string
   filePath: string
   activeGroupId: string
@@ -34,7 +41,7 @@ export type DiffCommentZoneCardContext = {
   onDeleteCommentRef: RefObject<(commentId: string) => void>
   onUpdateCommentRef: RefObject<((commentId: string, body: string) => Promise<boolean>) | undefined>
   clearDeliveredDiffComments: (
-    worktreeId: string,
+    owner: DiffCommentOwner,
     comments: readonly DiffCommentDeliverySnapshot[]
   ) => Promise<boolean>
 }
@@ -42,7 +49,17 @@ export type DiffCommentZoneCardContext = {
 export function renderDiffCommentZoneCard(
   root: Root,
   comment: DecoratedDiffComment,
-  { resizeZone, onDeleteCommentRef, onUpdateCommentRef }: DiffCommentZoneCardContext
+  {
+    owner,
+    worktreeId,
+    filePath,
+    activeGroupId,
+    formatCommentPrompt,
+    resizeZone,
+    onDeleteCommentRef,
+    onUpdateCommentRef,
+    clearDeliveredDiffComments
+  }: DiffCommentZoneCardContext
 ): void {
   // Agent-posted notes are received reviews: no queue semantics, so no remove-from-chat or edit.
   const agentAuthored = isAgentDecoratedDiffComment(comment)
@@ -76,6 +93,27 @@ export function renderDiffCommentZoneCard(
         }
         onContentResize={() => resizeZone(comment.id)}
         observeRenderedSize
+        headerActions={
+          worktreeId && comment.author === undefined ? (
+            <NotesSendMenu
+              owner={owner}
+              worktreeId={worktreeId}
+              groupId={activeGroupId}
+              modeIdParts={['diff-comment-note', worktreeId, filePath, comment.id]}
+              scopes={getSingleCommentSendScopes(comment, formatCommentPrompt)}
+              targetModeLabel={translate(
+                'auto.components.diff.comments.useDiffCommentDecorator.995fa28b50',
+                'This note'
+              )}
+              triggerClassName="orca-diff-comment-edit"
+              disabledTooltip={translate(
+                'auto.components.diff.comments.diffCommentZoneCard.noteAlreadySent',
+                'Note already sent'
+              )}
+              onDelivered={(notes) => void (owner && clearDeliveredDiffComments(owner, notes))}
+            />
+          ) : null
+        }
       />
     </TooltipProvider>
   )

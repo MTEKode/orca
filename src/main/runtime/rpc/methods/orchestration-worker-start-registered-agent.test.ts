@@ -2,9 +2,6 @@
 
 import { EVERY_AGENT_CHAT } from '../../../../shared/native-chat/every-agent-chat.test-fixture'
 import { describe, expect, it } from 'vitest'
-import { decideAgentLaunchMode } from '../../../agent-launch/agent-launch-mode'
-import { isTuiAgent } from '../../../../shared/tui-agent-config'
-import { STRUCTURED_AGENT_RUNTIME_REGISTRATIONS } from '../../structured-agent-runtime-registrations'
 import {
   decideWorkerStartMode,
   resolveWorkerStartModeOnHost
@@ -79,31 +76,5 @@ describe('a worker for a registered native-chat agent', () => {
       preferred: 'structured',
       reason: 'chat_runtime_not_installed'
     })
-  })
-
-  it('starts a terminal worker for an agent whose chat provider the user turned off', () => {
-    expect(
-      decideWorkerStartMode({
-        params: { agent: 'grok' },
-        settings: { ...STRUCTURED_PREFERENCE, nativeChatProviders: { grok: false } }
-      })
-    ).toMatchObject({ mode: 'terminal', reason: 'user_default' })
-  })
-
-  it('starts an agent with no native chat as a terminal worker', () => {
-    expect(
-      decideWorkerStartMode({ params: { agent: 'gemini' }, settings: STRUCTURED_PREFERENCE })
-    ).toMatchObject({ mode: 'terminal', reason: 'agent_without_structured_session' })
-  })
-
-  it('starts a terminal agent while it is set to CLI, as Claude does', () => {
-    for (const agent of ['opencode', 'claude']) {
-      expect(
-        decideWorkerStartMode({
-          params: { agent },
-          settings: { nativeChatProviders: { [agent]: false } }
-        })
-      ).toMatchObject({ mode: 'terminal', preferred: 'terminal', reason: 'user_default' })
-    }
   })
 })

@@ -18,7 +18,7 @@ import {
   nativeChatOptionsPillTitle,
   nativeChatSessionOptionActionLabel,
   nativeChatSessionOptionDisabledReason
-} from '../../../../shared/native-chat-session-option-labels'
+} from '../../../../shared/native-chat/input/native-chat-session-option-labels'
 import type { MteWorkerPin } from '../../../../shared/mte/worker-pin'
 import {
   composerAgentPillLabel,

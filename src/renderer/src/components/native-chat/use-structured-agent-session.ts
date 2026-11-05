@@ -9,7 +9,7 @@ import { structuredAgentSessionSendQueues } from './structured-agent-session-que
 import {
   nativeChatQueueFollowUps,
   nativeChatSendFollowUp
-} from '../../../../shared/native-chat-follow-up-behavior'
+} from '../../../../shared/native-chat/input/native-chat-follow-up-behavior'
 import type { AgentSessionCancelResult } from '../../../../shared/agent-session/agent-session-wire'
 import type {
   AgentSessionTurnCheckpointKind,
@@ -88,6 +88,7 @@ export function useStructuredAgentSession(args: StructuredAgentSessionViewArgs) 
   const journalItems = transportState.journalItems
   const {
     conversationCommands,
+    compactInstructions,
     optionSnapshot,
     optionSurface,
     setStructuredOption,
@@ -110,6 +111,7 @@ export function useStructuredAgentSession(args: StructuredAgentSessionViewArgs) 
     ...(args.hostOptionStamp ? { hostOptionStamp: args.hostOptionStamp } : {}),
     fence: state.fence,
     turnId: transportState.turnId,
+    hasTurn: transportState.latestTurn != null || transportState.submissions.length > 0,
     unloadedTurnRevisions: state.unloadedTurnRevisions,
     mutate,
     capturePresentation,
@@ -230,6 +232,7 @@ export function useStructuredAgentSession(args: StructuredAgentSessionViewArgs) 
     readCurrent: transportEnabled && readCurrent,
     rewind,
     conversationCommands,
+    compactInstructions,
     ...structuredConversationCommandRunner({
       agentName,
       pending: commandPending,

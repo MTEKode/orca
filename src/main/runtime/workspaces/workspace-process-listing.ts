@@ -3,7 +3,6 @@ import { getRepoHostIdentityForParts } from '../../../shared/repo-host-identity'
 import { createRepoRowExecutionHostLookup } from '../../../shared/worktree-execution-host-resolution'
 import { resolveWorktreeHostRouting } from '../worktree-launch-host-repo'
 import { resolveHostStructuredAgentLaunchEnvironment } from '../structured-agent-launch-support'
-import { resolveStructuredCodexAccountKind } from '../structured-agent-account-home'
 import { getStructuredAgentSessionHost } from '../../native-chat/agent-session-wire/structured-agent-session-registry'
 import { collectRuntimeWorktreeAgentSources } from '../runtime-worktree-agent-sources'
 import { OrcaRuntimeWithWorktreePsDependencies } from './workspace-process-listing-dependencies'
@@ -24,7 +23,7 @@ import { attachRuntimeWorktreeAgentRows } from '../runtime-worktree-agent-rows'
 import { attachRuntimeWorktreeAgentRowWaits } from '../runtime-worktree-agent-row-waits'
 import { compareWorktreePs } from '../runtime-worktree-status-projection'
 import type { Repo } from '../../../shared/repo-types'
-import { enrichMissingRepoGitRemoteIdentities } from '../../repo-git-remote-identity-enrichment'
+import { enrichMissingRepoGitRemoteIdentities } from '../../workspaces/catalog/repo-git-remote-identity-enrichment'
 import { ensureStructuredAgentSessionHost as installStructuredAgentSessionHost } from '../agent-session/structured-agent-session-runtime'
 import {
   createStructuredAttentionMobileDelivery,
@@ -48,13 +47,9 @@ import {
   structuredWorkerOpenTaskTitle,
   structuredWorkerOwesWork
 } from '../structured-worker-custody'
-import { preModeChatGetsFullAccess } from '../../../shared/agent-chat-permission-mode'
-import { isTuiAgent } from '../../../shared/tui-agent-config'
-import { nativeChatShellEnvironmentPolicy } from '../../../shared/native-chat/native-chat-shell-environment'
-import { claudeStructuredAuthPolicyForSettings } from '../../claude-accounts/claude-structured-auth-policy'
+import { preModeChatGetsFullAccess } from '../../../shared/agent-launch/permissions/agent-chat-permission-mode'
+import { isTuiAgent } from '../../../shared/agent-launch/catalog/tui-agent-config'
 import { createClaudeReviewMcpRuntime } from '../../claude/claude-review-mcp-server'
-import { resolveStructuredAgentCommand } from '../../native-chat/structured-agent-command-resolution'
-import { structuredAgentConfiguredArgs } from '../../native-chat/structured-agent-configured-args'
 import { claudeCliFlagSupport } from '../../claude/claude-cli-flag-support'
 import {
   runtimeHiddenHostIds,
@@ -64,6 +59,7 @@ import {
 } from '../runtime-visible-catalog'
 import { isWorkspaceNotificationMuted } from '../workspace-notification-mute'
 import { WorkerAutoReleaseActivity } from '../orchestration/worker-auto-release-activity'
+import { nativeChatIdleStopMs } from '../../../shared/native-chat/native-chat-idle-stop'
 
 export abstract class OrcaRuntimeWithGetWorktreePs extends OrcaRuntimeWithWorktreePsDependencies {
   protected readonly workerAutoReleaseActivity = new WorkerAutoReleaseActivity(
@@ -240,24 +236,17 @@ export abstract class OrcaRuntimeWithGetWorktreePs extends OrcaRuntimeWithWorktr
         logger
       )
     )
+    const { stateDirectory, ...catalogDeps } = this.structuredAgentCatalogDependencies()
     await installStructuredAgentSessionHost({
-      stateDirectory: getProfileUserDataPath(),
+      stateDirectory,
       legacySessionTabIds: this.legacyStructuredSessionTabIds,
       hostId: LOCAL_EXECUTION_HOST_ID,
       claimKeyId: this.agentSessionClaimSigner.keyId,
       logger,
-      // Resolve plain folder workspaces as well as git worktrees.
-      resolveWorkspacePath: async (workspaceId) =>
-        (await this.resolveRuntimeFileTarget(`id:${workspaceId}`)).worktree.path,
-      resolveClaudeCommand: (options) =>
-        resolveStructuredAgentCommand('claude', this.requireStore().getSettings(), options),
-      resolveCodexCommand: (options) =>
-        resolveStructuredAgentCommand('codex', this.requireStore().getSettings(), options),
-      resolveLaunchArgs: (agent) =>
-        structuredAgentConfiguredArgs(agent, this.requireStore().getSettings()),
-      // Production-only wiring prevents test runtimes from probing a real Claude CLI.
+      ...catalogDeps,
       claudeCliFlags: claudeCliFlagSupport,
       usageLimitAutoContinue: this.usageLimitAutoContinueHostDeps(),
+      idleSweep: { idleMs: () => nativeChatIdleStopMs(this.requireStore().getSettings()) },
       nativeChatVisuals: {
         isEnabled: () => this.requireStore().getSettings().nativeChatInlineVisuals !== false
       },
@@ -271,26 +260,11 @@ export abstract class OrcaRuntimeWithGetWorktreePs extends OrcaRuntimeWithWorktr
         notifyWorktreesChanged: (repoId) => this.notifyWorktreesChanged(repoId),
         notifyReposChanged: () => this.notifyReposChanged()
       }),
-      resolveShellEnvironmentPolicy: () =>
-        nativeChatShellEnvironmentPolicy(this.requireStore().getSettings()),
-      resolveClaudeAuthPolicy: () =>
-        claudeStructuredAuthPolicyForSettings(this.requireStore().getSettings()),
       resolveAgentFullAccess: (agent) =>
         isTuiAgent(agent) &&
         preModeChatGetsFullAccess(agent, this.requireStore().getSettings(), process.platform),
-      resolveAgentLaunchEnv: (agent) =>
-        isTuiAgent(agent)
-          ? this.structuredAgentLaunchEnv(agent, this.requireStore().getSettings())
-          : {},
-      resolveAgentCommandSettings: () => this.requireStore().getSettings(),
-      resolveCodexAccountKind: (home) =>
-        resolveStructuredCodexAccountKind(home, this.requireStore().getSettings()),
-      resolveAgentAccountHome: (agent) => this.resolveStructuredAgentAccountHome(agent),
       launchAccountHome: (record, purpose) =>
         this.resolveStructuredAgentLaunchAccountHome(record, purpose),
-      ...(this.prepareCodexCatalogProbeHomeFn
-        ? { prepareCodexCatalogProbeHome: this.prepareCodexCatalogProbeHomeFn }
-        : {}),
       onRequestFailure: (failure) => this.onStructuredRequestFailureForErrorMail(failure),
       // Structured chat has no CLI hooks; this projection drives first-work renaming.
       onSessionStatusChanged: (summary, options) => {
@@ -307,6 +281,8 @@ export abstract class OrcaRuntimeWithGetWorktreePs extends OrcaRuntimeWithWorktr
       ...(this.structuredAgentStatusSinkFn ? { statusSink: this.structuredAgentStatusSinkFn } : {}),
       conversationNaming: nameChat,
       onSessionTabHidden: (sessionId) => this.onStructuredSessionTabHidden(sessionId),
+      queuedAgentMessageOwed: (sessionId, from, peek) =>
+        this.structuredChatMailOwed(sessionId, from, peek),
       assertNoTerminalWriter: (record) => this.assertStructuredChatAcquireAdmissible(record),
       attentionDelivery: createStructuredAttentionMobileDelivery({
         readNotificationSettings: () => this.requireStore().getSettings().notifications,

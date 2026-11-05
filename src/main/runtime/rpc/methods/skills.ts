@@ -48,7 +48,7 @@ import {
 import { SKILL_IMPORT_METHODS } from './skills-import'
 import { listUnifiedSkillCatalog } from '../../../skills/unified-skill-catalog'
 import { unavailableWhileWslDistroStopped } from '../../../skills/skill-discovery-stopped-wsl-roots'
-import { runAsWslUserAct, wslDistroForPath } from '../../../wsl/wsl-unc-access-gate'
+import { runAsWslUserAct, wslDistroForPath } from '../../../wsl/filesystem/wsl-unc-access-gate'
 
 // Use the same target resolution for discovery and delete-plan roots, including WSL.
 export function resolveDiscoveryTarget(

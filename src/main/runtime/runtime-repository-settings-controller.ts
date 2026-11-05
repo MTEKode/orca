@@ -1,15 +1,17 @@
 import { getRepoExecutionHostId, LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host'
 import { isFolderRepo } from '../../shared/repo-kind'
-import { commitProvenRepoKindChange } from '../folder-repo-git-conversion'
+import { commitProvenRepoKindChange } from '../workspaces/catalog/folder-repo-git-conversion'
 import type { Repo } from '../../shared/repo-types'
 import type { RuntimeRepoSelector } from './runtime-repo-selector'
 import type { GhAccountBinding } from '../../shared/github/account-binding'
-import { invalidateAuthorizedRootsCache } from '../ipc/registered-worktree-roots-cache'
+import { invalidateAuthorizedRootsCache } from '../ipc/worktrees/removal/registered-worktree-roots-cache'
 import { getLspSessionManager } from '../lsp/lsp-session-registry'
-import { prepareLocalWorktreeRootForRepo } from '../worktree-root-preparation'
+import { prepareLocalWorktreeRootForRepo } from '../workspaces/creation/worktree-root-preparation'
 import type { RuntimeStore } from './runtime-store-contract'
 import { assertWslMoveRepoWritable } from '../persistence/moving-wsl-projects/wsl-move-scope-guard'
 import { teardownStops } from './owned-session-teardown-policy'
+import { assertNoProjectWorktreeCreate } from '../workspaces/creation/worktree-create-in-flight'
+import { releaseWorktreeCreatePreparationsForRepo } from '../workspaces/creation/preparation/worktree-create-preparation-project-removal'
 
 const PROJECT_TERMINAL_STOP_BUDGET_MS = 10_000
 
@@ -36,6 +38,7 @@ type RepositoryUpdates = Partial<
     | 'repoIcon'
     | 'upstream'
     | 'hookSettings'
+    | 'editorFormatter'
     | 'worktreeBaseRef'
     | 'worktreeBasePath'
     | 'kind'
@@ -149,6 +152,7 @@ export class RuntimeRepositorySettingsController {
     }
     const repo = typeof target === 'string' ? await this.deps.resolveRepo(target) : target
     assertWslMoveRepoWritable(store, repo)
+    assertNoProjectWorktreeCreate(repo)
     // Host owns all shells; clients may stop only loaded workspaces or none. Bound teardown inside repo.rm timeout.
     const deadline = Date.now() + PROJECT_TERMINAL_STOP_BUDGET_MS
     const stopProjectTerminals = async (closeStructuredSessions: boolean): Promise<void> => {
@@ -159,8 +163,10 @@ export class RuntimeRepositorySettingsController {
         })
     }
     await stopProjectTerminals(false)
-    // Recheck WSL fence after stop awaits.
+    // Recheck both fences after stop awaits.
     assertWslMoveRepoWritable(store, repo)
+    assertNoProjectWorktreeCreate(repo)
+    releaseWorktreeCreatePreparationsForRepo(store, repo)
     store.removeProjectForHost(repo)
     // Local language servers are scoped to the project and must not outlive its removal.
     if (getRepoExecutionHostId(repo) === LOCAL_EXECUTION_HOST_ID) {
