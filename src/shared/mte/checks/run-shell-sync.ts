@@ -1,10 +1,10 @@
-import { runProcessSync, type ProcessResult } from '@orca/process-host'
+import { runProcessSync } from '@orca/process-host'
 
 /** Runs one shell command line the way `shell: true` did, through the process host. */
 export function runShellSync(
   command: string,
   options: { cwd?: string; timeoutMs?: number; maxOutputBytes?: number }
-): ProcessResult {
+): ReturnType<typeof runProcessSync> {
   const windows = process.platform === 'win32'
   return runProcessSync({
     program: windows ? (process.env.ComSpec ?? 'cmd.exe') : '/bin/sh',

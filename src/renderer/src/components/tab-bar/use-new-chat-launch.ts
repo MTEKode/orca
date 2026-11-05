@@ -4,6 +4,7 @@ import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
 import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-target'
 import { runtimeEnvironmentIdOrLocalUnlessTwin } from '@/lib/worktree-runtime-owner'
 import { findWorktreeById } from '@/store/slices/worktree-helpers'
+import { selectWorktreesByRepo } from '@/store/workspace-record-selectors'
 import { useAppStore } from '@/store'
 import { getAgentCatalog } from '@/lib/agent-catalog'
 import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
@@ -191,7 +192,7 @@ export function openNewChatForWorktree(
   seed?: { row: NewTabAgentMenuRow; draft?: AgentPickerDraft }
 ): boolean {
   const state = useAppStore.getState()
-  const worktree = findWorktreeById(state.worktreesByRepo, worktreeId)
+  const worktree = findWorktreeById(selectWorktreesByRepo(state), worktreeId)
   const repo = worktree ? state.repos.find((r) => r.id === worktree.repoId) : undefined
   const { draft } = seed ?? {}
   return openNewChatLaunch({
