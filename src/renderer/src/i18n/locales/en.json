@@ -17425,8 +17425,12 @@
             "commentPlaceholder": "Add a comment for the AI",
             "commentSubmit": "Comment"
           },
-          "useDiffCommentDecorator": {},
-          "diffCommentZoneCard": {}
+          "useDiffCommentDecorator": {
+            "995fa28b50": "This note"
+          },
+          "diffCommentZoneCard": {
+            "noteAlreadySent": "Note already sent"
+          }
         }
       },
       "dictation": {
