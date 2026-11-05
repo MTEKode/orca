@@ -17,7 +17,7 @@ import {
 } from './turn-checkpoint-temp-index'
 import {
   parseTurnCheckpointRef,
-  sanitizeCheckpointIdSegment,
+  sanitizeCheckpointRefSegment,
   TURN_CHECKPOINT_REF_PREFIX
 } from './turn-checkpoint-ids'
 
@@ -124,7 +124,7 @@ export async function listCheckpoints(
     .slice(TURN_CHECKPOINT_REF_PREFIX.length)
     .split('/')
     .filter(Boolean)) {
-    sanitizeCheckpointIdSegment(segment, 'ref segment')
+    sanitizeCheckpointRefSegment(segment, 'ref segment')
   }
   const { stdout } = await runCheckpointGit(
     cwd,
