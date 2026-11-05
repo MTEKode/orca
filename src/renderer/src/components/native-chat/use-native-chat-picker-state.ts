@@ -295,8 +295,8 @@ export function useNativeChatPickerState(args: {
   }, [])
   const withSkillInstruction = useCallback(
     (text: string) =>
-      withPickedSkillInstruction(text, skillOriginRef.current, unifiedOriginRef.current, agent),
-    [agent]
+      withPickedSkillInstruction(text, skillOriginRef.current, unifiedOriginRef.current),
+    []
   )
   const isPickedSkill = useCallback(
     (value: string) => skillOriginRef.current === (value.split(/\s/, 1)[0] ?? ''),

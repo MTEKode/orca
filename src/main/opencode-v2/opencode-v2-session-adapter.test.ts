@@ -1,13 +1,17 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { OpenCodeEvent } from '@opencode/client'
 import type { AgentJournalMessageItem } from '../../shared/agent-session/journal/agent-session-journal-types'
 import type { StructuredAgentSessionLifecycleEvent } from '../native-chat/agent-session-wire/structured-agent-session-adapter'
+import type { ToolsMcpServer } from '../mcp-integrations/tools-server'
 import {
   closeProviderTimelineRigs,
   openProviderTimelineRig,
   SESSION
 } from '../native-chat/agent-session-timeline/provider-timeline-assembler-test-support'
-import { createStructuredAgentSessionLogger } from '../native-chat/agent-session-wire/structured-agent-session-logger'
+import {
+  createStructuredAgentSessionLogger,
+  type StructuredAgentSessionLogger
+} from '../native-chat/agent-session-wire/structured-agent-session-logger'
 import { createOpenCodeV2Client } from './opencode-v2-client'
 import { disposeOpenCodeV2EventHubs } from './opencode-v2-events'
 import { OpenCodeV2SessionAdapter } from './opencode-v2-session-adapter'
@@ -63,15 +67,27 @@ type StoredResume = Pick<AgentSessionRecord, 'providerHandleChain'>
 
 async function openAdapter(
   permissionMode: 'ask' | 'full-access' = 'ask',
-  readRecord: () => StoredResume | null = () => null
+  readRecord: () => StoredResume | null = () => null,
+  options?: {
+    resolveToolsMcpServer?: () => ToolsMcpServer | null
+    customRoutes?: FetchFakeRoute[]
+    logger?: StructuredAgentSessionLogger
+  }
 ) {
   const rig = await openProviderTimelineRig({}, { agent: 'opencode', providerHandle: null })
   const sse = createSseStream()
   const routes: FetchFakeRoute[] = [
+    ...(options?.customRoutes ?? []),
     (call) => {
       const path = call.url.pathname
       if (call.method === 'GET' && path === '/api/event') {
         return { status: 200, response: sse.response }
+      }
+      if (call.method === 'PUT' && path === '/api/experimental/mcp/orca-tools') {
+        return { status: 204 }
+      }
+      if (call.method === 'POST' && path === '/api/experimental/mcp/orca-tools/connect') {
+        return { status: 204 }
       }
       if (call.method === 'POST' && path === '/api/session') {
         return { status: 200, json: { data: { id: PROVIDER_SESSION } } }
@@ -151,9 +167,12 @@ async function openAdapter(
         clientMessageId: entry.clientMessageId,
         outcome: { state: entry.outcome.state }
       }),
-    logger: createStructuredAgentSessionLogger(),
+    logger: options?.logger ?? createStructuredAgentSessionLogger(),
     createClient: () => createOpenCodeV2Client(endpoint, fake.fetch),
-    readProcessStartTime: async () => 1_000
+    readProcessStartTime: async () => 1_000,
+    ...(options?.resolveToolsMcpServer
+      ? { resolveToolsMcpServer: options.resolveToolsMcpServer }
+      : {})
   })
   const identity = {
     sessionId: SESSION,
@@ -427,5 +446,89 @@ describe('OpenCodeV2SessionAdapter integration', () => {
     })
     const reply = calls.find((entry) => entry.url.pathname.endsWith('/form/form_1/reply'))
     expect(reply?.body).toMatchObject({ answer: { framework: 'react', strict: true } })
+  })
+
+  it('attaches the orca-tools MCP server when resolveToolsMcpServer is configured', async () => {
+    const { calls } = await openAdapter('ask', () => null, {
+      resolveToolsMcpServer: () => ({ command: '/bin/orca', args: ['mcp', 'serve'] })
+    })
+    const putCall = calls.find(
+      (call) => call.method === 'PUT' && call.url.pathname === '/api/experimental/mcp/orca-tools'
+    )
+    expect(putCall).toBeDefined()
+    expect(putCall?.url.searchParams.get('location[directory]')).toBe('/work/tree')
+    expect(putCall?.body).toEqual({
+      config: { type: 'local', command: ['/bin/orca', 'mcp', 'serve'] }
+    })
+
+    const connectCall = calls.find(
+      (call) =>
+        call.method === 'POST' && call.url.pathname === '/api/experimental/mcp/orca-tools/connect'
+    )
+    expect(connectCall).toBeDefined()
+    expect(connectCall?.url.searchParams.get('location[directory]')).toBe('/work/tree')
+  })
+
+  it('omits orca-tools MCP attachment when resolveToolsMcpServer is absent or returns null', async () => {
+    const { calls: omittedCalls } = await openAdapter()
+    expect(
+      omittedCalls.some((call) => call.url.pathname.includes('/api/experimental/mcp/orca-tools'))
+    ).toBe(false)
+
+    const { calls: nullCalls } = await openAdapter('ask', () => null, {
+      resolveToolsMcpServer: () => null
+    })
+    expect(
+      nullCalls.some((call) => call.url.pathname.includes('/api/experimental/mcp/orca-tools'))
+    ).toBe(false)
+  })
+
+  it('tolerates orca-tools MCP attachment failure without failing session.open and logs a warning', async () => {
+    const logger = { warn: vi.fn(), error: vi.fn() }
+    const { opened: openedPutFail } = await openAdapter('ask', () => null, {
+      resolveToolsMcpServer: () => ({ command: '/bin/orca', args: ['mcp', 'serve'] }),
+      customRoutes: [
+        (call) => {
+          if (call.method === 'PUT' && call.url.pathname === '/api/experimental/mcp/orca-tools') {
+            return { status: 500, json: { error: 'Failed to add MCP server' } }
+          }
+          return undefined
+        }
+      ],
+      logger
+    })
+    expect(openedPutFail.link).toBeDefined()
+    expect(logger.warn).toHaveBeenCalledWith(
+      'OpenCode v2 MCP attachment failed: opencode-v2-mcp',
+      expect.objectContaining({
+        scope: 'opencode-v2-mcp',
+        sessionId: SESSION
+      })
+    )
+
+    const connectLogger = { warn: vi.fn(), error: vi.fn() }
+    const { opened: openedConnectFail } = await openAdapter('ask', () => null, {
+      resolveToolsMcpServer: () => ({ command: '/bin/orca', args: ['mcp', 'serve'] }),
+      customRoutes: [
+        (call) => {
+          if (
+            call.method === 'POST' &&
+            call.url.pathname === '/api/experimental/mcp/orca-tools/connect'
+          ) {
+            return { status: 500, json: { error: 'Failed to connect MCP server' } }
+          }
+          return undefined
+        }
+      ],
+      logger: connectLogger
+    })
+    expect(openedConnectFail.link).toBeDefined()
+    expect(connectLogger.warn).toHaveBeenCalledWith(
+      'OpenCode v2 MCP attachment failed: opencode-v2-mcp',
+      expect.objectContaining({
+        scope: 'opencode-v2-mcp',
+        sessionId: SESSION
+      })
+    )
   })
 })

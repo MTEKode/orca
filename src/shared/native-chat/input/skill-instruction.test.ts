@@ -13,24 +13,9 @@ describe('skill instruction', () => {
     expect(instruction.split('\n')).toHaveLength(1)
   })
 
-  it('keeps the orca_skill_read instruction for every non-OpenCode harness', () => {
-    for (const agent of ['claude', 'codex', 'antigravity']) {
-      expect(buildSkillInstruction('deploy', agent)).toBe(buildSkillInstruction('deploy'))
-    }
-  })
-
-  it('tells OpenCode to use its skill tool, then the bundled guide CLI', () => {
-    const instruction = buildSkillInstruction('deploy', 'opencode')
-    expect(instruction).toContain('Use the "deploy" skill')
-    expect(instruction).toContain('your own skill tool')
-    expect(instruction).toContain('orca skills get deploy --json')
-    expect(instruction).not.toContain('orca_skill_read')
-    expect(instruction.split('\n')).toHaveLength(1)
-  })
-
-  it('appends the harness-aware instruction below the message', () => {
-    expect(appendSkillInstruction('/deploy', 'deploy', 'opencode')).toBe(
-      `/deploy\n\n${buildSkillInstruction('deploy', 'opencode')}`
+  it('appends the instruction below the message', () => {
+    expect(appendSkillInstruction('/deploy', 'deploy')).toBe(
+      `/deploy\n\n${buildSkillInstruction('deploy')}`
     )
   })
 
@@ -45,10 +30,9 @@ describe('skill instruction', () => {
   })
 
   it('adds the instruction only for a picked unified skill still leading the text', () => {
-    const picked = (text: string, unified: string | null = '/deploy', agent?: string) =>
-      withPickedSkillInstruction(text, '/deploy', unified, agent)
-    expect(picked('/deploy now', '/deploy', 'opencode')).toContain('your own skill tool')
-    expect(picked('/deploy now')).toContain('orca_skill_read')
+    const picked = (text: string, unified: string | null = '/deploy') =>
+      withPickedSkillInstruction(text, '/deploy', unified)
+    expect(picked('/deploy now')).toContain('orca_skill_read with name "deploy"')
     expect(picked('/deploy now', null)).toBe('/deploy now')
     expect(picked('hello /deploy')).toBe('hello /deploy')
     expect(withPickedSkillInstruction('/deploy', null, null)).toBe('/deploy')

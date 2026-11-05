@@ -25,7 +25,10 @@ import type { OpenCodeV2FormRequests } from './opencode-v2-forms'
 import type { OpenCodeV2EventHub } from './opencode-v2-events'
 import { openCodeV2OptionIdForRef, type OpenCodeV2ModelListing } from './opencode-v2-models'
 import type { OpenCodeV2PermissionRequests } from './opencode-v2-permissions'
+import type { ToolsMcpServer } from '../mcp-integrations/tools-server'
 import {
+  attachOpenCodeV2ToolsMcp,
+  EMPTY_MODEL_LISTING,
   openCodeV2OpenResult,
   catchUpOpenCodeV2History,
   createOpenCodeV2SessionRuntime,
@@ -53,6 +56,7 @@ export type OpenCodeV2SessionDeps = {
   }) => void
   logger: StructuredAgentSessionLogger
   now?: () => number
+  resolveToolsMcpServer?: () => ToolsMcpServer | null
 }
 
 /** One orca chat bound to one provider session over the shared HTTP service. */
@@ -68,12 +72,7 @@ export class OpenCodeV2Session {
   currentEffort: string | null = null
   connection: OpenCodeV2Connection | null = null
   providerSessionId: string | null = null
-  listing: OpenCodeV2ModelListing = {
-    models: [],
-    refs: new Map(),
-    contextWindows: new Map(),
-    defaultModelId: null
-  }
+  listing: OpenCodeV2ModelListing = EMPTY_MODEL_LISTING
   currentModelId: string | null = null
   requestedClose = false
   private failedCause: Error | null = null
@@ -165,13 +164,22 @@ export class OpenCodeV2Session {
       event: (event) => this.receive(event),
       resync: () => void this.resync()
     })
-    const listings = await loadOpenCodeV2Listings({
+    const openTarget = {
       client,
       directory,
       signal,
       logger: this.deps.logger,
       sessionId: this.sessionId
-    })
+    }
+    const [listings] = await Promise.all([
+      loadOpenCodeV2Listings(openTarget),
+      attachOpenCodeV2ToolsMcp({
+        ...openTarget,
+        ...(this.deps.resolveToolsMcpServer
+          ? { resolveToolsMcpServer: this.deps.resolveToolsMcpServer }
+          : {})
+      })
+    ])
     this.listing = listings.models
     this.agents = listings.agents
     this.currentAgent = opened.info.agent ?? this.agents.defaultAgent
