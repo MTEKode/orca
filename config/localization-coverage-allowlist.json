@@ -247,7 +247,7 @@
   {
     "filePath": "src/renderer/src/components/sidebar/workspace-card/template/card-primitives.tsx",
     "kind": "object-property:title",
-    "text": "text-[13px] leading-5",
+    "text": "text-[14px] leading-5",
     "dynamic": false,
     "count": 1
   }
