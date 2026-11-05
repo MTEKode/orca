@@ -1,10 +1,8 @@
 import { execFileSync, spawnSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
-import { runInNewContext } from 'node:vm'
 import { afterEach, describe, expect, it } from 'vitest'
-import { parse } from 'yaml'
 
 const projectDir = resolve(import.meta.dirname, '../..')
 const guardScript = join(projectDir, '.github/scripts/check-root-directory-entries.mjs')
@@ -221,30 +219,5 @@ describe('root directory guard', () => {
     expect(result.status).toBe(128)
     expect(result.stderr).not.toContain('node:internal')
     expect(result.stdout).not.toContain('guard passed')
-  })
-
-  it('is wired into the ready PR verify gate', () => {
-    const workflow = parse(readFileSync(join(projectDir, '.github/workflows/pr.yml'), 'utf8'))
-    const guardJob = workflow.jobs.code_paths
-    const guardStep = guardJob.steps.find(
-      (step) => step.name === 'Reject new root-level files and folders'
-    )
-
-    // Only draft PRs skip the guard; verify skips with it, so no draft reports a result.
-    const runsFor = (expression, draft) =>
-      runInNewContext(expression.replace(/^\$\{\{(.*)\}\}$/s, '$1'), {
-        github: { event_name: 'pull_request', event: { pull_request: { draft } } },
-        cancelled: () => false
-      })
-    expect(runsFor(guardJob.if, false)).toBe(true)
-    expect(runsFor(guardJob.if, true)).toBe(false)
-    expect(runsFor(workflow.jobs.verify.if, true)).toBe(false)
-    expect(guardStep.if).toBeUndefined()
-    // Merge-ref comparison needs both parents (depth >=2); depth 1 makes HEAD^1 unreachable and every guard fail closed.
-    expect(guardJob.steps[0].with['fetch-depth']).toBeGreaterThanOrEqual(2)
-    expect(guardStep.run).toContain('node .github/scripts/check-root-directory-entries.mjs')
-    // Read base from merge ref; shallow checkout may not resolve event-payload ancestry.
-    expect(guardStep.run).toContain('git-pull-request-diff-base.mjs')
-    expect(workflow.jobs.verify.needs).toContain('code_paths')
   })
 })

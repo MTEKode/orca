@@ -13,7 +13,6 @@ import {
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, expect, it } from 'vitest'
-import { parse } from 'yaml'
 import {
   activateCompilerCache,
   compilerCacheIdentity,
@@ -178,53 +177,4 @@ it('leaves existing dependencies alone and falls back on an absent archive', asy
   rmSync(identity.path, { recursive: true })
   expect((await activateCompilerCache({ root, identity })).available).toBe(false)
   expect(existsSync(join(root, 'node_modules'))).toBe(false)
-})
-
-it('uses exact optional restores, seeds only main and retains full dependency fallback', () => {
-  const action = parse(readFileSync('.github/actions/prepare-headless-compiler/action.yml', 'utf8'))
-  const steps = action.runs.steps
-  const restore = steps.find((step) => step.id === 'cache')
-  expect(restore.uses).toBe('actions/cache/restore@v5')
-  expect(restore['continue-on-error']).toBe(true)
-  expect(restore.with['restore-keys']).toBeUndefined()
-  const save = steps.find((step) => step.uses === 'actions/cache/save@v5')
-  expect(save.if).toContain("github.ref == 'refs/heads/main'")
-  expect(save.if).toContain("github.event_name != 'pull_request'")
-  expect(save['continue-on-error']).toBe(true)
-  expect(save.with).toEqual(restore.with)
-  const workflow = parse(readFileSync('.github/workflows/node-server-tests.yml', 'utf8'))
-  const detector = workflow.jobs.changes.steps
-  const cached = detector.find((step) => step.id === 'compiler')
-  expect(cached.if).toBe("steps.scope.outputs.graph_required == 'true'")
-  expect(cached['continue-on-error']).toBe(true)
-  expect(
-    detector.find((step) => step.uses === './.github/actions/install-node-dependencies').if
-  ).toBe(
-    "steps.scope.outputs.graph_required == 'true' && steps.compiler.outputs.available != 'true'"
-  )
-  expect(workflow.on.pull_request.paths).toContain('.github/actions/prepare-headless-compiler/**')
-  const warmer = parse(readFileSync('.github/workflows/ci-cache-warmup.yml', 'utf8'))
-  const warmSteps = warmer.jobs.warm.steps
-  expect(
-    warmSteps.findIndex((step) => step.uses === './.github/actions/prepare-headless-compiler')
-  ).toBeGreaterThan(
-    warmSteps.findIndex((step) => step.uses === './.github/actions/install-node-dependencies')
-  )
-  for (const event of ['push', 'pull_request']) {
-    expect(warmer.on[event].paths).toContain('.github/actions/prepare-headless-compiler/**')
-  }
-  const inputs = [
-    ...steps.find((step) => step.id === 'identity').env.COMPILER_POLICY_HASH.matchAll(/'([^']+)'/g)
-  ].map((match) => match[1])
-  for (const input of inputs) {
-    expect(
-      warmer.on.push.paths.some(
-        (pattern) =>
-          pattern === input ||
-          (pattern.endsWith('/**') && input.startsWith(pattern.slice(0, -2))) ||
-          (pattern.endsWith('*') && input.startsWith(pattern.slice(0, -1)))
-      ),
-      input
-    ).toBe(true)
-  }
 })

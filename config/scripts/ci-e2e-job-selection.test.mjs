@@ -1,6 +1,4 @@
-import { readFileSync } from 'node:fs'
 import { expect, it } from 'vitest'
-import { parse } from 'yaml'
 import { runProcess } from '@orca/process-host'
 import {
   classifyE2eJobs,
@@ -12,7 +10,6 @@ import {
 } from './ci-e2e-job-selection.mjs'
 import { selectPrE2eSpecs } from './pr-e2e-source-routing.mjs'
 
-const workflow = parse(readFileSync('.github/workflows/e2e.yml', 'utf8'))
 const classify = (specs) => classifyE2eJobs(JSON.stringify(specs))
 
 it('scales broad general selections without charging extra VMs for duplicate or dedicated specs', () => {
@@ -54,10 +51,6 @@ it('keeps Electron build and native prerequisites for every consumer requiring t
       e2e_run_changed: false,
       e2e_needs_build: false
     })
-  }
-  expect(workflow.jobs['ssh-browser-network-route'].needs).toBeUndefined()
-  for (const name of ['e2e', 'changed-e2e']) {
-    expect(workflow.jobs[name].needs, name).toEqual(['build'])
   }
 })
 

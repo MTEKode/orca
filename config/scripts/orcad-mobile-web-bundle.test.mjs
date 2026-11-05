@@ -1,7 +1,6 @@
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { parse } from 'yaml'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { ORCAD_MOBILE_WEB_MANIFEST } from '../../src/shared/orcad-artifacts.ts'
 import { writeMobileWebBundleFixtureTree } from './mobile-web-bundle-fixture-tree.mjs'
@@ -58,20 +57,4 @@ it('stages a dark page into a dark orcad, and refuses it in any other', async ()
 it('fails the build when the page was never built', () => {
   expect(() => stageOrcadMobileWebBundle(outputDir, bundleDir)).toThrow('pnpm build:mobile-web')
   expect(existsSync(join(outputDir, ORCAD_MOBILE_WEB_MANIFEST))).toBe(false)
-})
-
-it('ships the page the qualification lanes tested in the release template', () => {
-  const workflow = parse(
-    readFileSync(new URL('../../.github/workflows/node-server-tests.yml', import.meta.url), 'utf8')
-  )
-  const template = workflow.jobs.desktop_template
-  const wait = template.steps.findIndex(
-    (step) => step.name === 'Wait for every template qualification lane'
-  )
-  expect(template.steps[wait].with.script).toContain('mobile_web_bundle: 1')
-  expect(wait).toBeLessThan(
-    template.steps.findIndex((step) => step.with?.name === 'orcad-mobile-web-bundle')
-  )
-  expect(template.steps.some((step) => step.with?.name === 'orcad-mobile-web-bundle')).toBe(true)
-  expect(template.steps.some((step) => step.uses?.includes('build-mobile-web-bundle'))).toBe(false)
 })

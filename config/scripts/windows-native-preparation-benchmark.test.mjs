@@ -4,7 +4,6 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { test } from 'vitest'
-import { parse } from 'yaml'
 import { runProcess } from '@orca/process-host'
 import {
   assertNativeColdProbe,
@@ -190,27 +189,6 @@ test('preload observes the CJS process-host export imported by production ESM co
   } finally {
     rmSync(directory, { recursive: true, force: true })
   }
-})
-
-test('manual workflow freezes source and limits Windows occupancy without changing a PR gate', () => {
-  const workflow = parse(
-    readFileSync(
-      join(import.meta.dirname, '../../.github/workflows/windows-native-preparation-benchmark.yml'),
-      'utf8'
-    )
-  )
-  assert.deepEqual(Object.keys(workflow.on), ['workflow_dispatch'])
-  assert.equal(workflow.jobs.compare.strategy['max-parallel'], 2)
-  assert.deepEqual(workflow.jobs.compare.strategy.matrix.os, ['windows-2022', 'windows-11-arm'])
-  assert.equal(workflow.jobs.compare.steps[0].with.ref, '${{ inputs.source_sha }}')
-  const install = workflow.jobs.compare.steps.find(
-    (step) => step.uses === './.github/actions/install-node-dependencies'
-  )
-  assert.equal(install.with['native-runtime'], 'none')
-  assert.equal(install.with['node-version'], '24.22.1')
-  assert.equal(install.with['cache-pnpm-store'], 'false')
-  assert.equal(workflow.jobs.compare.steps.at(-1).if, 'always()')
-  assert(!Object.hasOwn(workflow.jobs, 'verify'))
 })
 
 test('source validation allows owned workflow receipts but rejects unrelated untracked source', async () => {

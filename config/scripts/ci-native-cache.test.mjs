@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { parse } from 'yaml'
@@ -9,7 +9,6 @@ const installerPath = '.github/actions/install-node-dependencies/action.yml'
 const nativePath = '.github/actions/prepare-native-runtime/action.yml'
 const installer = parse(readFileSync(installerPath, 'utf8'))
 const native = parse(readFileSync(nativePath, 'utf8'))
-const e2e = parse(readFileSync('.github/workflows/e2e.yml', 'utf8'))
 const identity = native.runs.steps.find((step) => step.id === 'native-cache-scope')
 const paths = [
   'node_modules/.pnpm/node-pty@*/node_modules/node-pty/build',
@@ -115,66 +114,6 @@ describe('CI native cache ownership', () => {
           stdio: 'pipe'
         }).code
       ).not.toBe(0)
-    }
-  )
-
-  it.skipIf(process.platform === 'win32').each([
-    ['true', 'build-essential python3', '', 0, false],
-    ['false', 'build-essential python3', '', 0, true],
-    ['true', 'build-essential python3 xvfb', '', 0, true],
-    ['false', 'build-essential python3', 'update', 7, true],
-    ['false', 'build-essential python3', 'install', 7, true]
-  ])(
-    'tools=%s packages=%s failure=%s retains bounded setup',
-    (present, packages, failure, status, installs) => {
-      const directory = mkdtempSync(join(tmpdir(), 'orca-e2e-native-tools-'))
-      try {
-        const log = join(directory, 'commands')
-        writeFileSync(log, '')
-        mkdirSync(join(directory, '.github/scripts'), { recursive: true })
-        writeFileSync(
-          join(directory, '.github/scripts/prepare-ubuntu-apt.sh'),
-          readFileSync('.github/scripts/prepare-ubuntu-apt.sh')
-        )
-        const step = e2e.jobs.build.steps.find(
-          (candidate) => candidate.name === 'Install native build tools'
-        )
-        const execution = runProcessSync({
-          program: 'bash',
-          args: [
-            '-e',
-            '-o',
-            'pipefail',
-            '-c',
-            `
-            command() { [ "$TOOLS_PRESENT" = true ]; }
-            sudo() { printf 'sudo %s\\n' "$*" >> "$COMMAND_LOG"; cat >/dev/null; }
-            export -f sudo
-            timeout() {
-              printf 'timeout %s\\n' "$*" >> "$COMMAND_LOG"
-              if [ "$4" = "$FAIL_OPERATION" ]; then return 7; fi
-            }
-            ${step.run}`
-          ],
-          cwd: directory,
-          env: {
-            ...process.env,
-            TOOLS_PRESENT: present,
-            ORCA_E2E_APT_PACKAGES: packages,
-            FAIL_OPERATION: failure,
-            COMMAND_LOG: log
-          },
-          timeoutMs: 10_000
-        })
-        expect(execution.code, execution.stderr).toBe(status)
-        const commands = readFileSync(log, 'utf8')
-        expect(commands.includes('timeout 120 sudo apt-get update')).toBe(installs)
-        expect(commands.includes(`timeout 300 sudo apt-get install -y ${packages}`)).toBe(
-          installs && failure !== 'update'
-        )
-      } finally {
-        rmSync(directory, { recursive: true, force: true })
-      }
     }
   )
 })

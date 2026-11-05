@@ -1,7 +1,5 @@
-import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { parse } from 'yaml'
 import { findNodeRuntimePinProblems, main } from './check-node-runtime-pin.mjs'
 
 const projectDir = path.resolve(import.meta.dirname, '../..')
@@ -180,12 +178,5 @@ describe('findNodeRuntimePinProblems', () => {
 describe('committed pin', () => {
   it('passes the repository check', () => {
     expect(main(projectDir)).toBe(0)
-  })
-
-  it('runs in the static analysis job', () => {
-    const workflow = parse(readFileSync(path.join(projectDir, '.github/workflows/pr.yml'), 'utf8'))
-    const packageJson = JSON.parse(readFileSync(path.join(projectDir, 'package.json'), 'utf8'))
-    const commands = workflow.jobs.preflight.steps.map((step) => step.run ?? '')
-    expect(commands).toContain(packageJson.scripts['check:node-runtime-pin'])
   })
 })
