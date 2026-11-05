@@ -23580,5 +23580,21 @@
     "planner": {
       "started": "Planificador MTE iniciado en {{agent}}"
     }
+  },
+  "newChat": {
+    "title": "Nuevo chat",
+    "description": "Elige el agente, el modelo y el esfuerzo. El modo orquestación ejecuta un planificador que reparte el trabajo entre workers con el modelo que fijes.",
+    "orchestration": "Modo orquestación",
+    "orchestrator": "Orquestador",
+    "worker": "Worker",
+    "model": "Modelo",
+    "effort": "Esfuerzo",
+    "catalogFallback": "Puede que la lista de modelos esté incompleta",
+    "cancel": "Cancelar",
+    "start": "Iniciar",
+    "menuItem": "Nuevo chat",
+    "menuKeywordChat": "chat",
+    "menuKeywordAgent": "agente",
+    "menuKeywordNewChat": "nuevo chat"
   }
 }

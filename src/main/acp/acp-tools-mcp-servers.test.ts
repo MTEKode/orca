@@ -30,14 +30,24 @@ describe('acp MTE MCP servers', () => {
     })
   })
 
-  it('plain antigravity gets none; opencode unchanged', async () => {
-    expect(acpToolsMcpServers({ agent: 'antigravity' }, tools)).toEqual([])
+  it('plain antigravity gets orca-tools only, once; opencode unchanged', async () => {
+    const orcaTools = { name: 'orca-tools', command: 'tools-cmd', args: ['serve'], env: [] }
+    expect(acpToolsMcpServers({ agent: 'antigravity' }, tools)).toEqual([orcaTools])
+    expect(acpToolsMcpServers({ agent: 'claude' }, tools)).toEqual([])
     expect(acpToolsMcpServers({ agent: 'opencode' }, tools)).toEqual([
       { name: 'orca-tools', command: 'tools-cmd', args: ['serve'], env: [] }
     ])
     const part = async () => ({ launch: {} }) as never
     const basis = { record: {}, launchDirectory: async () => '/tmp/x' } as never
     const out = await withAcpToolsMcp(part, { agent: 'antigravity' }, tools)(basis, {} as never)
-    expect(out.launch.mcpServers).toEqual([])
+    expect(out.launch.mcpServers).toEqual([orcaTools])
+  })
+
+  it('antigravity planner lists orca-tools exactly once', async () => {
+    const part = async () => ({ launch: {} }) as never
+    const basis = { record: { mteRole: 'planner' }, launchDirectory: async () => '/tmp/x' } as never
+    const out = await withAcpToolsMcp(part, { agent: 'antigravity' }, tools)(basis, {} as never)
+    const names = out.launch.mcpServers?.map((server: { name: string }) => server.name)
+    expect(names).toEqual(['mte-memory', 'orca-tools'])
   })
 })

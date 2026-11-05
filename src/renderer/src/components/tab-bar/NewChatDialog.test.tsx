@@ -7,6 +7,8 @@ import { Dialog } from '@/components/ui/dialog'
 import type { AgentPickerEntry } from '../../../../shared/agent-launch-picker'
 import type { NewChatRequest } from './new-chat-dialog-store'
 import { NewChatDialogForm, newChatCatalogIsFallback } from './NewChatDialog'
+import en from '@/i18n/locales/en.json'
+import es from '@/i18n/locales/es.json'
 
 vi.mock('sonner', () => ({ toast: { message: vi.fn(), error: vi.fn() } }))
 
@@ -181,5 +183,17 @@ describe('NewChatDialogForm', () => {
       effort: 'medium'
     })
     expect(choice.orchestrator).toMatchObject({ agent: 'claude', model: 'claude-large' })
+  })
+})
+
+describe('New Chat locale coverage', () => {
+  it('ships a Spanish translation for every newChat string', () => {
+    for (const [key, value] of Object.entries(en.newChat)) {
+      const translated = (es.newChat as Record<string, string>)[key]
+      expect(translated, key).toBeTruthy()
+      if (['title', 'orchestration', 'start', 'menuItem'].includes(key)) {
+        expect(translated).not.toBe(value)
+      }
+    }
   })
 })
