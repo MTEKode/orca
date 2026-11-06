@@ -24,7 +24,7 @@ import type { AgentLaunchRoute } from '@/lib/agent-launch-routing'
 import { translate } from '@/i18n/i18n'
 import type { NativeChatComposerDraftImage } from '@/components/native-chat/native-chat-composer-draft-storage'
 import type { AgentJournalSkillRef } from '../../../shared/agent-session/journal/agent-session-journal-types'
-import type { MteRunLaunchChoice } from '@/lib/start-mte-run-for-created-worktree'
+import type { MteRunLaunchChoice } from '@/lib/start-mte-run-in-worktree'
 
 /** Creation phases include renderer preflight, base fetch and worktree add; remote/runtime can skip git phases, while VM recipes provision before runtime creation. */
 export type WorktreeCreationPhase = 'preparing' | 'provisioning-vm' | 'fetching' | 'creating'

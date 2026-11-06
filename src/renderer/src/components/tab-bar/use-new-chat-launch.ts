@@ -128,19 +128,18 @@ function agentLabel(agent: string): string {
   return getAgentCatalog().find((a) => a.id === agent)?.label ?? agent
 }
 
-/** Runs a settled dialog choice: saves repo defaults, then launches the chat or the prepared MTE planner. */
+/** Runs a settled dialog choice: saves repo defaults, then launches the chat or the prepared MTE planner. True when a session opened. */
 export async function launchSettledNewChat(
   deps: SettledNewChatDeps,
   choice: NewChatChoice
-): Promise<void> {
+): Promise<boolean> {
   const { workspaceRoot } = deps
   deps.saveDefaults(deps.repo.id, choice.defaults)
   if (choice.mode === 'chat') {
     const row = newChatRowFor(choice.chat.entry, deps.row)
-    if (row) {
-      await deps.launch([row, newChatDraftForPick(choice.chat), choice.chat.entry, 'plain'])
-    }
-    return
+    return row
+      ? await deps.launch([row, newChatDraftForPick(choice.chat), choice.chat.entry, 'plain'])
+      : false
   }
   const mteArgs: RunLaunchArgs | null = (() => {
     const row = newChatRowFor(choice.orchestrator.entry, deps.row)
@@ -159,12 +158,11 @@ export async function launchSettledNewChat(
       : null
   })()
   if (!mteArgs) {
-    return
+    return false
   }
   const adapter = mteAdapterForAgent(choice.orchestrator.agent)
   if (!workspaceRoot || !adapter) {
-    await deps.launch([mteArgs[0], mteArgs[1], mteArgs[2], 'plain'])
-    return
+    return await deps.launch([mteArgs[0], mteArgs[1], mteArgs[2], 'plain'])
   }
   try {
     await deps.prepareWorkspace({ workspaceRoot, adapter })
@@ -174,16 +172,17 @@ export async function launchSettledNewChat(
         message: error instanceof Error ? error.message : String(error)
       })
     )
-    await deps.launch([mteArgs[0], mteArgs[1], mteArgs[2], 'plain'])
-    return
+    return await deps.launch([mteArgs[0], mteArgs[1], mteArgs[2], 'plain'])
   }
-  if (await deps.launch(mteArgs)) {
+  const launched = await deps.launch(mteArgs)
+  if (launched) {
     toast.message(
       translate('mte.planner.started', 'MTE planner started in {{agent}}', {
         agent: agentLabel(choice.orchestrator.agent)
       })
     )
   }
+  return launched
 }
 
 /** Opens the New Chat dialog; true when it took over the launch (it launches or cancels itself). */

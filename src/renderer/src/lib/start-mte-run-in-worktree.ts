@@ -52,20 +52,21 @@ function launchNewChatPickInWorktree(
 }
 
 /**
- * Starts the orchestration run a worktree create asked for, once its worktree exists:
- * the same prepare-and-launch path a settled New Chat choice takes (`launchSettledNewChat`).
+ * Starts an orchestration run in an existing worktree — the same prepare-and-launch path a
+ * settled New Chat choice takes (`launchSettledNewChat`). Used by worktree create and hand-off.
+ * True when a planner (or plain fallback) session actually opened.
  */
-export async function startMteRunForCreatedWorktree(args: {
+export async function startMteRunInWorktree(args: {
   repoId: string
   worktreeId: string
   workspaceRoot: string
   choice: MteRunLaunchChoice
-}): Promise<void> {
+}): Promise<boolean> {
   const repo = useAppStore.getState().repos.find((candidate) => candidate.id === args.repoId)
   if (!repo) {
-    return
+    return false
   }
-  await launchSettledNewChat(
+  return launchSettledNewChat(
     {
       linkedItems: [],
       worktreeId: args.worktreeId,
@@ -96,7 +97,7 @@ export function startMteRunForCreatedWorktreeSafely(
   if (!request.mteLaunch) {
     return
   }
-  void startMteRunForCreatedWorktree({
+  void startMteRunInWorktree({
     choice: request.mteLaunch,
     repoId: request.repoId,
     worktreeId,
