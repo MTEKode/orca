@@ -8,7 +8,6 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { translate } from '@/i18n/i18n'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
@@ -17,14 +16,13 @@ import {
   useAgentPickerInventoryEntries
 } from '@/components/agent/use-agent-launch-picker-inventory'
 import { useNewTabAgentMenuRows } from './use-new-tab-agent-menu-rows'
-import { isMteOrchestrationAgent } from '../../../../shared/mte/orchestration-agents'
+import { MteOrchestrationPicker } from '@/components/mte-orchestration-picker/MteOrchestrationPicker'
+import { useMteOrchestrationPicker } from '@/components/mte-orchestration-picker/use-mte-orchestration-picker'
 import type { AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'
-import type { WorkspaceAttachment } from '../../../../shared/worktree/types'
 import type { NewChatPick } from '../../../../shared/new-chat-defaults'
 import { useNewChatDialogStore, type NewChatRequest } from './new-chat-dialog-store'
 import { newChatEntries, resolveNewChatPick } from './new-chat-pick'
 import { NewChatPickFields } from './NewChatPickFields'
-import { NewChatGoalFields } from './NewChatGoalFields'
 
 /** True while the model list is still the static seed, so the user knows it may be incomplete. */
 export function newChatCatalogIsFallback(entries: readonly AgentPickerEntry[]): boolean {
@@ -45,20 +43,17 @@ export function NewChatDialogForm({
   onSettle: ReturnType<typeof useNewChatDialogStore.getState>['settle']
 }): React.JSX.Element {
   const { defaults } = request
-  const [orchestration, setOrchestration] = useState(
-    request.orchestrationAvailable && defaults?.orchestration === true
-  )
+  const draft = useMteOrchestrationPicker({
+    available: request.orchestrationAvailable,
+    entries,
+    linkedItems: request.linkedItems,
+    ...(defaults ? { defaults } : {}),
+    ...(preferredAgent ? { preferredAgent } : {})
+  })
   const [chat, setChat] = useState<NewChatPick | undefined>(request.initial ?? defaults?.chat)
-  const [orch, setOrch] = useState<NewChatPick | undefined>(defaults?.orchestrator)
-  const [worker, setWorker] = useState<NewChatPick | undefined>(defaults?.worker)
-  const [goal, setGoal] = useState('')
-  const [items, setItems] = useState<WorkspaceAttachment[]>([...request.linkedItems])
 
   const chatEntries = newChatEntries(entries)
-  const mteEntries = newChatEntries(entries, isMteOrchestrationAgent)
   const chatSel = resolveNewChatPick(chatEntries, chat, preferredAgent)
-  const orchSel = resolveNewChatPick(mteEntries, orch, preferredAgent)
-  const workerSel = resolveNewChatPick(mteEntries, worker, preferredAgent)
   const strip = (s: NonNullable<typeof chatSel>): NewChatPick => ({
     agent: s.agent,
     ...(s.model ? { model: s.model } : {}),
@@ -66,17 +61,12 @@ export function NewChatDialogForm({
   })
 
   const start = (): void => {
-    if (orchestration && orchSel && workerSel && isMteOrchestrationAgent(workerSel.agent)) {
-      const worker = { ...strip(workerSel), agent: workerSel.agent }
-      onSettle({
-        mode: 'mte',
-        orchestrator: orchSel,
-        worker,
-        goal,
-        items,
-        defaults: { ...defaults, orchestration: true, orchestrator: strip(orchSel), worker }
-      })
-    } else if (!orchestration && chatSel) {
+    if (draft.enabled) {
+      const choice = draft.buildChoice()
+      if (choice) {
+        onSettle(choice)
+      }
+    } else if (chatSel) {
       onSettle({
         mode: 'chat',
         chat: chatSel,
@@ -84,7 +74,7 @@ export function NewChatDialogForm({
       })
     }
   }
-  const canStart = orchestration ? !!orchSel && !!workerSel : !!chatSel
+  const canStart = draft.enabled ? draft.canStart : !!chatSel
 
   return (
     <DialogContent className="max-w-lg sm:max-w-lg">
@@ -99,40 +89,13 @@ export function NewChatDialogForm({
       </DialogHeader>
       <div className="flex flex-col gap-3">
         {request.orchestrationAvailable ? (
-          <label className="flex items-center gap-2 text-sm">
-            <Checkbox
-              checked={orchestration}
-              onCheckedChange={(v) => setOrchestration(v === true)}
-            />
-            {translate('newChat.orchestration', 'Orchestration mode')}
-          </label>
+          <MteOrchestrationPicker
+            draft={draft}
+            linkedItems={request.linkedItems}
+            onSelectAgent={onSelectAgent}
+          />
         ) : null}
-        {orchestration ? (
-          <>
-            <NewChatPickFields
-              id="new-chat-orchestrator"
-              title={translate('newChat.orchestrator', 'Orchestrator')}
-              entries={mteEntries}
-              value={orchSel}
-              onChange={setOrch}
-              onSelectAgent={onSelectAgent}
-            />
-            <NewChatPickFields
-              id="new-chat-worker"
-              title={translate('newChat.worker', 'Worker')}
-              entries={mteEntries}
-              value={workerSel}
-              onChange={setWorker}
-              onSelectAgent={onSelectAgent}
-            />
-            <NewChatGoalFields
-              goal={goal}
-              onGoalChange={setGoal}
-              initialItems={request.linkedItems}
-              onItemsChange={setItems}
-            />
-          </>
-        ) : (
+        {!draft.enabled ? (
           <NewChatPickFields
             id="new-chat"
             entries={chatEntries}
@@ -140,7 +103,7 @@ export function NewChatDialogForm({
             onChange={setChat}
             onSelectAgent={onSelectAgent}
           />
-        )}
+        ) : null}
         {newChatCatalogIsFallback(entries) ? (
           <p className="text-xs text-muted-foreground">
             {translate('newChat.catalogFallback', 'Model list may be incomplete')}

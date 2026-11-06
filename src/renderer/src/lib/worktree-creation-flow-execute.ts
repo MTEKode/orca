@@ -24,6 +24,7 @@ import {
   type WorktreeCreationStructuredSessionResult
 } from '@/lib/worktree-creation-structured-session'
 import { completeWorktreeCreation } from '@/lib/worktree-creation-completion'
+import { startMteRunForCreatedWorktreeSafely } from '@/lib/start-mte-run-for-created-worktree'
 import { showWorktreeCreationReadyToast } from '@/lib/worktree-creation-ready-toast'
 import { mountCreatedWorktreeStartupTabsInBackground } from '@/lib/worktree-creation-background-mount'
 import { ensureWebRuntimeWorktreeTerminalAfterWake } from '@/lib/web-runtime-worktree-terminal-after-wake'
@@ -316,4 +317,7 @@ export async function executeWorktreeCreation(
     hostPlannedStartup: result.hostPlannedStartup === true,
     focusOnCompletion: shouldActivateOnCompletion
   })
+
+  // The worktree stands even when the run cannot start; the starter reports its own failures.
+  startMteRunForCreatedWorktreeSafely(preparedRequest, worktree.id, worktree.path)
 }
