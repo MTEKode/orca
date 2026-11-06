@@ -70,13 +70,21 @@ export async function markMtePlannerSession(
   ).catch(() => undefined)
 }
 
-type NewChatRepo = Pick<Repo, 'id' | 'kind' | 'connectionId' | 'mteFlowPrompt' | 'newChatDefaults'>
+export type NewChatRepo = Pick<
+  Repo,
+  'id' | 'kind' | 'connectionId' | 'mteFlowPrompt' | 'newChatDefaults'
+>
 
-export type NewChatLaunchDeps = {
+export type NewChatLaunchDeps = Omit<SettledNewChatDeps, 'repo'> & {
   openDialog: (request: NewChatRequest) => Promise<NewChatChoice | null>
+  repo: NewChatRepo | undefined
+}
+
+/** Everything the settled choice needs; the dialog adds the repo lookup on top. */
+export type SettledNewChatDeps = {
   linkedItems: readonly WorkspaceAttachment[]
   worktreeId: string
-  repo: NewChatRepo | undefined
+  repo: NewChatRepo
   workspaceRoot: string | undefined
   /** The row the user launched from; reused when the pick keeps its agent. */
   row?: NewTabAgentMenuRow
@@ -90,10 +98,9 @@ export type NewChatLaunchDeps = {
   launch: (args: RunLaunchArgs) => boolean | Promise<boolean>
 }
 
-/** Orchestration needs a local git worktree the planner can prepare; the harness itself only matters later. */
-export function newChatOrchestrationAvailable(
+/** Orchestration needs a local git repo the planner can prepare; the harness itself only matters later. */
+export function orchestrationAvailableForRepo(
   repo: NewChatRepo | undefined,
-  worktreeId: string,
   workspaceRoot: string | undefined
 ): boolean {
   return Boolean(
@@ -101,13 +108,81 @@ export function newChatOrchestrationAvailable(
     workspaceRoot &&
     !isFolderRepo(repo) &&
     !repo.connectionId &&
-    repo.mteFlowPrompt !== 'never' &&
+    repo.mteFlowPrompt !== 'never'
+  )
+}
+
+/** Orchestration additionally requires the bound workspace to be a git worktree. */
+export function newChatOrchestrationAvailable(
+  repo: NewChatRepo | undefined,
+  worktreeId: string,
+  workspaceRoot: string | undefined
+): boolean {
+  return (
+    orchestrationAvailableForRepo(repo, workspaceRoot) &&
     workspaceKindForWorktreeId(worktreeId) === 'git-worktree'
   )
 }
 
 function agentLabel(agent: string): string {
   return getAgentCatalog().find((a) => a.id === agent)?.label ?? agent
+}
+
+/** Runs a settled dialog choice: saves repo defaults, then launches the chat or the prepared MTE planner. True when a session opened. */
+export async function launchSettledNewChat(
+  deps: SettledNewChatDeps,
+  choice: NewChatChoice
+): Promise<boolean> {
+  const { workspaceRoot } = deps
+  deps.saveDefaults(deps.repo.id, choice.defaults)
+  if (choice.mode === 'chat') {
+    const row = newChatRowFor(choice.chat.entry, deps.row)
+    return row
+      ? await deps.launch([row, newChatDraftForPick(choice.chat), choice.chat.entry, 'plain'])
+      : false
+  }
+  const mteArgs: RunLaunchArgs | null = (() => {
+    const row = newChatRowFor(choice.orchestrator.entry, deps.row)
+    return row
+      ? [
+          row,
+          newChatDraftForPick(choice.orchestrator),
+          choice.orchestrator.entry,
+          {
+            prompt: plannerKickoffPrompt(mteStartGoal(choice.goal, choice.items), choice.worker),
+            promptDelivery: 'submit-after-ready',
+            mteRole: 'planner',
+            mteWorker: choice.worker
+          }
+        ]
+      : null
+  })()
+  if (!mteArgs) {
+    return false
+  }
+  const adapter = mteAdapterForAgent(choice.orchestrator.agent)
+  if (!workspaceRoot || !adapter) {
+    return await deps.launch([mteArgs[0], mteArgs[1], mteArgs[2], 'plain'])
+  }
+  try {
+    await deps.prepareWorkspace({ workspaceRoot, adapter })
+  } catch (error) {
+    toast.error(
+      translate('mte.prepare.failed', 'Could not prepare MTE: {{message}}', {
+        message: error instanceof Error ? error.message : String(error)
+      })
+    )
+    return await deps.launch([mteArgs[0], mteArgs[1], mteArgs[2], 'plain'])
+  }
+  const launched = await deps.launch(mteArgs)
+  if (launched) {
+    toast.message(
+      translate('mte.planner.started', 'MTE planner started in {{agent}}', {
+        agent: agentLabel(choice.orchestrator.agent)
+      })
+    )
+  }
+  return launched
 }
 
 /** Opens the New Chat dialog; true when it took over the launch (it launches or cancels itself). */
@@ -129,56 +204,7 @@ export function openNewChatLaunch(deps: NewChatLaunchDeps): boolean {
     if (!choice) {
       return
     }
-    deps.saveDefaults(repo.id, choice.defaults)
-    if (choice.mode === 'chat') {
-      const row = newChatRowFor(choice.chat.entry, deps.row)
-      if (row) {
-        await deps.launch([row, newChatDraftForPick(choice.chat), choice.chat.entry, 'plain'])
-      }
-      return
-    }
-    const mteArgs: RunLaunchArgs | null = (() => {
-      const row = newChatRowFor(choice.orchestrator.entry, deps.row)
-      return row
-        ? [
-            row,
-            newChatDraftForPick(choice.orchestrator),
-            choice.orchestrator.entry,
-            {
-              prompt: plannerKickoffPrompt(mteStartGoal(choice.goal, choice.items), choice.worker),
-              promptDelivery: 'submit-after-ready',
-              mteRole: 'planner',
-              mteWorker: choice.worker
-            }
-          ]
-        : null
-    })()
-    if (!mteArgs) {
-      return
-    }
-    const adapter = mteAdapterForAgent(choice.orchestrator.agent)
-    if (!workspaceRoot || !adapter) {
-      await deps.launch([mteArgs[0], mteArgs[1], mteArgs[2], 'plain'])
-      return
-    }
-    try {
-      await deps.prepareWorkspace({ workspaceRoot, adapter })
-    } catch (error) {
-      toast.error(
-        translate('mte.prepare.failed', 'Could not prepare MTE: {{message}}', {
-          message: error instanceof Error ? error.message : String(error)
-        })
-      )
-      await deps.launch([mteArgs[0], mteArgs[1], mteArgs[2], 'plain'])
-      return
-    }
-    if (await deps.launch(mteArgs)) {
-      toast.message(
-        translate('mte.planner.started', 'MTE planner started in {{agent}}', {
-          agent: agentLabel(choice.orchestrator.agent)
-        })
-      )
-    }
+    await launchSettledNewChat({ ...deps, repo }, choice)
   })()
   return true
 }

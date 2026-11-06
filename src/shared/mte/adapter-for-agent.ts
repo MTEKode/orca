@@ -11,6 +11,8 @@ export function mteAdapterForAgent(agent: string): WorkspaceMcpAdapter | null {
       return 'opencode'
     case 'antigravity':
       return 'antigravity'
+    case 'pi':
+      return 'pi'
     default:
       return null
   }

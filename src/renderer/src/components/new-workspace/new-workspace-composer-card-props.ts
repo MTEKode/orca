@@ -2,6 +2,7 @@ import type {
   AgentPickerDraft,
   AgentPickerEntry
 } from '../../../../shared/agent-launch/picker/agent-launch-picker'
+import type { MteOrchestrationDraft } from '@/components/mte-orchestration-picker/use-mte-orchestration-picker'
 import type { AgentComboboxSurfaceRows } from '@/components/agent/agent-combobox-surface-items'
 import type { ComposerAgentRows } from '@/hooks/composer-state/composer-agent-rows-target'
 import type RepoCombobox from '@/components/repo/RepoCombobox'
@@ -116,6 +117,11 @@ export type NewWorkspaceComposerCardProps = {
   advancedOpen: boolean
   onToggleAdvanced: () => void
   createDisabled: boolean
+  /** MTE orchestration entry point; shown in place of the Agent field when the create can start a run. */
+  orchestration?: {
+    draft: MteOrchestrationDraft
+    onSelectAgent?: (agent: AgentPickerEntry['agent']) => void
+  } | null
   projectError: string | null
   creating: boolean
   onCreate: () => void

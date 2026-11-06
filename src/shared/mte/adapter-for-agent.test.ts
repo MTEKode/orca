@@ -7,6 +7,7 @@ describe('mteAdapterForAgent', () => {
     expect(mteAdapterForAgent('codex')).toBe('codex')
     expect(mteAdapterForAgent('opencode')).toBe('opencode')
     expect(mteAdapterForAgent('antigravity')).toBe('antigravity')
+    expect(mteAdapterForAgent('pi')).toBe('pi')
   })
 
   it('returns null for every other agent', () => {

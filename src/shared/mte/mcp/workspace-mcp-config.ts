@@ -12,7 +12,7 @@ import {
 } from './mcp-server-specs'
 import { getMcpServerTomlSectionName, getTomlSections, joinTomlBlocks } from './toml/sections'
 
-export type WorkspaceMcpAdapter = 'claude' | 'opencode' | 'codex' | 'antigravity'
+export type WorkspaceMcpAdapter = 'claude' | 'opencode' | 'codex' | 'antigravity' | 'pi'
 
 export type WorkspaceMcpPlan = {
   adapter: WorkspaceMcpAdapter
@@ -205,6 +205,20 @@ export function planWorkspaceMcpConfig(args: {
           serverArgs
         })
       }
+    case 'pi': {
+      // User-level mcp.json: pi reads it in every session, unlike trust-gated project .pi/mcp.json.
+      const configPath = join(homedir(), '.pi', 'agent', 'mcp.json')
+      return {
+        adapter: 'pi',
+        configPath,
+        nextContent: planJsonConfig({
+          configPath,
+          containerKey: 'mcpServers',
+          serverId,
+          entry: { command: args.orcaCliCommand, args: serverArgs }
+        })
+      }
+    }
   }
 }
 

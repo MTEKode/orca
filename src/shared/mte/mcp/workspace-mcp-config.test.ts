@@ -286,4 +286,75 @@ describe('planWorkspaceMcpConfig', () => {
       expect(() => planCodex()).toThrow(/inline/)
     })
   })
+
+  describe('pi', () => {
+    let home: string
+    let originalHome: string | undefined
+    let originalUserProfile: string | undefined
+
+    beforeEach(() => {
+      home = mkdtempSync(join(tmpdir(), 'orca-mte-pi-home-'))
+      originalHome = process.env.HOME
+      originalUserProfile = process.env.USERPROFILE
+      process.env.HOME = home
+      process.env.USERPROFILE = home
+    })
+
+    afterEach(() => {
+      if (originalHome === undefined) {
+        delete process.env.HOME
+      } else {
+        process.env.HOME = originalHome
+      }
+      if (originalUserProfile === undefined) {
+        delete process.env.USERPROFILE
+      } else {
+        process.env.USERPROFILE = originalUserProfile
+      }
+      rmSync(home, { recursive: true, force: true })
+    })
+
+    function planPi() {
+      return planWorkspaceMcpConfig({
+        adapter: 'pi',
+        workspaceRoot: root,
+        orcaCliCommand: CLI,
+        role: 'orchestrator'
+      })
+    }
+
+    it('merges into ~/.pi/agent/mcp.json preserving a foreign server, then plans null on rerun', async () => {
+      const configPath = join(home, '.pi', 'agent', 'mcp.json')
+      mkdirSync(join(home, '.pi', 'agent'), { recursive: true })
+      writeFileSync(
+        configPath,
+        JSON.stringify(
+          { mcpServers: { context7: { command: 'npx', args: ['-y', '@context7/mcp'] } } },
+          null,
+          2
+        )
+      )
+      const plan = planPi()
+      expect(plan.configPath).toBe(configPath)
+      expect(plan.nextContent).not.toBeNull()
+      const merged = JSON.parse(plan.nextContent ?? '{}')
+      expect(merged.mcpServers.context7).toEqual({ command: 'npx', args: ['-y', '@context7/mcp'] })
+      expect(merged.mcpServers['mte-memory']).toEqual({ command: CLI, args: expectedArgs(root) })
+
+      await applyWorkspaceMcpConfig(plan)
+      expect(JSON.parse(readFileSync(configPath, 'utf-8'))).toEqual(merged)
+      expect(planPi().nextContent).toBeNull()
+    })
+
+    it('creates ~/.pi/agent/mcp.json from an empty home', async () => {
+      const plan = planPi()
+      await applyWorkspaceMcpConfig(plan)
+      const configPath = join(home, '.pi', 'agent', 'mcp.json')
+      expect(existsSync(configPath)).toBe(true)
+      expect(JSON.parse(readFileSync(configPath, 'utf-8')).mcpServers['mte-memory']).toEqual({
+        command: CLI,
+        args: expectedArgs(root)
+      })
+    })
+  })
 })
