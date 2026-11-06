@@ -1,5 +1,11 @@
 /** Agents that can act as an MTE orchestrator or worker. */
-export const MTE_ORCHESTRATION_AGENTS = ['claude', 'codex', 'opencode', 'antigravity'] as const
+export const MTE_ORCHESTRATION_AGENTS = [
+  'claude',
+  'codex',
+  'opencode',
+  'antigravity',
+  'pi'
+] as const
 
 export type MteOrchestrationAgent = (typeof MTE_ORCHESTRATION_AGENTS)[number]
 

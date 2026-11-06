@@ -76,7 +76,7 @@ function refuseUsage(message: string): void {
   process.exitCode = 1
 }
 
-const MTE_START_ADAPTERS = ['claude', 'opencode', 'codex', 'antigravity'] as const
+const MTE_START_ADAPTERS = ['claude', 'opencode', 'codex', 'antigravity', 'pi'] as const
 
 export { MTE_START_DEFAULT_GOAL }
 
@@ -136,7 +136,7 @@ export function resolveMteStartInvocation(
     if (parsed === null) {
       return {
         ok: false,
-        message: '--adapter must be one of: claude, opencode, codex, antigravity'
+        message: `--adapter must be one of: ${MTE_START_ADAPTERS.join(', ')}`
       }
     }
     adapter = parsed
