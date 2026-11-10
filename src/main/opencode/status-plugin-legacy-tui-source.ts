@@ -54,7 +54,7 @@ async function setupLegacyOpenCodeTui(api) {
       },
     },
   };
-  const dispose = await setupOpenCodeNextTui(ctx);
+  const dispose = await setupOpenCode2Tui(ctx);
   api.lifecycle?.onDispose?.(dispose);
   return dispose;
 }

@@ -17,12 +17,19 @@ export function getOpenCodePluginSource(): string {
   })
 }
 
+export function getOpenCode2PluginSource(): string {
+  return getOpenCodeFamilyPluginSource('/hook/opencode2', {
+    emitSessionStart: true,
+    emitNextEvents: true
+  })
+}
+
 export function getOpenCodeFamilyPluginSource(
   hookPathname: string,
   options: {
     emitSessionStart: boolean
     emitNextEvents?: boolean
-    expectedAgent?: 'opencode'
+    expectedAgent?: 'opencode' | 'opencode2'
   }
 ): string {
   return [

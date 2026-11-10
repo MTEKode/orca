@@ -18,7 +18,11 @@ export function getOpenCodeLaunchExecutable(
 ): string | null {
   const executable = getAgentLaunchCommandToken(command)
   const name = getAgentLaunchExecutableName(command)
-  return agent === 'opencode' || (!agent && name === 'opencode') ? executable || null : null
+  return agent === 'opencode' ||
+    agent === 'opencode2' ||
+    (!agent && (name === 'opencode' || name === 'opencode2'))
+    ? executable || null
+    : null
 }
 
 export async function probeOpenCodeLaunchCapabilities(options: {

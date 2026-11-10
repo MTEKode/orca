@@ -1,4 +1,4 @@
-import { OpenCodeHookService, openCodeHookService } from './hook-service'
+import { OpenCodeHookService, openCodeHookService, openCode2HookService } from './hook-service'
 import { OPENCODE_STARTUP_PROMPT_PLUGIN_DIRECTORY } from '../../shared/opencode-startup-prompt-install'
 import { join } from 'node:path'
 import { resolveOpenCodeConfigDirectory } from '../../shared/opencode-config-directory'
@@ -36,7 +36,8 @@ export function installOpenCodeStartupPromptForLaunch(
   const source =
     resolveOpenCodeSourceConfigDir(env, sourceEnvironment) ||
     resolveOpenCodeConfigDirectory(sourceEnvironment)
-  const statusOwner = openCodeHookService
+  const statusOwner =
+    env.ORCA_OPENCODE_AGENT === 'opencode2' ? openCode2HookService : openCodeHookService
   const existing =
     env.OPENCODE_CONFIG_DIR && env.OPENCODE_CONFIG_DIR === env.ORCA_OPENCODE_CONFIG_DIR
       ? installer.installIntoSourceOverlay(env.OPENCODE_CONFIG_DIR, source, statusOwner)

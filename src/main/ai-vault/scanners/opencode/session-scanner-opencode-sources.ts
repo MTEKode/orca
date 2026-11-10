@@ -8,7 +8,7 @@ import {
 } from '../../../opencode-usage/opencode-database-discovery'
 import { recordSessionScanIssue, scanIssueTextFromError } from '../../session-scan-issues'
 import { discoverOpenCodeSessions } from './sqlite/session-scanner-opencode-sqlite-discovery'
-import { listOpenCodeNextSqliteSessionsViaWorker } from './reader-transport/session-scanner-opencode-sqlite-worker-spawn'
+import { listOpenCode2SqliteSessionsViaWorker } from './reader-transport/session-scanner-opencode-sqlite-worker-spawn'
 import { isOpenCodeV2DatabaseName } from '../../../../shared/opencode-database-name'
 import type { AiVaultScanOptions, SessionFileDiscovery } from '../../session-scanner-types'
 import { scopeWalksAgentFiles } from '../../session-scope-cwd'
@@ -40,7 +40,7 @@ export function opencodeDiscoveries(
       ),
       // Current releases share opencode.db with v1; the worker checks for v2 tables.
       paths.then((dbPaths) =>
-        discoverOpenCodeNextSessions(storageDir, dbPaths, limit, issues, options)
+        discoverOpenCode2Sessions(storageDir, dbPaths, limit, issues, options)
       )
     ]
   })
@@ -87,7 +87,7 @@ function opencodeSources(
   ]
 }
 
-async function discoverOpenCodeNextSessions(
+async function discoverOpenCode2Sessions(
   storageDir: string,
   dbPaths: readonly string[],
   limit: number,
@@ -95,7 +95,7 @@ async function discoverOpenCodeNextSessions(
   options: AiVaultScanOptions
 ): Promise<SessionFileDiscovery> {
   const list = (scopePaths?: readonly string[]) =>
-    listOpenCodeNextSqliteSessionsViaWorker({
+    listOpenCode2SqliteSessionsViaWorker({
       dbPaths,
       limit,
       issues,
@@ -104,10 +104,10 @@ async function discoverOpenCodeNextSessions(
     }).then((candidates) => candidates.map((candidate) => candidate.file))
   const [files, scopeFiles] = await Promise.all([
     list(),
-    scopeWalksAgentFiles('opencode', options.scopePaths) ? list(options.scopePaths) : undefined
+    scopeWalksAgentFiles('opencode2', options.scopePaths) ? list(options.scopePaths) : undefined
   ])
   return {
-    agent: 'opencode' as const,
+    agent: 'opencode2' as const,
     rootDir: storageDir,
     files,
     ...(scopeFiles ? { scopeFiles } : {})

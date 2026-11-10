@@ -1,17 +1,18 @@
 import {
-  getOpenCodeNextModuleSource,
-  getOpenCodeNextEventNormalizationSource
-} from './status-plugin-setup-source'
+  getOpenCode2ModuleSource,
+  getOpenCode2EventNormalizationSource
+} from '../opencode2/status-plugin-setup-source'
 
 export function getStatusPluginFactorySource(options: {
   emitSessionStart: boolean
   emitNextEvents?: boolean
-  expectedAgent?: 'opencode'
+  expectedAgent?: 'opencode' | 'opencode2'
 }): string[] {
-  const expectedAgent = options.expectedAgent ?? 'opencode'
-  const pluginID = 'orca-opencode-status'
+  const expectedAgent = options.expectedAgent ?? (options.emitNextEvents ? 'opencode2' : 'opencode')
+  // Both variants share a config directory; duplicate plugin IDs would disable one.
+  const pluginID = expectedAgent === 'opencode2' ? 'orca-opencode2-status' : 'orca-opencode-status'
   return [
-    ...(options.emitNextEvents ? getOpenCodeNextEventNormalizationSource() : []),
+    ...(options.emitNextEvents ? getOpenCode2EventNormalizationSource() : []),
     '// OpenCode may call the factory without context; destructuring would crash startup.',
     'export const OrcaOpenCodeStatusPlugin = async (_ctx) => {',
     `  if (process.env.ORCA_OPENCODE_AGENT && process.env.ORCA_OPENCODE_AGENT !== '${expectedAgent}') return {};`,
@@ -250,12 +251,12 @@ export function getStatusPluginFactorySource(options: {
     '  },',
     '  };',
     '};',
-    ...(options.emitNextEvents ? getOpenCodeNextModuleSource(pluginID, expectedAgent) : []),
+    ...(options.emitNextEvents ? getOpenCode2ModuleSource(pluginID, expectedAgent) : []),
     '',
     'export default process.env.ORCA_OPENCODE_PLUGIN_API === "v1" ? OrcaOpenCodeStatusPlugin : {',
     `  id: "${pluginID}",`,
     '  server: OrcaOpenCodeStatusPlugin,',
-    ...(options.emitNextEvents ? ['  setup: setupOpenCodeNextStatus,'] : []),
+    ...(options.emitNextEvents ? ['  setup: setupOpenCode2Status,'] : []),
     '};',
     ''
   ]
