@@ -80,6 +80,8 @@ export type StructuredAgentSessionOptionState = {
   /** The host is still listing models; it only keeps a seed from settling to built-in, since controls follow their data. */
   listingInProgress?: boolean
   fastModeRestricted?: boolean
+  agents?: readonly { id: string; label: string; description?: string }[]
+  currentAgent?: string
 }
 
 /** Seed definitions supply geometry; only accepted input or host inventory can name a model. */
