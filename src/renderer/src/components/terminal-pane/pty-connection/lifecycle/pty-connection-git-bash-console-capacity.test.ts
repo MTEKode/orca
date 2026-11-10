@@ -213,6 +213,7 @@ async function heldLaunch({
           systemPrefersDarkRef: { current: false },
           previousVisibleForReconcileRef: { current: null },
           linkProviderDisposablesRef: { current: new Map() },
+          symbolLinkDisposablesRef: { current: new Map() },
           terminalHandleLinkDisposablesRef: { current: new Map() },
           linkifierClickPrimingDisposablesRef: { current: new Map() },
           linkPointerGesturesRef: { current: new Map() },

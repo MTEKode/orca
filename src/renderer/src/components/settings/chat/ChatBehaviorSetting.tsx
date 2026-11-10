@@ -59,6 +59,8 @@ export function ChatBehaviorSetting({
     entries.scrollToLatestOnSend,
     entries.markNewMessages,
     entries.linkPreviews,
+    entries.turnCheckpoints,
+    entries.reviewTools,
     entries.shellEnvironment
   ]
   if (!forceVisible && !matchesSettingsSearch(query, rows)) {
@@ -70,6 +72,8 @@ export function ChatBehaviorSetting({
   const scrollToLatestOnSend = nativeChatScrollsToLatestOnSend(settings)
   const markNewMessages = nativeChatMarksNewMessages(settings)
   const linkPreviewsEnabled = settings.nativeChatLinkPreviews !== false
+  const turnCheckpointsEnabled = settings.nativeChatTurnCheckpoints !== false
+  const reviewToolsEnabled = settings.nativeChatReviewTools !== false
   return (
     <section id="chat-behavior" className="space-y-3">
       <SettingsSubsectionHeader title={getChatBehaviorTitle(t)} />
@@ -196,6 +200,42 @@ export function ChatBehaviorSetting({
                   'Toggle link previews'
                 )}
                 onChange={() => updateSettings({ nativeChatLinkPreviews: !linkPreviewsEnabled })}
+              />
+            </SearchableSetting>
+            <SearchableSetting
+              {...entries.turnCheckpoints}
+              id={entries.turnCheckpoints.targetSectionId}
+              forceVisible={forceVisible}
+              className="max-w-none"
+            >
+              <SettingsSwitchRow
+                label={entries.turnCheckpoints.title}
+                description={entries.turnCheckpoints.description}
+                checked={turnCheckpointsEnabled}
+                ariaLabel={t(
+                  'components.settings.nativeChat.turnCheckpointsToggleLabel',
+                  'Toggle snapshot turns for revert'
+                )}
+                onChange={() =>
+                  updateSettings({ nativeChatTurnCheckpoints: !turnCheckpointsEnabled })
+                }
+              />
+            </SearchableSetting>
+            <SearchableSetting
+              {...entries.reviewTools}
+              id={entries.reviewTools.targetSectionId}
+              forceVisible={forceVisible}
+              className="max-w-none"
+            >
+              <SettingsSwitchRow
+                label={entries.reviewTools.title}
+                description={entries.reviewTools.description}
+                checked={reviewToolsEnabled}
+                ariaLabel={t(
+                  'components.settings.nativeChat.reviewToolsToggleLabel',
+                  'Toggle agent review tools'
+                )}
+                onChange={() => updateSettings({ nativeChatReviewTools: !reviewToolsEnabled })}
               />
             </SearchableSetting>
             <SearchableSetting

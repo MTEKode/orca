@@ -1,3 +1,5 @@
+import type { NewChatDefaults } from './new-chat-defaults'
+import type { RepoLanguageServerSettings } from './language-server-types'
 import type { DictationTerm } from './dictation-dictionary'
 import type { RepoIcon } from './repo-icon'
 import type { GhAccountBinding } from './github/account-binding'
@@ -70,6 +72,14 @@ export type Repo = {
   ghAccount?: GhAccountBinding
   /** Controls Orca's fork-default-branch sync offer for repos with upstream metadata. */
   forkSyncMode?: ForkSyncMode
+  /** Optional MTE end-of-flow deploy check target; the password lives only in the secret store. */
+  deployCheck?: { url: string; username: string; linearDoneState?: string }
+  /** Whether new chats offer the native MTE orchestration flow; undefined means 'ask'. */
+  mteFlowPrompt?: 'ask' | 'never'
+  /** Last New Chat dialog choices (harness/model/effort, orchestration pins) for this repo. */
+  newChatDefaults?: NewChatDefaults
+  /** Run shell quick commands in the floating terminal (inside the repo); undefined means true. */
+  quickCommandsInFloatingTerminal?: boolean
   /** Whether Orca pre-trusts this repo's worktrees for agents. Absent means undecided: desktop launches ask once. */
   agentWorkspaceTrust?: AgentWorkspaceTrustDecision
   /** Canonical identity for the repo remote Orca should use for provider-level grouping. */
@@ -94,6 +104,8 @@ export type Repo = {
   externalWorktreeDiscoverySuppressedAt?: number
   /** Relative paths to APFS-clone on macOS when possible, otherwise symlink, into new worktrees. Absent/empty creates none. */
   symlinkPaths?: string[]
+  /** Per-project language servers; absent = all off. Enabling one trusts the repo's code. */
+  languageServers?: RepoLanguageServerSettings
   /** Durable sidebar-only repo organization. Execution remains repo-scoped. */
   projectGroupId?: string | null
   /** User-authored ordering inside the project group or ungrouped bucket. */

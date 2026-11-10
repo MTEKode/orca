@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Why: fork features ported onto upstream; split later */
 import { useNativeChatComposerEditSession } from '../queue/editing/use-native-chat-composer-edit-session'
 import { useNativeChatComposerNotice } from './controls/use-native-chat-composer-notice'
 import { useNativeChatMobileHoldNotice } from '../host-access/use-native-chat-mobile-hold-notice'
@@ -27,6 +28,8 @@ import { useNativeChatComposerAppMenuSelection } from './focus/use-native-chat-c
 import { useNativeChatComposerSubmit } from './submit/use-native-chat-composer-submit'
 import { useNativeChatComposerCommandPicker } from './pickers/use-native-chat-composer-command-picker'
 import type * as C from './native-chat-composer-types'
+import { useComposerAgentIdentity } from '../use-mte-worker-pin'
+import { useNativeChatHasQueuedDiffComments } from '../use-native-chat-queued-diff-comments'
 
 type ComposerHandle = C.NativeChatComposerHandle
 
@@ -123,6 +126,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       autocomplete,
       classifySend,
       clearSkillOrigin,
+      withSkillInstruction,
       completeItem,
       completeMention,
       dismiss,
@@ -154,6 +158,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       setNotice
     })
     const { imageAttachments, attachResolvedPaths, clearImageAttachments } = attachments
+    const hasQueuedComments = useNativeChatHasQueuedDiffComments(structuredTransport?.worktreeId)
 
     const fileDrops = useNativeChatFileDrops({
       paneKey,
@@ -204,6 +209,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
     })
 
     const dictation = useNativeChatDictation(textareaRef, disabled)
+    const agentIdentity = useComposerAgentIdentity(agent, structuredTransport)
     const sessionOptions = useNativeChatComposerSessionOptions({
       agent,
       disabled,
@@ -226,6 +232,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       structuredTransport,
       isComposing: imeEnterGesture.isComposing,
       clearSkillOrigin,
+      withSkillInstruction,
       setDraft,
       setCaret
     })
@@ -255,6 +262,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       launchDraftResolved: launchSeed?.launchDraftResolved === true,
       readTerminalDraft: launchSeed?.readTerminalDraft,
       classifySend,
+      withSkillInstruction,
       onOptimisticSend,
       optimisticSendOutcome,
       terminalTabId
@@ -289,6 +297,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       editSession,
       isWorking,
       canStop: hasPty && onStop !== undefined,
+      hasQueuedComments,
       orcaCommand: !pending && !launchPrompt && orcaCommands.matchesDraft(draft),
       goalMode: goalMode.active
     })
@@ -403,7 +412,10 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
           sessionOptionsSnapshot={sessionOptions.snapshot}
           contextUsage={contextUsageSummary}
           sessionOptionsPickerRequest={structuredTransport?.optionPickerRequest ?? null}
-          agent={agent}
+          {...agentIdentity}
+          {...(structuredTransport?.worktreeId
+            ? { worktreeId: structuredTransport.worktreeId }
+            : {})}
           launchPrompt={launchPrompt}
           workspaceFooter={
             !editSession && !launchPrompt ? (

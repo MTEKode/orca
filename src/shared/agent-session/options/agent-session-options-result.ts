@@ -9,6 +9,15 @@ import type {
   AgentSessionModelOption
 } from '../agent-session-wire'
 
+/** A selectable agent persona (OpenCode build/plan); absent from agents with none. */
+export type AgentSessionAgentOption = {
+  id: string
+  label: string
+  description?: string
+  /** The agent a session runs when none is picked. */
+  default?: boolean
+}
+
 export type AgentSessionAcceptedInputSources = Partial<
   Record<
     'model' | 'effort' | 'fastMode' | 'serviceTier' | 'interactionMode',
@@ -41,6 +50,8 @@ export type AgentSessionOptionsResult = {
   /** This session takes image attachments. Absent = unknown (an older host). */
   acceptsImages?: boolean
   models: AgentSessionModelOption[]
+  /** Selectable agents; absent or empty offers no Agent picker. */
+  agents?: AgentSessionAgentOption[]
   /** False means inventory is unknown; retain existing rows. Absent keeps older hosts' authoritative-list behavior. */
   modelsKnown?: false
   /** The `models` ids the agent's own finished listing names, excluding host-added rows and
@@ -52,6 +63,8 @@ export type AgentSessionOptionsResult = {
     /** Accepted input origins; an empty map excludes all display-only observations. */
     acceptedInputSources?: AgentSessionAcceptedInputSources
     model?: string
+    /** The selected agent id; pairs with `agents`. */
+    agent?: string
     /** Current child reports this model for display; it is never a next-turn selection. */
     reportedModel?: string
     effort?: string

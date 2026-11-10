@@ -50,7 +50,7 @@ export function AgentIcon({
   if (agent === 'copilot') {
     return <CopilotIcon size={size} className={className} />
   }
-  if (agent === 'opencode' || agent === 'opencode2') {
+  if (agent === 'opencode') {
     return <OpenCodeIcon size={size} className={className} />
   }
   const catalogEntry = getAgentCatalog().find((a) => a.id === agent)

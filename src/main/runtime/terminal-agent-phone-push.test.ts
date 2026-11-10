@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { AgentPaneChange } from '../agent-hooks/agent-transition-detector'
+import type { AgentPaneChange } from '../agent-hooks/observations/agent-transition-detector'
 import type { AgentStatusIpcPayload } from '../../shared/agent-status/contracts/agent-status-ipc-payload'
 import {
   AGENT_DONE_QUIET_MS,
@@ -9,9 +9,9 @@ import type { NotificationSettings } from '../../shared/notification-settings-ty
 import type {
   MobileNotificationDispatchEvent,
   MobileNotificationEvent
-} from './runtime-mobile-notification-controller'
+} from './push/notifications/runtime-mobile-notification-controller'
 import { createNotificationDeliveryService } from '../notifications/notification-delivery-service'
-import { TerminalAgentPhonePush } from './terminal-agent-phone-push'
+import { TerminalAgentPhonePush } from './push/notifications/terminal-agent-phone-push'
 
 const WT = 'repo-1::/tmp/wt'
 const PANE = 'tab-1:11111111-1111-4111-8111-111111111111'

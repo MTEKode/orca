@@ -11,8 +11,9 @@ vi.mock(
   async () => {
     const v1List = await import('./scanners/opencode/sqlite/session-scanner-opencode-sqlite-list')
     const v1Parse = await import('./scanners/opencode/sqlite/session-scanner-opencode-sqlite')
-    const v2List = await import('./scanners/opencode2/session-scanner-opencode2-sqlite-list')
-    const v2Parse = await import('./scanners/opencode2/session-scanner-opencode2-sqlite')
+    const v2List =
+      await import('./scanners/opencode-next/session-scanner-opencode-next-sqlite-list')
+    const v2Parse = await import('./scanners/opencode-next/session-scanner-opencode-next-sqlite')
     return {
       listOpenCodeSqliteSessionsViaWorker: (
         args: Parameters<typeof v1List.listOpenCodeSqliteSessions>[0]
@@ -26,12 +27,12 @@ vi.mock(
       parseZcodeSqliteSessionViaWorker: (
         args: Parameters<typeof v1Parse.parseOpenCodeSqliteSession>[0]
       ) => v1Parse.parseOpenCodeSqliteSession({ ...args, agent: 'zcode' }),
-      listOpenCode2SqliteSessionsViaWorker: (
-        args: Parameters<typeof v2List.listOpenCode2SqliteSessions>[0]
-      ) => v2List.listOpenCode2SqliteSessions(args),
-      parseOpenCode2SqliteSessionViaWorker: (
-        args: Parameters<typeof v2Parse.parseOpenCode2SqliteSession>[0]
-      ) => v2Parse.parseOpenCode2SqliteSession(args)
+      listOpenCodeNextSqliteSessionsViaWorker: (
+        args: Parameters<typeof v2List.listOpenCodeNextSqliteSessions>[0]
+      ) => v2List.listOpenCodeNextSqliteSessions(args),
+      parseOpenCodeNextSqliteSessionViaWorker: (
+        args: Parameters<typeof v2Parse.parseOpenCodeNextSqliteSession>[0]
+      ) => v2Parse.parseOpenCodeNextSqliteSession(args)
     }
   }
 )

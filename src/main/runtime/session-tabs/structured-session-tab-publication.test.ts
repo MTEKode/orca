@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { OrchestrationDb } from '../orchestration/db'
+import type { OrchestrationDb } from '../orchestration/db/orchestration-db'
 import type { RuntimeMobileSessionTabsSnapshot } from '../../../shared/runtime-types'
 import {
   mintStructuredWorkerHandle,
   mintStructuredWorkerPaneKey,
   structuredWorkerIdentities,
   structuredWorkerProcessIncarnation
-} from '../structured-worker-identity'
+} from '../orchestration/terminal-authority/structured-sessions/structured-worker-identity'
 import { projectStructuredSessionTab } from './structured-session-tab-publication'
 
 const WORKSPACE = 'wt-publication'

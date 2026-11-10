@@ -81,14 +81,9 @@ export class WslHookRelayManager {
       ? { pluginDir: state.claudeAgentViewDir, configDir: state.claudeConfigDir }
       : null
   }
-  getOpenCodeOverlayDir(
-    distro: string | null,
-    agent: 'opencode' | 'opencode2' = 'opencode'
-  ): string | null {
+  getOpenCodeOverlayDir(distro: string | null): string | null {
     const state = this.stateFor(distro)
-    return agent === 'opencode2'
-      ? (state?.opencode2OverlayDir ?? null)
-      : (state?.opencodeOverlayDir ?? null)
+    return state?.opencodeOverlayDir ?? null
   }
   getGuestAgentPath(distro: string | null, kind: 'pi' | 'omp'): string | null {
     const state = this.stateFor(distro)
@@ -180,7 +175,6 @@ export class WslHookRelayManager {
       claudeAgentViewDir: existing?.claudeAgentViewDir,
       claudeConfigDir: existing?.claudeConfigDir,
       opencodeOverlayDir: existing?.opencodeOverlayDir,
-      opencode2OverlayDir: existing?.opencode2OverlayDir,
       piAgentDir: existing?.piAgentDir,
       ompStatusExtension: existing?.ompStatusExtension,
       launchKinds: new Set(existing?.launchKinds ?? (launchKind ? [launchKind] : [])),

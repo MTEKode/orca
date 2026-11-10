@@ -1,5 +1,5 @@
 import { defineMethod } from '../core'
-import { getStructuredAgentSessionHost } from '../../../native-chat/agent-session-wire/structured-agent-session-registry'
+import { getStructuredAgentSessionHost } from '../../../native-chat/agent-session-wire/host/structured-agent-session-registry'
 import { MTE_DEPLOY_CHECK_METHODS } from './mte-deploy-check'
 import {
   MteGetPlannerPinParams,

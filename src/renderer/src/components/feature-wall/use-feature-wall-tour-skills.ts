@@ -1,6 +1,6 @@
 import {
   ORCA_CLI_SKILL_NAME,
-  ORCHESTRATION_SKILL_NAME
+  MTE_SKILL_NAME
 } from '@/lib/skills/installation/agent-feature-skill-names'
 import {
   GLOBAL_AGENT_SKILL_SOURCE_KINDS,
@@ -17,7 +17,7 @@ export function useFeatureWallTourSkills(
   orchestrationSkill: ReturnType<typeof useInstalledAgentSkill>
   browserUseSkill: ReturnType<typeof useInstalledAgentSkill>
 } {
-  const orchestrationSkill = useInstalledAgentSkill(ORCHESTRATION_SKILL_NAME, {
+  const orchestrationSkill = useInstalledAgentSkill(MTE_SKILL_NAME, {
     enabled: isOpen,
     discoveryTarget,
     sourceKinds: GLOBAL_AGENT_SKILL_SOURCE_KINDS

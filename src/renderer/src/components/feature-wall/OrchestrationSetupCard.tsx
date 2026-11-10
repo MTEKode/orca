@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { ORCHESTRATION_SKILL_NAME } from '@/lib/skills/installation/agent-feature-skill-names'
+import { MTE_SKILL_NAME } from '@/lib/skills/installation/agent-feature-skill-names'
 import type { InstalledAgentSkillState } from '@/hooks/skills/discovery/useInstalledAgentSkills'
 import { useActiveProjectSkillRuntime } from '@/hooks/skills/runtime/useActiveProjectSkillRuntime'
 import { AgentSkillSetupPanel } from '../skills/setup/AgentSkillSetupPanel'
@@ -22,7 +22,7 @@ export function OrchestrationSetupCard(props: {
         'auto.components.settings.OrchestrationSetupCard.e7d2a5146c',
         'Enables agents to hand off context and coordinate work through Orca.'
       )}
-      skillNames={[ORCHESTRATION_SKILL_NAME]}
+      skillNames={[MTE_SKILL_NAME]}
       installed={skill.installed}
       loading={skill.loading}
       error={activeSkillRuntime.installDisabledReason ?? skill.error}
@@ -31,9 +31,7 @@ export function OrchestrationSetupCard(props: {
         useAppStore.getState().recordFeatureInteraction('agent-orchestration-setup')
       }}
       onRecheck={skill.refresh}
-      freshnessSkillName={
-        activeSkillRuntime.canUseSkillFreshness ? ORCHESTRATION_SKILL_NAME : undefined
-      }
+      freshnessSkillName={activeSkillRuntime.canUseSkillFreshness ? MTE_SKILL_NAME : undefined}
     />
   )
 

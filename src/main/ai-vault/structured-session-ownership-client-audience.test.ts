@@ -36,7 +36,7 @@ const CONVERSATIONS: OwnedConversation[] = [
     handle: { transport: 'acp', agent: 'opencode', nativeId: OPENCODE_ID }
   },
   {
-    rowAgent: 'opencode2',
+    rowAgent: 'opencode',
     sessionId: OPENCODE_ID,
     filePath: `/Users/me/.local/share/opencode/opencode.db#${OPENCODE_ID}`,
     handle: { transport: 'acp', agent: 'opencode', nativeId: OPENCODE_ID }

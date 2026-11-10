@@ -215,9 +215,7 @@ export function planCommitMessageGeneration(
     args
   )
   const formatOption =
-    input.agentId === 'opencode' || input.agentId === 'opencode2'
-      ? findOptionOccurrence(generationArgs, ['--format'], true)
-      : null
+    input.agentId === 'opencode' ? findOptionOccurrence(generationArgs, ['--format'], true) : null
   const kimiFormatOption =
     input.agentId === 'kimi'
       ? findRecipeOption(generationArgs, ['--output-format'], KIMI_VALUE_OPTIONS)
@@ -264,7 +262,7 @@ export function planCommitMessageGeneration(
           }
         : {}),
       ...(input.agentId === 'antigravity' ? { policyProbeArgs: merged.prefixArgs } : {}),
-      ...(input.agentId === 'opencode' || input.agentId === 'opencode2'
+      ...(input.agentId === 'opencode'
         ? {
             openCodeTask: {
               prefixArgs: directOpenCode ? [] : nativePrefixArgs,

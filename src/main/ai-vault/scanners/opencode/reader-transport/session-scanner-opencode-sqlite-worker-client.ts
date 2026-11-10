@@ -14,6 +14,7 @@ import type {
   OpenCodeSqliteWorkerRequest,
   OpenCodeSqliteWorkerResponse
 } from './session-scanner-opencode-sqlite-worker-protocol'
+import { aiVaultAgentForWorker } from './session-scanner-opencode-sqlite-worker-protocol'
 import { parseOpenCodeSqliteCaptureValue } from './session-scanner-opencode-sqlite-worker-response'
 import type { SessionFileCandidate } from '../../../session-scanner-types'
 import { errorMessage } from '../../../session-scanner-values'
@@ -76,7 +77,7 @@ export class OpenCodeSqliteWorkerClient {
     dbPaths: readonly string[]
     limit: number
     issues: AiVaultScanIssue[]
-    agent?: 'opencode2' | 'zcode'
+    agent?: 'opencode-next' | 'zcode'
     scopePaths?: readonly string[]
     signal?: AbortSignal
   }): Promise<SessionFileCandidate[]> {
@@ -106,7 +107,7 @@ export class OpenCodeSqliteWorkerClient {
       }
       if (err instanceof OpenCodeSqliteWorkerUnavailableError) {
         args.issues.push({
-          agent: args.agent ?? 'opencode',
+          agent: aiVaultAgentForWorker(args.agent),
           kind: 'scope',
           path: args.dbPaths[0] ?? 'opencode.db',
           ...aiVaultScanIssueText('openCodeScannerUnavailable')
@@ -114,7 +115,7 @@ export class OpenCodeSqliteWorkerClient {
         return []
       }
       args.issues.push({
-        agent: args.agent ?? 'opencode',
+        agent: aiVaultAgentForWorker(args.agent),
         kind: 'scope',
         path: args.dbPaths[0] ?? 'opencode.db',
         ...aiVaultScanIssueText('openCodeScanIncomplete', {
@@ -131,7 +132,7 @@ export class OpenCodeSqliteWorkerClient {
     dbPath: string
     sessionId: string
     platform: NodeJS.Platform
-    agent?: 'opencode2' | 'zcode'
+    agent?: 'opencode-next' | 'zcode'
     signal?: AbortSignal
   }): Promise<AiVaultSession | null> {
     try {
@@ -161,7 +162,7 @@ export class OpenCodeSqliteWorkerClient {
     dbPath: string
     sessionId: string
     platform: NodeJS.Platform
-    agent?: 'opencode2' | 'zcode'
+    agent?: 'opencode-next' | 'zcode'
     signal?: AbortSignal
   }): Promise<OpenCodeSqliteCaptureValue> {
     try {
@@ -220,7 +221,7 @@ export class OpenCodeSqliteWorkerClient {
     buildRequest: (id: number) => OpenCodeSqliteWorkerRequest,
     timeoutMs: number,
     signal?: AbortSignal,
-    agent?: 'opencode2' | 'zcode' | 'native-chat'
+    agent?: 'opencode-next' | 'zcode' | 'native-chat'
   ): Promise<unknown> {
     const deadline = this.requestTimeoutMs ?? timeoutMs
     const response = await runOpenCodeSqliteScanRequest(

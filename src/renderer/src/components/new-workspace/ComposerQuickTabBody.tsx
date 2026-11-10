@@ -3,9 +3,9 @@ import {
   type AgentPickerDraft,
   type AgentPickerEntry
 } from '../../../../shared/agent-launch/picker/agent-launch-picker'
-import type { DirectWorkItemSetupRequest } from '@/lib/direct-work-item-setup'
-import { agentChoicePending } from '@/lib/host-chat-program'
-import type { AgentLaunchSurface } from '@/lib/agent-session-launch-plan'
+import type { DirectWorkItemSetupRequest } from '@/lib/workspace/creation/work-item/direct-work-item-setup'
+import { agentChoicePending } from '@/lib/agent-session/launch/inventory/host-chat-program'
+import type { AgentLaunchSurface } from '@/lib/agent-session/launch/routing/agent-session-launch-plan'
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAppStore } from '@/store'
 import { lazyWithRetry } from '@/lib/lazy-with-retry'
@@ -20,22 +20,22 @@ import {
   composerLaunchWorkspace,
   pickQuickWorkspaceAgent,
   resolveQuickWorkspaceAgentSelection
-} from '@/lib/quick-workspace-agent-selection'
-import type { LinkedWorkItemSummary } from '@/lib/new-workspace'
-import { useAgentsOfferedForLaunch } from '@/lib/host-chat-program-acquisition'
-import { shouldAllowComposerEnterSubmitTarget } from '@/lib/new-workspace-enter-guard'
+} from '@/lib/workspace/creation/quick-workspace-agent-selection'
+import type { LinkedWorkItemSummary } from '@/lib/workspace/creation/new-workspace'
+import { useAgentsOfferedForLaunch } from '@/lib/agent-session/launch/inventory/host-chat-program-acquisition'
+import { shouldAllowComposerEnterSubmitTarget } from '@/lib/workspace/creation/new-workspace-enter-guard'
 import { isScreenSubmitShortcut } from '@/lib/screen-submit-shortcut'
 import type { GitHubWorkItem } from '../../../../shared/github/work-item-types'
 import type { TuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent'
 import type { WorkspaceSource as WorkspaceCreateTelemetrySource } from '../../../../shared/workspace-source'
 import type { WorkspaceStatus } from '../../../../shared/worktree/types'
-import type { TaskSourceContext } from '../../../../shared/task-source-context'
+import type { TaskSourceContext } from '../../../../shared/work-items/task-source-context'
 import { translate } from '@/i18n/i18n'
 import '@/components/sidebar/workspace-creation/folder/folder-workspace-source-repos'
 import { getFolderWorkspacePrimaryActionLabel } from '@/components/sidebar/workspace-creation/folder/folder-workspace-source-selection'
-import type { WorkspaceCreationTargetHint } from '@/lib/project-host-workspace-target'
+import type { WorkspaceCreationTargetHint } from '@/lib/workspace/creation/project-host-workspace-target'
 import { useAgentMenuObservation } from '@/components/tab-bar/use-new-tab-agent-menu-rows'
-import { addAppKeyListener, removeAppKeyListener } from '@/lib/app-keyboard-router'
+import { addAppKeyListener, removeAppKeyListener } from '@/lib/keyboard/app-keyboard-router'
 import { useNewWorkspaceOrchestration } from '@/components/new-workspace/use-new-workspace-orchestration'
 
 // Keep Add Project’s clone/SSH machinery outside the composer entry render, matching App loading.

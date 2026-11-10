@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Why: fork features ported onto upstream; split later */
 import { copyChatMathSelection } from '../sidebar/chat-markdown-math-selection'
 import {
   nativeChatTranscriptOuterClass,
@@ -36,6 +37,7 @@ import {
 import { useNativeChatTranscriptRowContext } from './conversation/slots/use-native-chat-transcript-row-context'
 import type { StructuredAgentSessionHostWork } from './session/structured/use-structured-agent-session-transport-state'
 import type { NativeChatDeliveryNotice } from './messages/rows/NativeChatMessageRow'
+import type { NativeChatTurnRevertSurface } from './messages/rows/NativeChatTranscriptRow'
 import { splitNativeChatSlotsWaitingBehindLiveTurn } from './conversation/slots/native-chat-transcript-slot-selection'
 import { useNativeChatTranscriptSlots } from './conversation/slots/use-native-chat-transcript-slots'
 import { useNativeChatTranscriptWindow } from './viewport/virtualization/use-native-chat-transcript-window'
@@ -93,6 +95,7 @@ export function NativeChatMessageList({
   turnActivity,
   stopping = false,
   runtimeContext,
+  turnRevert,
   structuredAttachments = false
 }: {
   ref?: Parameters<typeof useNativeChatMessageListHandle>[0]
@@ -123,6 +126,8 @@ export function NativeChatMessageList({
   /** A person's Stop is ending the live turn: its tail line reads "Stopping…". */
   stopping?: boolean
   runtimeContext?: RuntimeFileOperationArgs | null
+  /** Turn-bar revert affordance; absent where the pane holds no checkpoint surface. */
+  turnRevert?: NativeChatTurnRevertSurface
 }): React.JSX.Element {
   const t = useTranslate()
   const questionTranscript = useMemo(() => desktopStructuredTranscript.stream(), [])
@@ -357,7 +362,8 @@ export function NativeChatMessageList({
     onToggleExpandedTurn: toggleExpandedTurn,
     subagentDisclosure,
     onScrollMessageToTop: scrollMessageToTop,
-    onRevealDiff: navigation.revealDiff
+    onRevealDiff: navigation.revealDiff,
+    turnRevert
   })
 
   return (

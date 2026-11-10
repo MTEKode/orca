@@ -52,7 +52,7 @@ terminal answered queries the way Orca does.
 
 | Agent                                                                                  | Checked                             | Orca integration           |
 | -------------------------------------------------------------------------------------- | ----------------------------------- | -------------------------- |
-| OpenCode (`opencode`, `opencode2`)                                                     | installed binary v2.0.16 and source | plugin                     |
+| OpenCode (`opencode`)                                                                  | installed binary v2.0.16 and source | plugin                     |
 | Kilocode (`kilo`)                                                                      | installed package and source        | —                          |
 | Cursor (`cursor`)                                                                      | installed binary 2026.06.02         | hooks                      |
 | Amp, Droid, Hermes, Muse, Devin, Kiro                                                  | installed binaries                  | hooks                      |

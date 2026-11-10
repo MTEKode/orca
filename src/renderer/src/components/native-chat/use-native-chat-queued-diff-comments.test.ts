@@ -10,7 +10,7 @@ import {
 
 const state = vi.hoisted(() => ({ comments: [] as unknown[] }))
 
-vi.mock('@/store/worktree-diff-comments-selector', () => ({
+vi.mock('@/store/slices/diff-comments/worktree-diff-comments-selector', () => ({
   selectWorktreeDiffCommentsOrEmpty: () => state.comments
 }))
 vi.mock('@/store', () => ({

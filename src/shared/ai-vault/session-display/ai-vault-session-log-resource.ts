@@ -46,7 +46,6 @@ const logFileResolvers = {
       : null,
   copilot: jsonlLog,
   opencode: () => null,
-  opencode2: () => null,
   zcode: () => null,
   grok: (filePath) =>
     getRuntimePathBasename(filePath) === 'summary.json'

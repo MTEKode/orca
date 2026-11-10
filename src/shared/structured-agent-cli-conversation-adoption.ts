@@ -7,7 +7,6 @@ export const CLI_CONVERSATION_ADOPTING_AGENTS = {
   omp: ['omp'],
   opencode: ['opencode'],
   // OpenCode 2 chats require 2.x; ordinary OpenCode chats can adopt when their installed opencode is 2.x.
-  opencode2: ['opencode2', 'opencode'],
   pi: ['pi']
 } as const
 

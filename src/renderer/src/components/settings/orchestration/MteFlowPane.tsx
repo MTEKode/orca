@@ -2,11 +2,11 @@ import type { BundledSkillPlan } from '../../../../../shared/bundled-skill-plan'
 import { useCallback, useState } from 'react'
 import { OrchestrationSkillPromptDialog } from './OrchestrationSkillPromptDialog'
 import { buildSkillCommandForRuntime } from '../../../lib/skills/runtime/skill-runtime-command'
-import { ORCHESTRATION_SKILL_INSTALL_COMMAND } from '@/lib/skills/installation/agent-feature-install-commands'
+import { MTE_SKILL_INSTALL_COMMAND } from '@/lib/skills/installation/agent-feature-install-commands'
 import { ArrowRightLeft, GitBranch, ListChecks, Workflow, type LucideIcon } from 'lucide-react'
-import { ORCHESTRATION_SKILL_NAME } from '@/lib/skills/installation/agent-feature-skill-names'
+import { MTE_SKILL_NAME } from '@/lib/skills/installation/agent-feature-skill-names'
 import type { SkillUsageExample } from '@/lib/skills/examples/skill-usage-example'
-import { getOrchestrationUsageExamples } from '@/lib/orchestration-usage-examples'
+import { getMteUsageExamples } from '@/lib/mte-usage-examples'
 import {
   GLOBAL_AGENT_SKILL_SOURCE_KINDS,
   useInstalledAgentSkill
@@ -15,7 +15,7 @@ import { useActiveProjectSkillRuntime } from '@/hooks/skills/runtime/useActivePr
 import { SearchableSetting } from '../section-layout/SearchableSetting'
 import { matchesSettingsSearch } from '../search/settings-search'
 import { useAppStore } from '../../../store/index'
-import { getOrchestrationPaneSearchEntries } from './orchestration-search'
+import { getMteFlowPaneSearchEntries } from './mte-flow-search'
 import { AgentSkillSetupPanel } from '../../skills/setup/AgentSkillSetupPanel'
 import { OrchestrationSkillAgentCoverage } from './OrchestrationSkillAgentCoverage'
 import { SkillUsageExamplesSection } from '../../skills/examples/SkillUsageExamplesSection'
@@ -43,20 +43,17 @@ function resolveOrchestrationExampleIcon(example: SkillUsageExample): LucideIcon
   return EXAMPLE_ICONS[example.id as keyof typeof EXAMPLE_ICONS] ?? Workflow
 }
 
-type OrchestrationPaneProps = {
+type MteFlowPaneProps = {
   settings: GlobalSettings
   updateSettings: (updates: Partial<GlobalSettings>) => void | Promise<void>
 }
 
-export function OrchestrationPane({
-  settings,
-  updateSettings
-}: OrchestrationPaneProps): React.JSX.Element {
+export function MteFlowPane({ settings, updateSettings }: MteFlowPaneProps): React.JSX.Element {
   const t = useTranslate()
   const [skillPromptOpen, setSkillPromptOpen] = useState(false)
   const searchQuery = useAppStore((s) => s.settingsSearchQuery)
   const showLocalRuntimeSettings = !isPairedWebClientWindow()
-  const searchEntries = getOrchestrationPaneSearchEntries({
+  const searchEntries = getMteFlowPaneSearchEntries({
     includeLocalRuntimeSettings: showLocalRuntimeSettings
   })
   const showOrchestration = matchesSettingsSearch(searchQuery, searchEntries)
@@ -69,7 +66,7 @@ export function OrchestrationPane({
     skills: discoveredSkills,
     sources: discoveredSkillSources,
     refresh: refreshOrchestrationSkill
-  } = useInstalledAgentSkill(ORCHESTRATION_SKILL_NAME, {
+  } = useInstalledAgentSkill(MTE_SKILL_NAME, {
     discoveryTarget: activeSkillRuntime.discoveryTarget,
     sourceKinds: GLOBAL_AGENT_SKILL_SOURCE_KINDS
   })
@@ -99,10 +96,10 @@ export function OrchestrationPane({
 
   return (
     <SearchableSetting
-      title={t('auto.components.settings.OrchestrationPane.8a94078d05', 'Agent orchestration')}
+      title={t('auto.components.settings.MteFlowPane.title', 'MTE flow')}
       description={t(
-        'auto.components.settings.OrchestrationPane.2aacdb0517',
-        'Coordinate coding agents across handoffs, worktree handovers, and child-agent work.'
+        'auto.components.settings.MteFlowPane.description',
+        'Settings for MTE orchestration runs: planner, workers and validation.'
       )}
       keywords={searchEntries[0].keywords}
       forceVisible
@@ -112,15 +109,12 @@ export function OrchestrationPane({
         <div className="py-4">
           <AgentSkillSetupPanel
             variant="inline"
-            title={t(
-              'auto.components.settings.OrchestrationPane.07641b9768',
-              'Orchestration skill'
-            )}
+            title={t('auto.components.settings.MteFlowPane.skillTitle', 'MTE skill')}
             description={t(
-              'auto.components.settings.OrchestrationPane.9bedd2a6e5',
-              'Enables agents to hand off context and coordinate work through Orca.'
+              'auto.components.settings.MteFlowPane.skillDescription',
+              'Enables agents to start and drive MTE runs through Orca.'
             )}
-            skillNames={[ORCHESTRATION_SKILL_NAME]}
+            skillNames={[MTE_SKILL_NAME]}
             installed={orchestrationSkillDetected}
             loading={orchestrationSkillLoading}
             error={activeSkillRuntime.installDisabledReason ?? orchestrationSkillError}
@@ -137,17 +131,14 @@ export function OrchestrationPane({
                   className="text-xs text-muted-foreground underline-offset-2 hover:underline"
                   onClick={() => setSkillPromptOpen(true)}
                 >
-                  {t(
-                    'auto.components.settings.OrchestrationPane.7bc082f4de',
-                    'Copy install command'
-                  )}
+                  {t('auto.components.settings.MteFlowPane.7bc082f4de', 'Copy install command')}
                 </button>
               ) : undefined
             }
             footer={renderCoverage}
             onRecheck={refreshOrchestrationSkill}
             freshnessSkillName={
-              activeSkillRuntime.canUseSkillFreshness ? ORCHESTRATION_SKILL_NAME : undefined
+              activeSkillRuntime.canUseSkillFreshness ? MTE_SKILL_NAME : undefined
             }
           />
         </div>
@@ -175,7 +166,7 @@ export function OrchestrationPane({
       {activeSkillRuntime.agentRuntime?.runtime === 'wsl' ? (
         <OrchestrationSkillPromptDialog
           command={buildSkillCommandForRuntime(
-            ORCHESTRATION_SKILL_INSTALL_COMMAND,
+            MTE_SKILL_INSTALL_COMMAND,
             activeSkillRuntime.agentRuntime
           )}
           open={skillPromptOpen}
@@ -183,14 +174,14 @@ export function OrchestrationPane({
         />
       ) : null}
       <SkillUsageExamplesSection
-        heading={t('auto.components.settings.OrchestrationPane.ae79504732', 'How to use it')}
+        heading={t('auto.components.settings.MteFlowPane.ae79504732', 'How to use it')}
         description={t(
-          'auto.components.settings.OrchestrationPane.52e0634e2c',
-          'Ask a coordinator agent to use orchestration for handoffs, worktree handovers, and sequential or parallel child agents.'
+          'auto.components.settings.MteFlowPane.examplesDescription',
+          'Ask an agent to use the MTE skill to plan, dispatch workers and validate a goal.'
         )}
-        examples={getOrchestrationUsageExamples()}
+        examples={getMteUsageExamples()}
         resolveIcon={resolveOrchestrationExampleIcon}
-        slashCommand={`/${ORCHESTRATION_SKILL_NAME}`}
+        slashCommand={`/${MTE_SKILL_NAME}`}
       />
     </SearchableSetting>
   )

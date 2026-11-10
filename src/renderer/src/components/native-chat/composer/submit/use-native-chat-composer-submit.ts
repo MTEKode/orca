@@ -3,6 +3,7 @@ import { serializeNativeChatAgentReferences } from '../pickers/native-chat-agent
 import { mayHoldAgentReferences } from '../../../../../../shared/orchestration/mailbox/orchestration-agent-reference'
 import { useCallback, useMemo, useState, type RefObject } from 'react'
 import { translate } from '@/i18n/i18n'
+import { useNativeChatHasQueuedDiffComments } from '../../use-native-chat-queued-diff-comments'
 import type { NativeChatPickerItem } from '../../../../../../shared/native-chat/input/native-chat-picker-items'
 import type { NativeChatComposerSendIntent } from './native-chat-composer-send-intent'
 import type { NativeChatStructuredComposerTransport } from './native-chat-structured-composer-transport'
@@ -79,6 +80,8 @@ export function useNativeChatComposerSubmit(args: {
     submitEmpty,
     textareaRef
   } = args
+  // Queued diff comments let a structured send go out with an empty editor.
+  const hasQueuedComments = useNativeChatHasQueuedDiffComments(structuredTransport?.worktreeId)
   const threadGoal = structuredTransport?.threadGoal
   const [entered, setEntered] = useState(false)
   const active = entered && structuredTransport !== undefined
@@ -221,7 +224,12 @@ export function useNativeChatComposerSubmit(args: {
         }
       } else if (!structuredTransport) {
         sendPty()
-      } else if (!disabled && draft.trim() === '' && imageAttachments.length === 0) {
+      } else if (
+        !disabled &&
+        draft.trim() === '' &&
+        imageAttachments.length === 0 &&
+        !hasQueuedComments
+      ) {
         submitEmpty?.()
       } else if (!disabled) {
         if (intent) {
@@ -238,6 +246,7 @@ export function useNativeChatComposerSubmit(args: {
       disabled,
       draft,
       draftScopeKey,
+      hasQueuedComments,
       imageAttachments,
       sendPty,
       sendStructured,

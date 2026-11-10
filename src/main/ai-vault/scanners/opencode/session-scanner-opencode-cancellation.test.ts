@@ -14,9 +14,9 @@ const readers = vi.hoisted(() => ({
 }))
 vi.mock('./reader-transport/session-scanner-opencode-sqlite-worker-spawn', () => ({
   parseOpenCodeSqliteSessionViaWorker: readers.parse,
-  parseOpenCode2SqliteSessionViaWorker: readers.parse,
+  parseOpenCodeNextSqliteSessionViaWorker: readers.parse,
   captureOpenCodeSqliteSessionViaWorker: readers.capture,
-  captureOpenCode2SqliteSessionViaWorker: readers.capture
+  captureOpenCodeNextSqliteSessionViaWorker: readers.capture
 }))
 vi.mock('../../session-scanner-source-discovery', () => ({
   discoverAiVaultSessionSources: readers.discover
@@ -49,7 +49,7 @@ afterEach(() => {
   resetSessionParseCacheForTests()
 })
 
-function configure(agent: 'opencode' | 'opencode2') {
+function configure(agent: 'opencode') {
   readers.discover.mockResolvedValue([{ agent, rootDir: '/fixture', files: [file] }])
   const accumulator = createAccumulator({ agent, file, sessionId: 'session' })
   accumulator.title = 'SQLite session'
@@ -69,7 +69,7 @@ function untilAborted(signal: AbortSignal | undefined): Promise<never> {
   })
 }
 
-describe.each(['opencode', 'opencode2'] as const)('%s scan cancellation', (agent) => {
+describe.each(['opencode'] as const)('%s scan cancellation', (agent) => {
   it('reports a deadline while retaining completed sessions and other agents, then retries', async () => {
     vi.useFakeTimers()
     const root = mkdtempSync(join(tmpdir(), 'orca-scan-deadline-'))

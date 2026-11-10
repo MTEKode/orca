@@ -19,7 +19,6 @@ export const RESUMABLE_TUI_AGENTS = [
   'gemini',
   'antigravity',
   'opencode',
-  'opencode2',
   'pi',
   'mimo-code',
   'droid',
@@ -261,7 +260,6 @@ export function extractAgentProviderSession(
       return id ? { key: 'conversation_id', id } : null
     }
     case 'opencode':
-    case 'opencode2':
     case 'mimo-code': {
       const id = readSessionId(payload, ['sessionID'])
       return id ? { key: 'session_id', id } : null

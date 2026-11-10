@@ -6,12 +6,12 @@ import type {
   AgentJournalRenderItem
 } from '../../../shared/agent-session/journal/agent-session-journal-types'
 import { computeAgentSessionPayloadFingerprint } from '../../../shared/agent-session/lifecycle/agent-session-mutation-envelope'
-import { getStructuredAgentSessionHost } from '../../native-chat/agent-session-wire/structured-agent-session-registry'
-import type { WorkerTurnStopReportDeps } from './worker-turn-stop-report'
-import { chatWorkerDispatches } from './chat-worker-error-escalation'
-import { dispatchReportMailbox } from './dispatch-report-mailbox'
-import type { OrchestrationDb } from './db'
-import type { MessageRow } from './types'
+import { getStructuredAgentSessionHost } from '../../native-chat/agent-session-wire/host/structured-agent-session-registry'
+import type { WorkerTurnStopReportDeps } from './workers/turn-stops/worker-turn-stop-report'
+import { chatWorkerDispatches } from './workers/turn-stops/chat-worker-error-escalation'
+import { dispatchReportMailbox } from './workers/reports/dispatch-report-mailbox'
+import type { OrchestrationDb } from './db/orchestration-db'
+import type { MessageRow } from './db/orchestration-records'
 import { OrchestrationError } from './orchestration-error'
 import { approvalReplyOption, questionReplyResponse } from './worker-prompt-reply'
 

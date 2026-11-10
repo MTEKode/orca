@@ -180,7 +180,6 @@ export default function TabGroupPanel({
         }
       }}
       onNewTerminalTab={commands.newTerminalTab}
-      onNewTerminalWithShell={commands.newTerminalWithShell}
       onNewBrowserTab={commands.newBrowserTab}
       onNewSimulatorTab={commands.newSimulatorTab}
       onOpenEntry={commands.openEntry}

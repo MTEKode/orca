@@ -106,14 +106,6 @@ const OPENCODE_LAUNCH_SPEC = openCodeLaunchSpec({
   }
 })
 
-// opencode2 is the installer's 2.x alias; both names share accounts and history.
-const OPENCODE2_LAUNCH_SPEC = openCodeLaunchSpec({
-  agent: 'opencode2',
-  command: 'opencode2',
-  minimumVersions: ['2.0.14'],
-  modelDiscovery: { kind: 'session', listingNamesConfiguredModel: false }
-})
-
 const OMP_LAUNCH_SPEC: AcpLaunchSpec = {
   agent: 'omp',
   command: 'omp',
@@ -152,7 +144,6 @@ const OMP_LAUNCH_SPEC: AcpLaunchSpec = {
 export const ACP_LAUNCH_SPECS: readonly AcpLaunchSpec[] = [
   GROK_LAUNCH_SPEC,
   OPENCODE_LAUNCH_SPEC,
-  OPENCODE2_LAUNCH_SPEC,
   OMP_LAUNCH_SPEC,
   ANTIGRAVITY_LAUNCH_SPEC
 ]

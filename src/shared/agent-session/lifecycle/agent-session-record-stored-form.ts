@@ -10,6 +10,11 @@ import {
   decodePersistedAgentSessionProviderHandleChain,
   encodePersistedAgentSessionProviderHandleChain
 } from './agent-session-provider-handle'
+import {
+  isRetiredOpenCodeAgentId,
+  remapRetiredOpenCodeHandleLink,
+  remapRetiredOpenCodeProvider
+} from './agent-session-opencode-identity-remap'
 import { isAgentSessionLastTurn } from './agent-session-last-turn'
 import type { AgentSessionDeathEvidence } from './agent-session-death-evidence'
 import type { AgentSessionRecord } from './agent-session-record'
@@ -45,25 +50,28 @@ function decodeDeathEvidence(
 export function decodePersistedAgentSessionRecord<L extends PersistedAgentSessionObservationLease>(
   record: Omit<PersistedAgentSessionRecord, 'lease'> & { lease: L }
 ) {
-  const providerHandleChain = decodePersistedAgentSessionProviderHandleChain(
-    record.providerHandleChain
-  )
-  if (!providerHandleChain) {
+  const decodedChain = decodePersistedAgentSessionProviderHandleChain(record.providerHandleChain)
+  if (!decodedChain) {
     throw new Error('agent_session_provider_handle_invalid')
   }
+  const providerHandleChain = decodedChain.map(remapRetiredOpenCodeHandleLink)
+  const retiredOpenCode = isRetiredOpenCodeAgentId(record.provider)
   const { sleptAt, lastTurn, ...rest } = record
   const validSleep = typeof sleptAt === 'number' && Number.isFinite(sleptAt) && sleptAt > 0
   const lease = normalizeLegacyHandoffLease(record.lease)
   return {
     record: {
       ...rest,
+      provider: remapRetiredOpenCodeProvider(record.provider),
       ...(validSleep ? { sleptAt } : {}),
       ...(isAgentSessionLastTurn(lastTurn) ? { lastTurn } : {}),
       providerHandleChain,
       lease: { ...lease, deathEvidence: decodeDeathEvidence(lease.deathEvidence) }
     },
     normalized:
-      leaseCarriesLegacyHandoffValues(record.lease) || (sleptAt !== undefined && !validSleep)
+      leaseCarriesLegacyHandoffValues(record.lease) ||
+      (sleptAt !== undefined && !validSleep) ||
+      retiredOpenCode
   }
 }
 

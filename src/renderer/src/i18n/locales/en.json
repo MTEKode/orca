@@ -1278,6 +1278,34 @@
       "iconPickErrors": {
         "notPng": "Repo icons must be PNG files.",
         "tooLarge": "Repo icon image must be 256KB or smaller."
+      },
+      "mteFlowPrompt": {
+        "title": "Ask to use MTE orchestration on new chats",
+        "description": "When you start a Claude, Codex or OpenCode chat in this project, offer to let the MTE planner drive coder and validator agents.",
+        "keywordMte": "mte",
+        "keywordOrchestration": "orchestration",
+        "keywordPlanner": "planner"
+      },
+      "deployCheck": {
+        "title": "Deploy check",
+        "description": "Where the MTE flow tests the deployed feature after the last task passes, and which Linear state to move the issue to.",
+        "url": "URL",
+        "username": "Username",
+        "password": "Password",
+        "save": "Save password",
+        "clear": "Clear",
+        "passwordSaved": "Password saved",
+        "passwordError": "Could not save the password: secure storage is unavailable on this system.",
+        "doneState": "Linear state after a passing check",
+        "keywordDeploy": "deploy",
+        "keywordStaging": "staging",
+        "keywordLinear": "linear"
+      },
+      "quickCommandsFloating": {
+        "title": "Run quick commands in the floating terminal",
+        "description": "Shell quick commands open in the floating terminal and run inside this project instead of a new workspace tab.",
+        "keywordQuick": "quick commands",
+        "keywordFloating": "floating terminal"
       }
     },
     "windowMaterial": {
@@ -1601,8 +1629,8 @@
           "localBaseRefRefreshFailedForWorktree": "Local {{value0}} was not refreshed for \"{{value1}}\"",
           "903b51c2ed": "Workspace created from {{value0}}, but Orca could not fast-forward local {{value1}}. {{value2}}",
           "localBaseRefRefreshFailedDescriptionNamed": "Workspace \"{{value0}}\" was created from {{value1}}, but Orca could not fast-forward local {{value2}}. {{value3}}",
-          "localBaseRefRefreshFailedDetailDirtyNamed": "The worktree at {{value0}} (where local {{value1}} is checked out) has uncommitted changes. Commit, stash, or discard those changes, then update local {{value1}} manually.",
-          "localBaseRefRefreshFailedDetailDirty": "The worktree where local {{value0}} is checked out has uncommitted changes. Commit, stash, or discard those changes, then update local {{value0}} manually.",
+          "localBaseRefRefreshFailedDetailDirtyNamed": "The worktree at {{value0}} (where local {{value1}} is checked out) has untracked files that block the update. Move or delete those files, then update local {{value1}} manually.",
+          "localBaseRefRefreshFailedDetailDirty": "The worktree where local {{value0}} is checked out has untracked files that block the update. Move or delete those files, then update local {{value0}} manually.",
           "localBaseRefRefreshFailedDetailNotFastForward": "Local {{value0}} does not exist or cannot be fast-forwarded cleanly from the remote base. Check for local-only commits before updating it manually.",
           "localBaseRefRefreshFailedDetailError": "Git returned an error while updating local {{value0}}. Check the repo for locked refs or unusual worktree state, then update local {{value0}} manually.",
           "localBaseRefShallowHistoryTitle": "Local {{value0}} not updated: shallow clone",
@@ -1774,7 +1802,6 @@
           "zcode_label": "ZCode",
           "d443a47995": "Prime Agent",
           "mimo_code_label": "MiMo Code",
-          "opencode2_label": "OpenCode 2",
           "codebuddy_label": "CodeBuddy",
           "qoder_cn_label": "Qoder CLI China",
           "jcode_label": "Jcode"
@@ -2347,8 +2374,6 @@
         "6a50cdcd7c": "Voice",
         "0059bd17f3": "Enable agents to control any app on your computer.",
         "b35e92364b": "Computer Use",
-        "cd50cec5d7": "Coordinate multiple coding agents through Orca.",
-        "58a868e8e4": "Orchestration",
         "7c79d3b7bf": "Optional",
         "b1c2f8b0ac": "Optional account switching and usage setup for Claude, Codex, Gemini, OpenCode Go, MiniMax, and Grok.",
         "f70ac54d38": "AI Provider Accounts",
@@ -2376,7 +2401,9 @@
         "automationsDescription": "Schedule agent work and choose whether Automations appears in the sidebar.",
         "shareSkillsTitle": "Share Skills",
         "shareSkillsDescription": "Share your skills with an unlisted link. Anyone who has it can install them.",
-        "floatingWorkspaceWebDescription": "Global terminal and markdown tabs."
+        "floatingWorkspaceWebDescription": "Global terminal and markdown tabs.",
+        "mteFlowTitle": "MTE flow",
+        "mteFlowDescription": "Settings for MTE orchestration runs: planner, workers and validation."
       },
       "useAppMenuPaste": {
         "pasteTooLarge": "Paste is too large."
@@ -4366,6 +4393,9 @@
             "cc5a2dc706": "Edit pane title: {{value0}}",
             "7dbbfcbecc": "Pane title"
           },
+          "TerminalSymbolLinks": {
+            "noDefinition": "No definition found for {{token}}"
+          },
           "TerminalLinkActionPopover": {
             "openLink": "Open link",
             "openFile": "Open file",
@@ -4684,17 +4714,11 @@
           },
           "TabBar": {
             "b1a132357f": "New tab",
-            "4f327c8b3d": "Open Markdown...",
             "3d5d6c960d": "New Markdown",
             "fd2b42aaa3": "New Mobile Emulator",
             "b426bb2615": "Go to Mobile Emulator",
             "4833fb2cbe": "New Browser Tab",
             "d364f3c8d4": "New Terminal",
-            "7c1313d237": "New Terminal:",
-            "d1afac112b": "WSL",
-            "efb33546ff": "Git Bash",
-            "1a8af49530": "CMD Prompt",
-            "2148f65e04": "PowerShell",
             "7a9b4af2af": "Scroll tabs left",
             "232e075b07": "Scroll tabs right"
           },
@@ -4702,7 +4726,6 @@
             "d62d63b807": "Create file",
             "25dc1cd653": "Open file",
             "7cdf8ee0c8": "Open URL",
-            "b27864279e": "Launch agent",
             "8f0a1c4d92": "Switch to tab",
             "2c38630a01": "Workspace no longer exists",
             "4f0d9a71c2": "Tab no longer exists",
@@ -4711,7 +4734,7 @@
             "chooseAction": "Choose an action.",
             "searchProvider": "Search {{value0}}",
             "openPage": "Open page",
-            "omniboxPlaceholderWithHistory": "Search open tabs, history, files, URLs, agents…"
+            "omniboxPlaceholderNoAgents": "Search open tabs, history, files, URLs…"
           },
           "TabBarQuickCommandsButton": {
             "a2c7a33831": "Command",
@@ -4767,8 +4790,6 @@
                   "fb50e3d874": "new markdown",
                   "6d8b6b4117": "new file",
                   "b330f72434": "mark",
-                  "37ff3ddca1": "open markdown",
-                  "164c394bab": "open file",
                   "bbaf4f85a4": "mobile emulator",
                   "3784b83bd4": "emulator",
                   "a63847a742": "simulator",
@@ -8637,7 +8658,10 @@
           "3ba07f933b": "Connect issue trackers Orca can use to browse tasks and start workspaces with linked context.",
           "70e885705b": "Task providers",
           "1683acbac4": "Connect the source hosts Orca can use for pull requests, merge requests, checks, and review status.",
-          "298c65ecac": "Review providers"
+          "298c65ecac": "Review providers",
+          "mcpIntegrationsTitle": "MCP integrations",
+          "mcpIntegrationsDescription": "Connect services Orca exposes to every agent as MCP tools (orca-tools server).",
+          "knowledgeGraphTitle": "Knowledge graph"
         },
         "KagiSessionLinkForm": {
           "92f0b4e472": "Clear",
@@ -9060,6 +9084,36 @@
           "cc76342291": "Use GitHub avatar",
           "43bf3709dd": "Repo icon"
         },
+        "RepositoryLanguageServersSection": {
+          "search": {
+            "languageServer": "language server",
+            "goToDefinition": "go to definition",
+            "findReferences": "find references",
+            "hover": "hover",
+            "lsp": "lsp",
+            "ruby": "ruby",
+            "rubyLsp": "ruby-lsp",
+            "solargraph": "solargraph",
+            "typescript": "typescript",
+            "gemInstall": "gem install"
+          },
+          "title": "Language Servers",
+          "description": "Go to definition, find references and hover for this project. Enabling a server runs code from this repository.",
+          "localOnly": "Language servers are available for local projects only.",
+          "typescript": "TypeScript / JavaScript",
+          "ruby": "Ruby",
+          "off": "Off",
+          "bundled": "Bundled",
+          "notInstalled": "Not installed",
+          "manage": "Install or update",
+          "install": "Install",
+          "update": "Update",
+          "customCommand": "Custom command",
+          "installTitle": "Install {{server}}",
+          "installAria": "Language server install terminal",
+          "installFailed": "Install failed. Check the output above.",
+          "dismiss": "Dismiss"
+        },
         "RepositoryPane": {
           "15a99d9b9f": "Relative paths resolve from this project root.",
           "e63bb96a9b": "Project-specific directory for new worktrees.",
@@ -9326,6 +9380,7 @@
           "6d119427ef": "Onboarding checklist",
           "5063bb47a5": "Voice",
           "7118953f14": "Enable agents to control any app on your computer.",
+          "c9841721cb": "Computer Use",
           "475980f53d": "Coordinate multiple coding agents through Orca.",
           "00c3a7950d": "Orchestration",
           "21f09426ea": "Optional. Orca works with your existing provider logins; add accounts only if you want Orca to help switch between them.",
@@ -9348,6 +9403,8 @@
           "tasksDescription": "Connect providers, install the Linear skill, and choose what appears in Tasks.",
           "remoteServersDescription": "Run Orca on another machine and work on it from here.",
           "noSettingsFoundForQuery": "No settings found for \"{{value0}}\"",
+          "mteFlowTitle": "MTE flow",
+          "mteFlowDescription": "Settings for MTE orchestration runs: planner, workers and validation.",
           "045db77e21": "SSH hosts",
           "c0900fa64a": "Task sources",
           "129ae9859c": "Mobile emulator",
@@ -10883,6 +10940,20 @@
             "7166b9090c": "GitHub authentication via the gh CLI.",
             "760e2446e0": "Bitbucket Cloud authentication with a saved API token or environment variables.",
             "af5ae87847": "access token",
+            "mcpTitle": "MCP integrations",
+            "mcpDescription": "Connect services Orca exposes to every agent as MCP tools (orca-tools server).",
+            "mcpKeyword": "mcp",
+            "mcpTools": "tools",
+            "mcpPosthog": "posthog",
+            "mcpBetterstack": "better stack",
+            "mcpContext7": "context7",
+            "mcpPixellab": "pixellab",
+            "graphKeyTitle": "Google AI (Gemini) API key",
+            "graphKeyDescription": "Enables semantic extraction of docs when building knowledge graphs.",
+            "graphKw": "graph",
+            "graphKwGemini": "gemini",
+            "graphKwKg": "knowledge graph",
+            "graphKwGoogle": "google ai",
             "d8906d60a9": "Jira integration",
             "9e238582e8": "Bitbucket integration",
             "a17a94d0b0": "GitHub integration",
@@ -11295,7 +11366,14 @@
             "bbbe994528": "Remove project",
             "cedbe6c02c": "When to run setup",
             "eefc3e51ef": "GitHub account",
-            "f94afd4078": "Keep fork up to date"
+            "f94afd4078": "Keep fork up to date",
+            "7e1e456a95": "Display Name",
+            "b24f00294a": "Project Icon",
+            "githubAccount": "GitHub Account",
+            "094adbe930": "Default Worktree Base",
+            "443d127b5a": "Worktree Location",
+            "projectRuntime": "Project Runtime",
+            "c5266c2c9d": "Remove Project"
           }
         },
         "runtime": {
@@ -12852,6 +12930,26 @@
           "57e360b791": "Manage in skills",
           "c07ba8ab0b": "Open skills"
         },
+        "skillsImport": {
+          "title": "Import skills from other harnesses",
+          "description": "Link skills from Claude, Codex, OpenCode, Cursor, Antigravity, and plugins into ~/.agents/skills so every chat sees them. Turning this off keeps existing links. Not available for WSL.",
+          "searchDescription": "Link skills from Claude, Codex, OpenCode, Cursor, and Antigravity into ~/.agents/skills.",
+          "sync": "Sync",
+          "empty": "No skills found in other harnesses.",
+          "conflict": "A different skill with this name already exists in ~/.agents/skills.",
+          "broken": "The source skill is missing. Uncheck to clean up the link.",
+          "originClaude": "Claude home",
+          "originCodex": "Codex",
+          "originOpenCode": "OpenCode",
+          "originCursor": "Cursor",
+          "originAntigravity": "Antigravity",
+          "originPlugins": "Plugins",
+          "originOther": "Other",
+          "keywordImport": "import",
+          "keywordSkills": "skills",
+          "keywordSymlink": "symlink",
+          "keywordHarness": "harness"
+        },
         "bitbucket": {
           "credentials": {
             "dialog": {
@@ -13932,6 +14030,61 @@
           "kitty_description": "Review the settings that will be imported from your kitty.conf and the files it includes.",
           "kitty_not_found": "No kitty.conf found on this computer. Choose a config file to import one from another location."
         },
+        "McpIntegrationCard": {
+          "statusNotConnected": "Not connected",
+          "statusApiKey": "Connected via API key",
+          "statusOAuth": "Connected via OAuth",
+          "failed": "Request failed",
+          "connected": "{{label}} connected",
+          "keySaved": "{{label}} API key saved",
+          "disconnected": "{{label}} disconnected",
+          "description": "Exposed to agents as MCP tools.",
+          "graphifyHint": "Build graphs from the Graph panel or `orca graph build`.",
+          "docs": "Docs",
+          "connect": "Connect",
+          "disconnect": "Disconnect",
+          "completeSignIn": "Complete the sign-in in your browser",
+          "keyPlaceholder": "API key",
+          "keyLabel": "{{label}} API key",
+          "saveKey": "Save key",
+          "statusLocal": "Configured (local server)",
+          "configSaved": "{{label}} settings saved",
+          "saveConfig": "Save",
+          "graphsAvailable": "Graphs available",
+          "noGraphs": "No graphs built yet"
+        },
+        "MteFlowPane": {
+          "title": "MTE flow",
+          "description": "Settings for MTE orchestration runs: planner, workers and validation.",
+          "skillTitle": "MTE skill",
+          "skillDescription": "Enables agents to start and drive MTE runs through Orca.",
+          "7bc082f4de": "Copy install command",
+          "ae79504732": "How to use it",
+          "examplesDescription": "Ask an agent to use the MTE skill to plan, dispatch workers and validate a goal.",
+          "nestedWorkerDepthTitle": "Nested worker depth",
+          "nestedWorkerDepthDescription": "How many generations of dispatched workers may spawn their own workers. 1 keeps the agent tree flat: a coordinator dispatches workers, and those workers do not dispatch.",
+          "workerAutoReleaseTitle": "Auto-close finished workers",
+          "workerAutoReleaseDescription": "Closes a worker's terminal or chat 2 minutes after it finishes, unless you choose Keep open. If it starts working again, the 2 minutes start over when it finishes."
+        },
+        "mteFlow": {
+          "search": {
+            "title": "MTE flow",
+            "description": "Settings for MTE orchestration runs: planner, workers and validation.",
+            "mte": "MTE",
+            "planner": "planner",
+            "validation": "validation"
+          }
+        },
+        "GoogleAiKeyCard": {
+          "saved": "API key saved",
+          "name": "Google AI (Gemini) API key",
+          "description": "Enables semantic extraction of docs when building knowledge graphs. Without it, graphs cover code only.",
+          "stored": "Key stored",
+          "notSet": "Not set",
+          "clear": "Clear",
+          "placeholder": "Paste Gemini API key",
+          "save": "Save"
+        },
         "SettingsSearchableSelect": {
           "noMatches": "No matches.",
           "searchHosts": "Search hosts…",
@@ -14350,6 +14503,8 @@
             "2c417432b7": "Resolved locally",
             "f3a8b2c1d0e5": "Enter a {{value0}} title.",
             "e2b7a1c0d9f4": "Failed to create {{value0}}",
+            "filesChanged_one": "{{count}} file changed",
+            "filesChanged_other": "{{count}} files changed",
             "hugeRepoIgnorePrompt": "This repository has too many active changes. Add \"{{value0}}\" to .gitignore?",
             "hugeRepoIgnoreAction": "Add to .gitignore",
             "tooManyChanges": "Too many changes detected. Only the first {{value0}} changes are shown.",
@@ -14510,6 +14665,15 @@
             }
           },
           "checks": {
+            "conductor": {
+              "comments": "Comments",
+              "createPr": "Create PR",
+              "gitStatus": "Git status",
+              "noPrOpen": "No PR open",
+              "prDescription": "PR description",
+              "prTitle": "PR title",
+              "pull": "Pull"
+            },
             "panel": {
               "loadFailedOnMachine": "Could not load from {{machine}}: {{detail}}",
               "content": {
@@ -15512,6 +15676,21 @@
             "createInProgress": "Create PR in progress...",
             "workspaceHostUnresolved": "The workspace host is unresolved. Refresh the workspace and retry.",
             "branchDiscoveryFailed": "Branch discovery failed."
+          },
+          "GraphPanel": {
+            "none": "No graph yet",
+            "building": "Building…",
+            "updating": "Updating…",
+            "built": "Built {{when}} · {{nodes}} nodes · {{edges}} edges · semantic {{semantic}}",
+            "yes": "yes",
+            "no": "no",
+            "build": "Build",
+            "deep": "Deep",
+            "update": "Update",
+            "cancel": "Cancel",
+            "openViewer": "Open viewer",
+            "installHint": "Graph builds need graphify, installed through uv (https://docs.astral.sh/uv/).",
+            "tabTitle": "Graph"
           }
         }
       },
@@ -16097,7 +16276,7 @@
             "5e8fe5a72d": "Give agents direct access to Orca's browser so they can test pages, capture screenshots, and act on what they see.",
             "e638da007a": "Agent Browser Use",
             "c61c91e642": "Let agents coordinate through Orca to keep large, multi-step tasks moving to completion.",
-            "ac07f8887f": "Agent Orchestration",
+            "ac07f8887f": "MTE flow",
             "e9eb197e12": "Opened Computer Use permissions",
             "c605f51f2b": "Capability setup ready",
             "1aa657d8f4": "Some capability setup needs attention",
@@ -17485,21 +17664,23 @@
             "109a791e7b": "Save",
             "bb0a55f856": "Saving…",
             "0203bed775": "Cancel",
-            "6978871a3d": "Open",
-            "cce596969e": "Delete note",
             "cad3384faa": "Edit note",
             "508ee678a5": "Open in browser",
             "noteAuthorFallback": "Note",
-            "sentMeta": "sent"
+            "sentMeta": "sent",
+            "editAction": "Edit",
+            "removeFromChat": "Remove from chat"
           },
           "DiffCommentPopover": {
             "2b3ce6d394": "Cancel",
             "e05063cfc1": "Line {{value0}}",
             "c845170b3b": "Lines {{value0}}-{{value1}}",
             "commentTooLarge": "Comment is too large to submit safely.",
-            "f6c449191e": "Add note for the AI",
             "5fa4bfebaa": "Add note",
-            "5e9b3d0c2e": "Adding..."
+            "5e9b3d0c2e": "Adding...",
+            "fileScope": "File",
+            "commentPlaceholder": "Add a comment for the AI",
+            "commentSubmit": "Comment"
           },
           "useDiffCommentDecorator": {
             "995fa28b50": "This note"
@@ -20287,7 +20468,15 @@
           "medium": "Med",
           "xhigh": "XHigh"
         },
-        "imageUnavailable": "Preview unavailable"
+        "imageUnavailable": "Preview unavailable",
+        "removeDiffComment": "Remove comment on {{path}} lines {{lines}}",
+        "agentLabel": {
+          "orchestrator": "Orchestrator",
+          "worker": "Worker",
+          "agent": "Agent"
+        },
+        "switchHarness": "Switch harness…",
+        "loadingModels": "Loading models…"
       },
       "tool": {
         "exitCode": "exit {{value0}}",
@@ -20902,6 +21091,19 @@
       "webPeek": {
         "unavailable": "No preview for this page."
       },
+      "turnRevert": {
+        "success": "Reverted to before this turn",
+        "action": "Revert to before this turn",
+        "dialogTitle": "Revert to before this turn?",
+        "dialogDescription": "HEAD, staged changes and untracked files return to their state when this turn started. Ignored files are kept. This cannot be undone.",
+        "loading": "Loading changes…",
+        "loadFailed": "Could not load the changes for this turn.",
+        "noChanges": "No files will change.",
+        "filesChanged_one": "{{count}} file will change",
+        "filesChanged_other": "{{count}} files will change",
+        "cancel": "Cancel",
+        "confirm": "Revert"
+      },
       "usageLimitActions": {
         "continueNow": "Continue Now",
         "leadIn": "Continue this chat without waiting:",
@@ -21431,6 +21633,16 @@
         "linkPreviewsCopy": "Hovering a web link shows a preview card. Orca fetches the page to build it, so the site can see the request.",
         "linkPreviewsSearchUnfurl": "unfurl",
         "linkPreviewsSearchHover": "hover card",
+        "turnCheckpointsToggleLabel": "Toggle snapshot turns for revert",
+        "turnCheckpointsTitle": "Snapshot turns for revert",
+        "turnCheckpointsCopy": "Orca snapshots the worktree at each chat turn so you can revert files to before a turn. Snapshots live in private git refs and never move your branch.",
+        "turnCheckpointsSearchRevert": "revert",
+        "turnCheckpointsSearchCheckpoint": "checkpoint",
+        "reviewToolsToggleLabel": "Toggle agent review tools",
+        "reviewToolsTitle": "Agent review tools",
+        "reviewToolsCopy": "Claude chats can read your queued review notes and the workspace diff, and post their own review comments into the notes list.",
+        "reviewToolsSearchReview": "review",
+        "reviewToolsSearchComments": "comments",
         "usageLimitContinueTitle": "Continue chats automatically when a usage limit resets",
         "usageLimitContinueCopy": "Orca sends \"Continue where you left off.\" when the limit resets. Applies to all chats with a known reset time.",
         "usageLimitContinueSearchLimit": "usage limit",
@@ -21743,41 +21955,8 @@
       "stepUnpack": "Unpack",
       "stepCheck": "Check"
     },
-    "orchestrationCrew": {
-      "mentionAll": "Mention all",
-      "mentionAgent": "Mention {{name}}:",
-      "mentionInMessage": "Mention in message",
-      "mentionRejected": "The terminal did not accept the agent reference. Try again.",
-      "title": "Orchestration",
-      "sendingUnavailable": "Sending unavailable",
-      "workers_one": "{{count}} worker",
-      "workers_other": "{{count}} workers",
-      "managedBy": "Managed by",
-      "managing": "Managing",
-      "talkingWith": "Talking with",
-      "collapse": "Collapse orchestration panel",
-      "show": "Show orchestration: {{counts}}",
-      "summary": "Orchestration: {{counts}}",
-      "needsYou_one": "{{count}} needs you",
-      "needsYou_other": "{{count}} need you",
-      "waitingPrefix": "Waiting for you · ",
-      "noTask": "No shared task",
-      "open": "Open {{name}}",
-      "more": "More for {{name}}",
-      "openChat": "Open its chat",
-      "copiedAddress": "Copied {{name}}'s address",
-      "copyAddress": "Copy address",
-      "showDetails": "Show {{name}}'s task and latest message",
-      "task": "Task",
-      "asksYou": "Asks you",
-      "openFailed": "{{name}}: {{detail}}",
-      "chatUnavailable": "This host cannot open the chat. Try again.",
-      "terminalExited": "This terminal has exited.",
-      "openOnHost": "Open this agent on {{host}}.",
-      "cannotLocate": "This host cannot locate this agent. Try again.",
-      "latest": "Latest",
-      "to": "To",
-      "from": "From"
+    "diffComments": {
+      "agentBadge": "AI"
     },
     "orchestration": {
       "workerAutoClose": {
@@ -21845,6 +22024,42 @@
     },
     "dictation": {
       "stoppedAfterSilenceSeconds": "Stopped after {{seconds}} seconds of silence"
+    },
+    "orchestrationCrew": {
+      "task": "Task",
+      "noTask": "No shared task",
+      "asksYou": "Asks you",
+      "latest": "Latest",
+      "to": "To",
+      "from": "From",
+      "more": "More for {{name}}",
+      "mentionInMessage": "Mention in message",
+      "openChat": "Open its chat",
+      "copiedAddress": "Copied {{name}}'s address",
+      "copyAddress": "Copy address",
+      "mentionAgent": "Mention {{name}}:",
+      "waitingPrefix": "Waiting for you · ",
+      "showDetails": "Show {{name}}'s task and latest message",
+      "open": "Open {{name}}",
+      "sendingUnavailable": "Sending unavailable",
+      "needsYou_one": "{{count}} needs you",
+      "needsYou_other": "{{count}} need you",
+      "workers_one": "{{count}} worker",
+      "workers_other": "{{count}} workers",
+      "managedBy": "Managed by",
+      "managing": "Managing",
+      "talkingWith": "Talking with",
+      "title": "Orchestration",
+      "collapse": "Collapse orchestration panel",
+      "mentionAll": "Mention all",
+      "show": "Show orchestration: {{counts}}",
+      "summary": "Orchestration: {{counts}}",
+      "mentionRejected": "The terminal did not accept the agent reference. Try again.",
+      "openFailed": "{{name}}: {{detail}}",
+      "terminalExited": "This terminal has exited.",
+      "chatUnavailable": "This host cannot open the chat. Try again.",
+      "openOnHost": "Open this agent on {{host}}.",
+      "cannotLocate": "This host cannot locate this agent. Try again."
     }
   },
   "dashboardPopout": {
@@ -22054,6 +22269,9 @@
     "scanTooLarge": "Quick Open scan too large ({{reason}})."
   },
   "checksPanel": {
+    "comments": {
+      "addedToChat": "Added {{count}} comment groups to the chat input"
+    },
     "unlinked": {
       "title": "Pull request unlinked",
       "description": "PR #{{number}} is hidden for this workspace. Link it again to restore checks and review details.",
@@ -24663,6 +24881,38 @@
       "message": "{{plugin}} wants to open {{host}}",
       "alwaysAllow": "Always allow {{host}} for this plugin"
     }
+  },
+  "mte": {
+    "start": {
+      "goalLabel": "Goal",
+      "goalPlaceholder": "What should this run deliver? Leave empty and the planner will ask.",
+      "linksLabel": "Linked Linear issues and pull requests",
+      "noLinks": "Nothing linked to this workspace yet.",
+      "linkPlaceholder": "Add by identifier or URL: ENG-123, #45, https://…"
+    },
+    "prepare": {
+      "failed": "Could not prepare MTE: {{message}}"
+    },
+    "planner": {
+      "started": "MTE planner started in {{agent}}"
+    }
+  },
+  "newChat": {
+    "title": "New chat",
+    "description": "Pick the harness, model and effort. Orchestration mode runs a planner that dispatches workers on the model you pin.",
+    "orchestration": "Orchestration mode",
+    "orchestrator": "Orchestrator",
+    "worker": "Worker",
+    "model": "Model",
+    "effort": "Effort",
+    "loadingModels": "Loading models…",
+    "catalogFallback": "Model list may be incomplete",
+    "cancel": "Cancel",
+    "start": "Start",
+    "menuItem": "New Chat",
+    "menuKeywordChat": "chat",
+    "menuKeywordAgent": "agent",
+    "menuKeywordNewChat": "new chat"
   },
   "checks": {
     "gitlabAllowedFailure": "Allowed to fail",

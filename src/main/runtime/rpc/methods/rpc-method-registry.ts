@@ -38,6 +38,10 @@ import { GITLAB_METHODS } from './source-control/gitlab/gitlab'
 import { HOSTED_REVIEW_METHODS } from './source-control/reviews/hosted-review'
 import { LINEAR_METHODS } from './integrations/linear/linear'
 import { LINEAR_AGENT_ACCESS_METHODS } from './integrations/linear/linear-agent-access'
+import { MCP_INTEGRATION_METHODS } from './mcp-integrations'
+import { GRAPHIFY_METHODS } from './graphify'
+import { TURN_CHECKPOINT_METHODS } from './turn-checkpoint-methods'
+import { MTE_METHODS } from './mte'
 import { JIRA_METHODS } from './integrations/jira/jira'
 import { SSH_METHODS } from './ssh/ssh'
 import { MANAGED_SERVER_METHODS } from './host-management/managed-server'
@@ -89,6 +93,7 @@ export const ALL_RPC_METHODS = [
   ...ORCAD_MIGRATION_METHODS,
   ...SESSION_TERMINAL_SCROLLBACK_METHODS,
   ...AGENT_HOOK_METHODS,
+  ...MTE_METHODS,
   ...AI_VAULT_METHODS,
   ...ARTIFACT_METHODS,
   ...AUTOMATION_METHODS,
@@ -99,6 +104,7 @@ export const ALL_RPC_METHODS = [
   ...AGENT_SESSION_METHODS,
   ...STRUCTURED_AGENT_SESSION_METHODS,
   ...STRUCTURED_AGENT_SESSION_ATTACHMENT_METHODS,
+  ...TURN_CHECKPOINT_METHODS,
   ...STRUCTURED_AGENT_SESSION_VISUAL_METHODS,
   ...STRUCTURED_AGENT_SESSION_AGENTS_METHODS,
   ...MANAGED_RUNTIME_INSTALL_METHODS,
@@ -136,6 +142,8 @@ export const ALL_RPC_METHODS = [
   ...HOSTED_REVIEW_METHODS,
   ...LINEAR_METHODS,
   ...LINEAR_AGENT_ACCESS_METHODS,
+  ...MCP_INTEGRATION_METHODS,
+  ...GRAPHIFY_METHODS,
   ...JIRA_METHODS,
   ...SSH_METHODS,
   ...MANAGED_SERVER_METHODS,

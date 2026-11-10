@@ -115,7 +115,7 @@ export async function copyAcpConversation(
         { cause: error }
       )
     }
-    if (input.checkpoint && (deps.spec.agent === 'opencode' || deps.spec.agent === 'opencode2')) {
+    if (input.checkpoint && deps.spec.agent === 'opencode') {
       try {
         const dbPath = deps.spec.transcriptImport?.conversationStore({
           accountHome: input.accountHome,

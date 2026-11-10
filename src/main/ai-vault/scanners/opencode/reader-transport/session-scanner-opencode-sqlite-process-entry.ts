@@ -17,7 +17,7 @@ function validRequest(value: unknown): value is OpenCodeSqliteWorkerRequest {
     !('id' in value) ||
     !Number.isSafeInteger(value.id) ||
     !('kind' in value) ||
-    ('agent' in value && value.agent !== 'opencode2' && value.agent !== 'zcode') ||
+    ('agent' in value && value.agent !== 'opencode-next' && value.agent !== 'zcode') ||
     ('timeoutMs' in value &&
       (typeof value.timeoutMs !== 'number' ||
         !Number.isFinite(value.timeoutMs) ||

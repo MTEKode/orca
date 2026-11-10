@@ -22,6 +22,10 @@ import { ANTIGRAVITY_CHAT_HOME_FOLDER } from './antigravity-chat-home'
 import { assertAntigravityChatAuthPublished } from './antigravity-chat-auth-publication'
 import { readAntigravitySignInLine } from './antigravity-sign-in-url'
 import {
+  antigravityFallbackModelOptions,
+  parseAntigravityModelOptions
+} from '../../shared/antigravity/antigravity-model-listing'
+import {
   AGY_SKIP_PERMISSIONS_FLAG,
   ANTIGRAVITY_HOST_ACP_MINIMUM_VERSION,
   antigravityHostAccountHome,
@@ -65,9 +69,16 @@ const ANTIGRAVITY_MANAGED_LAUNCH_SPEC = {
   permissionModeConfig: {
     values: { ask: 'default', 'accept-edits': 'auto_edit', 'full-access': 'yolo' }
   },
+  // `agy models` lists the catalog without a signed-in session; the live session list stays
+  // authoritative once a chat starts.
   modelDiscovery: {
-    kind: 'unavailable',
-    reason: 'the Antigravity server lists its models only in a signed-in session'
+    kind: 'command',
+    binary: 'agy',
+    args: ['models'],
+    parse: parseAntigravityModelOptions,
+    fallback: antigravityFallbackModelOptions,
+    timeoutMs: 10_000,
+    listingNamesConfiguredModel: false
   },
   transcriptImport: null,
   sessionHistory: ANTIGRAVITY_SESSION_HISTORY,

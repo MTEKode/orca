@@ -1,6 +1,4 @@
 import { useNativeChatDeliveryProjection } from './session/terminal/delivery/use-native-chat-delivery-projection'
-import { NativeChatCrewFrame } from '../orchestration-crew/NativeChatCrewPanel'
-import { TerminalChatCrewPanel } from '../orchestration-crew/TerminalChatCrewPanel'
 import { cn } from '@/lib/utils'
 import { NATIVE_CHAT_APPEARANCE_ROOT_CLASS } from './appearance/native-chat-appearance-style'
 import { useNativeChatStoreAppearanceStyle } from './appearance/use-native-chat-store-appearance-style'
@@ -332,14 +330,7 @@ export function NativeChatResolvedView({
       style={appearanceStyle}
       data-native-chat-scheme={appearanceStyle.colorScheme}
     >
-      <NativeChatCrewFrame
-        panel={
-          <TerminalChatCrewPanel
-            {...{ terminalTabId, paneKey, targetPtyId, isVisible, composerRef }}
-            canMention={composerReady}
-          />
-        }
-      >
+      <div className="relative flex min-h-0 flex-1 flex-col">
         {find.isOpen ? <NativeChatFindBar find={find} isVisible={isVisible} /> : null}
         {viewState.kind === 'loading' ? (
           <NativeChatEmptyState kind="loading" />
@@ -360,7 +351,7 @@ export function NativeChatResolvedView({
             runtimeContext={imageRuntimeContext}
           />
         )}
-      </NativeChatCrewFrame>
+      </div>
       {/* A collapsed card stays mounted but hidden, so a partly answered question survives. */}
       {mountedPromptCard ? (
         <div hidden={collapsedCard !== null} inert={collapsedCard !== null} className="contents">

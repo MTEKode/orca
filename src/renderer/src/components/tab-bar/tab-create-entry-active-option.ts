@@ -1,7 +1,6 @@
 import type { BrowserHistoryEntry } from '../../../../shared/browser-workspace-types'
 import type { TabEntryActionClassification, TabEntryOption } from './tab-create-entry-action'
 import type { OpenTabSearchResult } from './open-tab-search'
-import type { TabAgentLaunchOption } from './tab-agent-launch-options'
 import type { TabCreateMenuOption } from './tab-create-menu-options'
 
 export type ActiveEntryOption = TabEntryOption & {
@@ -14,12 +13,8 @@ export type BrowserHistoryOmniboxRow = {
   id: string
 }
 
-// Unify actionable switch, create, agent, history and file/URL rows for selection.
+// Unify actionable switch, create, history and file/URL rows for selection.
 export type ActiveOption =
-  | {
-      kind: 'agent'
-      option: TabAgentLaunchOption
-    }
   | {
       kind: 'tab'
       option: OpenTabSearchResult
@@ -42,9 +37,6 @@ export function isActiveEntryOption(option: TabEntryOption): option is ActiveEnt
 }
 
 export function getActiveOptionId(option: ActiveOption): string {
-  if (option.kind === 'agent') {
-    return option.option.id ?? `agent:${option.option.agent}`
-  }
   if (option.kind === 'menu') {
     return `menu:${option.option.id}`
   }

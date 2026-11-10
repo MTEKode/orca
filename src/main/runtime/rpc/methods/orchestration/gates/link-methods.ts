@@ -1,8 +1,11 @@
-import { defineMethod } from '../../../core'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
-import { resolveRunScope } from '../runs/run-scope'
+import {
+  defineOrchestrationMethod,
+  type OrchestrationAccessRuleInput
+} from '../access/orchestration-method-access'
+import { coordinatedRunAccess, type RunAccess } from '../access/run-access-rules'
 import { DispatchLinkParams } from '../../../../../../shared/rpc-contract/orchestration-link-params'
-import type { OrchestrationDb } from '../../../../orchestration/db'
+import type { OrchestrationDb } from '../../../../orchestration/db/orchestration-db'
 
 const DISPATCH_PREFIX = 'dispatch:'
 const bareId = (address: string): string =>
@@ -27,40 +30,40 @@ function requireRunDispatch(db: OrchestrationDb, runId: string, id: string, must
   return dispatch
 }
 
+/** Only the run coordinator may authorize pairs; a missing Run stays a lookup error. */
+function linkAccess(
+  input: OrchestrationAccessRuleInput<{ run?: string; from?: string }>
+): RunAccess {
+  try {
+    return coordinatedRunAccess(input)
+  } catch (error) {
+    if (error instanceof OrchestrationError && error.code !== 'run_not_found') {
+      throw new OrchestrationError(
+        'not_allowed',
+        'Only the run coordinator can link or unlink dispatches.',
+        { effectsApplied: false }
+      )
+    }
+    throw error
+  }
+}
+
 function defineLinkMethod<TName extends 'orchestration.link' | 'orchestration.unlink'>(
   name: TName,
   link: boolean
 ) {
-  return defineMethod({
+  return defineOrchestrationMethod({
     name,
     permission: 'workspace',
     params: DispatchLinkParams,
-    handler: (
-      params,
-      { orchestrationCompatibilityEvidence, orchestrationCaller, runtime, legacyCoordinatorRunId }
-    ) => {
+    access: {
+      kind: 'writes',
+      caller: 'from',
+      targets: { run: 'run', a: 'dispatch', b: 'dispatch' },
+      rule: linkAccess
+    },
+    handler: (params, { runtime }, { run }) => {
       const db = runtime.getOrchestrationDb()
-      let run
-      try {
-        run = resolveRunScope(runtime, {
-          runId: params.run,
-          callerTerminalHandle: params.from,
-          requireCurrentConsumer: true,
-          legacyCoordinatorRunId,
-          callerEvidence: orchestrationCompatibilityEvidence,
-          callerSession: orchestrationCaller
-        })
-      } catch (error) {
-        // Only the run coordinator may authorize pairs; a missing Run stays a lookup error.
-        if (error instanceof OrchestrationError && error.code !== 'run_not_found') {
-          throw new OrchestrationError(
-            'not_allowed',
-            'Only the run coordinator can link or unlink dispatches.',
-            { effectsApplied: false }
-          )
-        }
-        throw error
-      }
       const a = bareId(params.a)
       const b = bareId(params.b)
       if (a === b) {

@@ -41,6 +41,8 @@ export function nativeChatComposerSendState(
     editSession: { canSave: boolean } | undefined
     isWorking: boolean
     canStop: boolean
+    /** Queued diff comments count as a sendable draft even with an empty text field. */
+    hasQueuedComments?: boolean
     /** The draft is an Orca command such as /resume, which runs without the agent. */
     orcaCommand?: boolean
     /** Goal mode submits the draft as an objective, which starts work. */
@@ -69,7 +71,10 @@ export function nativeChatComposerSendState(
       ) &&
       !structuredAgentSessionCommandChangesConversation(input.draft))
   const draftHeld = localHold || (hostHold && !runsWhileHostHolds)
-  const hasDraft = input.draft.trim() !== '' || input.imageAttachments.length > 0
+  const hasDraft =
+    input.draft.trim() !== '' ||
+    input.imageAttachments.length > 0 ||
+    (input.hasQueuedComments ?? false)
   // Like Enter, a typed draft sends while the agent works; only an empty one offers Stop.
   const sendButtonDisabled = input.editSession
     ? sendHeld || !input.editSession.canSave

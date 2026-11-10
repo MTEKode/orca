@@ -68,6 +68,8 @@ export type Tab = {
   isPinned?: boolean // pinned tabs survive "close others"
   /** Provider backing a structured agent-session tab. */
   agentSessionAgent?: AgentType
+  /** Structured MTE worker chat: hidden from the tab bar until the user reveals it. */
+  agentSessionRole?: 'worker'
   /** Chat overlays retain the mounted terminal; missing/legacy mode uses raw xterm. */
   viewMode?: 'terminal' | 'chat'
   /** Timestamp when the tab was last focused / activated by the user. */

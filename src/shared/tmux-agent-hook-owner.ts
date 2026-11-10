@@ -39,7 +39,7 @@ export class TmuxAgentHookOwner {
   }
 
   async ingest(source: AgentHookSource, body: unknown, env: string): Promise<boolean> {
-    if (source !== 'opencode' && source !== 'opencode2') {
+    if (source !== 'opencode') {
       return false
     }
     if (typeof body !== 'object' || body === null || !('tmux' in body)) {

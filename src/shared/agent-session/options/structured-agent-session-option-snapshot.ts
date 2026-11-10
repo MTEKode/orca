@@ -26,6 +26,10 @@ import {
 import { withUnlistedEffort } from './structured-agent-session-unlisted-effort'
 import { listedModelDescribing } from './structured-agent-session-listed-model'
 import { structuredAgentSessionPermissionDescriptor } from './structured-agent-session-permission-option'
+import {
+  STRUCTURED_AGENT_OPTION_ID,
+  structuredAgentSessionAgentDescriptor
+} from './structured-agent-session-agent-option'
 import { structuredAgentSessionInteractionDescriptor } from './agent-session-interaction-mode'
 import type { StructuredAgentSessionOptionState } from './structured-agent-session-options'
 
@@ -249,7 +253,13 @@ export function structuredAgentSessionOptionSnapshot(
         : option
   )
   const interaction = structuredAgentSessionInteractionDescriptor(state)
-  return [...options, ...(permission ? [permission] : []), ...(interaction ? [interaction] : [])]
+  const agent = structuredAgentSessionAgentDescriptor(state)
+  return [
+    ...options,
+    ...(permission ? [permission] : []),
+    ...(interaction ? [interaction] : []),
+    ...(agent ? [agent] : [])
+  ]
 }
 
 /** Presentation only until a launch or fence can carry picks. */
@@ -283,6 +293,14 @@ export function canSetStructuredAgentSessionOption(
       (value === 'own'
         ? state.permissionOwnSupported === true
         : descriptor.kind.choices.some((choice) => choice.value === value))
+    )
+  }
+  if (id === STRUCTURED_AGENT_OPTION_ID) {
+    const descriptor = snapshot.find((entry) => entry.id === id)
+    return (
+      descriptor?.settable === true &&
+      descriptor.kind.type === 'select' &&
+      descriptor.kind.choices.some((choice) => choice.value === value)
     )
   }
   return (

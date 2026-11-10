@@ -7,7 +7,7 @@ import {
 } from './pty-ipc-daemon-provider-fixtures'
 import { delimiter, join } from 'node:path'
 import { LEGACY_TERMINAL_SHIM_REMOTE_ENV_KEYS } from '../../pty/shell-startup/legacy-terminal-shim-dir'
-import { wslHookRelayManager } from '../../agent-hooks/wsl-hook-relay-manager'
+import { wslHookRelayManager } from '../../agent-hooks/wsl-relay/wsl-hook-relay-manager'
 import { registerPtyHandlers } from './register-handlers'
 
 vi.mock('electron', () => import('./pty-ipc-mock-registry').then((m) => m.electronModuleMock()))
@@ -22,7 +22,7 @@ vi.mock('../../opencode/hook-service', () =>
 vi.mock('../../mimo/hook-service', () =>
   import('./pty-ipc-mock-registry').then((m) => m.mimoHookServiceModuleMock())
 )
-vi.mock('../../agent-hooks/server', () =>
+vi.mock('../../agent-hooks/server/agent-hook-server', () =>
   import('./pty-ipc-mock-registry').then((m) => m.agentHookServerModuleMock())
 )
 vi.mock('../../pi/titlebar-extension-service', () =>
@@ -46,7 +46,7 @@ vi.mock('../../cli/linux-terminal-orca-cli-shim', () =>
 vi.mock('../../memory/pty-registry', () =>
   import('./pty-ipc-mock-registry').then((m) => m.ptyRegistryModuleMock())
 )
-vi.mock('../../agent-hooks/migration-unsupported-pty-state', () =>
+vi.mock('../../agent-hooks/observations/migration-unsupported-pty-state', () =>
   import('./pty-ipc-mock-registry').then((m) => m.migrationUnsupportedPtyModuleMock())
 )
 vi.mock('../../codex/configuration/homes/codex-pane-account-registry', () =>

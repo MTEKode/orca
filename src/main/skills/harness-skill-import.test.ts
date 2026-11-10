@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SKILL_INSTALL_PROVIDERS } from '../../shared/skill-install-providers'
 import { buildUnifiedSkillCatalog } from '../../shared/skills/unified-skill-catalog'
-import { clearSkillRootScanCache, discoverSkills } from './discovery'
+import { clearSkillRootScanCache, discoverSkills } from './discovery/skill-native-discovery'
 import { applyImportSelection, listImportableSkills } from './harness-skill-import'
 
 let home = ''

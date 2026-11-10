@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { OpenCodeEvent } from '@opencode/client'
 import type { AgentJournalMessageItem } from '../../shared/agent-session/journal/agent-session-journal-types'
-import type { StructuredAgentSessionLifecycleEvent } from '../native-chat/agent-session-wire/structured-agent-session-adapter'
+import type { StructuredAgentSessionLifecycleEvent } from '../native-chat/agent-session-wire/providers/structured-agent-session-adapter'
 import type { ToolsMcpServer } from '../mcp-integrations/tools-server'
 import {
   closeProviderTimelineRigs,
@@ -11,7 +11,7 @@ import {
 import {
   createStructuredAgentSessionLogger,
   type StructuredAgentSessionLogger
-} from '../native-chat/agent-session-wire/structured-agent-session-logger'
+} from '../native-chat/agent-session-wire/host/structured-agent-session-logger'
 import { createOpenCodeV2Client } from './opencode-v2-client'
 import { disposeOpenCodeV2EventHubs } from './opencode-v2-events'
 import { OpenCodeV2SessionAdapter } from './opencode-v2-session-adapter'

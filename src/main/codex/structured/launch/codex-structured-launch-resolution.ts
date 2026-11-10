@@ -1,3 +1,7 @@
+import {
+  codexToolsMcpConfigArgs,
+  type ToolsMcpServer
+} from '../../../mcp-integrations/tools-server'
 import { pathEnvRelativeTo } from '../../../../shared/node-cli-command-resolution'
 import { waitForPromiseWithSignal } from '../../../../shared/abort-signal-reason'
 import {
@@ -37,6 +41,7 @@ import {
 
 export type CodexStructuredLaunchPartDeps = {
   resolveLaunchArgs: () => Promise<string[]> | string[]
+  resolveToolsMcpServer?: () => ToolsMcpServer | null
   /** The selected account's home, prepared for this start in `launchDirectory`; null keeps the record's. */
   prepareLaunchAccountHome?: (
     record: AgentSessionRecord,
@@ -134,7 +139,11 @@ export function codexStructuredLaunchPart(
       resolveEnvironment: basis.environment
     })
     const environment = await basis.environment()
-    const args = codexStructuredLaunchArgs(await deps.resolveLaunchArgs())
+    const toolsServer = deps.resolveToolsMcpServer?.()
+    const args = [
+      ...codexStructuredLaunchArgs(await deps.resolveLaunchArgs()),
+      ...(toolsServer ? codexToolsMcpConfigArgs(toolsServer) : [])
+    ]
     const head = agentSessionProviderHandleChainHead(record.providerHandleChain)
     const resumeThreadId = head?.handle.nativeId ?? null
     // Match the first turn's model to avoid duplicate prompt injection on a model switch.

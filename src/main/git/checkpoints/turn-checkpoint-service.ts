@@ -9,8 +9,8 @@ import type {
   AgentSessionTurnCheckpointEntry,
   AgentSessionTurnCheckpointKind
 } from '../../../shared/agent-session-turn-checkpoints'
-import type { StructuredAgentSessionLogger } from '../../native-chat/agent-session-wire/structured-agent-session-logger'
-import type { JournalRow } from '../../native-chat/agent-session-journal/journal-row-schema'
+import type { StructuredAgentSessionLogger } from '../../native-chat/agent-session-wire/host/structured-agent-session-logger'
+import type { JournalRow } from '../../native-chat/agent-session-journal/durable-rows/journal-row-schema'
 import type { TurnCheckpointRuntime } from './turn-checkpoint-git-run'
 import { restoreCheckpoint, saveCheckpoint } from './turn-checkpoint-git'
 import {

@@ -6,7 +6,7 @@ import type {
 import {
   COMPUTER_USE_SKILL_NAME,
   ORCA_CLI_SKILL_NAME,
-  ORCHESTRATION_SKILL_NAME
+  MTE_SKILL_NAME
 } from '@/lib/skills/installation/agent-feature-skill-names'
 import {
   GLOBAL_AGENT_SKILL_SOURCE_KINDS,
@@ -58,7 +58,7 @@ export function useAgentCapabilitySetupStatus(): AgentCapabilitySetupStatus {
   }
   const browserUseSkill = useInstalledAgentSkill(ORCA_CLI_SKILL_NAME, skillOptions)
   const computerUseSkill = useInstalledAgentSkill(COMPUTER_USE_SKILL_NAME, skillOptions)
-  const orchestrationSkill = useInstalledAgentSkill(ORCHESTRATION_SKILL_NAME, skillOptions)
+  const orchestrationSkill = useInstalledAgentSkill(MTE_SKILL_NAME, skillOptions)
   const computerUsePermissionStatus = useComputerUsePermissionStatus(computerUseSkill.installed)
   const readiness: AgentCapabilityReadiness = useMemo(
     () => ({

@@ -6,14 +6,14 @@ import type { TuiAgent } from '../../shared/agent-launch/catalog/tui-agent'
 import { RelayDispatcher } from '../../wsl-guest/dispatcher'
 import { PluginOverlayManager } from '../../wsl-guest/plugin-overlay'
 import { createInstallPluginsHandler } from '../../wsl-guest/wsl-install-plugins-handler'
-import { SshChannelMultiplexer } from '../ssh/ssh-channel-multiplexer'
+import { SshChannelMultiplexer } from '../ssh/protocol/ssh-channel-multiplexer'
 import { AGENT_HOOK_INSTALL_PLUGINS_METHOD } from '../../shared/agent-hook-listener/transport/agent-hook-relay'
 import {
   maybeRerunWslRelayGuestInstall,
   runWslRelayGuestInstall
-} from './wsl-hook-relay-guest-install'
-import type { WslRelayDistroState } from './wsl-hook-relay-state'
-import { REINSTALL_MIN_INTERVAL_MS } from './wsl-hook-relay-deps'
+} from './wsl-relay/wsl-hook-relay-guest-install'
+import type { WslRelayDistroState } from './wsl-relay/wsl-hook-relay-state'
+import { REINSTALL_MIN_INTERVAL_MS } from './wsl-relay/wsl-hook-relay-deps'
 
 function heldRequest() {
   const reached = Promise.withResolvers<void>()

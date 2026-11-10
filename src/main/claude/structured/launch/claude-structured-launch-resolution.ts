@@ -31,6 +31,8 @@ import { resolveClaudeLaunchFlags } from './claude-structured-launch-flags'
 import { withNativeChatVisualsEnv } from '../../../native-chat/native-chat-visuals-delivery'
 import { claudeLaunchResumesTranscript } from './claude-structured-launch-home'
 import type { StructuredAgentLaunchPartResolver } from '../../../runtime/agent-session/launch/structured-agent-launch-composition'
+import type { ClaudeReviewMcpRuntime } from '../../claude-review-mcp-server'
+import { resolveClaudeMcpServers } from './claude-structured-mcp-servers'
 import { claudeSessionIdForOrcaSession } from '../claude-structured-session-id'
 import {
   pendingAgentSessionRewindFork,
@@ -65,6 +67,7 @@ export type ClaudeStructuredSdkOptions = Pick<
   | 'supportedDialogKinds'
   | 'additionalDirectories'
   | 'plugins'
+  | 'mcpServers'
   | 'model'
   | 'effort'
   | 'allowDangerouslySkipPermissions'
@@ -144,6 +147,10 @@ export type ClaudeStructuredLaunchPartDeps = {
     providerSessionId: string
     claudeConfigDir: string
   }) => Promise<boolean>
+  /** In-process review MCP tools for this launch; absent or disabled adds no mcpServers entry. */
+  reviewTools?: ClaudeReviewMcpRuntime
+  /** orca-tools stdio bridge (command + args only, no secrets); null/absent when integrations are off. */
+  resolveToolsMcpServer?: () => { command: string; args: string[] } | null
 }
 
 export type ClaudeStructuredInvocation = {
@@ -278,6 +285,7 @@ export function claudeStructuredLaunchPart(
         hasTranscript: deps.hasTranscript
       })
     }
+    const reviewMcpServers = await resolveClaudeMcpServers(deps, record)
     return {
       launch: {
         pathToClaudeCodeExecutable: command,
@@ -287,6 +295,7 @@ export function claudeStructuredLaunchPart(
         options: {
           ...CLAUDE_STRUCTURED_BASE_OPTIONS,
           ...permission,
+          ...reviewMcpServers,
           ...(additionalDirectories.length ? { additionalDirectories } : {}),
           ...(visuals?.pluginDir ? { plugins: [{ type: 'local', path: visuals.pluginDir }] } : {}),
           extraArgs: {

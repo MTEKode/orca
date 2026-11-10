@@ -28,7 +28,6 @@ type GuestInstallState = {
   claudeAgentViewDir?: string
   claudeConfigDir?: string
   opencodeOverlayDir?: string
-  opencode2OverlayDir?: string
   piAgentDir?: string
   ompStatusExtension?: string
   lastInstallAt?: number
@@ -124,7 +123,6 @@ async function installGuestHooksAndPlugins(
       state.claudeAgentViewDir = overlay.kind === 'dir' ? overlay.claudeDir : undefined
       state.claudeConfigDir = overlay.kind === 'dir' ? overlay.claudeConfig : undefined
       state.opencodeOverlayDir = overlay.kind === 'dir' ? overlay.dir : undefined
-      state.opencode2OverlayDir = overlay.kind === 'dir' ? overlay.dir2 : undefined
       if (kind === 'pi') {
         state.piAgentDir = overlay.kind === 'dir' ? overlay.piDir : undefined
       } else if (kind === 'omp') {

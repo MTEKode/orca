@@ -122,7 +122,7 @@ export abstract class AgentHookServerIngestRemote extends AgentHookServerIngestS
     if (envelope.statusUnavailable === true && envelope.payload === null) {
       const previous = this.state.lastStatusByPaneKey.get(paneKey)
       if (
-        (source === 'opencode' || source === 'opencode2') &&
+        source === 'opencode' &&
         previous?.connectionId === trimmedConnectionId &&
         trimmedConnectionId !== null &&
         previous.worktreeId === worktreeId &&

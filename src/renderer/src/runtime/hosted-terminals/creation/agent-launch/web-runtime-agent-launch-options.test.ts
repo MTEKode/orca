@@ -353,7 +353,7 @@ it('requests a host-authoritative v1.4.239 continuation through the real Start h
   const row = { agent: 'claude', kind: 'cli', executionHostId: 'runtime:web-env-1' } as const
   mocks.observation.mockReturnValue({
     detection: { detectedIds: ['claude'] },
-    model: { state: 'settled', rows: [row] },
+    model: { state: 'settled', rows: [row], detection: { detectedIds: ['claude'] } },
     selectionFor: () => ({
       ready: true,
       cli: true,

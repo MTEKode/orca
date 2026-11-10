@@ -20,6 +20,11 @@ import type { NativeChatStructuredViewProps } from '../../native-chat-view-types
 import type { NativeChatFileLinkContext } from '../../links/actions/native-chat-file-link-context'
 import { buildAgentSessionHandoffContext } from '../../../../../../shared/agent-session-handoff-context'
 
+import type { TuiAgent } from '../../../../../../shared/agent-launch/catalog/tui-agent'
+import { launchAgentSessionContinuation } from '@/lib/agent-session/launch/continuation/launch-agent-session-continuation'
+import { launchAgentInNewTab } from '@/lib/agent-session/launch/new-tab/launch-agent-in-new-tab'
+import { newAgentLaunchRequestId } from '@/lib/agent-session/launch/routing/agent-launch-request-id'
+
 export type NativeChatHandOff = {
   /** This chat can seed another agent from its owning workspace. */
   available: boolean
@@ -28,6 +33,7 @@ export type NativeChatHandOff = {
   /** Drops a pending or open hand-off, e.g. when the conversation it describes moves on. */
   reset: () => void
   dialog: ReactNode
+  handOffTo: (pick: { agent: TuiAgent; model?: string; effort?: string }) => Promise<void>
 }
 
 export function useNativeChatHandOff({
@@ -184,6 +190,82 @@ export function useNativeChatHandOff({
   const open = useCallback(() => {
     void prepare()
   }, [prepare])
+  const handOffTo = useCallback(
+    async (pick: { agent: TuiAgent; model?: string; effort?: string }): Promise<void> => {
+      if (!available || !directory || !epoch || !isTuiAgent(pane.agent)) {
+        return
+      }
+      const launchOptions: Record<string, string> = {
+        ...(pick.model ? { model: pick.model } : {}),
+        ...(pick.effort ? { effort: pick.effort } : {})
+      }
+      const context = await withTimeout(
+        (async () => {
+          if (!(await supportsStructuredAgentSessionContinuationContext(pane.target))) {
+            return null
+          }
+          return callStructuredAgentSession<AgentSessionContinuationContext>(
+            pane.target,
+            'agentSession.continuationContext',
+            {
+              sessionId: pane.sessionId,
+              workspaceId: directory.worktreeId,
+              expectedCursor: { epoch, sequence: 0 }
+            }
+          )
+        })(),
+        30_000,
+        null
+      )
+      const saved = context?.status === 'current' && typeof context.capturedText === 'string'
+      const transcriptPath = saved ? context.transcriptPath : undefined
+      const source = {
+        sourceKind: 'chat' as const,
+        sourceAgent: pane.agent,
+        sourceTitle: chatTab?.customLabel?.trim() || conversationName || chatTab?.label,
+        sourceWorkingDirectory: directory.worktreePath,
+        transcriptPath,
+        capturedText: saved
+          ? (context.capturedText ?? '')
+          : buildAgentSessionHandoffContext(messages)
+      }
+      const prompt = buildAgentSessionContinuationPrompt(source, 'focused')
+      if (prompt) {
+        await launchAgentSessionContinuation({
+          agent: pick.agent,
+          prompt,
+          worktreeId: directory.worktreeId,
+          groupId: pane.groupId,
+          initialCwd: directory.worktreePath,
+          ...(Object.keys(launchOptions).length > 0 ? { launchOptions } : {}),
+          launchSource: 'native_chat'
+        })
+      } else {
+        launchAgentInNewTab({
+          requestId: newAgentLaunchRequestId(),
+          agent: pick.agent,
+          worktreeId: directory.worktreeId,
+          groupId: pane.groupId,
+          initialCwd: directory.worktreePath,
+          requestedSurface: 'chat',
+          launchSource: 'native_chat',
+          ...(Object.keys(launchOptions).length > 0 ? { sessionOptions: launchOptions } : {})
+        })
+      }
+    },
+    [
+      available,
+      directory,
+      epoch,
+      pane.agent,
+      pane.target,
+      pane.sessionId,
+      pane.groupId,
+      chatTab,
+      conversationName,
+      messages
+    ]
+  )
   return {
     available,
     preparing: currentAttempt?.phase === 'preparing',
@@ -201,6 +283,7 @@ export function useNativeChatHandOff({
           }
         }}
       />
-    ) : null
+    ) : null,
+    handOffTo
   }
 }

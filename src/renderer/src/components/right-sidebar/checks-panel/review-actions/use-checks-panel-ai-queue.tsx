@@ -16,6 +16,7 @@ import { parseGitHubIssueOrPRLink } from '../../../../../../shared/github/links'
 import type { PRCommentGroup } from '../../../../../../shared/source-control/review-comments/pr-comment-groups'
 import { useTranslate } from '@/i18n/use-translate'
 
+import { appendCommentsPromptToVisibleChat } from '../use-checks-panel-comment-append'
 import type { ChecksPanelContextState } from '../use-checks-panel-context-state'
 import type { ChecksPanelControllerState } from '../use-checks-panel-controller-state'
 import type { ChecksPanelCommentResolutionState } from '../comments/use-checks-panel-comment-resolution'
@@ -250,6 +251,19 @@ export function useChecksPanelAiQueue(model: ChecksPanelAiQueueInput) {
       githubResolveTarget,
       gitlabTarget
     }
+    const prompt = buildPRCommentsResolutionPrompt({
+      reviewKind: activeReview.provider === 'gitlab' ? 'MR' : 'PR',
+      reviewNumber: activeReview.number,
+      reviewTitle: activeReview.title,
+      reviewUrl: activeReview.url,
+      groups: selectedGroups,
+      worktreePath: activeWorktreePath
+    })
+    // Why: an open chat receives the prompt as an editable draft; the follow-up ack metadata
+    // only applies to the new-chat path.
+    if (appendCommentsPromptToVisibleChat(activeWorktreeId, prompt, selectedGroups.length)) {
+      return
+    }
     openOrStart({
       actionId: 'resolveComments',
       title: t(
@@ -270,14 +284,7 @@ export function useChecksPanelAiQueue(model: ChecksPanelAiQueueInput) {
               'auto.components.right.sidebar.ChecksPanel.abf59262fb',
               'Review and edit the full command input before starting an agent.'
             ),
-      prompt: buildPRCommentsResolutionPrompt({
-        reviewKind: activeReview.provider === 'gitlab' ? 'MR' : 'PR',
-        reviewNumber: activeReview.number,
-        reviewTitle: activeReview.title,
-        reviewUrl: activeReview.url,
-        groups: selectedGroups,
-        worktreePath: activeWorktreePath
-      }),
+      prompt,
       launchSource: 'task_page',
       commentResolution
     })

@@ -10,7 +10,9 @@ import { parseWorkspaceKey } from '../../../../../shared/workspace-scope'
 /** Writes a workspace's whole review-note list to the host that owns it. */
 export async function writeDiffCommentsToHost(
   owner: DiffCommentOwner,
-  diffComments: DiffComment[]
+  diffComments: DiffComment[],
+  /** The writer's pre-edit list; lets the host merge instead of clobbering a concurrent writer's notes. */
+  diffCommentsBase?: DiffComment[]
 ): Promise<void> {
   const worktreeId = owner.worktreeId
   const scope = parseWorkspaceKey(worktreeId)
@@ -47,7 +49,7 @@ export async function writeDiffCommentsToHost(
     const meta = await window.api.worktrees.updateMeta({
       worktreeId,
       executionHostId: at,
-      updates: { diffComments }
+      updates: { diffComments, ...(diffCommentsBase ? { diffCommentsBase } : {}) }
     })
     // Why: main answers null when it refuses or drops the write; reporting success would lose the notes.
     if (!meta) {
@@ -58,7 +60,11 @@ export async function writeDiffCommentsToHost(
   await callRuntimeRpc(
     { kind: 'environment', environmentId: endpoint.environmentId },
     'worktree.set',
-    { worktree: toRuntimeWorktreeSelector(worktreeId), diffComments },
+    {
+      worktree: toRuntimeWorktreeSelector(worktreeId),
+      diffComments,
+      ...(diffCommentsBase ? { diffCommentsBase } : {})
+    },
     { timeoutMs: 15_000 }
   )
 }

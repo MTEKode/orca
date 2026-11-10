@@ -21,6 +21,58 @@ describe('DiffCommentDraftCard', () => {
     vi.restoreAllMocks()
   })
 
+  it('renders line header', () => {
+    const onCancel = vi.fn()
+    const onSubmit = vi.fn().mockResolvedValue(true)
+
+    const view = render(
+      <DiffCommentDraftCard lineNumber={42} onCancel={onCancel} onSubmit={onSubmit} />
+    )
+
+    expect(view.getByText('Line 42')).toBeDefined()
+    expect(view.queryByText('You')).toBeNull()
+    const textarea = view.getByPlaceholderText('Add a comment for the AI')
+    expect(textarea).toBeDefined()
+    expect(document.activeElement).toBe(textarea)
+    expect(view.getByRole('button', { name: 'Add note' })).toBeDefined()
+    expect(view.getByRole('button', { name: 'Cancel' })).toBeDefined()
+  })
+
+  it('renders range header when startLine is provided', () => {
+    const onCancel = vi.fn()
+    const onSubmit = vi.fn().mockResolvedValue(true)
+
+    const view = render(
+      <DiffCommentDraftCard
+        lineNumber={42}
+        startLine={38}
+        onCancel={onCancel}
+        onSubmit={onSubmit}
+      />
+    )
+
+    expect(view.getByText('Lines 38-42')).toBeDefined()
+  })
+
+  it('disables submit button when body is whitespace and enables when text is typed', () => {
+    const onCancel = vi.fn()
+    const onSubmit = vi.fn().mockResolvedValue(true)
+
+    const view = render(
+      <DiffCommentDraftCard lineNumber={10} onCancel={onCancel} onSubmit={onSubmit} />
+    )
+
+    const submitBtn = view.getByRole('button', { name: 'Add note' })
+    expect(submitBtn.hasAttribute('disabled')).toBe(true)
+
+    const textarea = view.getByRole('textbox')
+    fireEvent.change(textarea, { target: { value: '   ' } })
+    expect(submitBtn.hasAttribute('disabled')).toBe(true)
+
+    fireEvent.change(textarea, { target: { value: 'Refactor this loop' } })
+    expect(submitBtn.hasAttribute('disabled')).toBe(false)
+  })
+
   it('parks focus on the textarea before the pressed submit button turns disabled', async () => {
     let resolveSubmit: (result: boolean) => void = () => {}
     const onSubmit = vi.fn(

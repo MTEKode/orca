@@ -5,6 +5,8 @@ import { setBrowserHostClientProfileResolver } from '../runtime/browser-host/pro
 import { browserSessionRegistry } from '../browser/sessions/profiles/browser-session-registry'
 import { setManagedBrowserProfileDeleter } from '../runtime/browser-host/profiles/managed-browser-profile-removal'
 import { deleteManagedBrowserProfile } from '../browser/sessions/profiles/browser-managed-session-profiles'
+import { shell } from 'electron'
+import { setMcpIntegrationBrowserOpener } from '../mcp-integrations/sdk'
 
 /** Importing this desktop factory loads the Chromium browser cluster. */
 export function installElectronBrowserCommands(): void {
@@ -18,4 +20,6 @@ export function installElectronBrowserCommands(): void {
     return profile ? { id: profile.id, label: profile.label, scope: profile.scope } : undefined
   })
   setManagedBrowserProfileDeleter(deleteManagedBrowserProfile)
+  // MCP integration OAuth opens the system browser; Node hosts have none and reject connectOAuth.
+  setMcpIntegrationBrowserOpener((url) => shell.openExternal(url))
 }

@@ -49,7 +49,7 @@ function previewTranscript(session: AiVaultSession): string {
 
 function vaultTranscriptPath(session: AiVaultSession): string | null {
   // OpenCode vault paths identify its database or storage metadata, not a full transcript.
-  if (session.agent === 'opencode' || session.agent === 'opencode2') {
+  if (session.agent === 'opencode') {
     return null
   }
   return session.filePath.trim() || null

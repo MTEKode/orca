@@ -9,18 +9,20 @@ const mocks = vi.hoisted(() => ({
   state: {} as Record<string, unknown>
 }))
 vi.mock('@/store/index', () => ({ useAppStore: { getState: () => mocks.state } }))
-vi.mock('@/components/native-chat/use-native-chat-composer-reveal-focus', () => ({
+vi.mock('@/components/native-chat/composer/focus/use-native-chat-composer-reveal-focus', () => ({
   requestNativeChatComposerFocus: vi.fn()
 }))
-vi.mock('../worktree-runtime-owner', () => ({ runtimeEnvironmentIdOrLocalUnlessTwin: () => 'e' }))
-vi.mock('@/runtime/runtime-rpc-client', () => ({ callRuntimeRpc: vi.fn(async () => ({})) }))
-vi.mock('@/runtime/runtime-worktree-selector', () => ({
+vi.mock('@/lib/workspace/ownership/worktree-runtime-owner', () => ({
+  runtimeEnvironmentIdOrLocalUnlessTwin: () => 'e'
+}))
+vi.mock('@/runtime/rpc/calls/runtime-rpc-call', () => ({ callRuntimeRpc: vi.fn(async () => ({})) }))
+vi.mock('@/runtime/rpc/targets/runtime-worktree-selector', () => ({
   toRuntimeWorktreeSelector: (w: string) => w
 }))
 
 import { hideWorkerSession, isHiddenWorkerTab, revealWorkerSession } from './revealed-worker-tabs'
 import { activateStructuredAgentSessionTab } from './structured-agent-session-tab-activation'
-import { pickNextActiveTab } from '../../store/slices/tab-group-state'
+import { pickNextActiveTab } from '../../store/slices/tabs/tab-selection-history'
 import { hideRevealedWorkerTab } from '../../store/slices/tabs/worker-tab-hide'
 import { useTabGroupItemProjections } from '../../components/tab-group/useTabGroupItemProjections'
 import { getActiveTabNavOrder } from '../../components/tab-bar/group-tab-order'

@@ -26,7 +26,8 @@ export function useNativeChatTranscriptRowContext({
   onToggleExpandedTurn,
   subagentDisclosure,
   onScrollMessageToTop,
-  onRevealDiff
+  onRevealDiff,
+  turnRevert
 }: NativeChatTranscriptRowContextInput): NativeChatTranscriptRowContext {
   return useMemo<NativeChatTranscriptRowContext>(
     () => ({
@@ -43,7 +44,8 @@ export function useNativeChatTranscriptRowContext({
       onToggleExpandedTurn,
       subagentDisclosure,
       onScrollMessageToTop,
-      onRevealDiff
+      onRevealDiff,
+      turnRevert
     }),
     [
       agent,
@@ -59,7 +61,8 @@ export function useNativeChatTranscriptRowContext({
       onScrollMessageToTop,
       taskListPredecessors,
       subagentDisclosure,
-      onToggleExpandedTurn
+      onToggleExpandedTurn,
+      turnRevert
     ]
   )
 }

@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useAppStore } from '@/store'
-import { selectWorktreeDiffCommentsOrEmpty } from '@/store/worktree-diff-comments-selector'
+import { selectWorktreeDiffCommentsOrEmpty } from '@/store/slices/diff-comments/worktree-diff-comments-selector'
 import type { DiffComment } from '../../../../shared/diff-comment-types'
 import { isAgentDiffComment } from '../../../../shared/diff-comment-types'
 

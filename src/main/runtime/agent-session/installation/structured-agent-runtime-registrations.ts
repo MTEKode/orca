@@ -21,6 +21,8 @@ import { createOpenCodeAcpConnection } from '../../../opencode/opencode-acp-conn
 import { acpStructuredLaunchPart } from '../../../acp/launch/acp-structured-launch-resolution'
 import { AcpStructuredSessionAdapter } from '../../../acp/session/acp-structured-session-adapter'
 import { PI_RPC_RUNTIME_REGISTRATION } from '../../../pi/rpc-runtime-registration'
+import { OPENCODE_V2_RUNTIME_REGISTRATION } from '../../../opencode-v2/opencode-v2-runtime-registration'
+import { withAcpToolsMcp } from '../../../acp/acp-tools-mcp-servers'
 import {
   claudeLaunchEnvOverlay,
   claudeListingDeps
@@ -67,7 +69,10 @@ function createCodexAdapter(context: StructuredAgentAdapterContext): StructuredA
           ...(deps.prepareLaunchAccountHome
             ? { prepareLaunchAccountHome: deps.prepareLaunchAccountHome }
             : {}),
-          ...(deps.resolveCodexCommand ? { resolveCommand: deps.resolveCodexCommand } : {})
+          ...(deps.resolveCodexCommand ? { resolveCommand: deps.resolveCodexCommand } : {}),
+          ...(deps.resolveToolsMcpServer
+            ? { resolveToolsMcpServer: deps.resolveToolsMcpServer }
+            : {})
         })
       ),
       deps.readCodexInstallation
@@ -122,7 +127,9 @@ function createClaudeAdapter(
         ...(deps.resolveClaudeCommand ? { resolveCommand: deps.resolveClaudeCommand } : {}),
         resolveAuthPolicy: deps.resolveClaudeAuthPolicy,
         attachmentDirectory: agentSessionAttachmentStoreRoot(deps.stateDirectory),
-        ...(deps.claudeCliFlags ? { cliFlags: deps.claudeCliFlags } : {})
+        ...(deps.claudeCliFlags ? { cliFlags: deps.claudeCliFlags } : {}),
+        ...(deps.reviewTools ? { reviewTools: deps.reviewTools } : {}),
+        ...(deps.resolveToolsMcpServer ? { resolveToolsMcpServer: deps.resolveToolsMcpServer } : {})
       })
     ),
     ...(deps.resolveClaudeCommand ? { resolveClaudeCommand: deps.resolveClaudeCommand } : {}),
@@ -148,12 +155,16 @@ function createAcpAdapter(
     const readJournal = (sessionId: string) => restoreJournal(context.journalDatabase.db, sessionId)
     const definition = acpStructuredAgentDefinition(spec)
     const sources = structuredAgentLaunchSources(context)
-    const part = acpStructuredLaunchPart(spec, {
-      readJournal,
-      ...deps.acpLaunchCommand,
-      dataDirectory: deps.stateDirectory,
-      logger: deps.logger
-    })
+    const part = withAcpToolsMcp(
+      acpStructuredLaunchPart(spec, {
+        readJournal,
+        ...deps.acpLaunchCommand,
+        dataDirectory: deps.stateDirectory,
+        logger: deps.logger
+      }),
+      spec,
+      deps.resolveToolsMcpServer
+    )
     return new AcpStructuredSessionAdapter({
       spec,
       textTaskLaunch: {
@@ -189,9 +200,7 @@ function createAcpAdapter(
       resolveLaunchArgs: () => deps.resolveLaunchArgs(spec.agent),
       connect:
         deps.openAcpConnection ??
-        (spec.agent === 'opencode' || spec.agent === 'opencode2'
-          ? createOpenCodeAcpConnection
-          : createAcpAgentConnection),
+        (spec.agent === 'opencode' ? createOpenCodeAcpConnection : createAcpAgentConnection),
       onChildWorkEvidence: (sessionId, evidence, producer) =>
         context.host()?.publishChildWorkEvidence(sessionId, evidence, producer),
       ...(deps.readProcessStartTime ? { readProcessStartTime: deps.readProcessStartTime } : {}),
@@ -209,6 +218,8 @@ function registrationWithAdapter(
   switch (entry.kind) {
     case 'pi':
       return PI_RPC_RUNTIME_REGISTRATION
+    case 'opencode-v2':
+      return OPENCODE_V2_RUNTIME_REGISTRATION
     case 'codex':
       return Object.assign(entry.metadata, { createAdapter: createCodexAdapter })
     case 'claude':

@@ -1,7 +1,7 @@
 import type { DiffComment } from '../../../shared/diff-comment-types'
 import { isAgentDiffComment } from '../../../shared/diff-comment-types'
 import { formatDiffComments } from '../../../shared/diff-comments-format'
-import type { DiffCommentDeliverySnapshot } from '@/store/slices/diffComments'
+import type { DiffCommentDeliverySnapshot } from '@/store/slices/diff-comments/create-diff-comments-slice'
 
 /** Prepends queued diff comments to the user's message; the snapshots let the store clear exactly what was sent. */
 export function composePromptWithDiffComments(

@@ -309,6 +309,8 @@ export default function MonacoEditor({
           ...buildFileEditorWordWrapOptions(editorWordWrap),
           ...typographyOptions,
           lineNumbers: 'on',
+          // Why: global like maxTokenizationLineLength; LSP semantic tokens (ruby-lsp) need it on.
+          'semanticHighlighting.enabled': true,
           renderLineHighlight: 'line',
           automaticLayout: true,
           unicodeHighlight: buildEditorUnicodeHighlightOptions(language),

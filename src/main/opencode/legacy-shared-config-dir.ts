@@ -1,7 +1,8 @@
 import { join, resolve } from 'node:path'
 
 export const OPENCODE_LEGACY_HOOKS_DIR = 'opencode-hooks'
-export const OPENCODE2_LEGACY_HOOKS_DIR = 'opencode2-hooks'
+// Retired with the opencode2 agent; daemons started by older builds may still inherit it.
+const RETIRED_OPENCODE2_HOOKS_DIR = 'opencode2-hooks'
 
 // Pre-1.4.209 shells and background services may still load this inherited directory.
 export function getOpenCodeLegacySharedConfigDir(
@@ -17,7 +18,7 @@ export function isOpenCodeLegacySharedConfigDir(
 ): boolean {
   return (
     configDir !== undefined &&
-    [OPENCODE_LEGACY_HOOKS_DIR, OPENCODE2_LEGACY_HOOKS_DIR].some(
+    [OPENCODE_LEGACY_HOOKS_DIR, RETIRED_OPENCODE2_HOOKS_DIR].some(
       (hooksDir) =>
         normalizeConfigPath(configDir) ===
         normalizeConfigPath(getOpenCodeLegacySharedConfigDir(userDataPath, hooksDir))

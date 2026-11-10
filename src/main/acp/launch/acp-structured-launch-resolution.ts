@@ -35,6 +35,7 @@ import { acpLaunchSpecForAccount, resolveAcpLaunchCommand } from './acp-launch-c
 import { nothingExchangedOn } from '../session/acp-structured-resume-history'
 import { acpUnannouncedLosses } from '../session/start/acp-session-reopen-failure'
 import { loadAcpVisualsSkill, type AcpLaunchVisualsDeps } from './acp-structured-launch-visuals'
+import type { AcpToolsMcpServer } from '../acp-tools-mcp-servers'
 
 export type AcpStructuredLaunch = StructuredAgentCommand & {
   spec: AcpLaunchSpec
@@ -47,6 +48,8 @@ export type AcpStructuredLaunch = StructuredAgentCommand & {
   fullAccess: boolean
   /** The saved model the launch line carries. */
   launchModel?: string
+  /** The orca-tools bridge (opencode only); absent means none. */
+  mcpServers?: AcpToolsMcpServer[]
   resume: {
     sessionId: string
     key: string

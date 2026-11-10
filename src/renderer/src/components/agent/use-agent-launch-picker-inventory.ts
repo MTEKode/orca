@@ -23,6 +23,7 @@ import {
   useAgentPickerInventoryEntries,
   currentAgentPickerAcquisition,
   observeAgentPickerAcquisition,
+  prioritizeAgentPickerAcquisition,
   type AgentPickerInventorySource
 } from './agent-launch-picker-acquisition'
 import {
@@ -267,5 +268,10 @@ export function useAgentLaunchPickerInventorySource(
     )
     // oxlint-disable-next-line react-hooks/exhaustive-deps -- Only semantic inputs and visibility own observation; selected priority publishes independently after commit.
   }, [key, open, source, viewActive])
+  useEffect(() => {
+    if (open) {
+      prioritizeAgentPickerAcquisition(key)
+    }
+  }, [key, open, selected])
   return source
 }

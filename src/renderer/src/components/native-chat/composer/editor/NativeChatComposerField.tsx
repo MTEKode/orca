@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Why: fork features ported onto upstream; split later */
 import { NativeChatPromptEditor } from './NativeChatPromptEditor'
 import { notifyNativeChatComposerState } from '../focus/native-chat-composer-mount'
 import type { NativeChatComposerInput } from './native-chat-composer-input'
@@ -10,6 +11,9 @@ import type { NativeChatPickerItem } from '../../../../../../shared/native-chat/
 import { NativeChatMentionMenu, NativeChatPickerMenu } from '../pickers/NativeChatAutocompleteMenus'
 import type { NativeChatMentionFiles } from '../pickers/use-native-chat-mention-files'
 import { NativeChatComposerActions } from '../controls/NativeChatComposerActions'
+import { imeComposedSegment } from '../../native-chat-ime-composed-segment'
+import type { MteWorkerPin } from '../../../../../../shared/mte/worker-pin'
+import type { TuiAgent } from '../../../../../../shared/agent-launch/catalog/tui-agent'
 import { NativeChatComposerNotices } from '../controls/NativeChatComposerNotices'
 import type { NativeChatComposerNotice } from '../controls/native-chat-composer-notice'
 import type { NativeChatContextUsageSummary } from '../../../../../../shared/native-chat/native-chat-context-usage-summary'
@@ -22,6 +26,8 @@ import type {
 import type { NativeChatOptionPickerRequest } from '../../session/options/controls/native-chat-option-picker-request'
 import type { NativeChatComposerImageAttachment } from '../../attachments/chips/native-chat-image-attachment'
 import { NativeChatImageAttachmentPreview } from '../../attachments/chips/NativeChatImageAttachmentPreview'
+import { NativeChatComposerCommentChips } from '../../NativeChatComposerCommentChips'
+import { useNativeChatQueuedDiffComments } from '../../use-native-chat-queued-diff-comments'
 import type { NativeChatComposerGoalMode } from '../submit/use-native-chat-composer-submit'
 import { useTranslate } from '@/i18n/use-translate'
 import { useNativeChatComposerDraftUnsaved } from '../../drafts/use-native-chat-draft-unsaved'
@@ -93,25 +99,19 @@ export type NativeChatComposerFieldProps = {
   sessionOptionsPickerRequest?: NativeChatOptionPickerRequest | null
   goalMode?: NativeChatComposerGoalMode
   agent?: string
+  /** The worker pinned on an MTE planner chat; labels the pill beside the orchestrator. */
+  mteWorker?: MteWorkerPin
+  /** The composer's Worker selector, on an MTE planner chat. */
+  mteWorkerPicker?: React.ReactNode
+  /** Worktree whose queued diff comments show as chips above the editor; also feeds the harness switcher. */
+  worktreeId?: string
+  onSwitchHarness?: (pick: {
+    agent: TuiAgent
+    model?: string
+    effort?: string
+  }) => void | Promise<void>
   launchPrompt?: { placeholder: string }
   workspaceFooter?: React.ReactNode
-}
-
-/** After a clear suppressed by IME, preserve only the composed segment; compare both ends because the caret need not be at the end. */
-function imeComposedSegment(base: string, settled: string): string {
-  const limit = Math.min(base.length, settled.length)
-  let prefix = 0
-  while (prefix < limit && base[prefix] === settled[prefix]) {
-    prefix += 1
-  }
-  let suffix = 0
-  while (
-    suffix < limit - prefix &&
-    base[base.length - 1 - suffix] === settled[settled.length - 1 - suffix]
-  ) {
-    suffix += 1
-  }
-  return settled.slice(prefix, settled.length - suffix)
 }
 
 export function NativeChatComposerField({
@@ -167,6 +167,10 @@ export function NativeChatComposerField({
   sessionOptionsPickerRequest,
   goalMode,
   agent,
+  mteWorker,
+  mteWorkerPicker,
+  worktreeId,
+  onSwitchHarness,
   launchPrompt,
   workspaceFooter
 }: NativeChatComposerFieldProps): React.JSX.Element {
@@ -180,6 +184,7 @@ export function NativeChatComposerField({
         : 0
   // Value the IME started from, and whether a programmatic clear was dropped on top of it.
   const compositionBaseRef = useRef('')
+  const queuedCommentCount = useNativeChatQueuedDiffComments(worktreeId).length
   const imageRow = useMemo(() => imageAttachments.map(({ id }) => id), [imageAttachments])
   const droppedDraftClearRef = useRef(false)
   // Remember the editor’s last draft because chip node views can flushSync a render before its onChange publishes.
@@ -308,7 +313,7 @@ export function NativeChatComposerField({
           <div
             className={cn(
               // Use a constant container border so focus changes cannot flash it.
-              'group/composer rounded-xl border p-1.5 shadow-xs',
+              'group/composer rounded-[12px] border p-3 shadow-xs',
               !launch && 'native-chat-composer-card',
               launch
                 ? 'border-foreground/10 bg-background dark:bg-foreground/[0.04]'
@@ -317,8 +322,9 @@ export function NativeChatComposerField({
               '[contain:paint]'
             )}
           >
-            {imageAttachments.length > 0 ? (
+            {imageAttachments.length > 0 || queuedCommentCount > 0 ? (
               <div className="mb-2 flex flex-wrap gap-2 px-1 pt-1.5">
+                {worktreeId ? <NativeChatComposerCommentChips worktreeId={worktreeId} /> : null}
                 {imageAttachments.map((attachment, index) => (
                   <NativeChatImageAttachmentPreview
                     key={attachment.id}
@@ -370,10 +376,9 @@ export function NativeChatComposerField({
               // Let layout handle wrapping and touch targets; scroll after eight lines (a launch prompt: one line growing to six) without JavaScript measurement.
               // An empty launch prompt also grows to fit a wrapping placeholder: a paragraph-wide float that keeps its height, with a zero-width margin box so the caret line stays put.
               className={cn(
-                'w-full bg-transparent px-2 py-1 text-sm outline-none',
                 launch
-                  ? 'min-h-7 max-h-[calc(6lh+0.5rem)] text-foreground placeholder:text-muted-foreground [&_p.is-editor-empty:first-child]:before:!h-auto [&_p.is-editor-empty:first-child]:before:w-full [&_p.is-editor-empty:first-child]:before:mr-[-100%]'
-                  : 'min-h-12 max-h-[calc(8lh+0.5rem)] text-chat-foreground-strong placeholder:text-chat-foreground-faint pointer-coarse:min-h-14',
+                  ? 'w-full bg-transparent px-2 py-1 text-sm outline-none min-h-7 max-h-[calc(6lh+0.5rem)] text-foreground placeholder:text-muted-foreground [&_p.is-editor-empty:first-child]:before:!h-auto [&_p.is-editor-empty:first-child]:before:w-full [&_p.is-editor-empty:first-child]:before:mr-[-100%]'
+                  : 'min-h-[7.5rem] max-h-[calc(8lh+0.5rem)] w-full bg-transparent px-2.5 py-1.5 text-base text-chat-foreground-strong outline-none placeholder:text-chat-foreground-faint pointer-coarse:min-h-[8rem]',
                 'overflow-y-auto scrollbar-sleek',
                 // Why: the editor is a contenteditable, which `:disabled` never matches.
                 '[&[contenteditable=false]]:cursor-not-allowed [&[contenteditable=false]]:opacity-50'
@@ -419,6 +424,10 @@ export function NativeChatComposerField({
                 onExitGoalMode={goalMode?.active ? exitGoalMode : undefined}
                 launchPrompt={launch}
                 {...(agent ? { agent } : {})}
+                {...(mteWorker ? { mteWorker } : {})}
+                {...(mteWorkerPicker ? { mteWorkerPicker } : {})}
+                {...(worktreeId ? { worktreeId } : {})}
+                {...(onSwitchHarness ? { onSwitchHarness } : {})}
               />
             </div>
           </div>

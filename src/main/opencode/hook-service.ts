@@ -11,7 +11,6 @@ import {
 } from 'node:fs'
 import { isSafeDescendCandidate, mirrorEntry } from '../pty/scrollback/overlay-mirror'
 import {
-  getOpenCode2PluginSource,
   getOpenCodeFamilyPluginSource,
   getOpenCodePluginSource
 } from './status-plugin-module-source'
@@ -24,7 +23,6 @@ import {
 import { resolveOpenCodeConfigDirectory } from '../../shared/opencode-config-directory'
 import {
   getOpenCodeLegacySharedConfigDir,
-  OPENCODE2_LEGACY_HOOKS_DIR,
   OPENCODE_LEGACY_HOOKS_DIR
 } from './legacy-shared-config-dir'
 import {
@@ -40,7 +38,7 @@ import {
 } from './overlay-dir-names'
 import { OpenCodeDirGcLifecycle } from './overlay-dir-gc-lifecycle'
 
-export { getOpenCode2PluginSource, getOpenCodeFamilyPluginSource, getOpenCodePluginSource }
+export { getOpenCodeFamilyPluginSource, getOpenCodePluginSource }
 
 import { writeCanonicalOpenCodePluginAtomically } from '../../shared/opencode-plugin-atomic-write'
 import { writeOpenCodePluginConfig } from './opencode-plugin-config-writer'
@@ -320,16 +318,8 @@ export class OpenCodeHookService {
 }
 
 export const openCodeHookService = new OpenCodeHookService()
-export const openCode2HookService = new OpenCodeHookService({
-  pluginFileName: 'orca-opencode2-status.js',
-  legacyHooksDir: OPENCODE2_LEGACY_HOOKS_DIR,
-  overlayDir: 'opencode2-config-overlays',
-  pluginSource: getOpenCode2PluginSource,
-  installsTuiPlugin: true
-})
 export const _internals = {
   getOpenCodePluginSource,
-  getOpenCode2PluginSource,
   isUsableId,
   toSafeDirName
 }

@@ -40,7 +40,7 @@ import { createStructuredChatNamingHandler } from '../../../native-chat/structur
 import { structuredChatNamingDeps } from '../../agent-session/naming/structured-chat-naming-runtime'
 import { getProfileUserDataPath } from '../../../orca-profiles/profile-storage-paths'
 import { LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
-import { chatWorkerTurnStopReporter } from '../../orchestration/workers/turn-stops/chat-worker-turn-stops'
+import { chatWorkerTurnAttention } from '../../orchestration/chat-worker-attention'
 import { buildWorktreeListingPage } from '../catalog/worktree-listing-host-scope'
 import {
   structuredWorkerOpenTaskTitle,
@@ -49,6 +49,8 @@ import {
 import { preModeChatGetsFullAccess } from '../../../../shared/agent-launch/permissions/agent-chat-permission-mode'
 import { isTuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent-config'
 import { claudeCliFlagSupport } from '../../../claude/claude-cli-flag-support'
+import { createClaudeReviewMcpRuntime } from '../../../claude/claude-review-mcp-server'
+import { createToolsMcpServerResolver } from '../../../mcp-integrations/tools-server'
 import {
   runtimeHiddenHostIds,
   runtimeHiddenRepos,
@@ -266,6 +268,16 @@ export abstract class OrcaRuntimeWithGetWorktreePs extends RuntimeChatWorkerEven
       nativeChatVisuals: {
         isEnabled: () => this.requireStore().getSettings().nativeChatInlineVisuals !== false
       },
+      resolveTurnCheckpointsEnabled: () =>
+        this.requireStore().getSettings().nativeChatTurnCheckpoints !== false,
+      resolveToolsMcpServer: createToolsMcpServerResolver(() => this.requireStore().getSettings()),
+      // In-process review MCP tools for structured Claude launches; the setting gates each launch.
+      reviewTools: createClaudeReviewMcpRuntime({
+        isEnabled: () => this.requireStore().getSettings().nativeChatReviewTools !== false,
+        getStore: () => this.requireStore(),
+        notifyWorktreesChanged: (repoId) => this.notifyWorktreesChanged(repoId),
+        notifyReposChanged: () => this.notifyReposChanged()
+      }),
       resolveAgentFullAccess: (agent) =>
         isTuiAgent(agent) &&
         preModeChatGetsFullAccess(agent, this.requireStore().getSettings(), process.platform),
@@ -304,7 +316,8 @@ export abstract class OrcaRuntimeWithGetWorktreePs extends RuntimeChatWorkerEven
         reconcile: (state) => this.mobileNotifications.reconcileStructuredPromptAttention(state),
         now: () => Date.now()
       }),
-      onTurnAttention: chatWorkerTurnStopReporter(this.workerTurnStopReportDeps),
+      // Prompts mail their question to the coordinator alongside the stop report.
+      onTurnAttention: chatWorkerTurnAttention(this.workerTurnStopReportDeps),
       // Re-read dispatch ownership each sweep; absence of a database cannot keep the worker alive.
       hasOpenDispatch: (record) =>
         structuredWorkerOwesWork(this.getOrchestrationDbIfAvailable?.() ?? null, record)

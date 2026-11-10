@@ -237,7 +237,8 @@ export function renderWorktreeSectionHeaderRow(
           data-workspace-status={headerWorkspaceStatus ?? undefined}
           data-workspace-pin-drop-target={isPinnedHeader ? '' : undefined}
           className={cn(
-            'group relative flex h-7 w-full items-center gap-1.5 pr-2 text-left transition-all',
+            // Keep grab on the title; action buttons use pointer cursors.
+            'group relative flex h-9 w-full items-center gap-1.5 pr-2 text-left transition-all',
             !(isDraggableRepoHeader || isDraggableProjectGroupHeader) && 'cursor-pointer',
             ctx.highlightedRevealRowKey === row.key &&
               'rounded-md bg-worktree-sidebar-accent ring-1 ring-worktree-sidebar-ring/50',
@@ -334,7 +335,7 @@ export function renderWorktreeSectionHeaderRow(
 
             <div className="min-w-0 flex-1">
               <div className="flex min-w-0 items-center gap-1.5">
-                <div className="min-w-0 truncate text-[13px] font-semibold leading-4">{label}</div>
+                <div className="min-w-0 truncate text-[14px] font-semibold leading-5">{label}</div>
                 {hostContext ? <ProjectHeaderHostLabel context={hostContext} /> : null}
                 <RepoForkIndicator upstream={row.repo?.upstream} />
                 <FolderPathStatusIndicator status={projectGroupPathStatus} />

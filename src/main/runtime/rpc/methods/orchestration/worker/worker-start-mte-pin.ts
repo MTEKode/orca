@@ -1,6 +1,6 @@
-import { getStructuredAgentSessionHost } from '../../../../../native-chat/agent-session-wire/structured-agent-session-registry'
+import { getStructuredAgentSessionHost } from '../../../../../native-chat/agent-session-wire/host/structured-agent-session-registry'
 import { isMteOrchestrationAgent } from '../../../../../../shared/mte/orchestration-agents'
-import type { OrchestrationSessionCaller } from '../../../../orchestration/orchestration-caller-identity'
+import type { OrchestrationSessionCaller } from '../../../../orchestration/addressing/orchestration-caller-identity'
 
 /**
  * Fills omitted --agent/--model/--effort from the planner chat's CURRENT pin. The pin comes from

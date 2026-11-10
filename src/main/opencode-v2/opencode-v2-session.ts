@@ -7,9 +7,9 @@ import type {
   AgentSessionDispatchOutcome,
   StructuredAgentSessionAcquireInput,
   StructuredAgentSessionLifecycleEvent
-} from '../native-chat/agent-session-wire/structured-agent-session-adapter'
-import type { StructuredAgentSessionProviderOpenResult } from '../native-chat/agent-session-wire/structured-agent-session-provider-open-contract'
-import type { StructuredAgentSessionLogger } from '../native-chat/agent-session-wire/structured-agent-session-logger'
+} from '../native-chat/agent-session-wire/providers/structured-agent-session-adapter'
+import type { StructuredAgentSessionProviderOpenResult } from '../native-chat/agent-session-wire/startup/structured-agent-session-provider-open-contract'
+import type { StructuredAgentSessionLogger } from '../native-chat/agent-session-wire/host/structured-agent-session-logger'
 import {
   providerTimelineSink,
   type ProviderTimelineSink

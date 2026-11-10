@@ -6,6 +6,7 @@ import { isWebClientLocation } from '@/lib/web-client-location'
 import { useAppStore } from '@/store/index'
 import { SettingsSwitchRow } from '../../form-controls/SettingsFormControls'
 import { SettingsGroup } from '../../section-layout/SettingsGroup'
+import { ImportHarnessSkillsCard } from '../../ImportHarnessSkillsCard'
 import { OrcaSignInButton, OrcaSignInWaitNotice } from '../../../OrcaSignInProgress'
 
 type HowToStep = { key: string; title: string; description: string }
@@ -87,6 +88,8 @@ export function ShareSkillsSettingsPane(): React.JSX.Element {
           disabled={isWebClient}
           onChange={() => void updateSettings({ agentSkillSharingEnabled: !agentSharingEnabled })}
         />
+
+        {!isWebClient ? <ImportHarnessSkillsCard /> : null}
 
         {!isWebClient ? (
           <SettingsSwitchRow

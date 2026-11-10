@@ -6,7 +6,6 @@ export type TuiAgent =
   | 'codex'
   | 'autohand'
   | 'opencode'
-  | 'opencode2' // OpenCode 2 beta
   | 'mimo-code'
   | 'pi' // Pi (pi.dev)
   | 'omp' // OMP (omp.sh)

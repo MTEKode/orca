@@ -13,7 +13,7 @@ import {
   type SetStateAction
 } from 'react'
 import type { editor } from 'monaco-editor'
-import type { DiffComment } from '../../../../../../shared/diff-comment-types'
+import type { DecoratedDiffComment } from '../../../diff-comments/decorated-diff-comment'
 import type { WorkspaceResource } from '@/lib/workspace/ownership/workspace-copy-owner'
 import { toast } from 'sonner'
 import { useTranslate } from '@/i18n/use-translate'
@@ -118,7 +118,8 @@ export function useMonacoMarkdownAnnotations(params: {
       : null
   }, [markdownComments, scrollToDiffCommentId, shouldShowMarkdownAnnotations])
   const formatMarkdownCommentPrompt = useCallback(
-    (comment: DiffComment) => formatMarkdownReviewNotes([comment as MarkdownReviewNote], content),
+    (comment: DecoratedDiffComment) =>
+      formatMarkdownReviewNotes([comment as MarkdownReviewNote], content),
     [content]
   )
 

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Plug, Files, GitBranch, ListChecks, Workflow } from 'lucide-react'
+import { Plug, Files, GitBranch, ListChecks, Waypoints, Workflow } from 'lucide-react'
 import { useAppStore } from '@/store'
 import { useRepoById } from '@/store/repos/use-repository-catalog'
 import { isFolderRepo } from '../../../../shared/repo-kind'
@@ -22,6 +22,7 @@ import { useTranslate } from '@/i18n/use-translate'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 import { AgentSessionHistoryIcon } from './agent-session-history-icon'
 import type { ActivityBarItem } from './activity-bar-buttons'
+import { selectUncommittedChangeCount } from './source-control/uncommitted-change-count'
 
 export type RightSidebarActivityItems = {
   visibleItems: ActivityBarItem[]
@@ -47,6 +48,7 @@ export function useRightSidebarActivityItems({
   const activeWorktree = useAppStore((s) =>
     activeWorktreeId ? (s.getKnownWorktreeById(activeWorktreeId) ?? null) : null
   )
+  const uncommittedChangeCount = useAppStore(selectUncommittedChangeCount(activeWorktreeId))
   const activeRepo = useRepoById(activeWorktree?.repoId ?? null)
   const activeWorkspaceScope = parseWorkspaceKey(activeWorktreeId ?? '')
   const isFolderWorkspace = activeWorkspaceScope?.type === 'folder'
@@ -105,13 +107,21 @@ export function useRightSidebarActivityItems({
         icon: GitBranch,
         title: t('auto.components.right.sidebar.index.0314901467', 'Source Control'),
         shortcut: sourceControlShortcut === 'Unassigned' ? '' : sourceControlShortcut,
-        gitOnly: true
+        gitOnly: true,
+        badgeCount: uncommittedChangeCount > 0 ? uncommittedChangeCount : undefined
       },
       {
         id: 'checks',
         icon: ListChecks,
         title: t('auto.components.right.sidebar.index.83a10e3c44', 'Checks'),
         shortcut: checksShortcut === 'Unassigned' ? '' : checksShortcut,
+        gitOnly: true
+      },
+      {
+        id: 'graph',
+        icon: Waypoints,
+        title: t('auto.components.right.sidebar.GraphPanel.tabTitle', 'Graph'),
+        shortcut: '',
         gitOnly: true
       },
       {
@@ -132,6 +142,7 @@ export function useRightSidebarActivityItems({
       visiblePluginPanels,
       portsShortcut,
       sourceControlShortcut,
+      uncommittedChangeCount,
       languageRevision,
       t
     ]

@@ -2,7 +2,7 @@
 
 import { renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type * as DraftStoreModule from '@/components/native-chat/native-chat-composer-draft-store'
+import type * as DraftStoreModule from '@/components/native-chat/drafts/native-chat-composer-draft-store'
 
 const m = vi.hoisted(() => ({
   start: vi.fn(async (input: unknown) => {
@@ -24,22 +24,27 @@ const m = vi.hoisted(() => ({
 vi.mock('../source-control/ai/use-saved-source-control-action-start', () => ({
   useSavedSourceControlActionStart: () => ({ start: m.start, isStarting: false })
 }))
-vi.mock('@/components/native-chat/native-chat-composer-draft-insertion', () => ({
+vi.mock('@/components/native-chat/drafts/native-chat-composer-draft-insertion', () => ({
   insertNativeChatComposerDraftText: m.insert
 }))
-vi.mock('@/components/native-chat/native-chat-composer-draft-store', async (importOriginal) => ({
-  ...(await importOriginal<typeof DraftStoreModule>()),
-  readNativeChatComposerDraft: () => ({ text: '' })
-}))
+vi.mock(
+  '@/components/native-chat/drafts/native-chat-composer-draft-store',
+  async (importOriginal) => ({
+    ...(await importOriginal<typeof DraftStoreModule>()),
+    readNativeChatComposerDraft: () => ({ text: '' })
+  })
+)
 vi.mock('@/lib/agent-session/structured-agent-session-tab-activation', () => ({
   activateStructuredAgentSessionTab: m.activate
 }))
 vi.mock('@/store/index', () => ({ useAppStore: { getState: () => m.state } }))
 vi.mock('sonner', () => ({ toast: { message: m.toastMessage, error: vi.fn() } }))
-vi.mock('@/runtime/forge-credential-target', () => ({
+vi.mock('@/runtime/source-control/forge/forge-credential-target', () => ({
   forgeOwnerHostIdForWorkspace: () => 'host'
 }))
-vi.mock('../SourceControl', () => ({ buildResolvePullRequestConflictsPrompt: vi.fn() }))
+vi.mock('@/components/right-sidebar/source-control/panel/SourceControl', () => ({
+  buildResolvePullRequestConflictsPrompt: vi.fn()
+}))
 vi.mock(
   '../../../../../shared/source-control/review-comments/pr-comments-resolution-prompt',
   () => ({
@@ -47,7 +52,7 @@ vi.mock(
   })
 )
 
-import { structuredAgentSessionDraftScopeKey } from '@/components/native-chat/native-chat-composer-draft-store'
+import { structuredAgentSessionDraftScopeKey } from '@/components/native-chat/drafts/native-chat-draft-scope'
 import { useChecksPanelAiQueue } from './review-actions/use-checks-panel-ai-queue'
 
 function model() {

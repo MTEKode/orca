@@ -12,10 +12,12 @@ vi.mock('sonner', () => ({ toast: mocks.toast }))
 vi.mock('@/lib/lsp/lsp-workspace-symbol-lookup', () => ({
   lookupWorkspaceSymbol: mocks.lookupWorkspaceSymbol
 }))
-vi.mock('./terminal-file-open-routing', () => ({
+vi.mock('@/components/terminal-pane/links/files/terminal-file-open-routing', () => ({
   openDetectedFilePath: mocks.openDetectedFilePath
 }))
-vi.mock('./terminal-link-open-hints', () => ({ isMacPlatform: () => mocks.isMac }))
+vi.mock('@/components/terminal-pane/links/terminal-link-open-hints', () => ({
+  isMacPlatform: () => mocks.isMac
+}))
 vi.mock('../../../../shared/terminal/links/wrapped-terminal-link-ranges', () => ({
   buildWrappedLogicalLine: (_buffer: unknown, _line: number) => ({ text: 'raise Greeter here' }),
   rangeForParsedFileLink: (_line: unknown, start: number, end: number) => ({

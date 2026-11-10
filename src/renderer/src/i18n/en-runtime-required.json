@@ -424,6 +424,8 @@
             "discardFailedSampleMore_other": "{{paths}}, +{{count}} more",
             "discardFailed_one": "Failed to discard {{count}} file",
             "discardFailed_other": "Failed to discard {{count}} files",
+            "filesChanged_one": "{{count}} file changed",
+            "filesChanged_other": "{{count}} files changed",
             "noteCount_one": "{{count}} note",
             "noteCount_other": "{{count}} notes"
           },
@@ -640,9 +642,9 @@
           "detectedServers_one": "{{detected}} detected · {{count}} server",
           "detectedServers_other": "{{detected}} detected · {{count}} servers"
         },
-        "OrchestrationPane": {
-          "workerAutoReleaseKeywordClose": "close",
-          "workerAutoReleaseKeywordRelease": "release"
+        "McpIntegrationCard": {
+          "description": "Exposed to agents as MCP tools.",
+          "graphifyHint": "Build graphs from the Graph panel or `orca graph build`."
         },
         "OrchestrationSkillAgentCoverage": {
           "fullCoverage_one": "All 1 detected agent has the skill.",
@@ -692,6 +694,35 @@
           "adhocWarning": "Adhoc builds come from a branch that has not landed, and the Windows ones are unsigned. Whoever cut one may abandon it — keep a stable build handy.",
           "dailyWarning": "Daily builds ship straight from main with no test gate, and the Windows ones are unsigned. Keep a stable build handy.",
           "hourlyWarning": "Hourly builds ship straight from main with no test gate, and the Windows ones are unsigned. Keep a stable build handy."
+        },
+        "RepositoryLanguageServersSection": {
+          "bundled": "Bundled",
+          "customCommand": "Custom command",
+          "description": "Go to definition, find references and hover for this project. Enabling a server runs code from this repository.",
+          "dismiss": "Dismiss",
+          "install": "Install",
+          "installAria": "Language server install terminal",
+          "installFailed": "Install failed. Check the output above.",
+          "installTitle": "Install {{server}}",
+          "localOnly": "Language servers are available for local projects only.",
+          "manage": "Install or update",
+          "notInstalled": "Not installed",
+          "off": "Off",
+          "ruby": "Ruby",
+          "search": {
+            "findReferences": "find references",
+            "gemInstall": "gem install",
+            "goToDefinition": "go to definition",
+            "hover": "hover",
+            "languageServer": "language server",
+            "lsp": "lsp",
+            "ruby": "ruby",
+            "rubyLsp": "ruby-lsp",
+            "solargraph": "solargraph",
+            "typescript": "typescript"
+          },
+          "typescript": "TypeScript / JavaScript",
+          "update": "Update"
         },
         "Settings": {
           "084d8fac5b": "Privacy & Security",
@@ -1849,6 +1880,10 @@
         "changedFiles_one": "{{count}} changed file",
         "changedFiles_other": "{{count}} changed files"
       },
+      "turnRevert": {
+        "filesChanged_one": "{{count}} file will change",
+        "filesChanged_other": "{{count}} files will change"
+      },
       "writeNotice": {
         "agentRefused": "The agent turned this down.",
         "agentStarting": "The agent is still starting.",
@@ -1938,12 +1973,6 @@
           "startWorkspaceFromIssue": "Start a workspace from any GitHub issue or pull request, prefilled with its title and context"
         }
       }
-    },
-    "orchestrationCrew": {
-      "needsYou_one": "{{count}} needs you",
-      "needsYou_other": "{{count}} need you",
-      "workers_one": "{{count}} worker",
-      "workers_other": "{{count}} workers"
     },
     "tab": {
       "bar": {
@@ -2218,9 +2247,19 @@
       }
     },
     "repository": {
+      "deployCheck": {
+        "keywordDeploy": "deploy",
+        "keywordLinear": "linear",
+        "keywordStaging": "staging"
+      },
       "iconPickErrors": {
         "notPng": "Repo icons must be PNG files.",
         "tooLarge": "Repo icon image must be 256KB or smaller."
+      },
+      "mteFlowPrompt": {
+        "keywordMte": "mte",
+        "keywordOrchestration": "orchestration",
+        "keywordPlanner": "planner"
       }
     },
     "shortcuts": {

@@ -12,7 +12,6 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { agentLaunchPromptScopeKey } from './AgentLaunchPromptComposer'
 import { changePrompt } from '../native-chat/composer/editor/native-chat-prompt-editor.test-support'
 import { readNativeChatComposerDraft } from '../native-chat/drafts/native-chat-composer-draft-store'
-import { EntryActionRow } from '../tab-bar/TabBarCreateEntryRow'
 import { AgentLaunchPickerMenu } from './AgentLaunchPickerMenu'
 import {
   DropdownMenu,
@@ -21,7 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 it.each(['claude', 'codex'] as const)(
-  'both actual setup callers retain rich %s input/options across freshness, refusal and explicit retry',
+  'the + menu setup retains rich %s input/options across freshness, refusal and explicit retry',
   async (agent) => {
     const own: AgentPickerEntry = {
       ...entry,
@@ -90,16 +89,7 @@ it.each(['claude', 'codex'] as const)(
           <DropdownMenu defaultOpen modal={false}>
             <DropdownMenuTrigger>New tab</DropdownMenuTrigger>
             <DropdownMenuContent>
-              <EntryActionRow
-                id="actual-search-row"
-                option={{
-                  kind: 'agent',
-                  option: { agent, aliases: [], label: agent, pickerEntry: refreshed }
-                }}
-                selected={false}
-                onClick={() => launch(undefined)}
-                onUseAgent={(draft) => launch(own.rows[0], draft, refreshed)}
-              />
+              <AgentLaunchPickerMenu entries={[refreshed]} runLaunch={launch} />
             </DropdownMenuContent>
           </DropdownMenu>
         </TooltipProvider>

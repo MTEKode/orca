@@ -97,7 +97,7 @@ export async function initializeAcpStructuredSession(
       started = await connection.start(
         {
           cwd: launch.cwd,
-          mcpServers: [],
+          mcpServers: launch.mcpServers ?? [],
           sessionId: resume.sessionId,
           ...setup
         },
@@ -118,7 +118,10 @@ export async function initializeAcpStructuredSession(
   if (!started || !liveLane) {
     liveLane?.dispose()
     input.lanes.clear()
-    started = await connection.start({ cwd: launch.cwd, mcpServers: [], ...setup }, acceptSession)
+    started = await connection.start(
+      { cwd: launch.cwd, mcpServers: launch.mcpServers ?? [], ...setup },
+      acceptSession
+    )
     assertStarting()
   }
   if (!liveLane) {

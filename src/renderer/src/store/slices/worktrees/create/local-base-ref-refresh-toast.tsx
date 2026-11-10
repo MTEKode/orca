@@ -14,16 +14,16 @@ export function localBaseRefRefreshFailureDetail(result: LocalBaseRefRefreshResu
   const ownerWorktreePath = result.ownerWorktreePath?.trim()
   switch (result.status) {
     case 'skipped_dirty_worktree':
-      // Create already succeeded — guide cleanup + manual base update, not "try again".
+      // Create already succeeded; tracked edits are reset beforehand, so untracked files are what blocks. Guide cleanup + manual update, not "try again".
       return ownerWorktreePath
         ? translate(
             'auto.store.slices.worktrees.localBaseRefRefreshFailedDetailDirtyNamed',
-            'The worktree at {{value0}} (where local {{value1}} is checked out) has uncommitted changes. Commit, stash, or discard those changes, then update local {{value1}} manually.',
+            'The worktree at {{value0}} (where local {{value1}} is checked out) has untracked files that block the update. Move or delete those files, then update local {{value1}} manually.',
             { value0: ownerWorktreePath, value1: result.localBranch }
           )
         : translate(
             'auto.store.slices.worktrees.localBaseRefRefreshFailedDetailDirty',
-            'The worktree where local {{value0}} is checked out has uncommitted changes. Commit, stash, or discard those changes, then update local {{value0}} manually.',
+            'The worktree where local {{value0}} is checked out has untracked files that block the update. Move or delete those files, then update local {{value0}} manually.',
             { value0: result.localBranch }
           )
     case 'skipped_not_fast_forward':

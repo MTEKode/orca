@@ -13,24 +13,28 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock('@/store/index', () => ({ useAppStore: { getState: () => mocks.state } }))
-vi.mock('@/lib/worktree-activation', () => ({
+vi.mock('@/lib/workspace/activation/worktree-activation', () => ({
   activateAndRevealWorktree: mocks.activateAndRevealWorktree
 }))
-vi.mock('@/lib/activate-tab-and-focus-pane', () => ({ activateTabAndFocusPane: vi.fn() }))
-vi.mock('@/lib/terminal-tab-owner-activation', () => ({ activateTerminalTabOnOwner: vi.fn() }))
-vi.mock('@/components/terminal-pane/stale-agent-row', () => ({
+vi.mock('@/lib/workspace/tabs/activate-tab-and-focus-pane', () => ({
+  activateTabAndFocusPane: vi.fn()
+}))
+vi.mock('@/lib/workspace/tabs/terminal-tab-owner-activation', () => ({
+  activateTerminalTabOnOwner: vi.fn()
+}))
+vi.mock('@/components/terminal-pane/agent-status/stale-agent-row', () => ({
   dismissStaleAgentRowByKey: vi.fn()
 }))
-vi.mock('@/components/native-chat/use-native-chat-composer-reveal-focus', () => ({
+vi.mock('@/components/native-chat/composer/focus/use-native-chat-composer-reveal-focus', () => ({
   requestNativeChatComposerFocus: vi.fn()
 }))
-vi.mock('@/lib/worktree-runtime-owner', () => ({
+vi.mock('@/lib/workspace/ownership/worktree-runtime-owner', () => ({
   runtimeEnvironmentIdOrLocalUnlessTwin: () => 'local'
 }))
-vi.mock('@/runtime/runtime-client-target', () => ({
+vi.mock('@/runtime/rpc/targets/runtime-client-target', () => ({
   runtimeTargetForOwnerEnvironment: () => ({ kind: 'local' })
 }))
-vi.mock('@/runtime/runtime-rpc-client', () => ({ callRuntimeRpc: vi.fn(async () => ({})) }))
+vi.mock('@/runtime/rpc/calls/runtime-rpc-call', () => ({ callRuntimeRpc: vi.fn(async () => ({})) }))
 
 import { hideWorkerSession, isHiddenWorkerTab } from '@/lib/agent-session/revealed-worker-tabs'
 import { useWorktreeAgentActivation } from './workspace-card/activity/use-worktree-agent-activation'

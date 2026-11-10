@@ -141,11 +141,8 @@ export function renderFloatingTerminalPanelSurface(
                   onCloseToRight={closeToRight}
                   onCloseToLeft={closeToLeft}
                   onNewTerminalTab={() => createFloatingTerminalTab()}
-                  onNewTerminalWithShell={createFloatingTerminalTab}
                   onNewBrowserTab={createFloatingBrowserTab}
                   onNewFileTab={createFloatingMarkdownTab}
-                  onOpenFileTab={openFloatingMarkdownTab}
-                  newTabMenuOrder="markdown-first"
                   onSetCustomTitle={setTabCustomTitle}
                   onSetTabColor={setTabColor}
                   onTogglePaneExpand={(tabId) =>

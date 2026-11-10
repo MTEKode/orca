@@ -8,6 +8,7 @@ import { formatDiffComment } from '../../../../../../shared/diff-comments-format
 import { translate } from '@/i18n/i18n'
 import { useTranslate, type Translate } from '@/i18n/use-translate'
 import type { DiffComment } from '../../../../../../shared/diff-comment-types'
+import { isAgentDiffComment } from '../../../../../../shared/diff-comment-types'
 import { useCopyFeedbackState } from './copy-feedback'
 
 function getLocalizedDiffCommentLineLabel(
@@ -157,6 +158,11 @@ export function DiffCommentsInlineList({
                       ? t('auto.components.right.sidebar.SourceControl.94c42b252e', 'MD')
                       : t('auto.components.right.sidebar.SourceControl.c56ba7fa06', 'Diff')}
                   </span>
+                  {isAgentDiffComment(c) ? (
+                    <span className="shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] leading-none text-muted-foreground">
+                      {translate('components.diffComments.agentBadge', 'AI')}
+                    </span>
+                  ) : null}
                   {c.sentAt ? (
                     <span className="shrink-0 rounded bg-muted/70 px-1 py-0.5 text-[10px] leading-none text-muted-foreground">
                       {t('auto.components.right.sidebar.SourceControl.655633c08a', 'Sent')}

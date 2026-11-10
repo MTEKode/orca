@@ -121,6 +121,8 @@ export type RuntimeMobileSessionAgentTab = {
   agent: StructuredAgentId
   /** The host's structured status row for this chat. Optional: old hosts never send it. */
   chatStatus?: RuntimeMobileSessionAgentTabStatus
+  /** Set for structured orchestration workers; clients keep these out of the tab bar. */
+  role?: 'worker'
   color?: string | null
   isPinned?: boolean
   isActive: boolean

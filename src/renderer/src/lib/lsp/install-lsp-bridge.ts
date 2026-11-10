@@ -2,7 +2,8 @@
 import type * as Monaco from 'monaco-editor'
 import { typescript as monacoTS } from 'monaco-editor'
 import { useAppStore } from '@/store'
-import { getWorktreeMapFromState } from '@/store/selectors'
+import { getIndexedWorktreeMap } from '@/store/slices/worktrees/listing/worktree-catalog-index'
+import { selectWorktreesByRepo } from '@/store/workspaces/catalog/workspace-record-fields'
 import { LspDocumentSync } from './lsp-document-sync'
 import { registerLspEditorOpener } from './lsp-editor-opener'
 import { registerLspNavigationProviders } from './lsp-navigation-providers'
@@ -11,7 +12,10 @@ import { registerLspSemanticTokensProvider } from './lsp-semantic-tokens'
 import { getLspClient, releaseLspClient, retainLspClient } from './lsp-session-opener'
 
 function findOwner(fsPath: string) {
-  return findOwningWorktree(getWorktreeMapFromState(useAppStore.getState()).values(), fsPath)
+  return findOwningWorktree(
+    getIndexedWorktreeMap(selectWorktreesByRepo(useAppStore.getState())).values(),
+    fsPath
+  )
 }
 
 function disableWorkerNavigation(): void {

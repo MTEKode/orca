@@ -1,6 +1,7 @@
 import type { AgentType } from '../../agent-status/contracts/agent-status-types'
 import type { AgentSessionSlashCommand } from '../../agent-session/agent-session-wire'
-import type { DiscoveredSkill, SkillDiscoveryResult } from '../../skills'
+import type { DiscoveredSkill, SkillDiscoveryResult, SkillSourceKind } from '../../skills'
+import type { UnifiedCatalogSkill, UnifiedSkillSource } from '../../skills/unified-skill-catalog'
 import { getNativeChatAgentProfile, readsSkillSource } from '../native-chat-agent-profiles'
 import { classifyPickerCommands } from './native-chat-picker-items'
 import {
@@ -53,5 +54,37 @@ export function nativeChatPickerCommands(
     // A chat that keeps scanned skills (OpenCode) may report each as a command too.
     reportMayListSkills: getNativeChatAgentProfile(agent)?.keepsScannedSkills === true,
     isSendCommand: (name) => isStructuredAgentSessionComposerCommand(`/${name}`, agent, [])
+  })
+}
+
+const UNIFIED_SOURCE_KIND: Record<UnifiedSkillSource, SkillSourceKind> = {
+  project: 'repo',
+  bundled: 'bundled',
+  installed: 'home'
+}
+
+/**
+ * Unified-catalog skills are visible to every agent: they bypass `isNativeChatSkillForAgent`
+ * (which gates scanned skills by the roots an agent reads) and reach the picker as scanned-shaped rows.
+ */
+export function unifiedCatalogPickerSkills(
+  catalog: readonly UnifiedCatalogSkill[]
+): DiscoveredSkill[] {
+  return catalog.map((skill) => {
+    const separator = skill.directoryPath.includes('\\') ? '\\' : '/'
+    const skillFilePath = `${skill.directoryPath.replace(/[\\/]+$/, '')}${separator}SKILL.md`
+    return {
+      id: `unified:${skill.directoryPath}`,
+      name: skill.name,
+      description: skill.description,
+      providers: [],
+      sourceKind: UNIFIED_SOURCE_KIND[skill.source],
+      sourceLabel: skill.source,
+      rootPath: skill.directoryPath.replace(/[\\/][^\\/]*$/, ''),
+      directoryPath: skill.directoryPath,
+      skillFilePath,
+      installed: true,
+      updatedAt: null
+    }
   })
 }

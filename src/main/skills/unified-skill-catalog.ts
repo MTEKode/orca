@@ -4,7 +4,7 @@ import {
   unifiedSkillSource,
   type UnifiedCatalogSkill
 } from '../../shared/skills/unified-skill-catalog'
-import { discoverSkills } from './discovery'
+import { discoverSkills } from './discovery/skill-native-discovery'
 import { BUNDLED_SKILL_SOURCES } from './bundled-skill-install/bundled-skill-sources'
 
 const BUNDLED_NAMES: ReadonlySet<string> = new Set(

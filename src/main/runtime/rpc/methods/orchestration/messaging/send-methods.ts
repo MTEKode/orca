@@ -5,7 +5,6 @@ import {
   dispatchReportMailbox,
   isDispatchReportType
 } from '../../../../orchestration/workers/reports/dispatch-report-mailbox'
-import { orchestrationSkillRecoveryData } from '../../../../../../shared/orchestration/orchestration-rpc-contract'
 import { SendParams } from './send-params'
 import { isDispatchMutationMessageType } from '../../../../../../shared/rpc-contract/orchestration-params'
 import { isWorkerReportOutcome, parseRemoteWorkerPayload } from './message-payload'
@@ -22,6 +21,8 @@ import { withPeerMailSend } from './peer-mail-send'
 import { mayNameSession } from './session-recipient'
 import { sendPointToPointMessage } from './send-point-to-point'
 import { sendGroupMessage } from './send-group'
+import { assertWorkerMayAddress } from './worker-send-acl'
+import { requireSendRecipient } from './require-send-recipient'
 import { sendFederatedControlMail } from '../../../../orchestration/legacy-remote-home/legacy-remote-home'
 import { orchestrationCallerIdentity } from '../runs/run-scope'
 import { assertLifecycleCallerIsNotAnotherParty } from './lifecycle-caller-fence'
@@ -147,13 +148,7 @@ export const ORCHESTRATION_SEND_METHODS = [
               : undefined
           to = reporting ? dispatchReportMailbox(db, reporting) : `run:${routing.run.id}`
         }
-        if (!to) {
-          throw new OrchestrationError(
-            'run_required',
-            'No recipient or active Dispatch Run could be resolved. No effects were applied.',
-            orchestrationSkillRecoveryData()
-          )
-        }
+        to = requireSendRecipient(to)
 
         const sendWarnings: SendRecipientWarning[] = []
         let messageRunId = routing.run?.id
@@ -178,6 +173,8 @@ export const ORCHESTRATION_SEND_METHODS = [
             sendWarnings.push(recipient.warning)
           }
         }
+        // Fork guard: the access rule runs before bare-handle resolution, so it cannot see this recipient.
+        assertWorkerMayAddress(db, sender, to, !!params.to)
         const withSendWarnings = <T extends object>(
           receipt: T
         ): T & { warnings?: SendRecipientWarning[] } =>

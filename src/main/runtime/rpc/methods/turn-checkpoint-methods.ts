@@ -10,12 +10,12 @@ import type {
 } from '../../../../shared/agent-session-turn-checkpoints'
 import { agentSessionRefusalError } from '../../../../shared/agent-session/failures/agent-session-wire-refusals'
 import { readTurnCheckpointService } from '../../../git/checkpoints/turn-checkpoint-service'
-import { structuredAgentSessionConversationFence } from '../../../native-chat/agent-session-wire/structured-agent-session-provider-child'
+import { structuredAgentSessionConversationFence } from '../../../native-chat/agent-session-wire/host/structured-agent-session-provider-child'
 import { defineMethod } from '../core'
 import {
   requireInstalledStructuredHost,
   requireStructuredSessionHost
-} from './structured-agent-session-gate'
+} from './structured-sessions/creation/structured-agent-session-gate'
 import {
   DiffTurnCheckpointParams,
   ListTurnCheckpointsParams,

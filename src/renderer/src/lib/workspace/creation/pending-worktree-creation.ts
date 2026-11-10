@@ -30,6 +30,7 @@ import type { Translate } from '@/i18n/use-translate'
 import type { EnvironmentDoctorCheck } from '../../../../../shared/environment-doctor-types'
 import type { NativeChatComposerDraftImage } from '@/components/native-chat/drafts/native-chat-composer-draft-storage'
 import type { AgentJournalSkillRef } from '../../../../../shared/agent-session/journal/agent-session-journal-types'
+import type { MteRunLaunchChoice } from '@/lib/start-mte-run-in-worktree'
 
 /** Creation phases include renderer preflight, base fetch and worktree add; remote/runtime can skip git phases, while VM recipes provision before runtime creation. */
 export type WorktreeCreationPhase = 'preparing' | 'provisioning-vm' | 'fetching' | 'creating'
@@ -142,6 +143,8 @@ export type WorktreeCreationRequest = {
   suppressTerminalFocusOnCompletion?: boolean
   /** "None" in the composer: when setup runs, open only its tab instead of an extra shell. */
   setupOnly?: boolean
+  /** Orchestration pick re-entered after the worktree exists; it replaces the agent session. */
+  mteLaunch?: MteRunLaunchChoice
 }
 
 export type PendingVmEnvironmentCheck = {

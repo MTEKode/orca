@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAppStore } from '@/store'
-import { findWorktreeById } from '@/store/slices/worktree-helpers'
-import { selectWorktreesByRepo } from '@/store/workspace-record-selectors'
+import { findFirstIndexedWorktree } from '@/lib/workspace/ownership/worktree-runtime-owner-index'
+import { selectWorktreesByRepo } from '@/store/workspaces/catalog/workspace-record-fields'
 import { useAgentLaunchPickerInventory } from '@/components/agent/use-agent-launch-picker-inventory'
 import {
   NO_LINKED_ITEMS,
@@ -11,7 +11,7 @@ import { newChatOrchestrationAvailable } from '@/components/tab-bar/use-new-chat
 import type { MteOrchestrationDraft } from '@/components/mte-orchestration-picker/use-mte-orchestration-picker'
 import type { NewTabAgentMenuModel } from '@/components/tab-bar/new-tab-agent-menu-model'
 import type { AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'
-import type { AgentSessionContinuationRequest } from '@/lib/agent-session-continuation'
+import type { AgentSessionContinuationRequest } from '@/lib/agent-session/context/agent-session-continuation'
 import type { Worktree } from '../../../../shared/worktree/types'
 
 const NO_WORKTREES_BY_REPO: Record<string, Worktree[]> = {}
@@ -34,7 +34,7 @@ export function useContinuationOrchestration(input: {
   const worktreeId = input.request?.worktreeId ?? null
   const worktree = useAppStore((state) =>
     worktreeId
-      ? findWorktreeById(selectWorktreesByRepo(state) ?? NO_WORKTREES_BY_REPO, worktreeId)
+      ? findFirstIndexedWorktree(selectWorktreesByRepo(state) ?? NO_WORKTREES_BY_REPO, worktreeId)
       : undefined
   )
   const repo = useAppStore((state) =>

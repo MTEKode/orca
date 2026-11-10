@@ -1,11 +1,9 @@
 import { toast } from 'sonner'
 import { translate } from '@/i18n/i18n'
 import { useAppStore } from '@/store/index'
-import {
-  readNativeChatComposerDraft,
-  structuredAgentSessionDraftScopeKey
-} from '@/components/native-chat/native-chat-composer-draft-store'
-import { insertNativeChatComposerDraftText } from '@/components/native-chat/native-chat-composer-draft-insertion'
+import { readNativeChatComposerDraft } from '@/components/native-chat/drafts/native-chat-composer-draft-store'
+import { structuredAgentSessionDraftScopeKey } from '@/components/native-chat/drafts/native-chat-draft-scope'
+import { insertNativeChatComposerDraftText } from '@/components/native-chat/drafts/native-chat-composer-draft-insertion'
 import { activateStructuredAgentSessionTab } from '@/lib/agent-session/structured-agent-session-tab-activation'
 import { visibleStructuredChatTab } from '@/lib/agent-session/visible-structured-chat-tab'
 

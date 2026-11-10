@@ -15,6 +15,8 @@ import { useIntlLocale, useTranslate } from '@/i18n/use-translate'
 import { localizedHostedReviewCopy } from '@/i18n/hosted-review-localized-copy'
 import { isGitHubPRSuppressed } from '../../../../../../shared/worktree/github-pr-suppression'
 import type { ChecksPanelEmptyContentModel } from './empty-content-props'
+import { ChecksPanelNoWorkspace } from './empty-content-no-workspace'
+import { ChecksPanelConductorSections } from '../conductor-git-status-sections'
 import { useNow } from '@/hooks/use-now'
 
 export function ChecksPanelEmptyContent({
@@ -100,19 +102,7 @@ export function ChecksPanelEmptyContent({
     suppressedGitHubPR
   } = model
   if (!activeWorktree) {
-    return (
-      <div className="px-4 py-6">
-        <div className="text-sm font-medium text-foreground">
-          {t('auto.components.right.sidebar.ChecksPanel.a4ef4e0832', 'No workspace selected')}
-        </div>
-        <div className="mt-1 text-xs text-muted-foreground">
-          {t(
-            'auto.components.right.sidebar.ChecksPanel.b5dd73a105',
-            'Select a workspace to view checks'
-          )}
-        </div>
-      </div>
-    )
+    return <ChecksPanelNoWorkspace />
   }
   if (isFolder) {
     return (
@@ -387,6 +377,18 @@ export function ChecksPanelEmptyContent({
               </Button>
             ) : null}
           </div>
+        )}
+        {!operationInProgress && (
+          <ChecksPanelConductorSections
+            worktreeId={activeWorktreeId}
+            showDraftFields={!createComposerOpen}
+            canCreatePr={
+              createComposerOpen && !isCreatingPr && !isPublishingBranch && !isRemoteOperationActive
+            }
+            onCreatePr={() => void handleCreatePullRequest(false)}
+            onPull={() => void handleSyncBranch()}
+            pullDisabled={isSyncingBranch || isRemoteOperationActive}
+          />
         )}
       </div>
     )

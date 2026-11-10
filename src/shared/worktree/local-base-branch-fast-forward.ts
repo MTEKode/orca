@@ -30,6 +30,8 @@ export type LocalBaseBranchInspection =
       localOid: string
       remoteOid: string
       ownerWorktreePath?: string
+      /** The owner checkout has uncommitted edits to tracked files; fast-forward discards them. */
+      ownerHasTrackedChanges?: true
     }
   | {
       status: Exclude<LocalBaseRefRefreshStatus, 'updated'>
@@ -105,16 +107,21 @@ export async function inspectLocalBaseBranch(
     if (!owner) {
       return { status: 'behind', behind, localOid, remoteOid }
     }
-    if (await hasTrackedChanges(git, owner.path)) {
-      return { status: 'skipped_dirty_worktree', ownerWorktreePath: owner.path }
+    const ownerHasTrackedChanges = await hasTrackedChanges(git, owner.path)
+    return {
+      status: 'behind',
+      behind,
+      localOid,
+      remoteOid,
+      ownerWorktreePath: owner.path,
+      ...(ownerHasTrackedChanges ? { ownerHasTrackedChanges: true as const } : {})
     }
-    return { status: 'behind', behind, localOid, remoteOid, ownerWorktreePath: owner.path }
   } catch {
     return { status: 'skipped_error' }
   }
 }
 
-/** Fast-forward with Git’s index-lock protections in an owner checkout, or compare-and-swap update-ref for a free branch. Refuse overwritten edits/untracked files or dropped commits; never reject. */
+/** Fast-forward with Git’s index-lock protections in an owner checkout (tracked edits are reset first), or compare-and-swap update-ref for a free branch. Refuse overwritten edits/untracked files or dropped commits; never reject. */
 export async function fastForwardLocalBaseBranch(
   git: LocalBaseBranchGit,
   refs: LocalBaseBranchRefs
@@ -124,7 +131,7 @@ export async function fastForwardLocalBaseBranch(
     return inspection
   }
   const { repoPath, fullRef, remoteTrackingRef } = refs
-  const { localOid, remoteOid, ownerWorktreePath } = inspection
+  const { localOid, remoteOid, ownerWorktreePath, ownerHasTrackedChanges } = inspection
   const owner = ownerWorktreePath ? { ownerWorktreePath } : {}
   const branch = fullRef.slice('refs/heads/'.length)
   if (ownerWorktreePath && branch.includes('=')) {
@@ -151,6 +158,10 @@ export async function fastForwardLocalBaseBranch(
       const { stdout: head } = await git.exec(['symbolic-ref', '-q', 'HEAD'], ownerWorktreePath)
       if (head.trim() !== fullRef) {
         throw new Error(`${fullRef} is no longer checked out at ${ownerWorktreePath}`)
+      }
+      if (ownerHasTrackedChanges) {
+        // Why: the user accepted discarding tracked edits in the main checkout; untracked files stay (no `clean`).
+        await git.exec(['reset', '--hard'], ownerWorktreePath)
       }
       await git.exec(ownerFastForwardArgs(branch, remoteOid), ownerWorktreePath)
     })

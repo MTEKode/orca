@@ -119,7 +119,6 @@ export function normalizeProviderEvent(input: {
       payload = normalizeAmpEvent(state, eventName, promptText, paneKey, hookPayload)
       break
     case 'opencode':
-    case 'opencode2':
     case 'mimo-code': {
       if (extractedPrompt.source === 'role_user_text') {
         const messageId = readFirstString(hookPayload, ['messageID', 'messageId', 'message_id'])

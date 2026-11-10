@@ -5,15 +5,15 @@ import { LOCAL_EXECUTION_HOST_ID } from '../../../shared/execution-host'
 import { makePaneKey } from '../../../shared/workspace-layout/stable-pane-id'
 import { formatOrcaSessionAddress } from '../../../shared/orca-session-address'
 import { testOrcaSessionId } from '../../../shared/orca-session-address-test-fixture'
-import { chatWorkerTurnStopReporter } from './chat-worker-turn-stops'
-import { OrchestrationDb } from './db'
+import { chatWorkerTurnStopReporter } from './workers/turn-stops/chat-worker-turn-stops'
+import { OrchestrationDb } from './db/orchestration-db'
 import { createRootDispatch } from './db/root-dispatch-test-fixture'
 import type {
   AgentJournalQuestionItem,
   AgentJournalRenderItem,
   AgentJournalResolution
 } from '../../../shared/agent-session/journal/agent-session-journal-types'
-import type { MessageType } from './types'
+import type { MessageType } from './db/orchestration-records'
 import { routeWorkerPromptToCoordinator, resolveWorkerPromptReply } from './worker-prompt-routing'
 
 const CHAT_SESSION = testOrcaSessionId('9a4e7c1b-3d2f-4b6a-8e5c-7f1d0b2a6c93')
@@ -34,7 +34,7 @@ const state = vi.hoisted(() => ({
   } | null
 }))
 
-vi.mock('../../native-chat/agent-session-wire/structured-agent-session-registry', () => ({
+vi.mock('../../native-chat/agent-session-wire/host/structured-agent-session-registry', () => ({
   getStructuredAgentSessionHost: () => state.host
 }))
 

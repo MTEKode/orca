@@ -176,7 +176,7 @@ describe('OpenCode submit readiness', () => {
     vi.useFakeTimers()
     const h = fixture()
     const result = settle(
-      waitForWorktreeStartupDraft(h.host, 'term-1', 'opencode2', {
+      waitForWorktreeStartupDraft(h.host, 'term-1', 'opencode', {
         timeoutMs: 60_000,
         requireComposerMarker: true,
         submit: true
@@ -195,7 +195,7 @@ describe('OpenCode submit readiness', () => {
     vi.useFakeTimers()
     const h = fixture()
     const result = settle(
-      waitForWorktreeStartupDraft(h.host, 'term-1', 'opencode2', {
+      waitForWorktreeStartupDraft(h.host, 'term-1', 'opencode', {
         timeoutMs: 60_000,
         requireComposerMarker: true,
         submit: true
@@ -220,7 +220,7 @@ describe('OpenCode submit readiness', () => {
       }
     ) {
       return settle(
-        waitForWorktreeStartupDraft(h.host, 'term-1', 'opencode2', {
+        waitForWorktreeStartupDraft(h.host, 'term-1', 'opencode', {
           timeoutMs: checks.timeoutMs ?? 60_000,
           requireComposerMarker: true,
           submit: true,
@@ -303,7 +303,7 @@ describe('OpenCode submit readiness', () => {
       const h = fixture()
       const check = pendingRead()
       const abort = new AbortController()
-      const pending = waitForWorktreeStartupDraft(h.host, 'term-1', 'opencode2', {
+      const pending = waitForWorktreeStartupDraft(h.host, 'term-1', 'opencode', {
         timeoutMs: 3000,
         requireComposerMarker: true,
         submit: true,

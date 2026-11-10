@@ -1,3 +1,4 @@
+import type { MteWorkerPin } from '../mte/worker-pin'
 import type { StructuredAgentId } from './lifecycle/agent-session-provider-handle'
 import type { AgentSessionMutationEnvelope } from './agent-session-wire'
 import type { z } from 'zod'
@@ -32,6 +33,9 @@ export type StructuredAgentSessionCreateParams = {
   options?: Readonly<Record<string, string>>
   /** Sent only to a host advertising `AGENT_SESSION_CREATE_TAB_PLACEMENT_RUNTIME_CAPABILITY`. */
   tabPlacement?: { groupId?: string; afterTabId?: string }
+  /** MTE: mark the new chat as a planner (and pin its workers) at creation time. */
+  mteRole?: 'planner'
+  mteWorker?: MteWorkerPin
 }
 
 export type StructuredAgentSessionFirstMessage = {

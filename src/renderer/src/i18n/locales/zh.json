@@ -519,6 +519,34 @@
       "iconPickErrors": {
         "notPng": "仓库图标必须是 PNG 文件。",
         "tooLarge": "仓库图标图片不得超过 256 KB。"
+      },
+      "mteFlowPrompt": {
+        "title": "在新聊天中询问是否使用 MTE 编排",
+        "description": "在此项目中启动 Claude、Codex 或 OpenCode 聊天时，询问是否让 MTE 规划器驱动 coder 和 validator 智能体。",
+        "keywordMte": "mte",
+        "keywordOrchestration": "编排",
+        "keywordPlanner": "规划器"
+      },
+      "deployCheck": {
+        "title": "部署检查",
+        "description": "最后一个任务通过验证后，MTE 流程在何处测试已部署的功能，以及将 Linear 工单移动到哪个状态。",
+        "url": "URL",
+        "username": "用户名",
+        "password": "密码",
+        "save": "保存密码",
+        "clear": "清除",
+        "passwordSaved": "密码已保存",
+        "passwordError": "无法保存密码：此系统上的安全存储不可用。",
+        "doneState": "检查通过后的 Linear 状态",
+        "keywordDeploy": "部署",
+        "keywordStaging": "预发布",
+        "keywordLinear": "linear"
+      },
+      "quickCommandsFloating": {
+        "title": "在悬浮终端中运行快捷命令",
+        "description": "Shell 快捷命令将在悬浮终端中于此项目内运行，而不是在新的工作区标签页中。",
+        "keywordQuick": "快捷命令",
+        "keywordFloating": "悬浮终端"
       }
     },
     "editorFormatOnSave": {
@@ -968,7 +996,6 @@
           "d443a47995": "Prime Agent",
           "mimo_code_label": "MiMo Code",
           "muse_label": "Muse",
-          "opencode2_label": "OpenCode 2",
           "codebuddy_label": "CodeBuddy",
           "zcode_label": "ZCode",
           "jcode_label": "Jcode",
@@ -1527,8 +1554,6 @@
         "6a50cdcd7c": "语音",
         "0059bd17f3": "使智能体能够控制您计算机上的任何应用程序。",
         "b35e92364b": "计算机控制",
-        "cd50cec5d7": "通过 Orca 协调多个编码智能体。",
-        "58a868e8e4": "编排",
         "7c79d3b7bf": "可选",
         "b1c2f8b0ac": "Claude、Codex、Gemini、OpenCode Go、MiniMax 和 Grok 的可选账户切换与使用量设置。",
         "f70ac54d38": "AI 提供商账户",
@@ -3445,6 +3470,9 @@
             "cc5a2dc706": "编辑窗格标题：{{value0}}",
             "7dbbfcbecc": "窗格标题"
           },
+          "TerminalSymbolLinks": {
+            "noDefinition": "未找到 {{token}} 的定义"
+          },
           "TerminalSessionStateSaveFailureDialog": {
             "6bee0c8f17": "打开磁盘空间分析器",
             "ae20d0ffc2": "关闭",
@@ -3754,17 +3782,11 @@
           },
           "TabBar": {
             "b1a132357f": "新标签页",
-            "4f327c8b3d": "打开 Markdown...",
             "3d5d6c960d": "新 Markdown",
             "fd2b42aaa3": "新的手机模拟器",
             "b426bb2615": "转到手机模拟器",
             "4833fb2cbe": "新浏览器选项卡",
             "d364f3c8d4": "新终端",
-            "7c1313d237": "新终端：",
-            "d1afac112b": "WSL",
-            "efb33546ff": "git bash",
-            "1a8af49530": "命令提示符",
-            "2148f65e04": "PowerShell",
             "7a9b4af2af": "向左滚动标签页",
             "232e075b07": "向右滚动标签页"
           },
@@ -3772,8 +3794,6 @@
             "d62d63b807": "创建文件",
             "25dc1cd653": "打开文件",
             "7cdf8ee0c8": "打开网址",
-            "b27864279e": "启动智能体",
-            "omniboxPlaceholderWithHistory": "搜索打开的标签页、历史记录、文件、URL 和智能体…",
             "openPage": "打开页面",
             "8f0a1c4d92": "切换到标签页",
             "2c38630a01": "工作区已不存在",
@@ -3837,8 +3857,6 @@
                   "fb50e3d874": "新建 markdown",
                   "6d8b6b4117": "新文件",
                   "b330f72434": "markdown",
-                  "37ff3ddca1": "打开 markdown",
-                  "164c394bab": "打开文件",
                   "bbaf4f85a4": "移动端模拟器",
                   "3784b83bd4": "模拟器",
                   "a63847a742": "模拟器",
@@ -7927,6 +7945,24 @@
           "cc76342291": "使用 GitHub 头像",
           "43bf3709dd": "Repo 图标"
         },
+        "RepositoryLanguageServersSection": {
+          "title": "语言服务器",
+          "description": "在此项目中使用转到定义、查找引用和悬停提示。启用服务器会运行此仓库中的代码。",
+          "localOnly": "语言服务器仅适用于本地项目。",
+          "typescript": "TypeScript / JavaScript",
+          "ruby": "Ruby",
+          "off": "关闭",
+          "bundled": "内置",
+          "notInstalled": "未安装",
+          "manage": "安装或更新",
+          "install": "安装",
+          "update": "更新",
+          "customCommand": "自定义命令",
+          "installTitle": "安装 {{server}}",
+          "installAria": "语言服务器安装终端",
+          "installFailed": "安装失败。请查看上方输出。",
+          "dismiss": "关闭"
+        },
         "RepositoryPane": {
           "15a99d9b9f": "相对路径从该项目根解析。",
           "e63bb96a9b": "新工作树的项目特定目录。",
@@ -8193,6 +8229,7 @@
           "6d119427ef": "入门清单",
           "5063bb47a5": "语音",
           "7118953f14": "使智能体能够控制您计算机上的任何应用程序。",
+          "c9841721cb": "计算机控制",
           "475980f53d": "通过 Orca 协调多个编码智能体。",
           "00c3a7950d": "编排",
           "21f09426ea": "可选。 Orca 可与您现有的提供商登录配合使用；仅当您希望 Orca 帮助在账户之间切换时才添加账户。",
@@ -14862,7 +14899,7 @@
             "5e8fe5a72d": "让智能体直接访问 Orca 的浏览器，以便测试页面、捕获屏幕截图并根据所见内容执行操作。",
             "e638da007a": "智能体浏览器使用",
             "c61c91e642": "让智能体通过 Orca 进行协调，以确保大型、多步骤的任务顺利完成。",
-            "ac07f8887f": "智能体编排",
+            "ac07f8887f": "MTE flow",
             "e9eb197e12": "打开计算机使用权限",
             "c605f51f2b": "能力设置就绪",
             "1aa657d8f4": "一些能力设置需要注意",
@@ -16226,8 +16263,6 @@
             "109a791e7b": "保存",
             "bb0a55f856": "保存…",
             "0203bed775": "取消",
-            "6978871a3d": "打开",
-            "cce596969e": "删除注释",
             "cad3384faa": "编辑备注",
             "508ee678a5": "在浏览器中打开",
             "noteAuthorFallback": "备注",
@@ -16238,16 +16273,11 @@
             "e05063cfc1": "行 {{value0}}",
             "c845170b3b": "行 {{value0}}-{{value1}}",
             "commentTooLarge": "评论过长，无法安全提交。",
-            "f6c449191e": "为AI添加注释",
             "5fa4bfebaa": "添加备注",
             "5e9b3d0c2e": "添加..."
           },
-          "useDiffCommentDecorator": {
-            "995fa28b50": "此注"
-          },
-          "diffCommentZoneCard": {
-            "noteAlreadySent": "备注已发送"
-          }
+          "useDiffCommentDecorator": {},
+          "diffCommentZoneCard": {}
         }
       },
       "dictation": {
@@ -20869,6 +20899,9 @@
     "scanTooLarge": "“快速打开”的扫描范围过大（{{reason}}）。"
   },
   "checksPanel": {
+    "comments": {
+      "addedToChat": "Added {{count}} comment groups to the chat input"
+    },
     "unlinked": {
       "title": "拉取请求已取消链接",
       "description": "PR #{{number}} 对此工作区隐藏。再次链接以恢复检查并查看详细信息。",
@@ -23321,6 +23354,14 @@
   "wslDistroHold": {
     "terminalStopped": "WSL 发行版 {{distro}} 已停止，因此 Orca 没有启动此终端。请启动该发行版后重试。",
     "terminalUnverifiable": "Orca 无法确认 WSL 发行版 {{distro}} 是否正在运行，因此没有启动此终端。请启动该发行版后重试。"
+  },
+  "mte": {
+    "prepare": {
+      "failed": "无法准备 MTE：{{message}}"
+    },
+    "planner": {
+      "started": "已在 {{agent}} 中启动 MTE 规划器"
+    }
   },
   "remoteHostBrowserControl": {
     "title": "{{host}} 正在控制一个浏览器标签页",

@@ -1,14 +1,9 @@
 // @vitest-environment happy-dom
-import {
-  mockCreateTab,
-  mockCreateSupport,
-  mockLaunchStructuredCodexSession
-} from './launch-agent-structured-chat-test-fixture'
+import { mockCreateTab } from './launch-agent-structured-chat-test-fixture'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 import { AgentLaunchPickerMenu } from '@/components/agent/AgentLaunchPickerMenu'
 import { useTabAgentMenuLaunch } from '@/components/tab-bar/QuickLaunchButton'
-import TabBarCreateEntry from '@/components/tab-bar/TabBarCreateEntry'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import {
   DropdownMenu,
@@ -21,7 +16,6 @@ import {
   readNativeChatComposerDraft,
   updateNativeChatComposerDraft
 } from '@/components/native-chat/drafts/native-chat-composer-draft-store'
-import { changePrompt } from '@/components/native-chat/composer/editor/native-chat-prompt-editor.test-support'
 import type { AgentPickerEntry } from '../../../../../../shared/agent-launch/picker/agent-launch-picker'
 import * as launcher from './launch-agent-in-new-tab'
 import { resetStructuredAgentLaunchRegistryForTests } from '../structured-agent-session-launch-registry'
@@ -56,13 +50,7 @@ afterEach(() => {
   resetStructuredAgentLaunchPersistenceForTests()
 })
 
-function Menu({
-  route,
-  selected = entry
-}: {
-  route: 'menu' | 'search'
-  selected?: AgentPickerEntry
-}) {
+function Menu({ selected = entry }: { selected?: AgentPickerEntry }) {
   const launch = useTabAgentMenuLaunch({
     worktreeId: 'wt-1',
     groupId: 'group-1',
@@ -73,20 +61,7 @@ function Menu({
       <DropdownMenu defaultOpen modal={false}>
         <DropdownMenuTrigger>New tab</DropdownMenuTrigger>
         <DropdownMenuContent>
-          {route === 'search' ? (
-            <TabBarCreateEntry
-              worktreeId="wt-1"
-              groupId="group-1"
-              menuOpen
-              agentPickerEntries={[selected]}
-              onOpenEntry={async () => {}}
-              onLaunchAgentOption={(option) =>
-                option.row ? launch(option.row, option.setup, option.pickerEntry) : false
-              }
-            />
-          ) : (
-            <AgentLaunchPickerMenu entries={[selected]} runLaunch={launch} />
-          )}
+          <AgentLaunchPickerMenu entries={[selected]} runLaunch={launch} />
         </DropdownMenuContent>
       </DropdownMenu>
     </TooltipProvider>
@@ -110,7 +85,7 @@ it('keeps direct row launch empty even when that workspace has an unsent launch 
   const dispatch = vi
     .spyOn(launcher, 'launchAgentInNewTab')
     .mockImplementation((args) => actualLaunch({ ...args, launchPlatform: 'win32' }))
-  render(<Menu route="menu" />)
+  render(<Menu />)
   fireEvent.click(document.querySelector('[role="menuitem"]')!)
   expect(mockCreateTab).toHaveBeenCalledOnce()
   expect(dispatch.mock.calls[0][0].prompt).toBeUndefined()
@@ -124,7 +99,7 @@ it('holds an actual clipboard-image paste until its save settles before launchin
   const dispatch = vi
     .spyOn(launcher, 'launchAgentInNewTab')
     .mockImplementation((args) => actualLaunch({ ...args, launchPlatform: 'linux' }))
-  render(<Menu route="menu" />)
+  render(<Menu />)
   fireEvent.click(document.querySelector('button[aria-label="Configure Claude"]')!)
   let finishSave: (path: string) => void = () => {}
   const save = vi.fn(
@@ -166,20 +141,4 @@ it('holds an actual clipboard-image paste until its save settles before launchin
       Reflect.deleteProperty(window, 'api')
     }
   }
-})
-
-it('returns setup input when explicit chat is refused before session admission', async () => {
-  mockCreateSupport.mockResolvedValue({ supported: false, reason: 'Not available here' })
-  render(<Menu route="search" />)
-  fireEvent.change(document.querySelector('input')!, { target: { value: 'launch-model' } })
-  fireEvent.click(document.querySelector('button[aria-label="Configure Claude"]')!)
-  changePrompt(editor(), 'task before any session')
-  await act(async () => button('Launch chat').click())
-  await waitFor(() =>
-    expect(readNativeChatComposerDraft(agentLaunchPromptScopeKey(entry)).text).toBe(
-      'task before any session'
-    )
-  )
-  expect(mockLaunchStructuredCodexSession).not.toHaveBeenCalled()
-  expect(mockCreateTab).not.toHaveBeenCalled()
 })

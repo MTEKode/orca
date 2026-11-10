@@ -6,7 +6,7 @@ import { setAppEnvironment } from '../../shared/app-environment'
 import { OpenCodeHookService } from './hook-service'
 import { resolveOpenCodeConfigDirectory } from '../../shared/opencode-config-directory'
 
-const PLUGIN = 'orca-opencode2-status.js'
+const PLUGIN = 'orca-opencode-status.js'
 
 describe('OpenCodeHookService.refreshInstalledPlugins (app start)', () => {
   let userDataDir: string
@@ -36,7 +36,7 @@ describe('OpenCodeHookService.refreshInstalledPlugins (app start)', () => {
 
   afterEach(() => {
     rmSync(join(userDataDir, 'xdg'), { recursive: true, force: true })
-    rmSync(join(userDataDir, 'opencode2-config-overlays'), { recursive: true, force: true })
+    rmSync(join(userDataDir, 'opencode-config-overlays'), { recursive: true, force: true })
   })
 
   afterAll(() => {
@@ -52,16 +52,16 @@ describe('OpenCodeHookService.refreshInstalledPlugins (app start)', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const service = new OpenCodeHookService({
       pluginFileName: PLUGIN,
-      legacyHooksDir: 'opencode2-hooks',
-      overlayDir: 'opencode2-config-overlays',
+      legacyHooksDir: 'opencode-hooks',
+      overlayDir: 'opencode-config-overlays',
       pluginSource: () => '// next release',
       installsTuiPlugin: true
     })
     const pluginsDir = join(resolveOpenCodeConfigDirectory(), 'plugins')
     mkdirSync(pluginsDir, { recursive: true })
     writeFileSync(join(pluginsDir, PLUGIN), '// old')
-    writeFileSync(join(pluginsDir, 'orca-opencode2-status-tui'), 'obstruction')
-    const overlayPlugins = join(userDataDir, 'opencode2-config-overlays', 'a', 'plugins')
+    writeFileSync(join(pluginsDir, 'orca-opencode-status-tui'), 'obstruction')
+    const overlayPlugins = join(userDataDir, 'opencode-config-overlays', 'a', 'plugins')
     mkdirSync(overlayPlugins, { recursive: true })
     writeFileSync(join(overlayPlugins, PLUGIN), '// old')
 

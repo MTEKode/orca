@@ -6,8 +6,8 @@ import { rankWorkspaceSymbols } from '@/lib/lsp/lsp-workspace-symbol-ranking'
 import {
   isTerminalLinkActivation,
   isTerminalLinkDirectActivation
-} from './terminal-link-activation'
-import { openDetectedFilePath } from './terminal-file-open-routing'
+} from './links/gestures/terminal-link-activation'
+import { openDetectedFilePath } from './links/files/terminal-file-open-routing'
 import { getRepoExecutionHostId, LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
 import type { Repo } from '../../../../shared/repo-types'
 import {

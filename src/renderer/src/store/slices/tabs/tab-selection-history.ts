@@ -1,4 +1,5 @@
 import type { Tab } from '../../../../../shared/tab-types'
+import { isHiddenWorkerTab } from '@/lib/agent-session/revealed-worker-tabs'
 
 /** Pick the nearest neighbor in visual order (right first, then left). */
 export function pickNeighbor(tabOrder: string[], closingTabId: string): string | null {
@@ -50,10 +51,13 @@ export function pickNextActiveTab(
   tabOrder: string[],
   recentTabIds: string[] | undefined,
   closingTabId: string,
-  tabs?: readonly Pick<Tab, 'id'>[]
+  tabs?: readonly Pick<Tab, 'id' | 'entityId' | 'agentSessionRole'>[]
 ): string | null {
   if (tabs) {
-    const realIds = new Set(tabs.map((tab) => tab.id))
+    // Never land on a hidden worker chat after a close.
+    const realIds = new Set(
+      tabs.filter((tab) => tab.id === closingTabId || !isHiddenWorkerTab(tab)).map((tab) => tab.id)
+    )
     tabOrder = tabOrder.filter((id) => realIds.has(id))
   }
   const sanitized = sanitizeRecentTabIds(recentTabIds, tabOrder)

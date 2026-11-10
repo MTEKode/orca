@@ -218,6 +218,9 @@ export type StructuredAgentSessionHostDeps = {
     journal: AgentSessionJournal,
     rows: readonly JournalRow[] | undefined
   ) => void
+  /** Row-level commit observation for host-side reactions (turn checkpoints); never block or
+   *  throw into the write, and never run durable side effects inline. */
+  observeJournalRows?: (sessionId: string, rows: readonly JournalRow[]) => void
   /** replay distinguishes restored/projected state from fresh journal events. */
   onSessionStatusChanged?: (
     summary: AgentSessionStatusSummary,

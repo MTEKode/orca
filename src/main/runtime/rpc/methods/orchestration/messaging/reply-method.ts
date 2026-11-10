@@ -15,6 +15,7 @@ import { replyAccess } from './reply-access'
 import { replyToRemoteRunHome } from '../../../../orchestration/legacy-remote/legacy-remote'
 import { replyOverPeerMail } from './peer-mail-reply'
 import { withAnswerNext } from '../receipt-next'
+import { resolveWorkerPromptReply } from '../../../../orchestration/worker-prompt-routing'
 import { ReplyParams } from '../../../../../../shared/rpc-contract/orchestration-params'
 import {
   completionReportDispatchId,
@@ -49,6 +50,8 @@ export const ORCHESTRATION_REPLY_METHOD = defineOrchestrationMethod({
     const { original } = access
     if (access.kind === 'helper') {
       const { question, answerer } = access
+      // Access already authorized the caller; a question standing for a worker's prompt answers it first.
+      await resolveWorkerPromptReply(db, original, params.body)
       const answered = db.answerQuestion({
         messageId: question.message_id,
         runId: question.run_id,
@@ -72,6 +75,7 @@ export const ORCHESTRATION_REPLY_METHOD = defineOrchestrationMethod({
     }
     if (access.kind === 'run') {
       const { question, run } = access
+      await resolveWorkerPromptReply(db, original, params.body)
       const answered = db.answerQuestion({
         messageId: question.message_id,
         runId: run.id,

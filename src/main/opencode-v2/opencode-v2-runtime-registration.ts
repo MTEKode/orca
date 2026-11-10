@@ -2,7 +2,7 @@ import type {
   StructuredAgentAdapterContext,
   StructuredAgentRuntimeAdapter,
   StructuredAgentRuntimeRegistration
-} from '../runtime/structured-agent-runtime-registration-types'
+} from '../runtime/agent-session/installation/structured-agent-runtime-registration-types'
 import { OpenCodeV2SessionAdapter } from './opencode-v2-session-adapter'
 import { OPENCODE_V2_RUNTIME_METADATA } from './opencode-v2-runtime-metadata'
 import { openCodeV2ProcessService } from './opencode-v2-service'

@@ -49,7 +49,10 @@ export function DiffCommentPopover({
   const t = useTranslate()
   const placeholder =
     placeholderOverride ??
-    t('auto.components.diff.comments.DiffCommentPopover.f6c449191e', 'Add note for the AI')
+    t(
+      'auto.components.diff.comments.DiffCommentPopover.commentPlaceholder',
+      'Add a comment for the AI'
+    )
   const submitLabel =
     submitLabelOverride ??
     t('auto.components.diff.comments.DiffCommentPopover.5fa4bfebaa', 'Add note')
@@ -183,7 +186,10 @@ export function DiffCommentPopover({
     <div
       ref={popoverRef}
       className="orca-diff-comment-popover"
-      style={{ top: `${resolvedTop}px`, ...(left == null ? {} : { left: `${left}px` }) }}
+      style={{
+        top: `${resolvedTop}px`,
+        ...(left == null ? {} : { left: `${left}px` })
+      }}
       role="dialog"
       aria-modal="true"
       aria-labelledby={labelId}
@@ -192,7 +198,10 @@ export function DiffCommentPopover({
     >
       {/* Content */}
       <div className="orca-diff-comment-content-col" style={{ gap: '8px' }}>
-        <div id={labelId} className="orca-diff-comment-popover-label">
+        <div
+          id={labelId}
+          className="orca-diff-comment-popover-label font-mono text-[11px] uppercase tracking-wide text-muted-foreground"
+        >
           {title ??
             (startLine && startLine !== lineNumber
               ? t(

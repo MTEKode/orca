@@ -18,11 +18,25 @@ import type { WorktreeDeletionPreferences } from './worktree-deletion-preference
 import type { AgentPermissionGlobalSettings } from './agent-launch/permissions/tui-agent-permission-choice'
 import type { TerminalColorOverrideGlobalSettings } from './terminal-themes/terminal-color-overrides'
 import type { WindowMaterialSettings } from './window-material'
+import type { ImportedHarnessSkillsSettings } from './skills/imported-harness-skills-settings'
 import type { EditorSaveSettings } from './editor-save-settings'
 import type { NestedWorkerDepthSettings } from './orchestration/workers/nested-worker-depth'
 import type { SshRemoteControlSettings } from './ssh-remote-control-settings'
 import type { AgentWorkspaceTrustSettings } from './agent-launch/permissions/agent-workspace-trust-decision'
 import type { KeybindingGlobalSettings } from './keybindings/global-settings'
+
+/** Registers the orca-tools MCP bridge in agent launches; absent means on. */
+export type McpIntegrationsSettings = {
+  mcpIntegrationsEnabled?: boolean
+  /** Refresh a built code graph in the background when a workspace opens; absent means on. */
+  graphifyAutoUpdate?: boolean
+  /** Plain (non-secret) per-integration settings, e.g. the Godot plugin directory. */
+  mcpIntegrationConfig?: Partial<Record<string, Record<string, string>>>
+  /** Snapshot the worktree at turn boundaries so a turn can be reverted; absent means on. */
+  nativeChatTurnCheckpoints?: boolean
+  /** Give structured Claude chats the in-process review tools (workspace diff + review comments); absent means on. */
+  nativeChatReviewTools?: boolean
+}
 
 /** Settings groups owned by their feature modules and composed into GlobalSettings. */
 export type GlobalSettingsBase = AntigravityChatAuthSettings &
@@ -45,6 +59,8 @@ export type GlobalSettingsBase = AntigravityChatAuthSettings &
   TerminalScrollSettings &
   TerminalColorOverrideGlobalSettings &
   WindowMaterialSettings &
+  ImportedHarnessSkillsSettings &
+  McpIntegrationsSettings &
   EditorSaveSettings &
   BrowserPasswordsGlobalSettings &
   NestedWorkerDepthSettings &

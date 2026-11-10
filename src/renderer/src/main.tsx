@@ -2,6 +2,7 @@
 import './lib/react-devtools-commit-hook-shim'
 import './lib/react-commit-cascade-observer'
 import './assets/main.css'
+import './assets/diff-comments-conductor.css'
 
 import { StrictMode } from 'react'
 import { useTranslation } from 'react-i18next'

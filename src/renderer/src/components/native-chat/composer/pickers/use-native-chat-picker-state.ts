@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Why: fork features ported onto upstream; split later */
 import {
   writeNativeChatComposerText,
   type NativeChatComposerInput
@@ -24,6 +25,7 @@ import {
   isSkillPickerTriggered,
   type ComposerAutocomplete
 } from '../../../../../../shared/native-chat/input/native-chat-composer-autocomplete'
+import { withPickedSkillInstruction } from '../../../../../../shared/native-chat/input/skill-instruction'
 import { applyPickerSuggestion } from '../../../../../../shared/native-chat/input/native-chat-picker-triggers'
 import {
   classifyNativeChatSend,
@@ -49,6 +51,8 @@ export type NativeChatPickerState = {
   clearSkillOrigin: () => void
   /** The draft still leads with the skill the user picked from the menu. */
   isPickedSkill: (draft: string) => boolean
+  /** Appends the orca_skill_read instruction when the draft leads with a picked unified-catalog skill. */
+  withSkillInstruction: (text: string) => string
   completeItem: (item: NativeChatPickerItem) => void
   completeMention: (path: string) => void
   dismiss: (triggerKey: string) => void
@@ -123,6 +127,12 @@ export function useNativeChatPickerState(args: {
   const dismissalContext = `${draftScopeKey}:${agent}`
   const [dismissed, setDismissed] = useState<{ context: string; triggerKey: string } | null>(null)
   const skillOriginRef = useRef<string | null>(null)
+  // Set at pick time: the catalog is only loaded while the menu is open.
+  const unifiedOriginRef = useRef<string | null>(null)
+  const unifiedNames = useMemo(
+    () => new Set((discovery.unifiedSkills ?? []).map((skill) => skill.name)),
+    [discovery.unifiedSkills]
+  )
   const lastOpenKeyRef = useRef<string | null>(null)
   const derivedAutocomplete = useMemo<ComposerAutocomplete>(
     () =>
@@ -227,9 +237,11 @@ export function useNativeChatPickerState(args: {
       }
       commitCompletion(result)
       skillOriginRef.current = item.kind === 'skill' ? result.insertedToken : null
+      unifiedOriginRef.current =
+        item.kind === 'skill' && unifiedNames.has(item.name) ? result.insertedToken : null
       emitNativeChatPickerItemAccepted({ agent, itemKind: item.kind })
     },
-    [agent, autocomplete, commitCompletion, liveDraft, textareaRef]
+    [agent, autocomplete, commitCompletion, liveDraft, textareaRef, unifiedNames]
   )
 
   const completeMention = useCallback(
@@ -298,7 +310,13 @@ export function useNativeChatPickerState(args: {
   )
   const clearSkillOrigin = useCallback(() => {
     skillOriginRef.current = null
+    unifiedOriginRef.current = null
   }, [])
+  const withSkillInstruction = useCallback(
+    (text: string) =>
+      withPickedSkillInstruction(text, skillOriginRef.current, unifiedOriginRef.current),
+    []
+  )
   const isPickedSkill = useCallback(
     (value: string) => skillOriginRef.current === (value.split(/\s/, 1)[0] ?? ''),
     []
@@ -315,6 +333,7 @@ export function useNativeChatPickerState(args: {
     classifySend,
     clearSkillOrigin,
     isPickedSkill,
+    withSkillInstruction,
     completeItem,
     completeMention,
     dismiss,

@@ -1,11 +1,11 @@
 import { toast } from 'sonner'
 import { translate } from '@/i18n/i18n'
-import { getAgentLabel } from '@/lib/agent-catalog'
+import { getAgentLabel } from '@/lib/agent-catalog/agent-catalog'
 import {
   buildAgentSessionContinuationPrompt,
   type AgentSessionContinuationContextMode,
   type AgentSessionContinuationRequest
-} from '@/lib/agent-session-continuation'
+} from '@/lib/agent-session/context/agent-session-continuation'
 import { startMteRunInWorktree } from '@/lib/start-mte-run-in-worktree'
 import type { MteOrchestrationDraft } from '@/components/mte-orchestration-picker/use-mte-orchestration-picker'
 

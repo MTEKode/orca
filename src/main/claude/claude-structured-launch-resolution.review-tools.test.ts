@@ -3,7 +3,7 @@ import type { McpServerConfig } from '@anthropic-ai/claude-agent-sdk'
 import type { AgentSessionRecord } from '../../shared/agent-session/lifecycle/agent-session-record'
 import { LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host'
 import { agentSessionRecordFixture } from '../native-chat/agent-session-record-test-fixture'
-import { createClaudeStructuredLaunchResolver } from '../runtime/structured-agent-launch-composition.test-support'
+import { createClaudeStructuredLaunchResolver } from '../runtime/agent-session/launch/structured-agent-launch-composition.test-support'
 import type { ClaudeReviewMcpRuntime } from './claude-review-mcp-server'
 
 const SESSION_ID = 'orca-session-review'

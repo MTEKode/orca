@@ -54,6 +54,10 @@ export function changedTitleRefreshHosts(state: AppState, previous: AppState): S
   return changed
 }
 
+// Why: must stay above the scanner child's 10 min idle timeout
+// (AI_VAULT_SERVICE_IDLE_TIMEOUT_MS), or periodic live scans keep the child alive forever.
+const LIVE_TITLE_REFRESH_MS = 30 * 60_000
+
 export function titleRefreshInterval(state: AppState, request: AiVaultTitleRequest): number {
   const stored = state.tabsByWorktree[request.worktreeId]?.find(
     (tab) => tab.id === request.tabId
@@ -62,7 +66,7 @@ export function titleRefreshInterval(state: AppState, request: AiVaultTitleReque
     stored?.agent !== request.agent ||
     stored.sessionId !== request.providerSession.id ||
     !stored.title.trim()
-  return missing || supportsSessionTitleRefresh(state, request) ? 20_000 : 5 * 60_000
+  return missing || supportsSessionTitleRefresh(state, request) ? 20_000 : LIVE_TITLE_REFRESH_MS
 }
 
 function titleKey(title: string): string {

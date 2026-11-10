@@ -11,6 +11,7 @@ import type {
 } from '../../../../../shared/agent-session/structured-agent-session-create'
 import type { RuntimeClientTarget } from '../../../../../shared/runtime-client-target'
 import type { ExecutionHostId } from '../../../../../shared/execution-host'
+import type { MteWorkerPin } from '../../../../../shared/mte/worker-pin'
 import type { StructuredLaunchAttempt } from './structured-agent-session-launch-request'
 import type { AgentLaunchRequestId } from './routing/agent-launch-request-id'
 import type { StructuredAgentSessionCreateGate } from './structured-agent-session-launch-errors'
@@ -35,6 +36,9 @@ export type StructuredAgentLaunchOptions = StructuredLaunchPromptOptions & {
   hostSeedOptions?: Readonly<Record<string, string>>
   /** Explicit encoded action input, captured durably before any asynchronous preparation. */
   launchOptions?: Readonly<Record<string, string>>
+  /** MTE: mark the chat this launch creates as a planner and pin its workers. */
+  mteRole?: 'planner'
+  mteWorker?: MteWorkerPin
   /** Final admission of a source-bound action, immediately before its first create is sent. */
   beforeCreate?: () => boolean
   /** The create waits for this (a source that must stop before the chat writes). */

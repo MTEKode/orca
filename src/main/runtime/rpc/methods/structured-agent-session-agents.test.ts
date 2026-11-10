@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY } from '../../../../shared/agent-session/agent-session-runtime-capabilities'
 
 import type { RpcContext } from '../core'
-import { STRUCTURED_AGENT_SESSION_AGENTS_METHODS } from './structured-agent-session-agents'
+import { STRUCTURED_AGENT_SESSION_AGENTS_METHODS } from './structured-sessions/catalog/structured-agent-session-agents'
 
 const [method] = STRUCTURED_AGENT_SESSION_AGENTS_METHODS
 

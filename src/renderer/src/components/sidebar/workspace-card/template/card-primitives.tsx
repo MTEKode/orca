@@ -89,7 +89,7 @@ export const Stack: CardHostElement = {
 }
 
 const TEXT_SIZE: Readonly<Record<string, string>> = {
-  title: 'text-[13px] leading-5',
+  title: 'text-[14px] leading-5',
   body: 'text-xs',
   meta: 'text-2xs leading-none',
   micro: 'text-3xs leading-none'

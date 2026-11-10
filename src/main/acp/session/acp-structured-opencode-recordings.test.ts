@@ -25,7 +25,7 @@ const ask: AgentJournalMessageItem = {
   blocks: [{ type: 'text', text: 'Fixture prompt' }]
 }
 
-async function replaying(name: string, agent: 'opencode' | 'opencode2' = 'opencode') {
+async function replaying(name: string, agent: 'opencode' = 'opencode') {
   const replay = new GrokFixtureReplay(await readAcpFixture(name))
   const rig = await openAcpAdapterRig({
     spec: acpLaunchSpecFor(agent)!,
@@ -75,7 +75,7 @@ describe('OpenCode recordings through the adapter', () => {
 
 describe('OpenCode 2 recordings through the adapter', () => {
   it('an approved shell command completes with its output and exit code', async () => {
-    const { rig, replay } = await replaying('opencode-v2-tool', 'opencode2')
+    const { rig, replay } = await replaying('opencode-v2-tool', 'opencode')
     const approval = await answer(rig, replay, 'once')
     expect(approval.body).toMatchObject({
       kind: 'approval',
@@ -98,7 +98,7 @@ describe('OpenCode 2 recordings through the adapter', () => {
 
   // OpenCode 2.x ends denied-permission turns as cancelled, unlike 1.x.
   it('a rejected permission fails its tool and OpenCode ends the turn as cancelled', async () => {
-    const { rig, replay } = await replaying('opencode-v2-deny', 'opencode2')
+    const { rig, replay } = await replaying('opencode-v2-deny', 'opencode')
     await answer(rig, replay, 'reject')
     await waitFor(() => expect(replay.awaiting).toBeNull())
     await waitFor(async () =>
@@ -118,7 +118,7 @@ describe('OpenCode 2 recordings through the adapter', () => {
     }
     const closed: unknown[] = []
     const rig = await openAcpAdapterRig({
-      spec: acpLaunchSpecFor('opencode2')!,
+      spec: acpLaunchSpecFor('opencode')!,
       initialize: { agentCapabilities: { loadSession: true, sessionCapabilities: { close: {} } } },
       script: (agent) => {
         agent.on('session/prompt', (frame) => {
@@ -165,7 +165,7 @@ describe('OpenCode 2 recordings through the adapter', () => {
     let notify: (status: string, id?: string) => void = () => {}
     let closeLate = false
     const rig = await openAcpAdapterRig({
-      spec: acpLaunchSpecFor('opencode2')!,
+      spec: acpLaunchSpecFor('opencode')!,
       initialize: { agentCapabilities: { loadSession: true, sessionCapabilities: { close: {} } } },
       script: (agent) => {
         notify = (status, id = 'child-1') =>

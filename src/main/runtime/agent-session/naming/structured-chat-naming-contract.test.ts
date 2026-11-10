@@ -183,7 +183,7 @@ it.each(recordings.filter((capture) => capture.provider === 'pi' || capture.prov
   }
 )
 
-it.each(['opencode', 'opencode2'] as const)(
+it.each(['opencode'] as const)(
   'routes %s naming into the owned task with its selected account',
   async (provider) => {
     const state = rig()

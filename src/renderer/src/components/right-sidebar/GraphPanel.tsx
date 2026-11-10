@@ -3,10 +3,10 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useAppStore } from '@/store'
-import { useActiveRepo } from '@/store/selectors'
-import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
+import { useActiveRepo } from '@/store/repos/use-repository-catalog'
+import { callRuntimeRpc } from '@/runtime/rpc/calls/runtime-rpc-call'
 import { getIntlLocale, translate } from '@/i18n/i18n'
-import { openHtmlFileInBrowser } from '@/components/terminal-pane/terminal-html-file-browser-open'
+import { openHtmlFileInBrowser } from '@/components/terminal-pane/links/files/terminal-html-file-browser-open'
 
 function relativeTime(ms: number): string {
   const minutes = Math.round((Date.now() - ms) / 60_000)

@@ -175,8 +175,11 @@ export abstract class OrcaRuntimeWithRestoreStructuredAgentSessionTabsOnce exten
             !(ORCA_LAYOUT_OWNER_IS_MAIN && input.placedByWindow)
           ? this.savedStructuredSessionTabOrder(input.workspaceId)
           : undefined
-    projectStructuredSessionTab(this, { ...input, savedOrder }, (snapshot) =>
-      this.emitMobileSessionTabsSnapshot(snapshot)
+    projectStructuredSessionTab(
+      this,
+      { ...input, savedOrder },
+      (snapshot) => this.emitMobileSessionTabsSnapshot(snapshot),
+      this.getOrchestrationDbIfAvailable()
     )
   }
 

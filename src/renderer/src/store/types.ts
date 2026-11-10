@@ -9,6 +9,8 @@ import type { KeybindingsSlice } from './slices/keybindings/keybindings'
 import type { GitHubSlice } from './github/github-slice-contract'
 import type { HostedReviewSlice } from './slices/hosted-review/hosted-review'
 import type { LinearSlice } from './slices/linear/linear-slice-contract'
+import type { McpIntegrationsSlice } from './slices/mcp-integrations'
+import type { GraphifySlice } from './slices/graphify'
 import type { PreflightSlice } from './slices/preflight/preflight'
 import type { JiraSlice } from './slices/jira/jira-slice-contract'
 import type { EditorSlice } from './slices/editor/types/editor-slice'
@@ -64,6 +66,8 @@ export type AppState = RepoSlice &
   GitHubSlice &
   HostedReviewSlice &
   LinearSlice &
+  McpIntegrationsSlice &
+  GraphifySlice &
   PreflightSlice &
   JiraSlice &
   EditorSlice &

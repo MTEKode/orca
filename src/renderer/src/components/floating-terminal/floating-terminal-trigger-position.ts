@@ -1,6 +1,7 @@
 const TRIGGER_SIZE = 36
 const DEFAULT_RIGHT_GAP = 24
-const DEFAULT_BOTTOM_GAP = 72
+// Why: parks the toggle above the native chat composer send button (status bar 25 + pane pb-4 + footer p-3 + 30px button ≈ 85px from the bottom).
+const DEFAULT_BOTTOM_GAP = 96
 const DRAG_MARGIN = 8
 const TITLEBAR_SAFE_TOP = 36
 

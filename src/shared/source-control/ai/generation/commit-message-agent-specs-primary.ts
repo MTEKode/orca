@@ -182,36 +182,6 @@ export function buildPrimaryCommitMessageAgentSpecs({
       ],
       defaultModelId: 'default'
     },
-    opencode2: {
-      id: 'opencode2',
-      modelFlag: [{ aliases: ['--model', '-m'] }],
-      effortFlag: [{ aliases: ['--model', '-m'], modelVariant: true }],
-      label: 'OpenCode 2',
-      binary: 'opencode2',
-      promptDelivery: 'stdin',
-      buildArgs: ({ model, thinkingLevel }) => [
-        'run',
-        ...(model && model !== 'default'
-          ? ['--model', thinkingLevel ? `${model}#${thinkingLevel}` : model]
-          : []),
-        '--agent',
-        'build',
-        '--format',
-        'json'
-      ],
-      singletonOptions: [['--model', '-m'], ['--agent'], ['--format']],
-      modelSource: 'dynamic',
-      modelDiscovery: { binary: 'opencode2', args: ['models'], parse: parseLineModels },
-      models: [
-        { id: 'default', label: 'Config default' },
-        {
-          id: 'opencode/gpt-5.4-mini',
-          label: 'OpenCode GPT 5.4 Mini',
-          ...withOpenAiThinking('gpt-5.4-mini')
-        }
-      ],
-      defaultModelId: 'default'
-    },
     pi: {
       id: 'pi',
       modelFlag: [{ aliases: ['--model'] }],

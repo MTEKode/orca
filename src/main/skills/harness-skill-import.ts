@@ -8,7 +8,7 @@ import {
   type ImportableSkillOrigin,
   type ImportableSkillState
 } from '../../shared/skills/importable-skill'
-import { discoverSkills } from './discovery'
+import { discoverSkills } from './discovery/skill-native-discovery'
 
 // Node-only on purpose: WSL-hosted homes are out of scope for importing.
 const ORIGIN_ROOTS: readonly { origin: ImportableSkillOrigin; segments: string[] }[] = [

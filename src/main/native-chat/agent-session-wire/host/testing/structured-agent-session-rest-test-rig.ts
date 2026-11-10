@@ -244,3 +244,5 @@ export function sweepOnce(host: StructuredAgentSessionHost): Promise<void> {
 export function sweepTicks(count = 6): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, SWEEP_INTERVAL_MS * count))
 }
+
+export { SESSION as REST_TEST_SESSION, THREAD as REST_TEST_THREAD }

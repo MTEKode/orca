@@ -71,7 +71,7 @@ export type AgentSessionOperationDecision =
     }[AgentSessionOperationRefusalCode]
 
 /** NUL cannot occur in a caller key or operation id, so no pair can forge another pair's key. */
-const OPERATION_KEY_SEPARATOR = '\u0000'
+const OPERATION_KEY_SEPARATOR = '\u001f'
 
 export function agentSessionOperationKey(callerKey: string, operationId: string): string {
   return `${callerKey}${OPERATION_KEY_SEPARATOR}${operationId}`

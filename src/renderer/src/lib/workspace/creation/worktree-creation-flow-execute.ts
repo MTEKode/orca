@@ -36,6 +36,7 @@ import {
   showWorktreeCreationError
 } from '@/lib/workspace/creation/worktree-creation-surface'
 import { prepareCreatedWorktreeActivation } from '@/lib/workspace/creation/worktree-creation-initial-tabs'
+import { startMteRunForCreatedWorktreeSafely } from '@/lib/start-mte-run-in-worktree'
 import type { UISlice } from '@/store/slices/ui/ui-slice-contract'
 
 export async function executeWorktreeCreation(
@@ -316,4 +317,7 @@ export async function executeWorktreeCreation(
     hostPlannedStartup: result.hostPlannedStartup === true,
     focusOnCompletion: shouldActivateOnCompletion
   })
+
+  // The worktree stands even when the run cannot start; the starter reports its own failures.
+  startMteRunForCreatedWorktreeSafely(preparedRequest, worktree.id, worktree.path)
 }

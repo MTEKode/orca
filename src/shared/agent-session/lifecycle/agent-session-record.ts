@@ -1,3 +1,4 @@
+import { isMteWorkerPin, type MteWorkerPin } from '../../mte/worker-pin'
 import { isOptionalUsageLimitContinueCancel } from './agent-session-usage-limit-continue'
 import type { AgentSessionDeathEvidence } from './agent-session-death-evidence'
 import { isAgentSessionRewindRecord, type AgentSessionRewindRecord } from './agent-session-rewind'
@@ -142,6 +143,10 @@ export type AgentSessionRecord = {
   /** Latest turn edge for lists that must not open conversation history. */
   lastTurn?: AgentSessionLastTurn
   launchArgs?: AgentSessionLaunchArgs
+  /** Set only by the MTE start entry points; gates who may create orchestration runs. Absent on older records. */
+  mteRole?: 'planner'
+  /** Worker harness/model/effort the MTE planner must use for every worker-start. Absent on older records. */
+  mteWorker?: MteWorkerPin
   /** The chat this one was forked from; the marker after its inherited history derives from it. */
   forkedFrom?: AgentSessionForkedFrom
   lease: AgentSessionLease
@@ -328,6 +333,8 @@ export function isPersistedAgentSessionObservationRecord(
         isAgentSessionConversationName(record.conversationName)) &&
       (record.conversationNameSource === undefined || record.conversationNameSource === 'user') &&
       (record.launchArgs === undefined || isAgentSessionLaunchArgs(record.launchArgs)) &&
+      (record.mteRole === undefined || record.mteRole === 'planner') &&
+      (record.mteWorker === undefined || isMteWorkerPin(record.mteWorker)) &&
       !Object.hasOwn(record, 'launchEnv') &&
       isPersistedAgentSessionObservationLease(record.lease) &&
       record.lease.sessionId === record.sessionId &&

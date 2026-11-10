@@ -15,7 +15,6 @@ const LEGACY_SEARCH_AGENTS: readonly AiVaultAgent[] = [
   'rovo',
   'copilot',
   'opencode',
-  'opencode2',
   'grok',
   'openclaw',
   'devin',

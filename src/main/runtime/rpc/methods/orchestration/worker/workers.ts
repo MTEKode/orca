@@ -1,3 +1,5 @@
+import { adoptMteWorkerPin, withMteWorkerPin } from './worker-start-mte-pin'
+import { assertMtePlannerCaller } from '../runs/mte-planner-gate'
 import { stopHelperAfterStart } from './worker-stop'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import type { z } from 'zod'
@@ -80,6 +82,10 @@ export async function startWorker(
       `${params.terminal} names a chat by its Orca session ID, which identifies it only on the host that runs it. Run worker-start on that host. No effects were applied.`,
       { effectsApplied: false }
     )
+  }
+  // Follow-ups to a finished worker are worker verbs, never gated.
+  if (!followUp) {
+    assertMtePlannerCaller(runtime, orchestrationCaller)
   }
   const readinessTimeoutMs = resolveWorkerStartReadinessTimeoutMs(params.timeoutMs)
   const db = runtime.getOrchestrationDb()
@@ -178,6 +184,8 @@ export async function startWorker(
     followUp = { ...followUp, reopen: placement.reopen, earlierWork: placement.earlierWork }
     await assertWorkerStartTaskSpecWithinPromptBudget(spec)
   }
+  await adoptMteWorkerPin(params, orchestrationCaller)
+  params = withMteWorkerPin(params, orchestrationCaller)
   const mode = decideWorkerStartMode({
     params,
     settings: readWorkerStartModeSettings(runtime)

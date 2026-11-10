@@ -18,6 +18,7 @@ export const CLI_BOOLEAN_FLAGS = new Set([
   'current-json',
   'current-sqlite',
   'debug',
+  'deep',
   'delete-branch',
   'delta',
   'dry-run',

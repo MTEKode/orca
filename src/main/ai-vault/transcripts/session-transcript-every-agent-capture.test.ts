@@ -8,38 +8,39 @@ vi.mock(
   '../scanners/opencode/reader-transport/session-scanner-opencode-sqlite-worker-spawn',
   async () => {
     const list = await import('../scanners/opencode/sqlite/session-scanner-opencode-sqlite-list')
-    const list2 = await import('../scanners/opencode2/session-scanner-opencode2-sqlite-list')
+    const list2 =
+      await import('../scanners/opencode-next/session-scanner-opencode-next-sqlite-list')
     const parse = await import('../scanners/opencode/sqlite/session-scanner-opencode-sqlite')
-    const parse2 = await import('../scanners/opencode2/session-scanner-opencode2-sqlite')
+    const parse2 = await import('../scanners/opencode-next/session-scanner-opencode-next-sqlite')
     const capture =
       await import('../scanners/opencode/sqlite/session-scanner-opencode-sqlite-capture')
-    const capture2 = await import('../scanners/opencode2/session-scanner-opencode2-sqlite')
+    const capture2 = await import('../scanners/opencode-next/session-scanner-opencode-next-sqlite')
     return {
       resolveOpenCodeSqliteWorkerEntryPath: () => null,
       listOpenCodeSqliteSessionsViaWorker: (
         args: Parameters<typeof list.listOpenCodeSqliteSessions>[0]
       ) => list.listOpenCodeSqliteSessions(args),
-      listOpenCode2SqliteSessionsViaWorker: (
-        args: Parameters<typeof list2.listOpenCode2SqliteSessions>[0]
-      ) => list2.listOpenCode2SqliteSessions(args),
+      listOpenCodeNextSqliteSessionsViaWorker: (
+        args: Parameters<typeof list2.listOpenCodeNextSqliteSessions>[0]
+      ) => list2.listOpenCodeNextSqliteSessions(args),
       listZcodeSqliteSessionsViaWorker: (
         args: Parameters<typeof list.listOpenCodeSqliteSessions>[0]
       ) => list.listOpenCodeSqliteSessions({ ...args, agent: 'zcode' }),
       parseOpenCodeSqliteSessionViaWorker: (
         args: Parameters<typeof parse.parseOpenCodeSqliteSession>[0]
       ) => parse.parseOpenCodeSqliteSession(args),
-      parseOpenCode2SqliteSessionViaWorker: (
-        args: Parameters<typeof parse2.parseOpenCode2SqliteSession>[0]
-      ) => parse2.parseOpenCode2SqliteSession(args),
+      parseOpenCodeNextSqliteSessionViaWorker: (
+        args: Parameters<typeof parse2.parseOpenCodeNextSqliteSession>[0]
+      ) => parse2.parseOpenCodeNextSqliteSession(args),
       parseZcodeSqliteSessionViaWorker: (
         args: Parameters<typeof parse.parseOpenCodeSqliteSession>[0]
       ) => parse.parseOpenCodeSqliteSession({ ...args, agent: 'zcode' }),
       captureOpenCodeSqliteSessionViaWorker: (
         args: Parameters<typeof capture.captureOpenCodeSqliteSession>[0]
       ) => capture.captureOpenCodeSqliteSession(args),
-      captureOpenCode2SqliteSessionViaWorker: (
-        args: Parameters<typeof capture2.captureOpenCode2SqliteSession>[0]
-      ) => capture2.captureOpenCode2SqliteSession(args),
+      captureOpenCodeNextSqliteSessionViaWorker: (
+        args: Parameters<typeof capture2.captureOpenCodeNextSqliteSession>[0]
+      ) => capture2.captureOpenCodeNextSqliteSession(args),
       captureZcodeSqliteSessionViaWorker: (
         args: Parameters<typeof capture.captureOpenCodeSqliteSession>[0]
       ) => capture.captureOpenCodeSqliteSession({ ...args, agent: 'zcode' })

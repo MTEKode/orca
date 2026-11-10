@@ -1,6 +1,6 @@
 import React from 'react'
 import { Gauge, SignalHigh, SignalLow, SignalMedium, SignalZero, Zap } from 'lucide-react'
-import { AgentIcon } from '@/lib/agent-catalog'
+import { AgentIcon } from '@/components/agent/icons/AgentIcon'
 
 const EFFORT_ICONS: Record<string, typeof Gauge> = {
   none: SignalZero,

@@ -1,4 +1,4 @@
-import type { StructuredAgentDefinition } from '../native-chat/agent-session-wire/structured-agent-definition'
+import type { StructuredAgentDefinition } from '../native-chat/agent-session-wire/providers/structured-agent-definition'
 
 export const OPENCODE_V2_AGENT_ID = 'opencode'
 // Unchanged on purpose: handles persisted by the opt-in v2 chat decode as-is.

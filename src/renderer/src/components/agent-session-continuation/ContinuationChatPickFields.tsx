@@ -1,7 +1,7 @@
 import React from 'react'
 import { NewChatModelFields } from '@/components/tab-bar/NewChatModelFields'
 import { translate } from '@/i18n/i18n'
-import type { AgentLaunchSurface } from '@/lib/agent-session-launch-plan'
+import type { AgentLaunchSurface } from '@/lib/agent-session/launch/routing/agent-session-launch-plan'
 import type { AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { NewChatPick } from '../../../../shared/new-chat-defaults'
 

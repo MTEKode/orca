@@ -79,6 +79,7 @@ vi.mock('@/store/index', async () => {
       activityBarPosition: mockAppState.activityBarPosition,
       setActivityBarPosition: vi.fn(),
       checksByWorktreeId: {},
+      gitStatusByWorktree: {},
       keybindings: {},
       activeView: 'terminal',
       activePendingCreationId: null,

@@ -35,7 +35,6 @@ const STARTUP_UPDATE_PROMPT_SUPPRESSION_ENV: Partial<
   claude: { DISABLE_AUTOUPDATER: '1' },
   'claude-agent-teams': { DISABLE_AUTOUPDATER: '1' },
   opencode: { OPENCODE_DISABLE_AUTOUPDATE: 'true' },
-  opencode2: { OPENCODE_DISABLE_AUTOUPDATE: 'true' },
   antigravity: { AGY_CLI_DISABLE_AUTO_UPDATE: 'true' },
   grok: { GROK_DISABLE_AUTOUPDATER: '1' },
   pi: { PI_SKIP_VERSION_CHECK: '1' },

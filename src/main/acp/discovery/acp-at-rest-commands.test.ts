@@ -114,7 +114,7 @@ it('handles actual root exit just before listener registration without changing 
 })
 
 it('lists OpenCode 2 commands from a session it then deletes, and never starts OpenCode 1.x', async () => {
-  const openCodeRecord = (provider: 'opencode' | 'opencode2') =>
+  const openCodeRecord = (provider: 'opencode') =>
     agentSessionRecordFixture({
       sessionId: `chat-${provider}`,
       provider,
@@ -149,12 +149,12 @@ it('lists OpenCode 2 commands from a session it then deletes, and never starts O
       })
     },
     { probeVersion: async () => ({ version: '2.1.2' }) },
-    acpLaunchSpecFor('opencode2')!
+    acpLaunchSpecFor('opencode')!
   )
-  const listed = await v2.catalog.settled(openCodeRecord('opencode2'), 1_000)
+  const listed = await v2.catalog.settled(openCodeRecord('opencode'), 1_000)
   expect(listed?.map((command) => command.name)).toEqual(['init', 'itx-plan', 'compact'])
   expect(deleted).toEqual([{ sessionId: DISCOVERY_SESSION }])
-  expect(readAcpForkSupport('opencode2')).toBe('supported')
+  expect(readAcpForkSupport('opencode')).toBe('supported')
 
   const v1 = await rig(
     undefined,

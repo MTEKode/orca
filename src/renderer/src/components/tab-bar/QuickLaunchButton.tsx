@@ -5,8 +5,9 @@ import { useAppStateValue } from '@/store/retained-views/app-state-view'
 import { SubscribedAgentLaunchPickerMenu } from '@/components/agent/AgentLaunchPickerMenu'
 import {
   agentPickerFreshLaunchInputs,
+  type AgentPickerDraft,
   type AgentPickerEntry,
-  type AgentPickerDraft
+  type AgentPickerSurface
 } from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import React, { useCallback } from 'react'
 import { toast } from 'sonner'
@@ -39,6 +40,7 @@ import { cn } from '@/lib/utils'
 import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
 import { useNewTabAgentMenuRows, type NewTabAgentMenuModel } from './use-new-tab-agent-menu-rows'
 import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
+import { markMtePlannerSession, useNewChatLaunch, type LaunchOverride } from './use-new-chat-launch'
 import { chatUnavailableLabel, rowTitle, rowLabel, rowId } from './tab-agent-row-presentation'
 
 export type QuickLaunchAgentMenuItemsProps = {
@@ -83,8 +85,17 @@ export function useTabAgentMenuLaunch({
   /** A New Chat opened at once: its composer takes the focus the menu gives back. */
   onFocusChat?: (tabId: string) => void
 }) {
+  const tryNewChat = useNewChatLaunch(worktreeId)
   const runLaunch = useCallback(
-    (row: NewTabAgentMenuRow, draft?: AgentPickerDraft, pickerEntry?: AgentPickerEntry) => {
+    (
+      row: NewTabAgentMenuRow,
+      draft?: AgentPickerDraft,
+      pickerEntry?: AgentPickerEntry,
+      // The picker menu's select mode names a surface here; it carries no dialog override.
+      requested?: LaunchOverride | AgentPickerSurface
+    ): boolean | Promise<boolean> => {
+      const override: LaunchOverride | undefined =
+        requested === 'chat' || requested === 'terminal' ? undefined : requested
       if (
         disabled ||
         row.kind === 'chat-unavailable' ||
@@ -92,6 +103,10 @@ export function useTabAgentMenuLaunch({
           readAgentMenuTerminalPending(useAppStore.getState(), { worktreeId }))
       ) {
         return false
+      }
+      const held = prompt !== undefined || !!onPromptHandedOff
+      if (!override && tryNewChat([row, draft, pickerEntry], held, (next) => runLaunch(...next))) {
+        return true
       }
       const { agent } = row
       const entry = getCatalogEntry(agent)
@@ -121,6 +136,7 @@ export function useTabAgentMenuLaunch({
         // A caller's prompt (notes) owns the launch; otherwise the picker panel's typed one.
         ...(prompt !== undefined ? { prompt } : draft?.prompt ? { prompt: draft.prompt } : {}),
         ...(promptDelivery !== undefined ? { promptDelivery } : {}),
+        ...(override && override !== 'plain' ? override : {}),
         ...(launchSource !== undefined ? { launchSource } : {}),
         ...(onPromptDelivered !== undefined ? { onPromptDelivered } : {}),
         // Notes keep their text until it goes out, so the new chat's composer never gets a copy.
@@ -129,6 +145,7 @@ export function useTabAgentMenuLaunch({
       if (!result || 'refused' in result) {
         return false
       }
+      void markMtePlannerSession(override, result.structuredSettlement, worktreeId)
       if (onPromptHandedOff && result.promptDeliveryResult) {
         const outcome = newAgentPromptOutcome({ delivery: result.promptDeliveryResult })
         onPromptHandedOff(outcome)
@@ -170,7 +187,8 @@ export function useTabAgentMenuLaunch({
       onPromptHandedOff,
       disabled,
       onFocusHostTerminal,
-      onFocusChat
+      onFocusChat,
+      tryNewChat
     ]
   )
 

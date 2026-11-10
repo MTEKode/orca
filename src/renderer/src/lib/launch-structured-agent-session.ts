@@ -176,16 +176,23 @@ export function retryStructuredAgentSessionLaunchIntent(
       }
     }
   }
+  const rebuilt = buildStructuredAgentSessionLaunchIntent(
+    intent.worktreeId,
+    intent,
+    intent.agent,
+    intent.sessionId,
+    fresh ? undefined : intent.params.resumeFrom,
+    intent.seedOptions,
+    intent.params.forkFrom
+  )
   return {
-    ...buildStructuredAgentSessionLaunchIntent(
-      intent.worktreeId,
-      intent,
-      intent.agent,
-      intent.sessionId,
-      fresh ? undefined : intent.params.resumeFrom,
-      intent.seedOptions,
-      intent.params.forkFrom
-    ),
+    ...rebuilt,
+    // The MTE marker is create identity, not a preference: a retry must recreate the same planner.
+    params: {
+      ...rebuilt.params,
+      ...(intent.params.mteRole ? { mteRole: intent.params.mteRole } : {}),
+      ...(intent.params.mteWorker ? { mteWorker: intent.params.mteWorker } : {})
+    },
     forkRequiresInheritedOriginal: intent.forkRequiresInheritedOriginal,
     explicitLaunchOptions: intent.explicitLaunchOptions
   }

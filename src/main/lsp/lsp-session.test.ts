@@ -2,7 +2,8 @@ import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { spawnProcess } from '@orca/process-host'
-import type { PipedChildProcess, PipedProcessSpec } from '@orca/process-host/process-spec'
+import type { ChildProcessWithoutNullStreams } from 'node:child_process'
+import type { PipedProcessSpec } from '@orca/process-host/process-spec'
 import { LspSession, type LspPort, type LspSessionConfig } from './lsp-session'
 
 const FAKE_SERVER = fileURLToPath(
@@ -135,7 +136,7 @@ describe('LspSession', { timeout: 30_000 }, () => {
   })
 
   it('reports an unexpected exit and closes its ports', async () => {
-    const children: PipedChildProcess[] = []
+    const children: ChildProcessWithoutNullStreams[] = []
     const { session, onExit } = startSession({
       spawn: (spec: PipedProcessSpec) => {
         const child = spawnProcess(spec)
@@ -152,7 +153,7 @@ describe('LspSession', { timeout: 30_000 }, () => {
   })
 
   it('survives repeated error events on a live child without exiting', async () => {
-    const children: PipedChildProcess[] = []
+    const children: ChildProcessWithoutNullStreams[] = []
     const { session, onExit } = startSession({
       spawn: (spec: PipedProcessSpec) => {
         const child = spawnProcess(spec)

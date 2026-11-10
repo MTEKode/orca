@@ -33,6 +33,7 @@ import type { TuiAgent } from '../../../../../shared/agent-launch/catalog/tui-ag
 import { isTuiAgent } from '../../../../../shared/agent-launch/catalog/tui-agent-config'
 import { LOCAL_EXECUTION_HOST_ID } from '../../../../../shared/execution-host'
 import { forgetDesktopCreatedServerTab } from '@/lib/desktop-created-server-tabs'
+import { hideRevealedWorkerTab } from './worker-tab-hide'
 import { replaceRecordEntries, replaceTabBuckets } from '../../keyed-record-transitions'
 
 export function createTabsCloseActions(
@@ -47,6 +48,10 @@ export function createTabsCloseActions(
         return null
       }
       const { tab, worktreeId } = found
+      // A revealed worker chat only returns to hidden: the host keeps the session and its tab.
+      if (hideRevealedWorkerTab(get, tab, worktreeId)) {
+        return { closedTabId: tabId, wasLastTab: false, worktreeId }
+      }
       const retireEditor = opts?.editorRetirementHandled
         ? () => {}
         : editorTabRetirement(set, get, state, tab)

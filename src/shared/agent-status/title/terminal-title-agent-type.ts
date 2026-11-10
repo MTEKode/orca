@@ -186,9 +186,6 @@ function computeAgentLabel(title: string): string | null {
   if (titleHasAgentName(title, 'antigravity') || AGY_AGENT_NAME_RE.test(title)) {
     return 'Antigravity'
   }
-  if (titleHasAgentName(title, 'opencode2')) {
-    return 'OpenCode 2'
-  }
   if (titleHasAgentName(title, 'opencode')) {
     return 'OpenCode'
   }
@@ -236,7 +233,6 @@ const TITLE_LABEL_TO_AGENT: Partial<Record<string, TerminalAgent>> = {
   Jcode: 'jcode',
   Antigravity: 'antigravity',
   OpenCode: 'opencode',
-  'OpenCode 2': 'opencode2',
   'MiMo Code': 'mimo-code',
   Aider: 'aider',
   Cursor: 'cursor',

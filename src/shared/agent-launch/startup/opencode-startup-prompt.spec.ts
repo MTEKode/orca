@@ -40,7 +40,7 @@ describe('native OpenCode startup submission intent', () => {
   it.each(['posix', 'powershell', 'cmd'] as const)(
     'keeps run and its flags before a positional message in %s',
     (shell) => {
-      for (const agent of ['opencode', 'opencode2'] as const) {
+      for (const agent of ['opencode'] as const) {
         const prompt = '--literal task with unicode é'
         const plan = buildAgentStartupPlan({
           agent,
@@ -107,7 +107,7 @@ describe('native OpenCode startup submission intent', () => {
 })
 
 describe('wrapped OpenCode run startup', () => {
-  it.each(['opencode', 'opencode2'] as const)(
+  it.each(['opencode'] as const)(
     'keeps %s run flags and positional task behind POSIX prefixes',
     (agent) => {
       for (const command of [
@@ -135,7 +135,7 @@ describe('wrapped OpenCode run startup', () => {
     }
   )
 
-  it.each(['opencode', 'opencode2'] as const)(
+  it.each(['opencode'] as const)(
     'preserves %s PowerShell call syntax and its run separator',
     (agent) => {
       for (const separator of ['', ' --']) {

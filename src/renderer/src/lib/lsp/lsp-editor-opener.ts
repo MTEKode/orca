@@ -1,6 +1,6 @@
 // src/renderer/src/lib/lsp/lsp-editor-opener.ts
 import type * as Monaco from 'monaco-editor'
-import { openDetectedFilePath } from '@/components/terminal-pane/terminal-file-open-routing'
+import { openDetectedFilePath } from '@/components/terminal-pane/links/files/terminal-file-open-routing'
 import { LSP_PEEK_SCHEME } from './lsp-location-models'
 import type { OwningWorktree } from './lsp-owning-worktree'
 

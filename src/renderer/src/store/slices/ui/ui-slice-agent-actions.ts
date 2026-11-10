@@ -45,7 +45,7 @@ export function createUiAgentActions(
   return {
     ...createUiActivityActions(set, get),
     sidebarOpen: true,
-    sidebarWidth: 280,
+    sidebarWidth: 300,
     toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
     setSidebarOpen: (open) => set({ sidebarOpen: open }),
     setSidebarWidth: (width) => set({ sidebarWidth: width }),

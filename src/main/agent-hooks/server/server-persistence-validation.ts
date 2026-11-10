@@ -8,7 +8,7 @@ import {
   type ParsedAgentStatusPayload
 } from '../../../shared/agent-status/contracts/agent-status-types'
 import type { AgentMainAgentStatus } from '../../../shared/agent-status/lifecycle/main-agent-status'
-import { isAgentHookSource } from '../../../shared/agent-hook-listener/transport/agent-hook-relay'
+import { normalizeAgentHookSource } from '../../../shared/agent-hook-listener/transport/agent-hook-relay'
 import type { HostTurnRecord } from '../../../shared/agent-hook-listener/listener-event'
 import { isTurnEndedAt } from '../../../shared/agent-hook-listener/state/agent-hook-turn-end-timing'
 import { isRecord } from '../../../shared/agent-status/child-work/agent-status-child-work-value-guards'
@@ -137,7 +137,7 @@ export function sanitizeHydratedEntry(
   ) {
     return null
   }
-  const source = isAgentHookSource(record.source) ? record.source : undefined
+  const source = normalizeAgentHookSource(record.source)
   const providerPromptId =
     source === 'claude'
       ? normalizeClaudePromptId(record.providerPromptId)

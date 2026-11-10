@@ -1,8 +1,8 @@
-import { useNativeChatContextUsageSummary } from './use-native-chat-context-usage-summary'
-import { useNativeChatSessionOptions } from './use-native-chat-session-options'
-import { useNativeChatSessionOptionCommand } from './use-native-chat-session-option-command'
-import type * as C from './native-chat-composer-types'
-import type { NativeChatResolvedTarget } from './native-chat-composer-target'
+import { useNativeChatContextUsageSummary } from './usage/use-native-chat-context-usage-summary'
+import { useNativeChatSessionOptions } from './session/options/terminal/use-native-chat-session-options'
+import { useNativeChatSessionOptionCommand } from './session/options/terminal/use-native-chat-session-option-command'
+import type * as C from './composer/native-chat-composer-types'
+import type { NativeChatResolvedTarget } from './composer/submit/native-chat-composer-target'
 
 type Args = Pick<
   C.NativeChatComposerProps,

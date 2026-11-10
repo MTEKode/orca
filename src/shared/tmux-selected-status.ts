@@ -54,7 +54,7 @@ export function tmuxCanonicalStatusEvent(status: AgentStatusIpcPayload): AgentHo
     tabId: status.tabId,
     worktreeId: status.worktreeId,
     connectionId: status.connectionId,
-    source: status.agentType === 'opencode2' ? 'opencode2' : 'opencode',
+    source: 'opencode',
     launchToken: status.launchToken,
     providerSession: status.providerSession,
     promptInteractionKey: status.promptInteractionKey,
@@ -81,7 +81,7 @@ export function commitTmuxUnavailable(
   const status = previous?.status
   const correlation = status
     ? {
-        source: status.agentType === 'opencode2' ? 'opencode2' : 'opencode',
+        source: 'opencode',
         tabId: status.tabId,
         launchToken: status.launchToken
       }
@@ -124,7 +124,7 @@ export function readTmuxUnavailable(
   const tabId = facts.get('tmux.tabId')
   const launchToken = facts.get('tmux.launchToken')
   return {
-    source: facts.get('tmux.source') === 'opencode2' ? 'opencode2' : 'opencode',
+    source: 'opencode',
     paneKey: subject.paneKey,
     worktreeId: subject.workspaceId,
     ...(typeof tabId === 'string' ? { tabId } : {}),
