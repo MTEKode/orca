@@ -10,6 +10,7 @@ import {
   AGENT_SESSION_DSH_RESUME_RUNTIME_CAPABILITY,
   AGENT_SESSION_MUSE_RESUME_RUNTIME_CAPABILITY,
   AGENT_SESSION_ZCODE_RESUME_RUNTIME_CAPABILITY,
+  AGENT_SESSION_OPENCODE2_RESUME_RUNTIME_CAPABILITY,
   AGENT_SESSION_HERMES_RESUME_RUNTIME_CAPABILITY,
   AGENT_SESSION_KIRO_RESUME_RUNTIME_CAPABILITY
 } from '../../../../../../shared/agent-session/lifecycle/agent-session-resume-runtime-capabilities'
@@ -29,6 +30,7 @@ const RESUME_HOST_AUTHORITY_CAPABILITY_BY_AGENT = {
   gemini: undefined,
   antigravity: undefined,
   opencode: undefined,
+  opencode2: AGENT_SESSION_OPENCODE2_RESUME_RUNTIME_CAPABILITY,
   pi: undefined,
   'mimo-code': undefined,
   droid: undefined,

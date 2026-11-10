@@ -2,7 +2,6 @@
 import './lib/react-devtools-commit-hook-shim'
 import './lib/react-commit-cascade-observer'
 import './assets/main.css'
-import './assets/diff-comments-conductor.css'
 
 import { StrictMode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -29,7 +28,7 @@ import { SkillWarningPreviewLauncher } from './components/skills/installation/pr
 import { installBrowserClientPageRenderer } from './components/browser-pane/browser-client-page-renderer-installation'
 import { registerBrowserClientPageGuestMessageHandler } from './components/browser-pane/browser-client-page-retained-elements'
 import { handleGuestWindowCloseMessage } from './components/browser-pane/host-guest/browser-page-window-close'
-import { installOsFileDropCancellationGuard } from './lib/os-file-drop-cancellation-guard'
+import { installOsFileDropCancellationGuard } from './lib/files/drop/os-file-drop-cancellation-guard'
 import { installBodyOverlayAttributes } from './lib/body-overlay-attributes'
 import { applyWindowMaterialToDocument } from './app-shell/appearance/window-material-runtime'
 

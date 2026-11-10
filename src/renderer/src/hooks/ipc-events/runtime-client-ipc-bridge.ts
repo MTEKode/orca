@@ -29,7 +29,6 @@ import {
   type OwnedWorktreeEvent
 } from '../../store/host-catalog/endpoint-catalog-adoption'
 import { createRuntimeClientEventsSync } from '../runtime-client-events-sync'
-import { applyRuntimeFeatureEvent } from './runtime-client-feature-events'
 import {
   createRuntimeProjectRefreshScheduler,
   refreshRuntimeProjectWorktreesAndLineage
@@ -130,9 +129,6 @@ export function registerRuntimeClientIpcBridge(
     // A paired desktop keeps its own Workspace options; it reads only the host's columns, for the host's cards.
     if (event.type === 'workspaceViewChanged') {
       void useAppStore.getState().fetchHostWorkspaceStatuses(environmentId)
-      return
-    }
-    if (applyRuntimeFeatureEvent(event)) {
       return
     }
     if (event.type === 'reposChanged') {

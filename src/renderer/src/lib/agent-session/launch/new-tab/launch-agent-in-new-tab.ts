@@ -102,8 +102,6 @@ function openAgentInNewTab(
     ...(args.chatSessionOptions !== undefined
       ? { chatLaunchOptions: args.chatSessionOptions }
       : {}),
-    ...(args.mteRole ? { mteRole: args.mteRole } : {}),
-    ...(args.mteWorker ? { mteWorker: args.mteWorker } : {}),
     onPromptDelivered,
     ...(args.promptKeptByCaller ? { promptKeptByCaller: true as const } : {})
   })

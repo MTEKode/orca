@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { ConfirmationDialogProvider } from './components/confirmation-dialog'
-import { NewChatDialog } from './components/tab-bar/NewChatDialog'
 import { BrowserWebAuthnAccountDialog } from './components/browser-webauthn-account-dialog'
 import { BrowserExtensionInstallDialog } from './components/browser-extension-install-dialog'
 import { BrowserPagePrompts } from './components/browser-pane/browser-page-prompts'
@@ -107,7 +106,6 @@ function App(): React.JSX.Element {
       <TooltipProvider>
         <ConfirmationDialogProvider>
           <BrowserPagePrompts />
-          <NewChatDialog />
           <AddToChatPointMenuHost />
           <LinkRoutingPreferenceDialogProvider>
             <AppBackgroundServices />

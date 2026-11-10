@@ -7,7 +7,6 @@ import { SourceControlContentStatus } from '../listing/content-status'
 import { SourceControlUncommittedSections } from '../listing/uncommitted-sections'
 import { CompareUnavailable } from '../sync/compare-summary'
 import { SourceControlCommitSurface } from './commit-surface'
-import { SourceControlChangesSummaryHeader } from './changes-summary-header'
 import { SourceControlForkPushNotice } from './fork-push-notice'
 import type { SourceControlPanelReadyProps } from './panel-props'
 import { useSourceControlScope } from './worktree-scope'
@@ -27,7 +26,6 @@ export function SourceControlPanelContent(props: SourceControlPanelReadyProps) {
     conflictOperation,
     diffCommentCountByPath,
     displaySections,
-    entries,
     expandedSubmoduleKeys,
     fileFilterState,
     fileListScrollElement,
@@ -142,8 +140,6 @@ export function SourceControlPanelContent(props: SourceControlPanelReadyProps) {
         conflictOperation,
         recovery.supported
       ) && <SourceControlCommitSurface {...props} showGenericEmptyState={showGenericEmptyState} />}
-
-      <SourceControlChangesSummaryHeader entries={entries} />
 
       {hasFilteredUncommittedEntries && (
         <SourceControlUncommittedSections

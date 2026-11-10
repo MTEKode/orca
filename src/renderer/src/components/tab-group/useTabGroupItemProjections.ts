@@ -5,10 +5,6 @@ import type { Tab, TabGroup } from '../../../../shared/tab-types'
 import type { TerminalTab } from '../../../../shared/workspace-layout/terminal-tab-types'
 import { resolveUnifiedTabLabel } from '../../../../shared/tab-title-resolution'
 import type { useAppStore } from '../../store'
-import {
-  isHiddenWorkerTab,
-  useRevealedWorkerSessions
-} from '@/lib/agent-session/revealed-worker-tabs'
 import { isEditorTabContentType } from '@/store/slices/editor/tabs/editor-tab-content-type'
 
 type TabGroupAppState = ReturnType<typeof useAppStore.getState>
@@ -44,14 +40,9 @@ export function useTabGroupItemProjections({
     () => worktreeState.groups.find((item) => item.id === groupId) ?? null,
     [groupId, worktreeState.groups]
   )
-  const revealedWorkers = useRevealedWorkerSessions()
-  // Hide worker chats only in this projection; the host keeps them listed for custody and follow-ups.
   const groupTabs = useMemo(
-    () =>
-      worktreeState.unifiedTabs.filter(
-        (item) => item.groupId === groupId && !isHiddenWorkerTab(item, revealedWorkers)
-      ),
-    [groupId, revealedWorkers, worktreeState.unifiedTabs]
+    () => worktreeState.unifiedTabs.filter((item) => item.groupId === groupId),
+    [groupId, worktreeState.unifiedTabs]
   )
   const activeItemId = group?.activeTabId ?? null
   const activeTab = groupTabs.find((item) => item.id === activeItemId) ?? null
@@ -143,30 +134,18 @@ export function useTabGroupItemProjections({
     [groupTabs]
   )
 
-  const hiddenWorkerIds = useMemo(
-    () =>
-      new Set(
-        worktreeState.unifiedTabs
-          .filter((item) => isHiddenWorkerTab(item, revealedWorkers))
-          .map((item) => item.id)
-      ),
-    [revealedWorkers, worktreeState.unifiedTabs]
-  )
-
   const tabBarOrder = useMemo(
     () =>
-      (group?.tabOrder ?? [])
-        .filter((itemId) => !hiddenWorkerIds.has(itemId))
-        .map((itemId) => {
-          const item = groupTabById.get(itemId)
-          if (!item) {
-            return itemId
-          }
-          return item.contentType === 'terminal' || item.contentType === 'browser'
-            ? item.entityId
-            : item.id
-        }),
-    [group, groupTabById, hiddenWorkerIds]
+      (group?.tabOrder ?? []).map((itemId) => {
+        const item = groupTabById.get(itemId)
+        if (!item) {
+          return itemId
+        }
+        return item.contentType === 'terminal' || item.contentType === 'browser'
+          ? item.entityId
+          : item.id
+      }),
+    [group, groupTabById]
   )
 
   return {

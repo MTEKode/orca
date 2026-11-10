@@ -108,8 +108,6 @@ function isRuntimeClientEvent(
     message.type === 'sshStateChanged' ||
     message.type === 'automationsChanged' ||
     message.type === 'browserProfilesChanged' ||
-    message.type === 'mcpIntegrationsChanged' ||
-    message.type === 'graphifyChanged' ||
     message.type === 'linearLinkedIssueUpdated' ||
     message.type === 'activateWorktree' ||
     message.type === 'worktreeTerminalSleepState' ||

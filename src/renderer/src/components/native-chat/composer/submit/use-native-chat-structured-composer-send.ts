@@ -30,10 +30,6 @@ import { nativeChatAttachImagesAgainReason } from '../../attachments/chips/nativ
 import { nativeChatNoticeFromError } from '../controls/native-chat-composer-notice'
 import { agentSessionWriteNoticeText } from '../../messages/notices/agent-session-write-notice-text'
 import { translate } from '@/i18n/i18n'
-import { useAppStore } from '@/store'
-import { selectDiffCommentView } from '@/store/diff-comment-owner'
-import { readQueuedDiffCommentsSafely } from './use-native-chat-queued-diff-comments'
-import { composePromptWithDiffComments } from '@/lib/native-chat-comment-delivery'
 import {
   captureNativeChatComposerSubmission,
   subscribeToNativeChatComposerDraftAppend
@@ -56,7 +52,6 @@ export type UseNativeChatStructuredComposerSendArgs = {
   structuredTransport?: NativeChatStructuredComposerTransport
   isComposing: () => boolean
   clearSkillOrigin: () => void
-  withSkillInstruction?: (text: string) => string
   setDraft: (value: string) => void
   setCaret: (caret: number) => void
 }
@@ -75,7 +70,6 @@ export function useNativeChatStructuredComposerSend({
   structuredTransport,
   isComposing,
   clearSkillOrigin,
-  withSkillInstruction,
   setDraft,
   setCaret
 }: UseNativeChatStructuredComposerSendArgs): NativeChatStructuredComposerSend {
@@ -126,14 +120,6 @@ export function useNativeChatStructuredComposerSend({
       if (hostCommand && structuredAgentSessionCommandChangesConversation(text)) {
         structuredTransport.onSubmitted?.()
       }
-      // Queued diff comments ride along with plain messages only; commands go out untouched.
-      const worktreeId = structuredTransport.worktreeId
-      const state = useAppStore.getState()
-      const queued = hostCommand ? [] : readQueuedDiffCommentsSafely(state, worktreeId)
-      // The copy these notes belong to, captured now so a later tab switch cannot redirect the clear.
-      const commentOwner = worktreeId
-        ? selectDiffCommentView(state, worktreeId, 'selection').owner
-        : null
       const isCurrent = structuredTransport.capturePresentation()
       const revealAdmitted =
         structuredTransport.captureAdmittedReveal?.() ?? structuredTransport.onSubmitted
@@ -149,11 +135,6 @@ export function useNativeChatStructuredComposerSend({
           hostCommand ? 'goal' : 'message'
         )
       }
-      if (!hostCommand && withSkillInstruction) {
-        text = withSkillInstruction(text)
-      }
-      // Compose after serialization so queued comments wrap the wire text, not the raw draft.
-      const { prompt: outgoing, snapshots } = composePromptWithDiffComments(text, queued)
       const submission = captureNativeChatComposerSubmission(draftScopeKey)
       let consumed = false
       let completeAddition = false
@@ -222,7 +203,7 @@ export function useNativeChatStructuredComposerSend({
         stagedInput ? (input) => stagedInput.prepare(input, structuredTransport) : undefined
       return dispatchNativeChatStructuredComposerText(
         structuredTransport,
-        outgoing,
+        text,
         attachments,
         promptSkillRefs(submission.draft?.document),
         {
@@ -240,9 +221,6 @@ export function useNativeChatStructuredComposerSend({
           if (!accepted) {
             finishNativeChatComposerSubmission(draftScopeKey, submission, recoversDraft())
             return false
-          }
-          if (commentOwner && snapshots.length > 0) {
-            void useAppStore.getState().clearDeliveredDiffComments(commentOwner, snapshots)
           }
           transferred = true
           completeNativeChatStructuredUserAction(
@@ -289,8 +267,7 @@ export function useNativeChatStructuredComposerSend({
       isComposing,
       setCaret,
       setDraft,
-      structuredTransport,
-      withSkillInstruction
+      structuredTransport
     ]
   )
 }

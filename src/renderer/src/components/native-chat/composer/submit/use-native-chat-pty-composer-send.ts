@@ -55,7 +55,6 @@ export function useNativeChatPtyComposerSend(args: {
   setDraft: (value: string) => void
   setCaret: Dispatch<SetStateAction<number>>
   clearSkillOrigin: () => void
-  withSkillInstruction?: (text: string) => string
   clearImageAttachments: () => void
   setNotice: (notice: string | null) => void
 }): (retry?: { text: string; imagePaths?: string[] }) => boolean {
@@ -87,9 +86,6 @@ export function useNativeChatPtyComposerSend(args: {
       text = retry
         ? resolveNativeChatPastedText(args.draftScopeKey, text)
         : serializeNativeChatAgentReferences(text, submitted.document, submitted.pastedTextFiles)
-      // The transcript bubble keeps what the user typed; only the wire text carries the skill instruction.
-      const wireText =
-        classification === 'chat' && !retry ? (args.withSkillInstruction?.(text) ?? text) : text
       const { sendOptions: launchSendOptions } = resolveNativeChatLaunchDraftSend({
         launchDraft: args.launchDraft,
         launchDraftResolved: args.launchDraftResolved,
@@ -123,17 +119,17 @@ export function useNativeChatPtyComposerSend(args: {
         pendingHandle =
           args.agent === 'codex' && isSlashCommandDraft(text)
             ? sendNativeChatTypedCommand(target.ptyId, text, launchSendOptions)
-            : sendNativeChatMessage(target.ptyId, wireText, sendOptions)
+            : sendNativeChatMessage(target.ptyId, text, sendOptions)
       } else if (imagePaths.length > 0) {
         pendingHandle = sendNativeChatMessageWithImageAttachments(
           args.agent,
           target.ptyId,
-          wireText,
+          text,
           imagePaths,
           sendOptions
         )
       } else if (text.trim().length > 0) {
-        pendingHandle = sendNativeChatMessage(target.ptyId, wireText, sendOptions)
+        pendingHandle = sendNativeChatMessage(target.ptyId, text, sendOptions)
       } else {
         submitNativeChatPrompt(target.ptyId)
       }

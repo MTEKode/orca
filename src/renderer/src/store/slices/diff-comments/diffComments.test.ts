@@ -279,7 +279,7 @@ describe('clearDeliveredDiffComments', () => {
     expect(updateMeta).toHaveBeenCalledWith({
       executionHostId: 'local',
       worktreeId: WT,
-      updates: expect.objectContaining({ diffComments: [edited] })
+      updates: { diffComments: [edited] }
     })
   })
 

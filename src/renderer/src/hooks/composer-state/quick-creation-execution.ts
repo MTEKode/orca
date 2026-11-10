@@ -238,8 +238,7 @@ export function useQuickCreationExecution(input: QuickCreationExecutionInput) {
         promptDelivery,
         quickTelemetry: quickStartup.telemetry,
         suppressTerminalFocusOnCompletion: createMultiple,
-        setupOnly: options?.setupOnly === true,
-        ...(options?.mte ? { mteLaunch: options.mte } : {})
+        setupOnly: options?.setupOnly === true
       })
 
       if (isSubmissionCancelled()) {

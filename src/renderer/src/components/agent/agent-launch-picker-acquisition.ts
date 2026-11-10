@@ -236,11 +236,6 @@ class AgentPickerAcquisition {
     }
   }
 
-  prioritize(): void {
-    this.admit('catalog')
-    this.admit('support')
-  }
-
   diagnostics() {
     return {
       observers: this.observers.size,
@@ -248,10 +243,6 @@ class AgentPickerAcquisition {
       ...this.outstanding
     }
   }
-}
-
-export function prioritizeAgentPickerAcquisition(key: string): void {
-  pending.get(key)?.prioritize()
 }
 
 export function observeAgentPickerAcquisition(

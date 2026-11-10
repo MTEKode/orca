@@ -14,7 +14,7 @@ afterEach(() => {
 
 it('uses the built-in theme until the plugin theme is defined, then switches to it', async () => {
   const { result, rerender } = renderHook(() => useMonacoTheme())
-  expect(result.current).toBe('orca-dark')
+  expect(result.current).toBe('vs-dark')
 
   const data = { base: 'vs-dark' as const, inherit: true, rules: [], colors: {} }
   useCodeEditorThemeStore.setState({ monaco: { name: 'orca-plugin-test', data } })
@@ -30,5 +30,5 @@ it('uses the built-in theme until the plugin theme is defined, then switches to 
 
   useCodeEditorThemeStore.setState({ monaco: null, override: null })
   rerender()
-  expect(result.current).toBe('orca-dark')
+  expect(result.current).toBe('vs-dark')
 })

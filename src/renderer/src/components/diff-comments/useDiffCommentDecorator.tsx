@@ -72,8 +72,8 @@ export function useDiffCommentDecorator({
   comments,
   commentableLineNumbers,
   addButtonLabel = translate(
-    'auto.components.diff.comments.DiffCommentPopover.commentPlaceholder',
-    'Add a comment for the AI'
+    'auto.components.diff.comments.DiffCommentPopover.f6c449191e',
+    'Add note for the AI'
   ),
   pendingCommentTarget = null,
   addNoteShortcutEnabled = false,

@@ -1,7 +1,6 @@
 import { workspaceEditorFiles } from '@/store/slices/editor/tabs/workspace-editor-files'
 import type { Tab, TabGroup } from '../../../../shared/tab-types'
 import type { AppState } from '../../store/types'
-import { isHiddenWorkerTab } from '@/lib/agent-session/revealed-worker-tabs'
 import { reconcileTabOrder } from './reconcile-order'
 
 export type VisibleTabRef = {
@@ -16,11 +15,6 @@ export type ActiveTabNavOrderIds = {
   browserIds?: string[]
   simulatorIds?: string[]
   agentSessionIds?: string[]
-}
-
-export type ActiveTabNavOrderOptions = {
-  /** Keyboard navigation skips worker chats the user has not revealed; host publications keep them. */
-  excludeHiddenWorkers?: boolean
 }
 
 /** Match reconciled visible strip order; id activates backing entities, tabId selects split copies, and missing entities are skipped. */
@@ -158,13 +152,8 @@ export function getActiveTabNavOrder(
     | 'browserTabsByWorktree'
   >,
   worktreeId: string,
-  ids: ActiveTabNavOrderIds = {},
-  options: ActiveTabNavOrderOptions = {}
+  ids: ActiveTabNavOrderIds = {}
 ): VisibleTabRef[] {
-  const hideWorkers = options.excludeHiddenWorkers === true
-  const visibleUnifiedTabs = (state.unifiedTabsByWorktree[worktreeId] ?? []).filter(
-    (tab) => !hideWorkers || !isHiddenWorkerTab(tab)
-  )
   const terminalIds = ids.terminalIds ?? (state.tabsByWorktree[worktreeId] ?? []).map((t) => t.id)
   const editorIds =
     ids.editorIds ??
@@ -173,10 +162,14 @@ export function getActiveTabNavOrder(
     ids.browserIds ?? (state.browserTabsByWorktree?.[worktreeId] ?? []).map((t) => t.id)
   const simulatorIds =
     ids.simulatorIds ??
-    visibleUnifiedTabs.filter((tab) => tab.contentType === 'simulator').map((tab) => tab.id)
+    (state.unifiedTabsByWorktree[worktreeId] ?? [])
+      .filter((tab) => tab.contentType === 'simulator')
+      .map((tab) => tab.id)
   const agentSessionIds =
     ids.agentSessionIds ??
-    visibleUnifiedTabs.filter((tab) => tab.contentType === 'agent-session').map((tab) => tab.id)
+    (state.unifiedTabsByWorktree[worktreeId] ?? [])
+      .filter((tab) => tab.contentType === 'agent-session')
+      .map((tab) => tab.id)
 
   const activeGroupId = state.activeGroupIdByWorktree[worktreeId]
   const group = activeGroupId
@@ -184,7 +177,9 @@ export function getActiveTabNavOrder(
     : undefined
 
   if (group) {
-    const groupTabs = visibleUnifiedTabs.filter((tab) => tab.groupId === group.id)
+    const groupTabs = (state.unifiedTabsByWorktree[worktreeId] ?? []).filter(
+      (tab) => tab.groupId === group.id
+    )
     // Unified terminal tabs render before legacy runtime hydration; keep them cyclable so activation can restore the runtime.
     const groupTerminalIds = new Set([
       ...terminalIds,

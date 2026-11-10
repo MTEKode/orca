@@ -76,6 +76,7 @@ export function TerminalTitlebarTabs({
       onCloseToRight={handleCloseTabsToRight}
       onCloseToLeft={handleCloseTabsToLeft}
       onNewTerminalTab={() => handleNewTab()}
+      onNewTerminalWithShell={handleNewTab}
       onNewBrowserTab={handleNewBrowserTab}
       onNewSimulatorTab={mobileEmulatorEnabled ? handleNewSimulatorTab : undefined}
       onOpenEntry={handleOpenEntry}

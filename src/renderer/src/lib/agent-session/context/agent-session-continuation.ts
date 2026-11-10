@@ -45,7 +45,10 @@ export function resolveAgentSessionContinuationTranscriptPath(
     return null
   }
   const agent = source.sourceAgent
-  if (agent === 'opencode' && splitOpenCodeSqliteCandidate(path, agent)) {
+  if (
+    (agent === 'opencode' || agent === 'opencode2') &&
+    splitOpenCodeSqliteCandidate(path, agent)
+  ) {
     return null
   }
   return path

@@ -3,8 +3,8 @@ import { ChevronDown, MessageSquare, Minus, Plus, Trash, Undo2 } from 'lucide-re
 import { FileTypeIcon } from '@/components/FileTypeIcon'
 import { basename, dirname, joinPath } from '@/lib/path'
 import { cn } from '@/lib/utils'
-import { WORKSPACE_FILE_PATH_MIME } from '@/lib/workspace-file-drag'
-import { writeWorkspaceFileDragSourceForWorkspace } from '@/lib/workspace-file-drag-source'
+import { WORKSPACE_FILE_PATH_MIME } from '@/lib/files/drop/workspace-file-drag'
+import { writeWorkspaceFileDragSourceForWorkspace } from '@/lib/files/drop/workspace-file-drag-source'
 import { useTranslate } from '@/i18n/use-translate'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 import type { GitStatusEntry } from '../../../../../../shared/git/status/git-status-types'
@@ -174,18 +174,12 @@ export const UncommittedEntryRow = React.memo(function UncommittedEntryRow({
           className: 'size-3.5 shrink-0',
           style: { color: STATUS_COLORS[entry.status] }
         })}
-        <div className="min-w-0 flex-1 text-[13px]">
-          <span className="flex min-w-0 items-baseline">
+        <div className="min-w-0 flex-1 text-xs">
+          <span className="min-w-0 block truncate">
+            <span className="text-foreground">{fileName}</span>
             {showPathHint && dirPath && (
-              <span
-                dir="rtl"
-                className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-left text-muted-foreground"
-              >
-                {/* Keep the trailing slash visible in rtl by isolating the text as ltr. */}
-                <bdi>{dirPath}/</bdi>
-              </span>
+              <span className="ml-1.5 text-[11px] text-muted-foreground">{dirPath}</span>
             )}
-            <span className="shrink-0 text-foreground">{fileName}</span>
           </span>
           {conflictLabel && (
             <div className="truncate text-[11px] text-muted-foreground">{conflictLabel}</div>
@@ -215,7 +209,7 @@ export const UncommittedEntryRow = React.memo(function UncommittedEntryRow({
           <>
             <DiffLineCounts added={entry.added} removed={entry.removed} />
             <span
-              className="w-4 shrink-0 text-center text-[11px] font-bold"
+              className="w-4 shrink-0 text-center text-[10px] font-bold"
               style={{ color: STATUS_COLORS[entry.status] }}
             >
               {STATUS_LABELS[entry.status]}

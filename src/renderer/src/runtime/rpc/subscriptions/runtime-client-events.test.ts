@@ -35,16 +35,3 @@ describe('subscribeRuntimeClientEvents', () => {
     expect(observed).toEqual(['error'])
   })
 })
-
-it('delivers graphifyChanged and mcpIntegrationsChanged so mounted panels refresh when a run ends', async () => {
-  const { subscribe, respond } = recordRuntimeSubscription({ subscriptionId: 'sub-graph' })
-  stubRuntimeEnvironmentBridge({ subscribe })
-  const onEvent = vi.fn()
-  await subscribeRuntimeClientEvents('env-graph', onEvent)
-  respond({ ok: true, result: { type: 'graphifyChanged', repoId: 'r1' } })
-  respond({ ok: true, result: { type: 'mcpIntegrationsChanged' } })
-  expect(onEvent.mock.calls.map(([e]) => e)).toEqual([
-    { type: 'graphifyChanged', repoId: 'r1' },
-    { type: 'mcpIntegrationsChanged' }
-  ])
-})

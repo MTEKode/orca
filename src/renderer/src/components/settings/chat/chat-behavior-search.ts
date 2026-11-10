@@ -102,33 +102,6 @@ export const getChatBehaviorEntriesByKey = createLocalizedCatalog(() => ({
       translate('components.settings.nativeChat.linkPreviewsSearchHover', 'hover card')
     ]
   },
-  turnCheckpoints: {
-    targetSectionId: 'chat-turn-checkpoints',
-    title: translate(
-      'components.settings.nativeChat.turnCheckpointsTitle',
-      'Snapshot turns for revert'
-    ),
-    description: translate(
-      'components.settings.nativeChat.turnCheckpointsCopy',
-      'Orca snapshots the worktree at each chat turn so you can revert files to before a turn. Snapshots live in private git refs and never move your branch.'
-    ),
-    keywords: [
-      translate('components.settings.nativeChat.turnCheckpointsSearchRevert', 'revert'),
-      translate('components.settings.nativeChat.turnCheckpointsSearchCheckpoint', 'checkpoint')
-    ]
-  },
-  reviewTools: {
-    targetSectionId: 'chat-review-tools',
-    title: translate('components.settings.nativeChat.reviewToolsTitle', 'Agent review tools'),
-    description: translate(
-      'components.settings.nativeChat.reviewToolsCopy',
-      'Claude chats can read your queued review notes and the workspace diff, and post their own review comments into the notes list.'
-    ),
-    keywords: [
-      translate('components.settings.nativeChat.reviewToolsSearchReview', 'review'),
-      translate('components.settings.nativeChat.reviewToolsSearchComments', 'comments')
-    ]
-  },
   shellEnvironment: {
     targetSectionId: 'chat-shell-environment',
     title: translate(

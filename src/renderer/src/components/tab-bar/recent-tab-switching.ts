@@ -145,14 +145,7 @@ export function buildRecentTabSwitcherModel(
   worktreeId: string,
   mode: CtrlTabOrderMode
 ): RecentTabSwitcherModel | null {
-  const visibleEntries = getActiveTabNavOrder(
-    state,
-    worktreeId,
-    {},
-    {
-      excludeHiddenWorkers: true
-    }
-  )
+  const visibleEntries = getActiveTabNavOrder(state, worktreeId)
   if (visibleEntries.length <= 1) {
     return null
   }

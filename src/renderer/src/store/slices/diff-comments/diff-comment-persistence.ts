@@ -128,12 +128,7 @@ export function enqueueDiffCommentPersist(
           throw new Error('The workspace copy is gone; review notes were not saved.')
         }
         stateList = rows.at(-1)?.diffComments
-        await writeDiffCommentsToHost(
-          mutation.owner,
-          (stateList ?? []).map(normalizeDiffComment),
-          // The pre-mutation list lets main's merge keep notes another writer (an agent tool) landed mid-burst.
-          mutation.previous
-        )
+        await writeDiffCommentsToHost(mutation.owner, (stateList ?? []).map(normalizeDiffComment))
       }
     } catch (err) {
       // Why: converge to what actually landed; rollback's identity guard no-ops when a later mutation owns the array.

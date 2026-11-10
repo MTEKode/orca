@@ -28,7 +28,7 @@ function resolveCycleContext(): CycleContext | null {
     return null
   }
   // Cycle the visible group’s order so keyboard navigation follows dragged tabs.
-  const allTabIds = getActiveTabNavOrder(store, worktreeId, {}, { excludeHiddenWorkers: true })
+  const allTabIds = getActiveTabNavOrder(store, worktreeId)
   if (allTabIds.length <= 1) {
     return null
   }

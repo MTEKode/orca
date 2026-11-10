@@ -17,21 +17,5 @@ export const getShareSkillsSettingsSearchEntries = createLocalizedCatalog(() => 
       ...translateSearchKeyword('auto.components.settings.shareSkills.keywordUnlisted', 'unlisted'),
       ...translateSearchKeyword('auto.components.settings.shareSkills.keywordRevoke', 'revoke')
     ]
-  },
-  {
-    title: translate(
-      'auto.components.settings.skillsImport.title',
-      'Import skills from other harnesses'
-    ),
-    description: translate(
-      'auto.components.settings.skillsImport.searchDescription',
-      'Link skills from Claude, Codex, OpenCode, Cursor, and Antigravity into ~/.agents/skills.'
-    ),
-    keywords: [
-      ...translateSearchKeyword('auto.components.settings.skillsImport.keywordImport', 'import'),
-      ...translateSearchKeyword('auto.components.settings.skillsImport.keywordSkills', 'skills'),
-      ...translateSearchKeyword('auto.components.settings.skillsImport.keywordSymlink', 'symlink'),
-      ...translateSearchKeyword('auto.components.settings.skillsImport.keywordHarness', 'harness')
-    ]
   }
 ])
