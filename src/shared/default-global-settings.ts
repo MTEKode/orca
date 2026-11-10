@@ -290,6 +290,7 @@ export function buildDefaultSettings(args: {
     experimentalConnectors: false,
     experimentalWslHosts: false,
     experimentalOrchestrationPanel: false,
+    mteGateOrchestration: true,
     compactWorktreeCards: false,
     // Why: local desktop stays the default until the user picks a saved runtime environment.
     activeRuntimeEnvironmentId: null,
