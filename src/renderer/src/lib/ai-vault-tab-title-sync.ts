@@ -11,7 +11,9 @@ import { settleAiVaultTitleRequestBatches } from './ai-vault-tab-title-batches'
 import { aiVaultTitleSyncInputsChanged } from './ai-vault-tab-title-sync-inputs'
 
 const MISSING_TITLE_REFRESH_MS = 20_000
-const LIVE_TITLE_REFRESH_MS = 5 * 60_000
+// Why: must stay above the scanner child's 10 min idle timeout
+// (AI_VAULT_SERVICE_IDLE_TIMEOUT_MS), or periodic live scans keep the child alive forever.
+const LIVE_TITLE_REFRESH_MS = 30 * 60_000
 
 function requestIdentity(request: AiVaultTitleRequest): string {
   return `${request.executionHostId}\0${request.agent}\0${request.providerSession.id}`
@@ -38,25 +40,24 @@ function scheduleMicrotask(callback: () => void): () => void {
   }
 }
 
-function nextLiveRefreshDelay(state: AppState, requests: AiVaultTitleRequest[]): number | null {
-  const liveRequests = requests.filter((request) => request.refresh)
-  if (liveRequests.length === 0) {
-    return null
-  }
-  const tabsById = new Map(
+function hasStoredTitle(
+  tabsById: Map<string, AppState['tabsByWorktree'][string][number]>,
+  request: AiVaultTitleRequest
+): boolean {
+  const stored = tabsById.get(request.tabId)?.aiVaultTitle
+  return (
+    stored?.agent === request.agent &&
+    stored.sessionId === request.providerSession.id &&
+    !!stored.title.trim()
+  )
+}
+
+function tabsByIdOf(state: AppState) {
+  return new Map(
     Object.values(state.tabsByWorktree)
       .flat()
       .map((tab) => [tab.id, tab] as const)
   )
-  const hasMissingTitle = liveRequests.some((request) => {
-    const stored = tabsById.get(request.tabId)?.aiVaultTitle
-    return (
-      stored?.agent !== request.agent ||
-      stored.sessionId !== request.providerSession.id ||
-      !stored.title.trim()
-    )
-  })
-  return hasMissingTitle ? MISSING_TITLE_REFRESH_MS : LIVE_TITLE_REFRESH_MS
 }
 
 export function startAiVaultTabTitleSync(dependencies: SyncDependencies): () => void {
@@ -65,7 +66,11 @@ export function startAiVaultTabTitleSync(dependencies: SyncDependencies): () => 
     dependencies.clearTimer ??
     ((timer: ReturnType<typeof setTimeout> | number) =>
       clearTimeout(timer as ReturnType<typeof setTimeout>))
-  let refreshTimer: ReturnType<typeof setTimeout> | number | null = null
+  // Why: two timers so store-driven reconciles can re-arm the missing-title retry without
+  // postponing the long live refresh, which would otherwise never come due.
+  let missingTimer: ReturnType<typeof setTimeout> | number | null = null
+  let liveTimer: ReturnType<typeof setTimeout> | number | null = null
+  let liveRefreshDue = false
   let scanInFlight = false
   let scanAgain = false
   let scheduled = false
@@ -135,17 +140,15 @@ export function startAiVaultTabTitleSync(dependencies: SyncDependencies): () => 
       scanAgain = true
       return
     }
-    if (refreshTimer !== null) {
-      clearTimer(refreshTimer)
-      refreshTimer = null
+    if (missingTimer !== null) {
+      clearTimer(missingTimer)
+      missingTimer = null
     }
+    const liveScanNow = liveRefreshDue
+    liveRefreshDue = false
 
     const state = dependencies.getState()
-    const tabsById = new Map(
-      Object.values(state.tabsByWorktree)
-        .flat()
-        .map((tab) => [tab.id, tab] as const)
-    )
+    const tabsById = tabsByIdOf(state)
     const requests = collectAiVaultTitleRequests(state)
     const requestsToScan = requests.filter((request) => {
       const stored = tabsById.get(request.tabId)?.aiVaultTitle
@@ -154,7 +157,7 @@ export function startAiVaultTabTitleSync(dependencies: SyncDependencies): () => 
       if (stored && !identityMatches) {
         writeTitle(request, null)
       }
-      return request.refresh || !identityMatches || !stored?.title.trim()
+      return (liveScanNow && request.refresh) || !identityMatches || !stored?.title.trim()
     })
 
     if (requestsToScan.length > 0) {
@@ -168,10 +171,25 @@ export function startAiVaultTabTitleSync(dependencies: SyncDependencies): () => 
       schedule()
     } else if (!stopped) {
       const currentState = dependencies.getState()
-      const currentRequests = collectAiVaultTitleRequests(currentState)
-      const refreshDelay = nextLiveRefreshDelay(currentState, currentRequests)
-      if (refreshDelay !== null) {
-        refreshTimer = setTimer(schedule, refreshDelay)
+      const liveRequests = collectAiVaultTitleRequests(currentState).filter((r) => r.refresh)
+      if (liveScanNow && liveTimer !== null) {
+        clearTimer(liveTimer)
+        liveTimer = null
+      }
+      if (liveRequests.length === 0 && liveTimer !== null) {
+        clearTimer(liveTimer)
+        liveTimer = null
+      }
+      if (liveRequests.length > 0 && liveTimer === null) {
+        liveTimer = setTimer(() => {
+          liveTimer = null
+          liveRefreshDue = true
+          schedule()
+        }, LIVE_TITLE_REFRESH_MS)
+      }
+      const currentTabs = tabsByIdOf(currentState)
+      if (liveRequests.some((request) => !hasStoredTitle(currentTabs, request))) {
+        missingTimer = setTimer(schedule, MISSING_TITLE_REFRESH_MS)
       }
     }
   }
@@ -199,8 +217,10 @@ export function startAiVaultTabTitleSync(dependencies: SyncDependencies): () => 
     unsubscribe()
     cancelScheduled?.()
     cancelScheduled = null
-    if (refreshTimer !== null) {
-      clearTimer(refreshTimer)
+    for (const timer of [missingTimer, liveTimer]) {
+      if (timer !== null) {
+        clearTimer(timer)
+      }
     }
   }
 }

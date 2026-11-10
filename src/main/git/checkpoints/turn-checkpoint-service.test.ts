@@ -118,6 +118,7 @@ describe('turn checkpoint service', () => {
     expect(git.pruneCheckpointTurns).toHaveBeenCalledWith('/work/session-worktree', {
       prefix: `refs/orca-checkpoints/${SESSION}/`,
       keepTurns: TURN_CHECKPOINT_KEEP_TURNS,
+      protectTurnId: 'turn-1',
       runtime: {}
     })
   })

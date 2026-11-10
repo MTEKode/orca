@@ -17,7 +17,9 @@ const {
   isProvenLiveStructuredSessionRemovalError,
   isUnstoppedPtyRemovalError
 } = await import('../../shared/worktree/removal')
-const { listStructuredSessionsForWorktree } = await import('./structured-session-worktree-teardown')
+const { listStructuredSessionsForWorktree, retireStructuredSessionTabsForWorktree } =
+  await import('./structured-session-worktree-teardown')
+const { installTurnCheckpointService } = await import('../git/checkpoints/turn-checkpoint-service')
 
 const WORKTREE = 'repo_1::/tmp/wt-a'
 const OTHER_WORKTREE = 'repo_1::/tmp/wt-b'
@@ -855,5 +857,42 @@ describe('worktree teardown and structured agent sessions', () => {
     await expect(killAllProcessesForWorktree(WORKTREE, destructiveDeps())).resolves.toMatchObject({
       runtimeStopped: 0
     })
+  })
+})
+
+describe('retireStructuredSessionTabsForWorktree checkpoint cleanup', () => {
+  const sessions = [
+    { sessionId: 's1', agent: 'claude' as const },
+    { sessionId: 's2', agent: 'claude' as const }
+  ]
+  const install = (pruneSession: (id: string) => Promise<number>): (() => void) =>
+    installTurnCheckpointService({ pruneSession } as never)
+
+  beforeEach(() => {
+    hostRef.current = null
+  })
+
+  it('prunes once per member session', async () => {
+    const pruneSession = vi.fn(async () => 0)
+    const uninstall = install(pruneSession)
+    await retireStructuredSessionTabsForWorktree(sessions)
+    uninstall()
+    expect(pruneSession.mock.calls.map((call) => call[0])).toEqual(['s1', 's2'])
+  })
+
+  it('swallows a rejecting prune', async () => {
+    const pruneSession = vi.fn(async () => {
+      throw new Error('boom')
+    })
+    const uninstall = install(pruneSession)
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    await expect(retireStructuredSessionTabsForWorktree(sessions)).resolves.toBeUndefined()
+    uninstall()
+    warn.mockRestore()
+    expect(pruneSession).toHaveBeenCalledTimes(2)
+  })
+
+  it('is a no-op without an installed service', async () => {
+    await expect(retireStructuredSessionTabsForWorktree(sessions)).resolves.toBeUndefined()
   })
 })

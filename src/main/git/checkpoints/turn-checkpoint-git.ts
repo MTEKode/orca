@@ -13,7 +13,8 @@ import {
 } from './turn-checkpoint-git-run'
 import {
   buildCheckpointWorktreeTree,
-  createCheckpointTempIndex
+  createCheckpointTempIndex,
+  openPersistentCheckpointIndex
 } from './turn-checkpoint-temp-index'
 import {
   sanitizeCheckpointRefSegment,
@@ -26,6 +27,10 @@ export type TurnCheckpointSaveResult =
   | { status: 'saved'; ref: string; commit: string }
   | { status: 'refused' }
   | { status: 'skipped'; reason: 'busy' | 'conflicted' | 'unborn-head' }
+
+type LastCheckpoint = { commit: string; head: string; indexTree: string; worktreeTree: string }
+/** Newest checkpoint per `<gitDir>\0<sessionId>`; lets an unchanged capture alias its commit. */
+const lastCheckpoints = new Map<string, LastCheckpoint>()
 
 const ZERO_OID = '0'.repeat(40)
 const CHECKPOINT_IDENTITY = [
@@ -64,6 +69,27 @@ function readCheckpointMetadata(rawCommit: string): {
   return head && indexTree && worktreeTree ? { head, indexTree, worktreeTree } : null
 }
 
+/** Persistent index first; any failure on it discards it and this capture uses a throwaway one. */
+async function snapshotWorktreeTree(
+  cwd: string,
+  gitDir: string,
+  indexTree: string,
+  runtime: TurnCheckpointRuntime
+): Promise<string> {
+  const persistent = openPersistentCheckpointIndex(gitDir, runtime)
+  try {
+    return await buildCheckpointWorktreeTree(cwd, persistent, { seed: indexTree, runtime })
+  } catch {
+    await persistent.dispose().catch(() => undefined)
+  }
+  const tempIndex = await createCheckpointTempIndex(gitDir, runtime)
+  try {
+    return await buildCheckpointWorktreeTree(cwd, tempIndex, { seed: indexTree, runtime })
+  } finally {
+    await tempIndex.dispose()
+  }
+}
+
 /** Snapshot HEAD + index + full working tree into `refs/orca-checkpoints/<id>`; never touches files. */
 export async function saveCheckpoint(
   cwd: string,
@@ -96,12 +122,18 @@ export async function saveCheckpoint(
   }
   const { stdout: indexTreeRaw } = await runCheckpointGit(cwd, ['write-tree'], runtime)
   const indexTree = indexTreeRaw.trim()
-  const tempIndex = await createCheckpointTempIndex(gitDir, runtime)
-  let worktreeTree: string
-  try {
-    worktreeTree = await buildCheckpointWorktreeTree(cwd, tempIndex, { seed: indexTree, runtime })
-  } finally {
-    await tempIndex.dispose()
+  const worktreeTree = await snapshotWorktreeTree(cwd, gitDir, indexTree, runtime)
+  const lastKey = `${gitDir}\0${options.id.sessionId}`
+  const last = lastCheckpoints.get(lastKey)
+  if (
+    last &&
+    last.head === head &&
+    last.indexTree === indexTree &&
+    last.worktreeTree === worktreeTree &&
+    (await verifyCheckpointRev(cwd, `${last.commit}^{commit}`, runtime)) !== null
+  ) {
+    await runCheckpointGit(cwd, ['update-ref', ref, last.commit], runtime)
+    return { status: 'saved', ref, commit: last.commit }
   }
   const id = ref.slice(TURN_CHECKPOINT_REF_PREFIX.length)
   const message = [
@@ -119,6 +151,7 @@ export async function saveCheckpoint(
   )
   const commitOid = commit.trim()
   await runCheckpointGit(cwd, ['update-ref', ref, commitOid], runtime)
+  lastCheckpoints.set(lastKey, { commit: commitOid, head, indexTree, worktreeTree })
   return { status: 'saved', ref, commit: commitOid }
 }
 

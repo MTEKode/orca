@@ -135,3 +135,45 @@ describe('worker-pinned planner prompt', () => {
     expect(plannerKickoffPrompt('x')).toContain('ask the session-start question above')
   })
 })
+
+describe.each([
+  ['unpinned', MTE_PLANNER_PROMPT],
+  ['pinned', mtePlannerPrompt({ agent: 'claude', model: 'sonnet' })]
+])('pre-lock analysis and task spec template (%s)', (_name, prompt) => {
+  const preLock = '## Pre-lock analysis (ground the spec)'
+
+  it('places the pre-lock analysis between the grill and memory sections', () => {
+    expect(prompt).toContain(preLock)
+    expect(prompt.indexOf(preLock)).toBeGreaterThan(
+      prompt.indexOf('## Requirement interrogation (grill)')
+    )
+    expect(prompt.indexOf(preLock)).toBeLessThan(prompt.indexOf('## Memory'))
+    const section = prompt.slice(prompt.indexOf(preLock), prompt.indexOf('## Memory'))
+    expect(section).toContain('search_memory')
+  })
+
+  it('lists the nine template headings in order', () => {
+    const start = prompt.indexOf('## Task spec template')
+    expect(start).toBeGreaterThan(-1)
+    let at = start
+    for (const h of [
+      'Context',
+      'Resolved decisions',
+      'Interfaces',
+      'Edit boundaries',
+      'Entry pointers',
+      'Acceptance checks',
+      'Validation commands',
+      'Known traps',
+      'Out of scope'
+    ]) {
+      const next = prompt.indexOf(`\`${h}\``, at)
+      expect(next, h).toBeGreaterThan(at)
+      at = next
+    }
+  })
+
+  it('no longer asks for exact files', () => {
+    expect(prompt).not.toContain('exact files')
+  })
+})
