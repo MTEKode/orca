@@ -525,34 +525,6 @@
       "iconPickErrors": {
         "notPng": "Los iconos del repositorio deben ser archivos PNG.",
         "tooLarge": "La imagen del icono del repositorio debe tener un tamaño máximo de 256 KB."
-      },
-      "mteFlowPrompt": {
-        "title": "Preguntar si usar la orquestación MTE en chats nuevos",
-        "description": "Al iniciar un chat de Claude, Codex u OpenCode en este proyecto, ofrece que el planificador MTE dirija a los agentes coder y validator.",
-        "keywordMte": "mte",
-        "keywordOrchestration": "orquestación",
-        "keywordPlanner": "planificador"
-      },
-      "deployCheck": {
-        "title": "Comprobación de despliegue",
-        "description": "Dónde prueba el flujo MTE la funcionalidad desplegada tras superar la última tarea y a qué estado de Linear mover la incidencia.",
-        "url": "URL",
-        "username": "Usuario",
-        "password": "Contraseña",
-        "save": "Guardar contraseña",
-        "clear": "Borrar",
-        "passwordSaved": "Contraseña guardada",
-        "passwordError": "No se pudo guardar la contraseña: el almacenamiento seguro no está disponible en este sistema.",
-        "doneState": "Estado de Linear tras una comprobación correcta",
-        "keywordDeploy": "despliegue",
-        "keywordStaging": "staging",
-        "keywordLinear": "linear"
-      },
-      "quickCommandsFloating": {
-        "title": "Ejecutar comandos rápidos en el terminal flotante",
-        "description": "Los comandos rápidos de shell se abren en el terminal flotante y se ejecutan dentro de este proyecto en lugar de en una pestaña nueva del espacio de trabajo.",
-        "keywordQuick": "comandos rápidos",
-        "keywordFloating": "terminal flotante"
       }
     },
     "editorFormatOnSave": {
@@ -836,8 +808,8 @@
           "localBaseRefRefreshFailedForWorktree": "No se actualizó el {{value0}} local para \"{{value1}}\"",
           "903b51c2ed": "Espacio de trabajo creado desde {{value0}}, pero Orca no pudo hacer fast-forward del {{value1}} local. {{value2}}",
           "localBaseRefRefreshFailedDescriptionNamed": "El espacio de trabajo \"{{value0}}\" se creó desde {{value1}}, pero Orca no pudo hacer fast-forward del {{value2}} local. {{value3}}",
-          "localBaseRefRefreshFailedDetailDirtyNamed": "El worktree en {{value0}} (donde está checked out el {{value1}} local) tiene archivos sin seguimiento (untracked) que bloquean la actualización. Muévelos o elimínalos y luego actualiza el {{value1}} local manualmente.",
-          "localBaseRefRefreshFailedDetailDirty": "El worktree donde está checked out el {{value0}} local tiene archivos sin seguimiento (untracked) que bloquean la actualización. Muévelos o elimínalos y luego actualiza el {{value0}} local manualmente.",
+          "localBaseRefRefreshFailedDetailDirtyNamed": "El worktree en {{value0}} (donde está checked out el {{value1}} local) tiene cambios sin confirmar. Haz commit, stash o descarta esos cambios y luego actualiza el {{value1}} local manualmente.",
+          "localBaseRefRefreshFailedDetailDirty": "El worktree donde está checked out el {{value0}} local tiene cambios sin confirmar. Haz commit, stash o descarta esos cambios y luego actualiza el {{value0}} local manualmente.",
           "localBaseRefRefreshFailedDetailNotFastForward": "El {{value0}} local no existe o no se puede hacer fast-forward de forma limpia desde la base remota. Revisa si hay commits solo locales antes de actualizarlo manualmente.",
           "localBaseRefRefreshFailedDetailError": "Git devolvió un error al actualizar el {{value0}} local. Revisa el repo por refs bloqueados o un estado de worktree inusual y luego actualiza el {{value0}} local manualmente.",
           "0216895fb5": "No se pudo eliminar la rama",
@@ -1010,6 +982,7 @@
           "freebuff_label": "Freebuff",
           "dsh_label": "DeepSeek Harness",
           "qoder_label": "Qoder CLI",
+          "opencode2_label": "OpenCode 2",
           "qoder_cn_label": "Qoder CLI China"
         },
         "skill": {
@@ -1564,6 +1537,8 @@
         "6a50cdcd7c": "Voz",
         "0059bd17f3": "Permite que los agentes controlen cualquier app en tu computadora.",
         "b35e92364b": "Computer Use",
+        "cd50cec5d7": "Coordina múltiples coding agents a través de Orca.",
+        "58a868e8e4": "Orquestación",
         "7c79d3b7bf": "Opcional",
         "b1c2f8b0ac": "Configuración opcional de cuentas y uso para Claude, Codex, Gemini, OpenCode Go, MiniMax y Grok.",
         "f70ac54d38": "Cuentas de proveedores de IA",
@@ -3528,9 +3503,6 @@
             "cc5a2dc706": "Editar título del panel: {{value0}}",
             "7dbbfcbecc": "Título del panel"
           },
-          "TerminalSymbolLinks": {
-            "noDefinition": "No se ha encontrado ninguna definición para {{token}}"
-          },
           "TerminalSessionStateSaveFailureDialog": {
             "6bee0c8f17": "Abrir analizador de espacio en disco",
             "ae20d0ffc2": "Descartar",
@@ -3850,11 +3822,17 @@
           },
           "TabBar": {
             "b1a132357f": "Nueva pestaña",
+            "4f327c8b3d": "Abrir Markdown...",
             "3d5d6c960d": "Nuevo Markdown",
             "fd2b42aaa3": "Nuevo emulador móvil",
             "b426bb2615": "Ir al emulador móvil",
             "4833fb2cbe": "Nueva pestaña de navegador",
             "d364f3c8d4": "Nuevo terminal",
+            "7c1313d237": "Nuevo terminal:",
+            "d1afac112b": "WSL",
+            "efb33546ff": "Git Bash",
+            "1a8af49530": "CMD Prompt",
+            "2148f65e04": "PowerShell",
             "7a9b4af2af": "Desplazar pestañas a la izquierda",
             "232e075b07": "Desplazar pestañas a la derecha"
           },
@@ -3862,6 +3840,8 @@
             "d62d63b807": "Crear archivo",
             "25dc1cd653": "Abrir archivo",
             "7cdf8ee0c8": "Abrir URL",
+            "b27864279e": "Iniciar agente",
+            "omniboxPlaceholderWithHistory": "Buscar pestañas abiertas, historial, archivos, URL y agentes…",
             "openPage": "Abrir página",
             "8f0a1c4d92": "Cambiar a la pestaña",
             "2c38630a01": "El espacio de trabajo ya no existe",
@@ -3925,6 +3905,8 @@
                   "fb50e3d874": "nuevo markdown",
                   "6d8b6b4117": "nuevo archivo",
                   "b330f72434": "mark",
+                  "37ff3ddca1": "abrir markdown",
+                  "164c394bab": "abrir archivo",
                   "bbaf4f85a4": "emulador móvil",
                   "3784b83bd4": "emulador",
                   "a63847a742": "simulador",
@@ -7806,9 +7788,7 @@
           "3ba07f933b": "Conecta issue trackers que Orca puede usar para explorar tareas e iniciar espacios de trabajo con contexto vinculado.",
           "70e885705b": "Proveedores de tareas",
           "1683acbac4": "Conecta los hosts de código que Orca puede usar para pull requests, merge requests, checks y estado de revisión.",
-          "298c65ecac": "Proveedores de revisión",
-          "mcpIntegrationsTitle": "Integraciones MCP",
-          "mcpIntegrationsDescription": "Conecta los servicios que Orca expone a todos los agentes como herramientas MCP (servidor orca-tools)."
+          "298c65ecac": "Proveedores de revisión"
         },
         "KagiSessionLinkForm": {
           "92f0b4e472": "Borrar",
@@ -8022,8 +8002,6 @@
           "f79084947b": "Nueva aplicación",
           "d686e15816": "Abrir en aplicaciones"
         },
-<<<<<<< HEAD
-=======
         "OrchestrationPane": {
           "52e0634e2c": "Pídele a un agente coordinador que use la orquestación para handoffs, handoffs de worktree y agentes secundarios secuenciales o paralelos.",
           "ae79504732": "Cómo usarlo",
@@ -8039,7 +8017,6 @@
           "workerAutoReleaseKeywordRelease": "liberar",
           "8a94078d05": "Orquestación de agentes"
         },
->>>>>>> upstream/main
         "OrchestrationSetupCard": {
           "e7d2a5146c": "Permite a los agentes transferir contexto y coordinar el trabajo a través de Orca.",
           "2777ff0fdc": "Skill de orquestación"
@@ -8227,24 +8204,6 @@
           "searchEmojiPlaceholder": "Buscar emoji",
           "cc76342291": "Usar avatar de GitHub",
           "43bf3709dd": "Icono del repositorio"
-        },
-        "RepositoryLanguageServersSection": {
-          "title": "Servidores de lenguaje",
-          "description": "Ir a la definición, buscar referencias y mostrar información al pasar el ratón en este proyecto. Activar un servidor ejecuta código de este repositorio.",
-          "localOnly": "Los servidores de lenguaje solo están disponibles para proyectos locales.",
-          "typescript": "TypeScript / JavaScript",
-          "ruby": "Ruby",
-          "off": "Desactivado",
-          "bundled": "Incluido",
-          "notInstalled": "No instalado",
-          "manage": "Instalar o actualizar",
-          "install": "Instalar",
-          "update": "Actualizar",
-          "customCommand": "Comando personalizado",
-          "installTitle": "Instalar {{server}}",
-          "installAria": "Terminal de instalación del servidor de lenguaje",
-          "installFailed": "La instalación falló. Revisa la salida de arriba.",
-          "dismiss": "Descartar"
         },
         "RepositoryPane": {
           "15a99d9b9f": "Las rutas relativas se resuelven desde la raíz de este proyecto.",
@@ -8512,12 +8471,8 @@
           "6d119427ef": "Lista de verificación de incorporación",
           "5063bb47a5": "Voz",
           "7118953f14": "Permite que los agentes controlen cualquier app en tu computadora.",
-<<<<<<< HEAD
-          "c9841721cb": "Computer Use",
-=======
           "475980f53d": "Coordina varios agentes de codificación a través de Orca.",
           "00c3a7950d": "Orquestación",
->>>>>>> upstream/main
           "21f09426ea": "Opcional. Orca funciona con tus inicios de sesión de proveedores existentes; agrega cuentas solo si quieres que Orca te ayude a cambiar entre ellas.",
           "ec1ba547f7": "Administra agentes de IA, define uno predeterminado y personaliza comandos.",
           "8afa676615": "Agentes",
@@ -10057,16 +10012,6 @@
             "7166b9090c": "Autenticación de GitHub a través de la CLI de gh.",
             "760e2446e0": "Autenticación de Bitbucket Cloud con un token API guardado o variables de entorno.",
             "af5ae87847": "token de acceso",
-<<<<<<< HEAD
-            "mcpTitle": "Integraciones MCP",
-            "mcpDescription": "Conecta los servicios que Orca expone a todos los agentes como herramientas MCP (servidor orca-tools).",
-            "mcpKeyword": "mcp",
-            "mcpTools": "herramientas",
-            "mcpPosthog": "posthog",
-            "mcpBetterstack": "better stack",
-            "mcpContext7": "context7",
-            "mcpPixellab": "pixellab"
-=======
             "d8906d60a9": "Integración de Jira",
             "9e238582e8": "Integración de Bitbucket",
             "a17a94d0b0": "Integración de GitHub",
@@ -10074,7 +10019,6 @@
             "cd74b2f587": "Integración de GitLab",
             "d905b3ecee": "Integración Linear",
             "b3efe7ab71": "Integración de Azure DevOps"
->>>>>>> upstream/main
           }
         },
         "jira": {
@@ -10278,13 +10222,9 @@
             "91fc8ab7e5": "coordinación",
             "13ba5c6cbd": "agentes",
             "d86705ba77": "multi-agent",
-<<<<<<< HEAD
-            "a7f76b4ca7": "orquestación"
-=======
             "a7f76b4ca7": "orquestación",
             "e05ff36753": "Coordina varios agentes de codificación mediante mensajería, DAG de tareas, dispatch y controles de decisión.",
             "abafc3f10f": "Orquestación de agentes"
->>>>>>> upstream/main
           }
         },
         "privacy": {
@@ -13084,29 +13024,6 @@
         "PluginContributionActionNewFile": {
           "create": "Crear"
         },
-        "McpIntegrationCard": {
-          "statusNotConnected": "No conectado",
-          "statusApiKey": "Conectado mediante clave de API",
-          "statusOAuth": "Conectado mediante OAuth",
-          "failed": "La solicitud ha fallado",
-          "connected": "{{label}} conectado",
-          "keySaved": "Clave de API de {{label}} guardada",
-          "disconnected": "{{label}} desconectado",
-          "description": "Expuesto a los agentes como herramientas MCP.",
-          "graphifyHint": "Genera grafos desde el panel Graph o con `orca graph build`.",
-          "docs": "Documentación",
-          "connect": "Conectar",
-          "disconnect": "Desconectar",
-          "completeSignIn": "Completa el inicio de sesión en tu navegador",
-          "keyPlaceholder": "Clave de API",
-          "keyLabel": "Clave de API de {{label}}",
-          "saveKey": "Guardar clave",
-          "statusLocal": "Configurado (servidor local)",
-          "configSaved": "Ajustes de {{label}} guardados",
-          "saveConfig": "Guardar",
-          "graphsAvailable": "Grafos disponibles",
-          "noGraphs": "Aún no se ha generado ningún grafo"
-        },
         "SettingsSearchableSelect": {
           "noMatches": "Sin resultados."
         },
@@ -15319,7 +15236,7 @@
             "5e8fe5a72d": "Da a los agentes acceso directo al navegador de Orca para que puedan probar páginas, hacer capturas de pantalla y actuar según lo que ven.",
             "e638da007a": "Uso del navegador por agentes",
             "c61c91e642": "Permite que los agentes se coordinen a través de Orca para mantener en marcha tareas grandes de varios pasos hasta completarlas.",
-            "ac07f8887f": "MTE flow",
+            "ac07f8887f": "Orquestación de agentes",
             "e9eb197e12": "Permisos de uso de computadora abiertos",
             "c605f51f2b": "Configuración de capacidades lista",
             "1aa657d8f4": "La configuración de algunas capacidades necesita atención",
@@ -16711,6 +16628,8 @@
             "109a791e7b": "Guardar",
             "bb0a55f856": "Guardando…",
             "0203bed775": "Cancelar",
+            "6978871a3d": "Abierto",
+            "cce596969e": "Eliminar nota",
             "cad3384faa": "Editar nota",
             "508ee678a5": "Abrir en el navegador",
             "noteAuthorFallback": "Nota",
@@ -16721,11 +16640,16 @@
             "e05063cfc1": "Línea {{value0}}",
             "c845170b3b": "Líneas {{value0}}-{{value1}}",
             "commentTooLarge": "El comentario es demasiado grande para enviarlo de forma segura.",
+            "f6c449191e": "Agregar nota para la IA",
             "5fa4bfebaa": "Agregar nota",
             "5e9b3d0c2e": "Agregando..."
           },
-          "useDiffCommentDecorator": {},
-          "diffCommentZoneCard": {}
+          "useDiffCommentDecorator": {
+            "995fa28b50": "esta nota"
+          },
+          "diffCommentZoneCard": {
+            "noteAlreadySent": "Nota ya enviada"
+          }
         }
       },
       "dictation": {
@@ -19330,16 +19254,8 @@
         },
         "sessionAttachmentsFailed": "El chat {{agent}} no se pudo abrir. Utilice Reintentar en el chat y luego adjunte los archivos nuevamente.",
         "sessionAttachmentsStarting": "El chat de {{agent}} aún se está abriendo. Espera a que se abra y vuelve a adjuntar los archivos.",
-<<<<<<< HEAD
-        "agentLabel": {
-          "orchestrator": "Orquestador",
-          "worker": "Worker",
-          "agent": "Agente"
-        }
-=======
         "moreControls": "Más controles de chat",
         "exitPlanMode": "Salir del modo de planificación"
->>>>>>> upstream/main
       },
       "tool": {
         "result": "Resultado",
@@ -22041,9 +21957,6 @@
     "scanTooLarge": "El escaneo de Apertura rápida es demasiado amplio ({{reason}})."
   },
   "checksPanel": {
-    "comments": {
-      "addedToChat": "Se añadieron {{count}} grupos de comentarios a la entrada del chat"
-    },
     "unlinked": {
       "title": "Pull request desvinculada",
       "description": "La PR #{{number}} está oculta para este espacio de trabajo. Vuelve a vincularla para restaurar las verificaciones y los detalles de revisión.",
@@ -24100,39 +24013,6 @@
     "terminalStopped": "La distribución WSL {{distro}} está detenida, así que Orca no inició esta terminal. Inicia la distribución y vuelve a intentarlo.",
     "terminalUnverifiable": "Orca no pudo comprobar si la distribución WSL {{distro}} está en ejecución, así que no inició esta terminal. Inicia la distribución y vuelve a intentarlo."
   },
-<<<<<<< HEAD
-  "mte": {
-    "start": {
-      "goalLabel": "Objetivo",
-      "goalPlaceholder": "¿Qué debe entregar esta ejecución? Déjalo vacío y el planner te preguntará.",
-      "linksLabel": "Issues de Linear y pull requests vinculados",
-      "noLinks": "Todavía no hay nada vinculado a este workspace.",
-      "linkPlaceholder": "Añade por identificador o URL: ENG-123, #45, https://…"
-    },
-    "prepare": {
-      "failed": "No se pudo preparar MTE: {{message}}"
-    },
-    "planner": {
-      "started": "Planificador MTE iniciado en {{agent}}"
-    }
-  },
-  "newChat": {
-    "title": "Nuevo chat",
-    "description": "Elige el agente, el modelo y el esfuerzo. El modo orquestación ejecuta un planificador que reparte el trabajo entre workers con el modelo que fijes.",
-    "orchestration": "Modo orquestación",
-    "orchestrator": "Orquestador",
-    "worker": "Worker",
-    "model": "Modelo",
-    "effort": "Esfuerzo",
-    "loadingModels": "Cargando modelos…",
-    "catalogFallback": "Puede que la lista de modelos esté incompleta",
-    "cancel": "Cancelar",
-    "start": "Iniciar",
-    "menuItem": "Nuevo chat",
-    "menuKeywordChat": "chat",
-    "menuKeywordAgent": "agente",
-    "menuKeywordNewChat": "nuevo chat"
-=======
   "remoteHostBrowserControl": {
     "title": "{{host}} está controlando una pestaña del navegador",
     "description": "Los agentes de este host SSH pueden abrir y usar pestañas del navegador de Orca en sus espacios de trabajo. Las pestañas que controla muestran su nombre. Puedes cambiarlo en Configuración > SSH.",
@@ -24243,6 +24123,5 @@
       "dismiss": "Descartar",
       "cancelDownload": "Cancelar descarga"
     }
->>>>>>> upstream/main
   }
 }
