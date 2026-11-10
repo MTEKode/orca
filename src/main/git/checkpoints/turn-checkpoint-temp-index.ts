@@ -71,13 +71,36 @@ export async function createCheckpointTempIndex(
   await writeFile(join(dirFsPath, 'owner-pid'), `${process.pid}`, 'utf8')
   const name = basename(dirFsPath)
   const indexGitPath = `${parentGitPath}/${name}/index`
+  return {
+    env: indexEnv(indexGitPath, runtime),
+    dispose: () => rm(dirFsPath, { recursive: true, force: true })
+  }
+}
+
+function indexEnv(indexGitPath: string, runtime: TurnCheckpointRuntime): NodeJS.ProcessEnv {
   const env: NodeJS.ProcessEnv = { ...process.env, GIT_INDEX_FILE: indexGitPath }
   if (process.platform === 'win32' && runtime.wslDistro) {
     addWslEnvKeys(env, ['GIT_INDEX_FILE'])
   }
+  return env
+}
+
+const PERSISTENT_INDEX_NAME = 'orca-checkpoint-index'
+
+/** One reusable index per worktree git dir, so unchanged files keep their stat cache across
+ *  captures. `dispose` deletes it (and a stale lock) so the next capture rebuilds it. */
+export function openPersistentCheckpointIndex(
+  gitDir: string,
+  runtime: TurnCheckpointRuntime = {}
+): CheckpointTempIndex {
+  const indexGitPath = `${gitDir}/${PERSISTENT_INDEX_NAME}`
+  const indexFsPath = checkpointHostFsPath(indexGitPath, runtime.wslDistro)
   return {
-    env,
-    dispose: () => rm(dirFsPath, { recursive: true, force: true })
+    env: indexEnv(indexGitPath, runtime),
+    dispose: async () => {
+      await rm(indexFsPath, { force: true })
+      await rm(`${indexFsPath}.lock`, { force: true })
+    }
   }
 }
 
@@ -94,7 +117,8 @@ export async function buildCheckpointWorktreeTree(
   const runtime = options.runtime ?? {}
   const env = tempIndex.env
   if (options.seed !== null) {
-    await runCheckpointGit(cwd, ['read-tree', options.seed], runtime, { env })
+    // -m keeps the stat info of unchanged entries (plain read-tree discards it) and drops the rest.
+    await runCheckpointGit(cwd, ['read-tree', '-m', options.seed], runtime, { env })
   }
   await runCheckpointGit(cwd, ['add', '-A', '--', '.'], runtime, { env })
   const { stdout } = await runCheckpointGit(cwd, ['write-tree'], runtime, { env })

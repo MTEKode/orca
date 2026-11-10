@@ -127,6 +127,7 @@ export function createTurnCheckpointService(deps: TurnCheckpointServiceDeps) {
         await git.pruneCheckpointTurns(worktree.path, {
           prefix: turnCheckpointSessionPrefix(sessionId),
           keepTurns: TURN_CHECKPOINT_KEEP_TURNS,
+          protectTurnId: turnId,
           runtime
         })
       }
@@ -187,8 +188,8 @@ export function createTurnCheckpointService(deps: TurnCheckpointServiceDeps) {
       const runtime = runtimeFor(worktree)
       return serialize(worktree.path, () => git.restoreCheckpoint(worktree.path, { ref, runtime }))
     },
-    /** Delete every checkpoint of one session; a record already gone prunes lazily on the next
-     *  capture for its worktree instead (no deletion seam names the worktree after the record). */
+    /** Delete every checkpoint of one session. Needs the record to name the worktree, so callers
+     *  must run it before the record disappears; a missing record deletes nothing (returns 0). */
     async pruneSession(sessionId: string): Promise<number> {
       const record = deps.getRecord(sessionId)
       const worktree = record ? resolveCheckpointWorktree(record) : null

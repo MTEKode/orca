@@ -20,6 +20,7 @@ import {
   type StructuredSessionSurfaceRuntime
 } from './agent-session/structured-agent-session-close'
 import type { WorktreePtyHostFence } from './worktree-pty-host-fence'
+import { readTurnCheckpointService } from '../git/checkpoints/turn-checkpoint-service'
 import { getRepoIdFromWorktreeId } from '../../shared/worktree/id'
 import type { StructuredAgentId } from '../../shared/agent-session/lifecycle/agent-session-provider-handle'
 
@@ -204,6 +205,10 @@ export async function retireStructuredSessionTabsForWorktree(
   runtime?: StructuredWorktreeSweepRuntime
 ): Promise<void> {
   for (const session of sessions) {
+    // Before the tab retire so the record still names the worktree; never refuses removal.
+    await readTurnCheckpointService()
+      ?.pruneSession(session.sessionId)
+      .catch((error: unknown) => console.warn('pruning turn checkpoints failed', error))
     const host = getStructuredAgentSessionHost()
     if (host) {
       await retireCapturedStructuredSessionSurface(

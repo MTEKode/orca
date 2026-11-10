@@ -156,7 +156,13 @@ export async function deleteCheckpoints(
 /** Drop whole turns oldest-first beyond `keepTurns`, so a session's refs stay bounded. */
 export async function pruneCheckpointTurns(
   cwd: string,
-  options: { prefix: string; keepTurns: number; runtime?: TurnCheckpointRuntime }
+  options: {
+    prefix: string
+    keepTurns: number
+    /** Turn that must survive: aliased refs tie on creatordate with older turns. */
+    protectTurnId?: string
+    runtime?: TurnCheckpointRuntime
+  }
 ): Promise<number> {
   const entries = await listCheckpoints(cwd, options)
   const byTurn = new Map<string, { refs: string[]; newest: number }>()
@@ -179,8 +185,10 @@ export async function pruneCheckpointTurns(
     return 0
   }
   // Ties (same-second saves) fall back to the id so pruning stays deterministic.
+  const rank = ([turnId, turn]: [string, { newest: number }]): number =>
+    turnId === options.protectTurnId ? Number.POSITIVE_INFINITY : turn.newest
   const ordered = [...byTurn.entries()].sort(
-    (a, b) => b[1].newest - a[1].newest || a[0].localeCompare(b[0])
+    (a, b) => rank(b) - rank(a) || a[0].localeCompare(b[0])
   )
   const doomed = ordered.slice(options.keepTurns).flatMap(([, turn]) => turn.refs)
   if (doomed.length === 0) {
