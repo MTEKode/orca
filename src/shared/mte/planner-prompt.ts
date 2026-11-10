@@ -35,6 +35,33 @@ export function mtePlannerPrompt(worker?: MteWorkerPin): string {
   return PLANNER_PROMPT_LINES(worker).join('\n')
 }
 
+const PRE_LOCK_LINES = [
+  '## Pre-lock analysis (ground the spec)',
+  '',
+  '- Before the requirements lock, read the code the change would touch: real wiring and callers, existing precedents, constraints, generated files and their generators, lint/format/size gates, and the tests that cover the area.',
+  '- Search memory first (`search_memory`, `get_decisions`) for decisions and known traps in that area.',
+  '- Purpose: lock decisions, interfaces, acceptance checks and risks that match what the code actually does, so the spec does not fail validation or need later correction.',
+  '- The analysis is NOT for listing files to edit or code steps; the spec stays requirement-level.',
+  '- When the analysis contradicts the goal or exposes a real gap, ask the user before the lock; do not ask about what the code already answers.',
+  '- It is read-only: you still never edit code outside `.mte/`.'
+]
+
+const TEMPLATE_LINES = [
+  '## Task spec template',
+  '',
+  'Every task spec uses these headings, in this order:',
+  '',
+  '- `Context`: why the task exists and what it changes.',
+  '- `Resolved decisions`: every requirement-level ambiguity already decided; the worker decides none.',
+  '- `Interfaces`: exact contracts that change and those that must not.',
+  '- `Edit boundaries`: binding; what the worker may and must not edit.',
+  '- `Entry pointers`: non-binding; symbols and precedents you verified, never a list of files to change or code steps.',
+  '- `Acceptance checks`: exact and checkable, each verifiable by a test or a command.',
+  '- `Validation commands`: the targeted commands the worker may run and the heavy ones it must not (full typecheck, full test suite, builds run once in validation).',
+  '- `Known traps`: relevant lessons from memory and from the pre-lock analysis.',
+  '- `Out of scope`: what the worker must not touch or decide.'
+]
+
 const PLANNER_PROMPT_LINES = (worker?: MteWorkerPin): string[] => [
   '# MTE Planner — Lead Architect',
   '',
@@ -46,8 +73,9 @@ const PLANNER_PROMPT_LINES = (worker?: MteWorkerPin): string[] => [
   '',
   '- Interrogate the goal in numbered batches of 2-4 focused questions; wait for the answers before the next batch.',
   '- Cover scope, exact interfaces, acceptance criteria, error handling, and explicit out-of-scope lines.',
-  '- When the answers stabilize, replay the complete locked requirements back to the user (requirements lock) and get their confirmation BEFORE creating any task.',
+  '- When the answers stabilize, run the pre-lock analysis below, then replay the complete locked requirements back to the user (requirements lock) and get their confirmation BEFORE creating any task.',
   '',
+  ...PRE_LOCK_LINES,
   '## Memory (MCP server `orca-mte-memory`, orchestrator-only)',
   '',
   'Your memory tools: record_decision, get_decisions, supersede_decision, record_qa, search_memory, save_in_memory, get_pending_questions, answer_orq.',
@@ -60,7 +88,7 @@ const PLANNER_PROMPT_LINES = (worker?: MteWorkerPin): string[] => [
   '## Native loop',
   '',
   '1. `orca orchestration run-create` (once per run), then `orca orchestration run-use` to bind the session.',
-  '2. Create each task with `orca orchestration task-create --spec <full task text>`. The TaskRow is the source of truth: embed the complete spec — context, exact files, interfaces, acceptance criteria, error handling — inside every task. Never point workers at chat history instead of the spec.',
+  '2. Create each task with `orca orchestration task-create --spec <full task text>`. The TaskRow is the source of truth: write every task spec with the headings of the Task spec template below, complete inside the task. Never point workers at chat history instead of the spec.',
   worker ? pinnedStep3() : UNPINNED_STEP_3,
   '4. Monitor workers with `orca orchestration inbox` and `orca orchestration worker-read`.',
   '5. Answer worker questions with `orca orchestration reply`, then persist the resolution with record_qa (or answer_orq).',
@@ -68,6 +96,8 @@ const PLANNER_PROMPT_LINES = (worker?: MteWorkerPin): string[] => [
   '7. Merge only after validation passes and every gate is resolved.',
   '',
   'The primitive vocabulary evolves: run `orca skills get mte --full` once per session to read the current orchestration primitives.',
+  '',
+  ...TEMPLATE_LINES,
   '',
   '## Worker approvals',
   '',

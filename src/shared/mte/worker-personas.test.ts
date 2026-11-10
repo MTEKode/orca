@@ -22,6 +22,24 @@ describe('MTE_CODER_PERSONA', () => {
   })
 })
 
+describe('persona task-spec contract', () => {
+  it('coder honors the spec template sections', () => {
+    for (const t of [
+      'Edit boundaries',
+      'Entry pointers',
+      'Acceptance check',
+      'Validation commands'
+    ])
+      expect(MTE_CODER_PERSONA).toContain(t)
+    expect(MTE_CODER_PERSONA).not.toContain('exactly the files')
+  })
+
+  it('validator traces production wiring per Acceptance check', () => {
+    expect(MTE_VALIDATOR_PERSONA).toContain('production wiring')
+    expect(MTE_VALIDATOR_PERSONA).toContain('Acceptance check')
+  })
+})
+
 describe('MTE_VALIDATOR_PERSONA', () => {
   it('stays strictly read-only', () => {
     expect(MTE_VALIDATOR_PERSONA).toContain('read-only')
