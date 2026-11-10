@@ -1,4 +1,5 @@
-import { readGraphStatus } from './storage'
+import { existsSync } from 'node:fs'
+import { graphJsonPath } from './storage'
 import { hookQuit, update, type RunnerDeps } from './runner'
 
 const MIN_INTERVAL_MS = 10 * 60_000
@@ -10,10 +11,14 @@ export function maybeAutoUpdate(
   deps?: RunnerDeps,
   now = Date.now()
 ): boolean {
-  if (p.enabled === false || readGraphStatus(p.repoId).state !== 'built') {
+  if (p.enabled === false) {
     return false
   }
+  // Why: throttle first (pure in-memory) and only stat graph.json, never parse it, on the main thread.
   if (now - (lastRun.get(p.repoId) ?? 0) < MIN_INTERVAL_MS) {
+    return false
+  }
+  if (!existsSync(graphJsonPath(p.repoId))) {
     return false
   }
   lastRun.set(p.repoId, now)
