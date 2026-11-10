@@ -6,7 +6,7 @@ import { makePaneKey } from '../../../shared/workspace-layout/stable-pane-id'
 import { formatOrcaSessionAddress } from '../../../shared/orca-session-address'
 import { testOrcaSessionId } from '../../../shared/orca-session-address-test-fixture'
 import { chatWorkerTurnStopReporter } from './workers/turn-stops/chat-worker-turn-stops'
-import { OrchestrationDb } from './db'
+import { OrchestrationDb } from './db/orchestration-db'
 import { createRootDispatch } from './db/root-dispatch-test-fixture'
 import type {
   AgentJournalQuestionItem,
@@ -34,7 +34,7 @@ const state = vi.hoisted(() => ({
   } | null
 }))
 
-vi.mock('../../native-chat/agent-session-wire/structured-agent-session-registry', () => ({
+vi.mock('../../native-chat/agent-session-wire/host/structured-agent-session-registry', () => ({
   getStructuredAgentSessionHost: () => state.host
 }))
 

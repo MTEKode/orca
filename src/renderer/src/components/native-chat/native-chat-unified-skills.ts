@@ -1,7 +1,7 @@
 import type { DiscoveredSkill } from '../../../../shared/skills'
 import type { UnifiedCatalogSkill } from '../../../../shared/skills/unified-skill-catalog'
 import { unifiedCatalogPickerSkills } from '../../../../shared/native-chat/input/native-chat-skill-visibility'
-import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
+import { callRuntimeRpc } from '@/runtime/rpc/calls/runtime-rpc-call'
 import type { NativeChatSkillDiscoveryContext } from './composer/pickers/native-chat-skill-discovery-context'
 
 const UNIFIED_CATALOG_TIMEOUT_MS = 10_000

@@ -21,22 +21,17 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
 import { useTranslate } from '@/i18n/use-translate'
 import { getAgentCatalog, getAgentLabel } from '@/lib/agent-catalog/agent-catalog'
 import {
   buildAgentSessionContinuationPrompt,
-  hasFullAgentSessionContext,
   type AgentSessionContinuationContextMode,
   type AgentSessionContinuationRequest
 } from '@/lib/agent-session/context/agent-session-continuation'
 import { launchAgentSessionContinuation } from '@/lib/agent-session/launch/continuation/launch-agent-session-continuation'
+import { startContinuationOrchestrationRun } from '@/lib/launch-continuation-orchestration'
+import { MteOrchestrationPicker } from '@/components/mte-orchestration-picker/MteOrchestrationPicker'
+import { NO_LINKED_ITEMS } from '@/components/mte-orchestration-picker/use-mte-orchestration-picker'
 import { useAppStore } from '@/store'
 import { isTuiAgentEnabled } from '../../../../shared/agent-launch/catalog/tui-agent-selection'
 import type { TuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent'
@@ -44,6 +39,11 @@ import {
   chooseInitialContinuationAgent,
   isContinuationAgentAllowed
 } from './agent-session-continuation-selection'
+import { ContinuationChatPickFields } from './ContinuationChatPickFields'
+import { ContinuationAgentStatus } from './ContinuationAgentStatus'
+import { ContinuationContextSection } from './ContinuationContextSection'
+import { useContinuationModelPick } from './use-continuation-model-pick'
+import { useContinuationOrchestration } from './use-continuation-orchestration'
 
 type AgentSessionContinuationDialogProps = {
   open: boolean
@@ -71,6 +71,8 @@ export function AgentSessionContinuationDialog({
     request: AgentSessionContinuationRequest | null
     agent: TuiAgent
     surface?: AgentLaunchSurface
+    model?: string
+    effort?: string
     draft?: AgentPickerDraft
     entry?: AgentPickerEntry
   } | null>(null)
@@ -151,7 +153,6 @@ export function AgentSessionContinuationDialog({
     )
   const preparing = request === null
   const controlsDisabled = preparing || detecting || starting
-  const hasFullContext = request ? hasFullAgentSessionContext(request.source) : false
 
   useEffect(() => {
     const abort = open && request ? new AbortController() : null
@@ -170,6 +171,18 @@ export function AgentSessionContinuationDialog({
       defaultAgent: settings?.defaultTuiAgent
     })
   const selection = observation.selectionFor(selectedAgent, currentPick?.surface)
+  // Only a chat carries model and effort; a terminal runs whatever the CLI's saved profile says.
+  const chatRoute = selection.choice?.route === 'structured-native-chat'
+  const chatPick = useContinuationModelPick({
+    worktreeId: request?.worktreeId,
+    model: destinationModel,
+    open: open && Boolean(request),
+    agent: selectedAgent,
+    picked: currentPick,
+    chat: chatRoute
+  })
+  const orchestration = useContinuationOrchestration({ request, open, model: observation.model })
+  const orchestrationOn = orchestration.available && orchestration.draft.enabled
 
   useEffect(() => {
     if (!starting) {
@@ -182,20 +195,38 @@ export function AgentSessionContinuationDialog({
   }, [starting])
 
   const handleStart = async (): Promise<void> => {
-    if (
-      !request ||
-      detecting ||
-      !selectedAgent ||
-      starting ||
-      !selection.ready ||
-      !selection.choice
-    ) {
+    if (!request || starting) {
+      return
+    }
+    if (orchestrationOn) {
+      const { repoId, workspaceRoot } = orchestration
+      if (!repoId || !workspaceRoot || !orchestration.draft.canStart) {
+        return
+      }
+      const start = { request }
+      setStartingFor(start)
+      const launched = await startContinuationOrchestrationRun({
+        request,
+        repoId,
+        workspaceRoot,
+        contextMode,
+        draft: orchestration.draft
+      })
+      setStartingFor((current) => (current === start ? null : current))
+      if (launched) {
+        onOpenChange(false)
+        onStarted?.()
+      }
+      return
+    }
+    if (detecting || !selectedAgent || !selection.ready || !selection.choice) {
       return
     }
     const prompt = buildAgentSessionContinuationPrompt(request.source, contextMode)
     if (!prompt) {
       return
     }
+    const launchOptions = chatPick.launchOptions
     const start = { request }
     // Aborts when the dialog closes or moves to another request; a sent launch still settles.
     const signal = abortRef.current?.signal
@@ -217,6 +248,7 @@ export function AgentSessionContinuationDialog({
             currentPick.entry
           )
         : {}),
+      ...(launchOptions ? { launchOptions } : {}),
       launchSource: request.launchSource,
       signal
     })
@@ -232,8 +264,9 @@ export function AgentSessionContinuationDialog({
   const sourceAgentLabel = request?.source.sourceAgent
     ? getAgentLabel(request.source.sourceAgent)
     : null
-  const startDisabled =
-    controlsDisabled || agents.length === 0 || !selectedAgent || !selection.ready
+  const startDisabled = orchestrationOn
+    ? controlsDisabled || !orchestration.draft.canStart
+    : controlsDisabled || agents.length === 0 || !selectedAgent || !selection.ready
   const workingDirectory = sourceWorkingDirectory ?? request?.initialCwd
 
   return (
@@ -269,113 +302,67 @@ export function AgentSessionContinuationDialog({
             </div>
           </div>
 
-          <div className="min-w-0 space-y-1.5">
-            <label className="text-xs font-medium">
-              {t('components.agentSessionContinuation.agent', 'Agent')}
-            </label>
-            <AgentLaunchPicker
-              draftScope={draftScope}
-              disabled={controlsDisabled}
-              model={destinationModel}
-              worktreeId={request?.worktreeId}
-              agent={selectedAgent}
-              cli={selection.cli}
-              value={currentPick?.draft}
-              onPick={(agent, draft, entry) =>
-                setPick({ request, agent, surface: draft?.surface, draft, entry })
-              }
+          {orchestration.available ? (
+            <MteOrchestrationPicker
+              draft={orchestration.draft}
+              linkedItems={NO_LINKED_ITEMS}
+              onSelectAgent={orchestration.onSelectAgent}
             />
-            <div className="min-h-4">
-              {preparing ? (
-                <p className="text-[11px] text-muted-foreground">
-                  {t(
-                    'components.agentSessionContinuation.preparingContext',
-                    'Preparing saved chat context…'
-                  )}
-                </p>
-              ) : detecting ? (
-                <p className="text-[11px] text-muted-foreground">
-                  {t(
-                    'components.agentSessionContinuation.detectingAgents',
-                    'Detecting Agents on this workspace host…'
-                  )}
-                </p>
-              ) : detectionFailed ? (
-                <p className="text-[11px] text-destructive">
-                  {t(
-                    'components.agentSessionContinuation.detectionFailed',
-                    'Could not detect Agents on this workspace host.'
-                  )}
-                </p>
-              ) : destinationModel.state === 'settled' && rows.length === 0 ? (
-                <p className="text-[11px] text-muted-foreground">
-                  {onlySourceFamilyOffered && sourceAgentLabel
-                    ? t(
-                        'components.agentSessionContinuation.onlySourceFamilyDetected',
-                        'Only Agents sharing the usage limit with {{agent}} are available on this workspace host. Enable or install a different Agent.',
-                        { agent: sourceAgentLabel }
-                      )
-                    : t(
-                        'components.agentSessionContinuation.noAgents',
-                        'No enabled Agents were detected on this workspace host.'
-                      )}
-                </p>
-              ) : null}
-            </div>
-          </div>
+          ) : null}
 
-          <div className="min-w-0 space-y-1.5">
-            <label className="text-xs font-medium">
-              {t('components.agentSessionContinuation.context', 'Context')}
-            </label>
-            <Select
-              disabled={controlsDisabled}
-              value={contextMode}
-              onValueChange={(value) => {
-                if (value === 'focused' || value === 'full') {
-                  setContextPick({ request, mode: value })
+          {!orchestrationOn ? (
+            <div className="min-w-0 space-y-1.5">
+              <label className="text-xs font-medium">
+                {t('components.agentSessionContinuation.agent', 'Agent')}
+              </label>
+              <AgentLaunchPicker
+                draftScope={draftScope}
+                disabled={controlsDisabled}
+                model={destinationModel}
+                worktreeId={request?.worktreeId}
+                agent={selectedAgent}
+                cli={selection.cli}
+                value={currentPick?.draft}
+                onPick={(agent, draft, entry) =>
+                  setPick({
+                    request,
+                    agent,
+                    surface: draft?.surface,
+                    model: draft?.choices.model,
+                    effort: draft?.choices.options?.effort,
+                    draft,
+                    entry
+                  })
                 }
-              }}
-            >
-              <SelectTrigger className="min-w-0 w-full" size="sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="focused">
-                  {t(
-                    'components.agentSessionContinuation.modeFocused',
-                    'Focused handoff (Recommended)'
-                  )}
-                </SelectItem>
-                <SelectItem value="full" disabled={!hasFullContext}>
-                  {t('components.agentSessionContinuation.modeFull', 'Full session transcript')}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="min-h-12 text-[11px] leading-4 text-muted-foreground">
-              {preparing
-                ? null
-                : !hasFullContext
-                  ? request?.source.sourceKind === 'chat'
-                    ? t(
-                        'components.agentSessionContinuation.modeLoadedDescription',
-                        'Uses recent messages currently loaded in this chat and the current workspace.'
-                      )
-                    : t(
-                        'components.agentSessionContinuation.modeCapturedDescription',
-                        'Uses captured text and the current workspace.'
-                      )
-                  : contextMode === 'focused'
-                    ? t(
-                        'components.agentSessionContinuation.modeFocusedDescription',
-                        'Uses the latest status and current workspace, reading older transcript details only when needed.'
-                      )
-                    : t(
-                        'components.agentSessionContinuation.modeFullDescription',
-                        'Asks the new Agent to read the complete saved session before continuing. This can take longer and use significant context, plan usage, or API credits.'
-                      )}
-            </p>
-          </div>
+              />
+              <ContinuationAgentStatus
+                preparing={preparing}
+                detecting={detecting}
+                detectionFailed={detectionFailed}
+                noAgents={destinationModel.state === 'settled' && rows.length === 0}
+                onlySourceFamilyOffered={onlySourceFamilyOffered}
+                sourceAgentLabel={sourceAgentLabel}
+              />
+            </div>
+          ) : null}
+
+          {chatRoute && !orchestrationOn ? (
+            <ContinuationChatPickFields
+              entry={chatPick.entry}
+              value={chatPick.pick}
+              surface={currentPick?.surface}
+              disabled={controlsDisabled}
+              onChange={(next) => setPick({ request, ...next })}
+            />
+          ) : null}
+
+          <ContinuationContextSection
+            request={request}
+            preparing={preparing}
+            contextMode={contextMode}
+            disabled={controlsDisabled}
+            onModeChange={(mode) => setContextPick({ request, mode })}
+          />
 
           <div className="min-h-4 text-[11px] text-muted-foreground">
             {workingDirectory ? (

@@ -1,3 +1,4 @@
+import type { ToolsMcpServer } from '../../../mcp-integrations/tools-server'
 import type { StructuredAgentSessionHostDeps } from '../../../native-chat/agent-session-wire/host/structured-agent-session-host-types'
 import type { AgentSessionAccountKind } from '../../../../shared/agent-session/agent-session-availability'
 import type { StructuredAgentSessionTransportOverrides } from '../structured-agent-session-transport-overrides'
@@ -12,6 +13,7 @@ import type { NativeChatShellEnvironmentPolicy } from '../../../../shared/native
 import type { ClaudeStructuredAuthPolicy } from '../../../claude-accounts/claude-structured-auth-policy'
 import type { RuntimeAgentAccountHomeResolver } from '../model-catalog/structured-agent-model-catalog-wiring'
 import type { ClaudeCliFlagSupport } from '../../../claude/claude-cli-flag-support'
+import type { ClaudeReviewMcpRuntime } from '../../../claude/claude-review-mcp-server'
 import type { StructuredAgentSessionLogger } from '../../../native-chat/agent-session-wire/host/structured-agent-session-logger'
 import type { AgentSessionStatusSummary } from '../../../../shared/agent-session/agent-session-wire'
 import type { AgentSessionTurnCompletionEvent } from '../../../../shared/agent-session/view/agent-session-turn-completion-wire'
@@ -43,6 +45,12 @@ export type StructuredAgentSessionRuntimeDeps = StructuredAgentSessionTransportO
     /** Read this host's preference when a chat starts a provider process. */
     isEnabled: () => boolean
   }
+  /** Read the host's turn-checkpoint preference at each capture; absent means enabled. */
+  resolveTurnCheckpointsEnabled?: () => boolean
+  /** In-process review MCP tools offered to structured Claude launches; absent registers none. */
+  reviewTools?: ClaudeReviewMcpRuntime
+  /** orca-tools stdio bridge for claude/codex/opencode launches; null or absent registers none. */
+  resolveToolsMcpServer?: () => ToolsMcpServer | null
   /** Required, and asserted at install time — saved Arguments must never be silently omitted. */
   resolveLaunchArgs: (provider: AgentSessionRecord['provider']) => Promise<string[]> | string[]
   /** Required, and asserted at install time — an absent policy must not degrade to a guess. */

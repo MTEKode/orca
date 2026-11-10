@@ -10,7 +10,7 @@ const h = vi.hoisted(() => ({
   clear: vi.fn(async () => {})
 }))
 vi.mock('@/store', () => ({ useAppStore: (sel: (s: unknown) => unknown) => sel(h.state) }))
-vi.mock('@/store/selectors', () => ({ useActiveRepo: () => ({ id: 'r1' }) }))
+vi.mock('@/store/repos/use-repository-catalog', () => ({ useActiveRepo: () => ({ id: 'r1' }) }))
 vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }))
 import { GoogleAiKeyCard } from './GoogleAiKeyCard'
 

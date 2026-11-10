@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAppStore } from '@/store'
-import { findWorktreeById } from '@/store/slices/worktrees/worktree-slice-contract'
-import { selectWorktreesByRepo } from '@/store/folder-workspaces/folder-workspace-record-index'
+import { findFirstIndexedWorktree } from '@/lib/workspace/ownership/worktree-runtime-owner-index'
+import { selectWorktreesByRepo } from '@/store/workspaces/catalog/workspace-record-fields'
 import { useAgentLaunchPickerInventory } from '@/components/agent/use-agent-launch-picker-inventory'
 import {
   NO_LINKED_ITEMS,
@@ -34,7 +34,7 @@ export function useContinuationOrchestration(input: {
   const worktreeId = input.request?.worktreeId ?? null
   const worktree = useAppStore((state) =>
     worktreeId
-      ? findWorktreeById(selectWorktreesByRepo(state) ?? NO_WORKTREES_BY_REPO, worktreeId)
+      ? findFirstIndexedWorktree(selectWorktreesByRepo(state) ?? NO_WORKTREES_BY_REPO, worktreeId)
       : undefined
   )
   const repo = useAppStore((state) =>

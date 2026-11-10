@@ -69,6 +69,11 @@ export type RepositoryApi = {
         | 'projectGroupId'
         | 'forkSyncMode'
         | 'agentWorkspaceTrust'
+        | 'deployCheck'
+        | 'languageServers'
+        | 'mteFlowPrompt'
+        | 'newChatDefaults'
+        | 'quickCommandsInFloatingTerminal'
       >
     > & {
       projectGroupOrder?: number | null
@@ -79,6 +84,14 @@ export type RepositoryApi = {
       ghAccount?: GhAccountBinding | null
     }
   }) => Promise<Repo>
+  deployCheckPassword: {
+    set: (args: {
+      repoId: string
+      password: string
+    }) => Promise<{ ok: true } | { ok: false; reason: 'encryption-unavailable' }>
+    clear: (args: { repoId: string }) => Promise<void>
+    has: (args: { repoId: string }) => Promise<boolean>
+  }
   pickFolder: () => Promise<string | null>
   pickFolders: () => Promise<string[]>
   pickDirectory: () => Promise<string | null>

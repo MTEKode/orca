@@ -262,7 +262,7 @@ export function planCommitMessageGeneration(
           }
         : {}),
       ...(input.agentId === 'antigravity' ? { policyProbeArgs: merged.prefixArgs } : {}),
-      ...(input.agentId === 'opencode' || (input.agentId as string) === 'opencode2'
+      ...(input.agentId === 'opencode'
         ? {
             openCodeTask: {
               prefixArgs: directOpenCode ? [] : nativePrefixArgs,

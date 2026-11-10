@@ -58,6 +58,7 @@ export type QuickCreationRequestInput = {
   quickTelemetry: AgentStartedTelemetry | null
   suppressTerminalFocusOnCompletion: boolean
   setupOnly: boolean
+  mteLaunch?: WorktreeCreationRequest['mteLaunch']
 }
 
 export type QuickSubmitOptions = {
@@ -66,6 +67,8 @@ export type QuickSubmitOptions = {
   launchChoice?: AgentLaunchChoice
   launchInputs?: WorktreeCreationRequest['launchInputs']
   legacyLaunchInputs?: WorktreeCreationRequest['legacyLaunchInputs']
+  /** Orchestration choice from the worktree dialog: the run starts once the worktree exists. */
+  mte?: WorktreeCreationRequest['mteLaunch']
 }
 
 export function buildQuickCreationRequest(
@@ -133,6 +136,7 @@ export function buildQuickCreationRequest(
     promptDelivery: input.promptDelivery,
     quickTelemetry: input.quickTelemetry,
     ...(input.suppressTerminalFocusOnCompletion ? { suppressTerminalFocusOnCompletion: true } : {}),
-    ...(input.agent === null ? { setupOnly: input.setupOnly } : {})
+    ...(input.agent === null ? { setupOnly: input.setupOnly } : {}),
+    ...(input.mteLaunch ? { mteLaunch: input.mteLaunch } : {})
   }
 }

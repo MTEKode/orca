@@ -98,6 +98,7 @@ async function createFixture() {
     readyTask: readyTask.id,
     foreignTask: foreignTask.id,
     dispatch: dispatch.id,
+    helper: helper.id,
     question: question.id,
     helperQuestion: helperQuestion.id,
     mail: mail.id,
@@ -248,6 +249,14 @@ const CASES = {
   runShow: { method: 'orchestration.runShow', params: (from, ids) => ({ id: ids.owned, from }) },
   runStop: { method: 'orchestration.runStop', params: () => ({}) },
   runUse: { method: 'orchestration.runUse', params: (from, ids) => ({ id: ids.owned, from }) },
+  link: {
+    method: 'orchestration.link',
+    params: (from, ids) => ({ a: `dispatch:${ids.dispatch}`, b: `dispatch:${ids.helper}`, from })
+  },
+  unlink: {
+    method: 'orchestration.unlink',
+    params: (from, ids) => ({ a: `dispatch:${ids.dispatch}`, b: `dispatch:${ids.helper}`, from })
+  },
   send: {
     method: 'orchestration.send',
     params: (from) => ({ to: 'term_lone', subject: 's', body: 'b', from })
@@ -390,7 +399,11 @@ const EXPECTED: Record<string, string> & Record<keyof typeof CASES, string> = {
   runStop:
     'orchestration_migration_required orchestration_migration_required orchestration_migration_required orchestration_migration_required',
   runUse: 'ok ok ok worker_cannot_coordinate_own_run',
-  send: 'ok ok ok ok',
+  // Fork: only the Run coordinator links or unlinks (not_allowed surfaces as runtime_error).
+  link: 'ok runtime_error runtime_error runtime_error',
+  unlink: 'ok runtime_error runtime_error runtime_error',
+  // Fork: a dispatched worker may only message its coordinator or linked Dispatches.
+  send: 'ok ok ok runtime_error',
   sessionAddress: 'ok ok ok ok',
   taskCreate: 'ok ok run_required run_required',
   taskCreateBadDeps: 'runtime_error runtime_error runtime_error runtime_error',

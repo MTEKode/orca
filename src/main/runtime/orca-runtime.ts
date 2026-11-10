@@ -2,7 +2,7 @@ import type { SessionOptionValue } from '../../shared/native-chat/input/native-c
 import { conversationRecordReader } from './orchestration/addressing/session-lineage/structured-session-lineage'
 import type { RuntimeLinearCommandSurface } from './integrations/linear/runtime-linear-command-surface'
 import { installRuntimeLinearCommandSurface } from './integrations/linear/runtime-linear-command-surface'
-import { publishNativeChatPreferenceChanges } from './agent-session/launch/runtime-native-chat-preference-events'
+import { publishRuntimeChangeEvents } from './runtime-change-publishers'
 import { publishSettingsChanges } from './client/settings/runtime-settings-change-events'
 import { publishWorkspaceViewChanges } from './sidebar-inputs/runtime-workspace-view-change-events'
 import {
@@ -190,7 +190,7 @@ class OrcaRuntimeService extends OrcaRuntimeSidebarBase {
     registerDetectedWorktreeScanInvalidation()
     registerWorktreeChangeInvalidator((repoId) => this.invalidateWorktreeCatalog(repoId))
     publishWorkspaceViewChanges(this.store, (event) => this.emitClientEvent(event))
-    publishNativeChatPreferenceChanges(this.store, (event) => this.emitClientEvent(event))
+    publishRuntimeChangeEvents(this.store, (event) => this.emitClientEvent(event))
     publishSettingsChanges(this.store, (event) => this.emitClientEvent(event))
   }
 

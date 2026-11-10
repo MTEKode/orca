@@ -15,9 +15,9 @@ vi.mock('@/store', () => ({
     getState: () => h.state
   })
 }))
-vi.mock('@/store/selectors', () => ({ useActiveRepo: () => ({ id: 'r1' }) }))
-vi.mock('@/runtime/runtime-rpc-client', () => ({ callRuntimeRpc: vi.fn() }))
-vi.mock('@/components/terminal-pane/terminal-html-file-browser-open', () => ({
+vi.mock('@/store/repos/use-repository-catalog', () => ({ useActiveRepo: () => ({ id: 'r1' }) }))
+vi.mock('@/runtime/rpc/calls/runtime-rpc-call', () => ({ callRuntimeRpc: vi.fn() }))
+vi.mock('@/components/terminal-pane/links/files/terminal-html-file-browser-open', () => ({
   openHtmlFileInBrowser: vi.fn()
 }))
 vi.mock('sonner', () => ({ toast: { error: vi.fn() } }))

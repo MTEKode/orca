@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useDocumentDarkTheme } from '@/hooks/use-document-dark-theme'
 import { useCodeEditorThemeStore } from '@/store/appearance/code-editor-theme'
+import { orcaMonacoTheme } from '@/lib/monaco-orca-themes'
 
 const definedThemes = new Set<string>()
 
@@ -46,5 +47,5 @@ export function useMonacoTheme(isDarkOverride?: boolean): string {
   }, [pluginTheme])
 
   // Why the built-in until defined: Monaco silently ignores a theme name it doesn't know yet.
-  return pluginTheme && defined.has(pluginTheme.name) ? pluginTheme.name : isDark ? 'vs-dark' : 'vs'
+  return pluginTheme && defined.has(pluginTheme.name) ? pluginTheme.name : orcaMonacoTheme(isDark)
 }

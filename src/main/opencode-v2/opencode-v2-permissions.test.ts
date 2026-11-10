@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   AgentSessionPromptAnswerRejectedError,
   AgentSessionPromptUnavailableError
-} from '../native-chat/agent-session-wire/providers/structured-agent-session-adapter'
+} from '../native-chat/agent-session-wire/providers/structured-agent-session-adapter-errors'
 import type { ProviderTimelineEvent } from '../native-chat/agent-session-timeline/provider-timeline-event'
 import {
   OpenCodeV2PermissionRequests,

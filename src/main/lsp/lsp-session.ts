@@ -2,7 +2,8 @@ import { basename } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { StreamMessageReader, StreamMessageWriter } from 'vscode-jsonrpc/node'
 import { spawnProcess } from '@orca/process-host'
-import type { PipedChildProcess, PipedProcessSpawner } from '@orca/process-host/process-spec'
+import type { ChildProcessWithoutNullStreams } from 'node:child_process'
+import type { PipedProcessSpawner } from '@orca/process-host/process-spec'
 import {
   forceTerminateProcessTree,
   signalProcessTree
@@ -45,7 +46,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 
 export class LspSession {
   readonly ready: Promise<void>
-  private readonly child: PipedChildProcess
+  private readonly child: ChildProcessWithoutNullStreams
   private readonly router: LspMessageRouter
   private readonly ports = new Map<number, LspPort>()
   private readonly queued: { portId: number; message: JsonRpcMessage }[] = []

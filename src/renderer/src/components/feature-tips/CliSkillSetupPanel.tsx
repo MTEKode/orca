@@ -2,7 +2,7 @@ import { CliSkillSetupTerminal } from './CliSkillSetupTerminal'
 import { AgentSkillSetupPanel } from '@/components/skills/setup/AgentSkillSetupPanel'
 import {
   ORCA_CLI_SKILL_NAME,
-  ORCHESTRATION_SKILL_NAME
+  MTE_SKILL_NAME
 } from '@/lib/skills/installation/agent-feature-skill-names'
 import { useActiveProjectSkillRuntime } from '@/hooks/skills/runtime/useActiveProjectSkillRuntime'
 import {
@@ -12,7 +12,7 @@ import {
 } from '@/hooks/skills/discovery/useInstalledAgentSkills'
 import { useTranslate } from '@/i18n/use-translate'
 
-const CLI_TIP_SKILL_NAMES = [ORCA_CLI_SKILL_NAME, ORCHESTRATION_SKILL_NAME] as const
+const CLI_TIP_SKILL_NAMES = [ORCA_CLI_SKILL_NAME, MTE_SKILL_NAME] as const
 
 function BundledCliSkillSetupPanel(): React.JSX.Element {
   const t = useTranslate()

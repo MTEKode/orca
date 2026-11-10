@@ -79,6 +79,7 @@ export function useNativeChatStructuredComposerTransport(args: {
   starting: boolean
   transportEnabled: boolean
   worktreeId: string | undefined
+  onSwitchHarness?: NativeChatStructuredComposerTransport['onSwitchHarness']
   optionPickerRequest: NativeChatOptionPickerRequest | null
   setOptionPickerRequest: Dispatch<SetStateAction<NativeChatOptionPickerRequest | null>>
   onError: NativeChatStructuredComposerTransport['onError']
@@ -88,7 +89,7 @@ export function useNativeChatStructuredComposerTransport(args: {
 }): NativeChatStructuredComposerTransport {
   const { props, controller, forks, sendThroughLaunch, starting, worktreeId, optionPickerRequest } =
     args
-  const { setOptionPickerRequest, onError } = args
+  const { setOptionPickerRequest, onError, onSwitchHarness } = args
   const { revealLatest: onSubmitted, captureRevealLatest: captureAdmittedReveal } = args.reveal
   const { transportEnabled } = args
   const sendBlockedReason = args.sendBlockedReason ?? null
@@ -182,6 +183,7 @@ export function useNativeChatStructuredComposerTransport(args: {
       acceptsImages,
       contextUsage: controller.contextUsage,
       worktreeId,
+      ...(onSwitchHarness ? { onSwitchHarness } : {}),
       onError,
       onSubmitted,
       captureAdmittedReveal,
@@ -202,6 +204,7 @@ export function useNativeChatStructuredComposerTransport(args: {
     fork,
     sideChat,
     worktreeId,
+    onSwitchHarness,
     onError,
     onSubmitted,
     captureAdmittedReveal,

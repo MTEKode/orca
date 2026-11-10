@@ -5,11 +5,11 @@ import type {
 } from '../../shared/agent-session/lifecycle/agent-session-record'
 import type { AgentSessionPromptResponse } from '../../shared/agent-session/agent-session-question-answer'
 import { LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host'
-import {
-  AgentSessionPreSpawnError,
-  type AgentSessionAcquisition,
-  type StructuredAgentSessionAcquireInput,
-  type StructuredAgentSessionAdapter
+import { AgentSessionPreSpawnError } from '../native-chat/agent-session-wire/providers/structured-agent-session-adapter-errors'
+import type {
+  AgentSessionAcquisition,
+  StructuredAgentSessionAcquireInput,
+  StructuredAgentSessionAdapter
 } from '../native-chat/agent-session-wire/providers/structured-agent-session-adapter'
 import type { StructuredAgentSessionLogger } from '../native-chat/agent-session-wire/host/structured-agent-session-logger'
 import { providerSpawnedProcessIdentity } from '../provider-process/provider-spawned-process-identity'

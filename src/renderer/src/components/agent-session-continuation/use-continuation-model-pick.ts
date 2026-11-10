@@ -4,8 +4,8 @@ import {
 } from '@/components/agent/use-agent-launch-picker-inventory'
 import { newChatDraftForPick, resolveNewChatPick } from '@/components/tab-bar/new-chat-pick'
 import { useAppStore } from '@/store'
-import { findWorktreeById } from '@/store/slices/worktrees/worktree-slice-contract'
-import { selectWorktreesByRepo } from '@/store/folder-workspaces/folder-workspace-record-index'
+import { findFirstIndexedWorktree } from '@/lib/workspace/ownership/worktree-runtime-owner-index'
+import { selectWorktreesByRepo } from '@/store/workspaces/catalog/workspace-record-fields'
 import type { NewTabAgentMenuModel } from '@/components/tab-bar/new-tab-agent-menu-model'
 import { agentPickerLaunchInputs } from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'
@@ -18,7 +18,7 @@ function savedChatPick(worktreeId: string | undefined, agent: TuiAgent | null): 
     return null
   }
   const state = useAppStore.getState()
-  const worktree = findWorktreeById(selectWorktreesByRepo(state), worktreeId)
+  const worktree = findFirstIndexedWorktree(selectWorktreesByRepo(state), worktreeId)
   const chat = worktree
     ? state.repos.find((repo) => repo.id === worktree.repoId)?.newChatDefaults?.chat
     : undefined

@@ -1,4 +1,6 @@
+import { getRepoExecutionHostId, LOCAL_EXECUTION_HOST_ID } from '../../../shared/execution-host'
 import { isFolderRepo } from '../../../shared/repo-kind'
+import { getLspSessionManager } from '../../lsp/lsp-session-registry'
 import { commitProvenRepoKindChange } from '../../workspaces/catalog/folder-repo-git-conversion'
 import type { Repo } from '../../../shared/repo-types'
 import type { RuntimeRepoSelector } from '../workspaces/catalog/runtime-repo-selector'
@@ -167,6 +169,10 @@ export class RuntimeRepositorySettingsController {
     assertNoProjectWorktreeCreate(repo)
     releaseWorktreeCreatePreparationsForRepo(store, repo)
     store.removeProjectForHost(repo)
+    // Local language servers are scoped to the project and must not outlive its removal.
+    if (getRepoExecutionHostId(repo) === LOCAL_EXECUTION_HOST_ID) {
+      getLspSessionManager()?.disposeForRepo(repo.id)
+    }
     // Sweep again for terminals spawned during stop. Retire chats only after the final WSL fence because that step is irreversible.
     await stopProjectTerminals(teardownStops('project-removal', 'structured-chat'))
     this.deps.forgetTerminalTopology(repo.id)

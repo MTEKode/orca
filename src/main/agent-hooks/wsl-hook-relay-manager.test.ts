@@ -6,7 +6,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { RelayDispatcher } from '../../wsl-guest/dispatcher'
 import { registerWslHookFsHandlers } from '../../wsl-guest/wsl-hook-fs-bridge'
-import { SshChannelMultiplexer, type MultiplexerTransport } from '../ssh/protocol/ssh-channel-multiplexer'
+import { SshChannelMultiplexer } from '../ssh/protocol/ssh-channel-multiplexer'
+import type { MultiplexerTransport } from '../ssh/protocol/ssh-multiplexer-transport-writer'
 import { createWslHookSftpAdapter, installWslGuestHooks } from './wsl-relay/wsl-hook-fs-adapter'
 import {
   installRemoteManagedAgentHooks,
@@ -15,7 +16,10 @@ import {
 import { WslHookRelayManager } from './wsl-relay/wsl-hook-relay-manager'
 import { CLAUDE_AGENT_VIEW_RELAY_METHOD } from '../../shared/claude-agent-view'
 import { awaitExplicitAgentPluginGuestReadiness } from './wsl-relay/wsl-agent-plugin-readiness'
-import { FAILURE_COOLDOWN_BASE_MS, type WslHookRelayManagerDeps } from './wsl-relay/wsl-hook-relay-deps'
+import {
+  FAILURE_COOLDOWN_BASE_MS,
+  type WslHookRelayManagerDeps
+} from './wsl-relay/wsl-hook-relay-deps'
 import {
   AGENT_HOOK_INSTALL_PLUGINS_METHOD,
   AGENT_HOOK_NOTIFICATION_METHOD,

@@ -47,7 +47,6 @@ function TabStrip(): React.JSX.Element {
             browserTab('local-tab', LOCAL_PAGE, 'https://example.com/', 'Example Domain')
           ]}
           expandedPaneByTabId={{}}
-          showAgentLaunchItems={false}
           onActivate={noop}
           onClose={noop}
           onCloseOthers={noop}

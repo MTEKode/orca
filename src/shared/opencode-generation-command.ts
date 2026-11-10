@@ -2,7 +2,7 @@ import { findOptionOccurrence } from './command-option-occurrence'
 import type { CommitMessagePlan } from './source-control/ai/generation/commit-message-plan'
 
 export function isDirectOpenCodeGenerationCommand(binary: string, prefixArgs: string[]): boolean {
-  return /(?:^|[\\/])opencode2?(?:\.(?:cmd|exe))?$/i.test(binary) && !prefixArgs.includes('--')
+  return /(?:^|[\\/])opencode(?:\.(?:cmd|exe))?$/i.test(binary) && !prefixArgs.includes('--')
 }
 
 /** Only these launchers expose an unambiguous executable operand. */
@@ -60,7 +60,7 @@ export function mergeOpenCodeGenerationArgs(
   args: string[]
 ): string[] {
   if (
-    (agentId === 'opencode' || agentId === 'opencode2') &&
+    agentId === 'opencode' &&
     isDirectOpenCodeGenerationCommand(binary, prefixArgs) &&
     args[0] === 'run'
   ) {

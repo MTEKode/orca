@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+import { useAppStore } from '@/store'
 import {
   AzureDevOpsIntegrationCard,
   GiteaIntegrationCard
@@ -9,6 +11,9 @@ import {
 } from '../../integrations/source-control/cli-source-control-integration-cards'
 import { JiraIntegrationCard } from '../../integrations/task-trackers/jira-integration-card'
 import { LinearIntegrationCard } from '../../integrations/task-trackers/linear-integration-card'
+import { GoogleAiKeyCard } from '../GoogleAiKeyCard'
+import { McpIntegrationCard } from '../McpIntegrationCard'
+import { MCP_INTEGRATION_CATALOG } from '../../../../../shared/mcp-integrations/catalog'
 import { IntegrationCardPresentationProvider } from '../../integrations/presentation/integration-card-presentation'
 import { useIntegrationProviderStatusRefresh } from '../../../hooks/use-integration-provider-status-refresh'
 import { SettingsGroup } from '../section-layout/SettingsGroup'
@@ -26,6 +31,10 @@ function ProviderRow({ children }: { children: React.ReactNode }): React.JSX.Ele
 export function IntegrationsPane(): React.JSX.Element {
   const t = useTranslate()
   useIntegrationProviderStatusRefresh()
+  const refreshMcpIntegrations = useAppStore((s) => s.refreshMcpIntegrations)
+  useEffect(() => {
+    void refreshMcpIntegrations()
+  }, [refreshMcpIntegrations])
 
   return (
     <IntegrationCardPresentationProvider value="setup-guide">
@@ -66,6 +75,34 @@ export function IntegrationsPane(): React.JSX.Element {
           </ProviderRow>
           <ProviderRow>
             <JiraIntegrationCard />
+          </ProviderRow>
+        </SettingsGroup>
+
+        <SettingsGroup
+          title={t(
+            'auto.components.settings.IntegrationsPane.mcpIntegrationsTitle',
+            'MCP integrations'
+          )}
+          description={t(
+            'auto.components.settings.IntegrationsPane.mcpIntegrationsDescription',
+            'Connect services Orca exposes to every agent as MCP tools (orca-tools server).'
+          )}
+        >
+          {Object.values(MCP_INTEGRATION_CATALOG).map((definition) => (
+            <ProviderRow key={definition.id}>
+              <McpIntegrationCard definition={definition} />
+            </ProviderRow>
+          ))}
+        </SettingsGroup>
+
+        <SettingsGroup
+          title={t(
+            'auto.components.settings.IntegrationsPane.knowledgeGraphTitle',
+            'Knowledge graph'
+          )}
+        >
+          <ProviderRow>
+            <GoogleAiKeyCard />
           </ProviderRow>
         </SettingsGroup>
       </div>

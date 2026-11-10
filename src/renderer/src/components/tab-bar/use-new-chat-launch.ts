@@ -1,12 +1,12 @@
 import { useCallback } from 'react'
 import { toast } from 'sonner'
-import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
+import { callRuntimeRpc } from '@/runtime/rpc/calls/runtime-rpc-call'
 import { runtimeTargetForOwnerEnvironment } from '@/runtime/rpc/targets/runtime-client-target'
 import { runtimeEnvironmentIdOrLocalUnlessTwin } from '@/lib/workspace/ownership/worktree-runtime-owner'
-import { findWorktreeById } from '@/store/slices/worktrees/worktree-slice-contract'
-import { selectWorktreesByRepo } from '@/store/folder-workspaces/folder-workspace-record-index'
+import { findFirstIndexedWorktree } from '@/lib/workspace/ownership/worktree-runtime-owner-index'
+import { selectWorktreesByRepo } from '@/store/workspaces/catalog/workspace-record-fields'
 import { useAppStore } from '@/store'
-import { getAgentCatalog } from '@/components/agent/icons/AgentIcon'
+import { getAgentCatalog } from '@/lib/agent-catalog/agent-catalog'
 import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
 import { translate } from '@/i18n/i18n'
 import { workspaceKindForWorktreeId } from '../../../../shared/agent-launch/contracts/workspace-launch-kind'
@@ -218,7 +218,7 @@ export function openNewChatForWorktree(
   seed?: { row: NewTabAgentMenuRow; draft?: AgentPickerDraft }
 ): boolean {
   const state = useAppStore.getState()
-  const worktree = findWorktreeById(selectWorktreesByRepo(state), worktreeId)
+  const worktree = findFirstIndexedWorktree(selectWorktreesByRepo(state), worktreeId)
   const repo = worktree ? state.repos.find((r) => r.id === worktree.repoId) : undefined
   const { draft } = seed ?? {}
   return openNewChatLaunch({

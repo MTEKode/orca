@@ -1,6 +1,6 @@
 import { toast } from 'sonner'
 import { translate } from '@/i18n/i18n'
-import { getAgentLabel } from '@/components/agent/icons/AgentIcon'
+import { getAgentLabel } from '@/lib/agent-catalog/agent-catalog'
 import {
   buildAgentSessionContinuationPrompt,
   type AgentSessionContinuationContextMode,

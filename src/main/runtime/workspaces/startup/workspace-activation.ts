@@ -5,7 +5,11 @@ import {
   navigationTargetsHost,
   resolveRuntimeNavigationTarget
 } from '../../../../shared/runtime-navigation'
-import { getRepoExecutionHostId } from '../../../../shared/execution-host'
+import {
+  getRepoExecutionHostId,
+  getRepoRoutingConnectionId
+} from '../../../../shared/execution-host'
+import { maybeAutoUpdate } from '../../../graphify'
 import { phoneWakeReport } from '../../../../shared/workspace-sleep'
 import type { Repo } from '../../../../shared/repo-types'
 import type { TerminalWorkspaceLaunchScope } from '../../orchestration/terminal-authority/structured-sessions/runtime-legacy-worker-terminal-recovery-types'
@@ -70,6 +74,14 @@ export abstract class OrcaRuntimeWithActivateManagedWorktree extends OrcaRuntime
     const repo = this.store?.getRepo(worktree.repoId)
     if (!repo) {
       throw new Error('repo_not_found')
+    }
+    if (!getRepoRoutingConnectionId(repo)) {
+      // Local repos only: graphify reads the checkout directly.
+      maybeAutoUpdate({
+        repoId: repo.id,
+        repoRoot: repo.path,
+        enabled: this.store?.getSettings().graphifyAutoUpdate
+      })
     }
     // A workspace this host runs on a recipe VM (over its SSH target) wakes with its opening;
     // the wake can outlast activation, so it runs on its own and records its failure.

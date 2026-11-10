@@ -27,6 +27,7 @@ import type {
 import { labelFromModelId } from '../../model-id-label'
 import type { AgentSessionModelCatalogResult } from '../agent-session-wire'
 import { listingVerifiedModelIds } from './structured-agent-session-listing-verified-ids'
+import { STRUCTURED_AGENT_OPTION_ID } from './structured-agent-session-agent-option'
 import {
   decodeStructuredAgentSessionOptionValue,
   encodeStructuredAgentSessionOptionValue
@@ -77,13 +78,12 @@ export type StructuredAgentSessionOptionState = {
   permissionOwnSupported?: boolean | null
   reportedModel?: string
   reportedEffort?: string
+  /** Selectable agents and the one running; absent shows no Agent picker. */
+  agents?: AgentSessionOptionsResult['agents']
+  currentAgent?: string
   /** The host is still listing models; it only keeps a seed from settling to built-in, since controls follow their data. */
   listingInProgress?: boolean
   fastModeRestricted?: boolean
-  /** Agents listed by the host for the agent picker (OpenCode build/plan). */
-  agents?: readonly { id: string; label: string; description?: string }[]
-  /** Currently selected agent. */
-  currentAgent?: string
 }
 
 /** Seed definitions supply geometry; only accepted input or host inventory can name a model. */
@@ -243,7 +243,9 @@ export function applyStructuredAgentSessionOptions(
         ? result.listedModelIds
         : undefined,
     permissionMode: result.current.permissionMode ?? null,
-    reportedPermissionMode: result.current.reportedPermissionMode
+    reportedPermissionMode: result.current.reportedPermissionMode,
+    agents: result.agents,
+    currentAgent: result.current.agent
   }
 }
 
@@ -261,6 +263,9 @@ export function commitStructuredAgentSessionOption(
   }
   if (id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID) {
     return { ...state, permissionMode: value, reportedPermissionMode: undefined }
+  }
+  if (id === STRUCTURED_AGENT_OPTION_ID) {
+    return { ...state, currentAgent: value }
   }
   if (!state.catalog && id !== 'interactionMode') {
     return state
@@ -286,7 +291,7 @@ export function commitStructuredAgentSessionOptionValues(
   origin: 'picked' | 'seeded' = 'picked'
 ): StructuredAgentSessionOptionState {
   let next = state
-  for (const id of STRUCTURED_LAUNCH_OPTION_IDS) {
+  for (const id of [...STRUCTURED_LAUNCH_OPTION_IDS, STRUCTURED_AGENT_OPTION_ID]) {
     const value = values[id]
     if (value !== undefined) {
       next = commitStructuredAgentSessionOption(next, id, value, origin)

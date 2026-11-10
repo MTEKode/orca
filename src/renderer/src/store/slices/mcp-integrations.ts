@@ -1,6 +1,6 @@
 import type { StateCreator } from 'zustand'
 import type { AppState } from '../types'
-import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
+import { callRuntimeRpc } from '@/runtime/rpc/calls/runtime-rpc-call'
 import type { McpIntegrationId } from '../../../../shared/mcp-integrations/catalog'
 
 // Mirrors the main-process hub status shape (src/main/mcp-integrations/hub.ts).

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import type { RpcContext } from '../../../core'
-import type { OrchestrationDb } from '../../../../orchestration/db'
+import type { OrchestrationDb } from '../../../../orchestration/db/orchestration-db'
 import { createOrchestrationRpcHarness } from '../rpc-test-harness'
 import { createRootDispatch } from '../../../../orchestration/db/root-dispatch-test-fixture'
 

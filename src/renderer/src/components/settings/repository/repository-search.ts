@@ -17,6 +17,9 @@ import {
 } from './worktrees/repository-git-worktree-search-entries'
 import { getRepositoryFormatterSearchEntry } from './RepositoryFormatterSection'
 import { getRepositoryAgentTrustSearchEntry } from './RepositoryAgentTrustSection'
+import { getRepositoryDeployCheckSearchEntries } from './repository-deploy-check-search-entries'
+import { getRepositoryMteFlowPromptSearchEntries } from './repository-mte-flow-prompt-search-entries'
+import { getRepositoryLanguageServersSearchEntries } from '../repository-language-servers-search-entries'
 
 type RepositoryPaneSearchOptions = {
   isLocalWindowsProject?: boolean
@@ -202,6 +205,34 @@ function getRepositorySearchParts(
             )
           ]
         }
+  const quickCommandsFloating: SettingsSearchEntry = {
+    title: t(
+      'settings.repository.quickCommandsFloating.title',
+      'Run quick commands in the floating terminal'
+    ),
+    description: t(
+      'settings.repository.quickCommandsFloating.description',
+      'Shell quick commands open in the floating terminal and run inside this project instead of a new workspace tab.'
+    ),
+    keywords: [
+      repo.displayName,
+      ...translateSearchKeyword(
+        'settings.repository.quickCommandsFloating.keywordQuick',
+        'quick commands'
+      ),
+      ...translateSearchKeyword(
+        'settings.repository.quickCommandsFloating.keywordFloating',
+        'floating terminal'
+      )
+    ]
+  }
+  const mteSections: SettingsSearchEntry[] | undefined = isFolder
+    ? undefined
+    : [
+        ...getRepositoryMteFlowPromptSearchEntries(repo),
+        ...getRepositoryDeployCheckSearchEntries(repo),
+        quickCommandsFloating
+      ]
   const removeProject: SettingsSearchEntry = {
     title: t('auto.components.settings.repository.search.bbbe994528', 'Remove project'),
     description: t(
@@ -229,7 +260,9 @@ function getRepositorySearchParts(
     removeProject,
     sourceControlAi: isFolder ? undefined : getRepositoryGitAuthorSearchEntries(repo, t),
     mcp: isFolder ? undefined : getRepositoryMcpConfigSearchEntries(repo, t),
-    hooks: isFolder ? undefined : getRepositoryGitHooksSearchEntries(repo, t)
+    hooks: isFolder ? undefined : getRepositoryGitHooksSearchEntries(repo, t),
+    mteSections,
+    languageServers: getRepositoryLanguageServersSearchEntries(repo)
   }
 }
 
@@ -255,6 +288,9 @@ export function getRepositoryPaneSearchEntries(
   if (parts.projectRuntime) {
     entries.push(parts.projectRuntime)
   }
+  if (parts.mteSections) {
+    entries.push(...parts.mteSections)
+  }
   if (!isFolderRepo(repo)) {
     entries.push(...getRepositoryGitWorktreeSearchEntries(repo, t))
   }
@@ -268,6 +304,7 @@ export function getRepositoryPaneSearchEntries(
   if (parts.hooks) {
     entries.push(...parts.hooks)
   }
+  entries.push(...parts.languageServers)
   return entries
 }
 
@@ -288,9 +325,14 @@ export function getRepositoryPaneSearchMetadata(
   if (parts.projectRuntime) {
     identity.push(parts.projectRuntime)
   }
+  if (parts.mteSections) {
+    identity.push(...parts.mteSections)
+  }
   if (worktrees) {
     identity.push(...worktrees.identity)
   }
+  // Why: the language servers section renders inside the identity block.
+  identity.push(...parts.languageServers)
   identity.push(parts.removeProject)
   return {
     identity,
@@ -300,6 +342,7 @@ export function getRepositoryPaneSearchMetadata(
     sourceControlAi: parts.sourceControlAi ?? [],
     mcp: parts.mcp ?? [],
     hooks: parts.hooks ?? [],
+    languageServers: parts.languageServers,
     // Host setups has no indexed descriptor; keep its existing empty-query admission.
     hostSetups: [] satisfies SettingsSearchEntry[]
   }

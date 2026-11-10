@@ -1,7 +1,7 @@
 import type { Repo } from '../../../../../../shared/repo-types'
 import { translate } from '@/i18n/i18n'
 import { SearchableSetting } from '../../section-layout/SearchableSetting'
-import { SettingsRow, SettingsSwitch } from '../../form-controls/SettingsFormControls'
+import { SettingsSwitchRow } from '../../form-controls/SettingsFormControls'
 import { searchKeywords } from '../../search/settings-search-keywords'
 
 type RepositoryQuickCommandsFloatingSectionProps = {
@@ -41,16 +41,12 @@ export function RepositoryQuickCommandsFloatingSection({
       ])}
       forceVisible={forceVisible}
     >
-      <SettingsRow
+      <SettingsSwitchRow
         label={title}
         description={description}
-        control={
-          <SettingsSwitch
-            checked={checked}
-            ariaLabel={title}
-            onChange={() => updateRepo(repo.id, { quickCommandsInFloatingTerminal: !checked })}
-          />
-        }
+        checked={checked}
+        ariaLabel={title}
+        onChange={() => updateRepo(repo.id, { quickCommandsInFloatingTerminal: !checked })}
       />
     </SearchableSetting>
   )

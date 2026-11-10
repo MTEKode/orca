@@ -5,7 +5,9 @@ import type { ReactElement } from 'react'
 
 const rpc = vi.fn()
 const updateRepo = vi.fn()
-vi.mock('@/runtime/runtime-rpc-client', () => ({ callRuntimeRpc: (...a: unknown[]) => rpc(...a) }))
+vi.mock('@/runtime/rpc/calls/runtime-rpc-call', () => ({
+  callRuntimeRpc: (...a: unknown[]) => rpc(...a)
+}))
 vi.mock('@/store', () => ({
   useAppStore: {
     getState: () => ({

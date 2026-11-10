@@ -11,7 +11,7 @@ function formatAheadOfTitle(count: number, ref: string, t: Translate = translate
   )
 }
 
-function formatBehindOfTitle(count: number, ref: string, t: Translate = translate): string {
+export function formatBehindOfTitle(count: number, ref: string, t: Translate = translate): string {
   return t(
     'auto.components.right.sidebar.SourceControl.compareBaseCommitsBehind',
     '{{count}} commits behind {{ref}}',

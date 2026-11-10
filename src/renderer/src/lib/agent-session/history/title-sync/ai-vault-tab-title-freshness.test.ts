@@ -116,7 +116,8 @@ describe('session title freshness', () => {
         expect(store.getState().tabsByWorktree['worktree-1'][0].aiVaultTitle?.title).toBe(
           'First name'
         )
-        await vi.advanceTimersByTimeAsync(150_000)
+        // A legacy host's live refresh comes due 30 min after the first scan.
+        await vi.advanceTimersByTimeAsync(30 * 60_000 - 150_000)
         expect(store.getState().tabsByWorktree['worktree-1'][0].aiVaultTitle?.title).toBe(
           'Renamed conversation'
         )

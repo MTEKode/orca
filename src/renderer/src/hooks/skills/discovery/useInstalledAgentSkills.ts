@@ -9,7 +9,7 @@ import type {
   SkillDiscoveryTarget,
   SkillSourceKind
 } from '../../../../../shared/skills'
-import { ORCHESTRATION_SKILL_NAME } from '@/lib/skills/installation/agent-feature-skill-names'
+import { MTE_SKILL_NAME } from '@/lib/skills/installation/agent-feature-skill-names'
 import { markOrchestrationSetupComplete } from '@/lib/orchestration-setup-state'
 import {
   discoverInstalledAgentSkills,
@@ -67,7 +67,7 @@ function normalizeSkillName(value: string): string {
 }
 
 function isOrchestrationSkillName(skillName: string): boolean {
-  return normalizeSkillName(skillName) === ORCHESTRATION_SKILL_NAME
+  return normalizeSkillName(skillName) === MTE_SKILL_NAME
 }
 
 function basenameFromPath(pathValue: string): string {

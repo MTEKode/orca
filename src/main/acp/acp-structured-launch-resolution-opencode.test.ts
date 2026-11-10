@@ -7,7 +7,8 @@ import { restoreManagedDataAccountEnvironment } from '../../shared/managed-data-
 import { createProviderSpawnSpec } from '../provider-process/provider-process-supervisor'
 import { openCodeAcpAccountBinding } from '../opencode/opencode-structured-account-home'
 import { scrubOpenCodeAcpEnvironment } from '../opencode/opencode-acp-environment'
-import { acpLaunchSpecFor, type AcpLaunchSpec } from './acp-launch-specs'
+import { acpLaunchSpecFor } from './launch/acp-launch-registry'
+import type { AcpLaunchSpec } from './launch/acp-launch-contract'
 import { STRUCTURED_CHILD_ENV_TO_DELETE } from '../runtime/agent-session/environment/structured-session-child-env'
 import { AgentCliInstallationError } from '../native-chat/agent-cli-installation-error'
 

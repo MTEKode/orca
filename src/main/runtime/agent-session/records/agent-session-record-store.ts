@@ -1,5 +1,7 @@
 import { agentSessionRecordPredecessorIds } from './agent-session-record-lineage'
 import { clearSuccessor } from './agent-session-sender-identity-revision'
+import { isDeepStrictEqual } from 'node:util'
+import type { MteWorkerPin } from '../../../../shared/mte/worker-pin'
 import * as usageLimitContinue from '../../../../shared/agent-session/lifecycle/agent-session-usage-limit-continue'
 import { createAgentSessionOwnerProof } from '../ownership/agent-session-owner-proof'
 import { backfillAgentSessionPermissionModes } from '../ownership/agent-session-permission-backfill'
@@ -188,6 +190,19 @@ export class AgentSessionRecordStore extends AgentSessionRecordTabs {
       expected,
       context,
       applicable
+    )
+
+  /** MTE planner marker: metadata, written unfenced right after the launch creates the session. */
+  markMtePlanner = (sessionId: string, worker?: MteWorkerPin): Promise<AgentSessionRecord> =>
+    this.mutate(sessionId, (record) =>
+      record.mteRole === 'planner' && (!worker || isDeepStrictEqual(record.mteWorker, worker))
+        ? record
+        : {
+            ...record,
+            mteRole: 'planner',
+            ...(worker ? { mteWorker: worker } : {}),
+            updatedAt: Date.now()
+          }
     )
 
   /** Launch history is metadata and does not contend with the writer lease. */

@@ -6,7 +6,7 @@ import { useComposerAgentIdentity, useMteWorkerPin } from './use-mte-worker-pin'
 // A plain stub (not vi.fn) so vitest's result tracking cannot observe the rejected promise itself.
 let rpcImpl: () => unknown = () => undefined
 let rpcCalls = 0
-vi.mock('@/runtime/runtime-rpc-client', () => ({
+vi.mock('@/runtime/rpc/calls/runtime-rpc-call', () => ({
   callRuntimeRpc: () => {
     rpcCalls += 1
     return rpcImpl()

@@ -385,6 +385,11 @@ import {
   WorkItemsList as WorkItemsListOfGitlabParams
 } from './gitlab-params'
 import {
+  GraphifyBuildParams,
+  GraphifyRepoParams,
+  GraphifySetGoogleAiKeyParams
+} from './graphify-params'
+import {
   HostedReviewCreate,
   HostedReviewCreationEligibility,
   HostedReviewForBranch
@@ -462,6 +467,20 @@ import {
   ManagedServerSelector,
   ManagedServerUpdate
 } from './managed-server-params'
+import {
+  McpIntegrationCallToolParams,
+  McpIntegrationIdParams,
+  McpIntegrationListToolsParams,
+  McpIntegrationSetApiKeyParams,
+  McpIntegrationSetConfigParams
+} from './mcp-integrations-params'
+import {
+  MteDeployCheckConfigParams,
+  MteDeployCheckReportParams,
+  MteGetPlannerPinParams,
+  MteMarkPlannerParams,
+  MtePrepareWorkspaceParams
+} from './mte-params'
 import { NativeChatSession, NativeChatUnsubscribe } from './native-chat-params'
 import {
   NotificationGetMissedSinceParams,
@@ -494,6 +513,7 @@ import {
   RunParams,
   RunStopParams
 } from './orchestration-gates-params'
+import { DispatchLinkParams } from './orchestration-link-params'
 import {
   AskParams,
   CheckParams,
@@ -615,7 +635,10 @@ import { SidebarSessionBeginParams } from './sidebar-session-params'
 import {
   SkillsCancelInstallParams,
   SkillsDiscoverParams,
-  SkillsGetInstallProgressParams
+  SkillsGetInstallProgressParams,
+  SkillsImportApplyParams,
+  SkillsImportableListParams,
+  SkillsUnifiedCatalogParams
 } from './skills-params'
 import {
   DictationChunk,
@@ -675,6 +698,11 @@ import {
 import { RenameParams } from './structured-agent-session-rename-params'
 import { SendRecordedParams } from './structured-agent-session-send-recorded-params'
 import { SubscribeParams } from './structured-agent-session-subscribe-params'
+import {
+  DiffTurnCheckpointParams,
+  ListTurnCheckpointsParams,
+  RestoreTurnCheckpointParams
+} from './structured-agent-session-turn-checkpoint-params'
 import { TerminalDaemonRestartSeveredParams } from './terminal-daemon-params'
 import { TerminalLimitUpdateParams } from './terminal-limit-params'
 import { TerminalAdoptOrphans } from './terminal-orphan-params'
@@ -837,11 +865,13 @@ export const RPC_PARAMS_BY_METHOD = {
   'agentSession.create': CreateParams,
   'agentSession.createSupport': CreateSupportParams,
   'agentSession.currentRequests': CurrentRequestsParams,
+  'agentSession.diffTurnCheckpoint': DiffTurnCheckpointParams,
   'agentSession.ensure': AttachParams,
   'agentSession.handoffStatus': HandoffStatusParams,
   'agentSession.history': HistoryParams,
   'agentSession.hold': HoldParams,
   'agentSession.item': ItemParams,
+  'agentSession.listTurnCheckpoints': ListTurnCheckpointsParams,
   'agentSession.modelCatalog': ModelCatalogParams,
   'agentSession.options': OptionsParams,
   'agentSession.queuedMessageDelete': QueuedMessageActionParams,
@@ -860,6 +890,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'agentSession.restartResumable': RestartResumableParams,
   'agentSession.restartResumableDismiss': RestartResumableParams,
   'agentSession.restartResume': RestartResumeParams,
+  'agentSession.restoreTurnCheckpoint': RestoreTurnCheckpointParams,
   'agentSession.reveal': RevealParams,
   'agentSession.rewind': RewindParams,
   'agentSession.send': SendParams,
@@ -1215,6 +1246,14 @@ export const RPC_PARAMS_BY_METHOD = {
   'gitlab.updateMRState': UpdateMrState,
   'gitlab.workItemByPath': WorkItemByPath,
   'gitlab.workItemDetails': WorkItemDetailsOfGitlabParams,
+  'graphify.build': GraphifyBuildParams,
+  'graphify.cancel': GraphifyRepoParams,
+  'graphify.clearGoogleAiKey': null,
+  'graphify.log': GraphifyRepoParams,
+  'graphify.openViewer': GraphifyRepoParams,
+  'graphify.setGoogleAiKey': GraphifySetGoogleAiKeyParams,
+  'graphify.status': GraphifyRepoParams,
+  'graphify.update': GraphifyRepoParams,
   'host.declareClient': OrcadDeclareClientParamsSchema,
   'host.gitBash.isAvailable': null,
   'host.peerDesktops': OrcadPeerDesktopsParamsSchema,
@@ -1318,6 +1357,13 @@ export const RPC_PARAMS_BY_METHOD = {
   'managedServer.update': ManagedServerUpdate,
   'markdown.readTab': ActivateTab,
   'markdown.saveTab': SaveMarkdownTab,
+  'mcpIntegrations.callTool': McpIntegrationCallToolParams,
+  'mcpIntegrations.connectOAuth': McpIntegrationIdParams,
+  'mcpIntegrations.disconnect': McpIntegrationIdParams,
+  'mcpIntegrations.listTools': McpIntegrationListToolsParams,
+  'mcpIntegrations.setApiKey': McpIntegrationSetApiKeyParams,
+  'mcpIntegrations.setConfig': McpIntegrationSetConfigParams,
+  'mcpIntegrations.status': null,
   'mobileRelay.hosts.list': null,
   'mobileRelay.hosts.worktrees': MobileRelayHostWorktreesParamsSchema,
   'mobileRelay.projectSections': null,
@@ -1326,6 +1372,11 @@ export const RPC_PARAMS_BY_METHOD = {
   'mobileWeb.bundle.localeCatalog': MobileWebBundleLocaleCatalogParamsSchema,
   'mobileWeb.bundle.manifest': null,
   'mobileWeb.bundle.range': MobileWebBundleChunkParamsSchema,
+  'mte.deployCheckConfig': MteDeployCheckConfigParams,
+  'mte.deployCheckReport': MteDeployCheckReportParams,
+  'mte.getPlannerPin': MteGetPlannerPinParams,
+  'mte.markPlanner': MteMarkPlannerParams,
+  'mte.prepareWorkspace': MtePrepareWorkspaceParams,
   'nativeChat.readSession': NativeChatSession,
   'nativeChat.subscribe': NativeChatSession,
   'nativeChat.unsubscribe': NativeChatUnsubscribe,
@@ -1366,6 +1417,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'orchestration.gateList': GateListParams,
   'orchestration.gateResolve': GateResolveParams,
   'orchestration.inbox': InboxParams,
+  'orchestration.link': DispatchLinkParams,
   'orchestration.partyLocation': PartyLocationParams,
   'orchestration.partyOpen': PartyLocationParams,
   'orchestration.peerMailAck': PeerMailAckParams,
@@ -1384,6 +1436,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'orchestration.sessionAddress': SessionAddressParams,
   'orchestration.taskCreate': TaskCreateParams,
   'orchestration.taskList': TaskListParams,
+  'orchestration.unlink': DispatchLinkParams,
   'orchestration.workerAbandon': WorkerDispatchParams,
   'orchestration.workerAutoClose': OrchestrationWorkerSubjectParams,
   'orchestration.workerChatTouch': OrchestrationWorkerSubjectParams,
@@ -1523,6 +1576,8 @@ export const RPC_PARAMS_BY_METHOD = {
   'skills.discover': SkillsDiscoverParams,
   'skills.executeBundledOrca': BundledSkillExecuteRequestSchema,
   'skills.getInstallProgress': SkillsGetInstallProgressParams,
+  'skills.importApply': SkillsImportApplyParams,
+  'skills.importableList': SkillsImportableListParams,
   'skills.install': SkillInstallRequestSchema,
   'skills.installBundle': SkillBundleInstallRequestSchema,
   'skills.listManagedInstalls': null,
@@ -1531,6 +1586,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'skills.previewInstall': SkillInstallPreviewRequestSchema,
   'skills.removeInstall': SkillRemoveRequestSchema,
   'skills.share': AgentSkillShareRequestSchema,
+  'skills.unifiedCatalog': SkillsUnifiedCatalogParams,
   'skills.uploadChunk': SkillUploadChunkRequestSchema,
   'speech.dictation.cancel': DictationHandle,
   'speech.dictation.chunk': DictationChunk,

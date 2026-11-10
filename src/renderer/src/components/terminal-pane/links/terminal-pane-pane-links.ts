@@ -15,6 +15,13 @@ import {
   installFilePathLinkClickFallback
 } from './files/terminal-link-handlers'
 import { createTerminalHandleLinkProvider } from './handles/terminal-handle-links'
+import {
+  createTerminalSymbolLinkProvider,
+  isSymbolLookupEnabledForRepo
+} from '../terminal-symbol-links'
+import { useAppStore } from '@/store'
+import { getIndexedRepoMap } from '@/store/repos/repository-catalog-index'
+import { getRepoIdFromWorktreeId } from '../../../../../shared/worktree/id'
 import { installTerminalLinkifierClickPriming } from './gestures/terminal-linkifier-click-priming'
 import { installTerminalLinkPointerGesture } from './gestures/terminal-link-pointer-gesture'
 import { installHttpLinkClickFallback } from './http/terminal-url-link-hit-testing'
@@ -39,6 +46,7 @@ type PaneLinkContext = {
     TerminalPaneLifecycleRefs,
     | 'linkProviderDisposablesRef'
     | 'terminalHandleLinkDisposablesRef'
+    | 'symbolLinkDisposablesRef'
     | 'linkifierClickPrimingDisposablesRef'
     | 'linkPointerGesturesRef'
     | 'fileLinkClickFallbackDisposablesRef'
@@ -98,6 +106,26 @@ export function installTerminalPaneLinkHandling(context: PaneLinkContext): void 
       })
     )
   )
+  const symbolProvider = createTerminalSymbolLinkProvider({
+    getTerminal: () =>
+      managerRef.current?.getPanes().find((candidate) => candidate.id === pane.id)?.terminal ??
+      null,
+    worktreeId: linkDeps.worktreeId,
+    worktreePath: linkDeps.worktreePath,
+    isLspEnabled: () =>
+      isSymbolLookupEnabledForRepo(
+        getIndexedRepoMap(useAppStore.getState().repos).get(
+          getRepoIdFromWorktreeId(linkDeps.worktreeId)
+        )
+      )
+  })
+  const symbolRegistration = pane.terminal.registerLinkProvider(symbolProvider)
+  refs.symbolLinkDisposablesRef.current.set(pane.id, {
+    dispose: () => {
+      symbolRegistration.dispose()
+      symbolProvider.dispose()
+    }
+  })
   refs.linkifierClickPrimingDisposablesRef.current.set(
     pane.id,
     installTerminalLinkifierClickPriming(pane.terminal)

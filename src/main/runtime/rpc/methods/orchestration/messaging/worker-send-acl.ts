@@ -1,6 +1,6 @@
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import { isGroupAddress } from '../../../../orchestration/addressing/groups/group-addressing'
-import type { OrchestrationDb } from '../../../../orchestration/db'
+import type { OrchestrationDb } from '../../../../orchestration/db/orchestration-db'
 import type { OrchestrationCoordinatorKey } from '../../../../orchestration/addressing/orchestration-caller-identity'
 import { findCallerWorkerDispatches } from '../../../../orchestration/db/runs/worker-run-binding'
 

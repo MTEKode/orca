@@ -63,11 +63,11 @@ describe('OpenCode captured worker composer', () => {
     ['opencode-1-18-32-timed-boot-hidden-pane', 'opencode'],
     ['opencode-1-18-32-timed-first-launch', 'opencode'],
     ['opencode-cmd-2-0-21-timed-warm-server', 'opencode'],
-    ['opencode-2-0-18-timed-boot-hidden-pane', 'opencode2'],
-    ['opencode-2-0-21-timed-cold-standalone', 'opencode2'],
-    ['opencode-2-0-21-timed-cold-standalone-hidden-pane', 'opencode2'],
-    ['opencode-2-0-21-timed-natural-load-enter-dropped', 'opencode2'],
-    ['opencode-2-0-14-timed-cold-standalone', 'opencode2']
+    ['opencode-2-0-18-timed-boot-hidden-pane', 'opencode'],
+    ['opencode-2-0-21-timed-cold-standalone', 'opencode'],
+    ['opencode-2-0-21-timed-cold-standalone-hidden-pane', 'opencode'],
+    ['opencode-2-0-21-timed-natural-load-enter-dropped', 'opencode'],
+    ['opencode-2-0-14-timed-cold-standalone', 'opencode']
   ]
   const AGENT_ROW = /\u00b7 \S/
   const BOX_BOTTOM_LEFT = '\u2579'
@@ -168,7 +168,7 @@ describe('OpenCode captured worker composer', () => {
       const { chunks, times, promptSentAtMs } = readTimedRuntimeFixture(name)
       const cursor = createDraftPasteReadyScanner('render-cursor-after-bracketed-paste')
       const boxCursorAt = times[chunks.findIndex((chunk) => cursor.observe(chunk).ready)]
-      const { settledAt, composer, agentRowRead } = await replay(name, 'opencode2')
+      const { settledAt, composer, agentRowRead } = await replay(name, 'opencode')
       expect(agentRowRead).toBe(-1)
       await expect(composer).resolves.toMatchObject({ satisfied: true })
       // Fake timers truncate recorded sub-millisecond fractions.

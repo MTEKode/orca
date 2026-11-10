@@ -8,17 +8,19 @@ import {
   installTurnCheckpointService,
   type TurnCheckpointService
 } from '../../../git/checkpoints/turn-checkpoint-service'
-import { ALL_RPC_METHODS } from './index'
+import { ALL_RPC_METHODS } from './rpc-method-registry'
 import type { RpcResponse } from '../core'
 import {
   call,
   clearStructuredHostStub,
-  envelope,
   hostCalls,
-  installStructuredHostStub,
+  installStructuredHostStub
+} from './structured-sessions/protocol/structured-agent-session-rpc.test-fixture'
+import {
+  envelope,
   SESSION,
   STRUCTURED_CLIENT
-} from './structured-sessions/protocol/structured-agent-session-rpc.test-fixture'
+} from './structured-sessions/protocol/structured-agent-session-rpc-client.test-fixture'
 import { TURN_CHECKPOINT_METHODS } from './turn-checkpoint-methods'
 
 function fakeService(overrides: Partial<TurnCheckpointService> = {}): TurnCheckpointService {

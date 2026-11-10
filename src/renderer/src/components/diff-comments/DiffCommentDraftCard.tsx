@@ -81,15 +81,17 @@ export function DiffCommentDraftCard({
 
   const labelId = useId()
   const headerLabel =
-    startLine && startLine !== lineNumber
-      ? t(
-          'auto.components.diff.comments.DiffCommentPopover.c845170b3b',
-          'Lines {{value0}}-{{value1}}',
-          { value0: startLine, value1: lineNumber }
-        )
-      : t('auto.components.diff.comments.DiffCommentPopover.e05063cfc1', 'Line {{value0}}', {
-          value0: lineNumber
-        })
+    lineNumber === 0
+      ? t('auto.components.diff.comments.DiffCommentPopover.fileScope', 'File')
+      : startLine && startLine !== lineNumber
+        ? t(
+            'auto.components.diff.comments.DiffCommentPopover.c845170b3b',
+            'Lines {{value0}}-{{value1}}',
+            { value0: startLine, value1: lineNumber }
+          )
+        : t('auto.components.diff.comments.DiffCommentPopover.e05063cfc1', 'Line {{value0}}', {
+            value0: lineNumber
+          })
 
   const { attachDrop } = images
   const hasImageUpload = !!imageUploadAddress
@@ -231,7 +233,10 @@ export function DiffCommentDraftCard({
       onClick={(ev) => ev.stopPropagation()}
     >
       <div className="orca-diff-comment-content-col gap-2">
-        <div id={labelId} className="orca-diff-comment-popover-label">
+        <div
+          id={labelId}
+          className="orca-diff-comment-popover-label font-mono text-[11px] uppercase tracking-wide text-muted-foreground"
+        >
           {headerLabel}
         </div>
 
@@ -241,7 +246,10 @@ export function DiffCommentDraftCard({
           className="orca-diff-comment-popover-textarea"
           placeholder={
             placeholder ??
-            t('auto.components.diff.comments.DiffCommentPopover.f6c449191e', 'Add note for the AI')
+            t(
+              'auto.components.diff.comments.DiffCommentPopover.commentPlaceholder',
+              'Add a comment for the AI'
+            )
           }
           value={images.value}
           onPaste={images.onPaste}
@@ -275,8 +283,8 @@ export function DiffCommentDraftCard({
               ? (submittingLabel ??
                 t('auto.components.diff.comments.DiffCommentPopover.5e9b3d0c2e', 'Adding...'))
               : (submitLabel ??
-                t('auto.components.diff.comments.DiffCommentPopover.5fa4bfebaa', 'Add note'))}
-            {!submitting && <CornerDownLeft className="ml-1 size-3 opacity-70" />}
+                t('auto.components.diff.comments.DiffCommentPopover.commentSubmit', 'Comment'))}
+            {!submitting && <CornerDownLeft className="ml-1 size-3.5 opacity-70" />}
           </Button>
         </div>
       </div>

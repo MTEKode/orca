@@ -4,27 +4,27 @@ import { act, cleanup, render, renderHook, within } from '@testing-library/react
 import { afterEach, expect, it, vi } from 'vitest'
 import type { PaneManager } from '@/lib/pane-manager/pane-manager'
 import type { PtyTransport } from '../terminal-pane/pty-transport/pty-transport-types'
-import type { NativeChatStructuredComposerTransport } from './composer/native-chat-composer-types'
+import type { NativeChatStructuredComposerTransport } from './composer/submit/native-chat-structured-composer-transport'
 import type { NativeChatComposerInput } from './composer/editor/native-chat-composer-input'
 import { NativeChatPromptEditor } from './composer/editor/NativeChatPromptEditor'
 import { promptEditor } from './composer/editor/native-chat-prompt-editor.test-support'
 
 import { useNativeChatStructuredComposerSend } from './composer/submit/use-native-chat-structured-composer-send'
 
-import {
-  clearNativeChatComposerDraftsForTests,
-  readNativeChatComposerDraft
-} from './drafts/native-chat-composer-draft-store'
+import { readNativeChatComposerDraft } from './drafts/native-chat-composer-draft-store'
+import { clearNativeChatComposerDraftsForTests } from './drafts/native-chat-draft-reset'
 import { captureTerminalDropTarget } from '../terminal-pane/input/file-drop/terminal-drop-target'
 import { insertTerminalCrewMention } from '../terminal-pane/input/paste/terminal-crew-mention'
 import { clearStructuredAgentSessionPendingSends } from './session/structured/delivery/structured-agent-session-pending-sends'
 
-vi.mock('./native-chat-runtime-send', () => ({
+vi.mock('@/components/native-chat/session/terminal/send/native-chat-runtime-send', () => ({
   sendNativeChatMessage: vi.fn(() => ({ cancel() {}, settleAfterMs: 0 })),
   sendNativeChatTypedCommand: vi.fn(),
   submitNativeChatPrompt: vi.fn()
 }))
-vi.mock('@/lib/native-chat-telemetry', () => ({ emitNativeChatMessageSent: vi.fn() }))
+vi.mock('@/components/native-chat/telemetry/native-chat-telemetry', () => ({
+  emitNativeChatMessageSent: vi.fn()
+}))
 afterEach(() => {
   cleanup()
   clearNativeChatComposerDraftsForTests()

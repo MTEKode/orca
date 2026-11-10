@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { OrchestrationDb } from '../orchestration/db'
+import type { OrchestrationDb } from '../orchestration/db/orchestration-db'
 import type { RuntimeMobileSessionTabsSnapshot } from '../../../shared/runtime-types'
 import {
   mintStructuredWorkerHandle,

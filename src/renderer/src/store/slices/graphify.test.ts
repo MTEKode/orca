@@ -4,7 +4,7 @@ import type { AppState } from '../types'
 import { createGraphifySlice, type GraphifySlice } from './graphify'
 
 const rpc = vi.hoisted(() => vi.fn())
-vi.mock('@/runtime/runtime-rpc-client', () => ({ callRuntimeRpc: rpc }))
+vi.mock('@/runtime/rpc/calls/runtime-rpc-call', () => ({ callRuntimeRpc: rpc }))
 
 const status = (over = {}) => ({
   state: 'built',

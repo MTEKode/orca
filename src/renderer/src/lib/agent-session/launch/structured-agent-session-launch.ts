@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Why: fork features ported onto upstream; split later */
 import { useAppStore } from '@/store/index'
 import { reserveStructuredLaunchSlot } from './structured-agent-session-launch-surface'
 import type { TuiAgent } from '../../../../../shared/agent-launch/catalog/tui-agent'
@@ -210,6 +211,8 @@ function structuredAgentLaunchState(
   intent.explicitLaunchOptions =
     !options.forkFrom && options.launchOptions ? { ...options.launchOptions } : undefined
   intent.forkRequiresInheritedOriginal = options.forkRequiresInheritedOriginal
+  intent.params.mteRole = options.mteRole
+  intent.params.mteWorker = options.mteWorker
   intent.beforeCreate = options.beforeCreate
   intent.createAfter = options.createAfter
   intent.surfaceAddress = options.surfaceAddress

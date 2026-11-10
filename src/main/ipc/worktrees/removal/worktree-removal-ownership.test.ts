@@ -5,16 +5,18 @@ import { removeWorktreeMetadataAndTransientState } from './worktree-removal-owne
 
 const { disposeForWorktree } = vi.hoisted(() => ({ disposeForWorktree: vi.fn() }))
 
-vi.mock('../../pty', () => ({
+vi.mock('../../pty/provider/registry', () => ({
   getSshPtyProvider: vi.fn(),
-  getLocalPtyProvider: vi.fn(),
-  clearProviderPtyState: vi.fn()
+  getLocalPtyProvider: vi.fn()
 }))
-vi.mock('../../../runtime/worktree-teardown', () => ({ killAllProcessesForWorktree: vi.fn() }))
+vi.mock('../../pty/provider/state-cleanup', () => ({ clearProviderPtyState: vi.fn() }))
+vi.mock('../../../runtime/workspaces/removal/worktree-teardown', () => ({
+  killAllProcessesForWorktree: vi.fn()
+}))
 vi.mock('../../../lsp/lsp-session-registry', () => ({
   getLspSessionManager: () => ({ disposeForWorktree })
 }))
-vi.mock('../../../agent-hooks/server', () => ({
+vi.mock('../../../agent-hooks/server/agent-hook-server', () => ({
   agentHookServer: { dropStatusEntriesForRemovedWorktree: vi.fn() }
 }))
 vi.mock('../../../workspaces/removal/worktree-removal-repo-owner', () => ({

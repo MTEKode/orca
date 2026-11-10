@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { NativeChatMteWorkerPicker } from './NativeChatMteWorkerPicker'
 import { persistMteWorkerChange } from './mte-worker-change'
-import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
+import { callRuntimeRpc } from '@/runtime/rpc/calls/runtime-rpc-call'
 import { runtimeTargetForOwnerEnvironment } from '@/runtime/rpc/targets/runtime-client-target'
 import { isMteWorkerPin, type MteWorkerPin } from '../../../../shared/mte/worker-pin'
 import { isMteOrchestrationAgent } from '../../../../shared/mte/orchestration-agents'

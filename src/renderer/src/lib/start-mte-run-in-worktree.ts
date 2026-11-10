@@ -1,4 +1,4 @@
-import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
+import { callRuntimeRpc } from '@/runtime/rpc/calls/runtime-rpc-call'
 import { toast } from 'sonner'
 import { translate } from '@/i18n/i18n'
 import { runtimeTargetForOwnerEnvironment } from '@/runtime/rpc/targets/runtime-client-target'
@@ -44,7 +44,8 @@ function launchNewChatPickInWorktree(
       : {}),
     ...(override && override !== 'plain' ? override : {})
   })
-  if (!result) {
+  // A refusal was already presented by the launch path; nothing opened to mark.
+  if (!result || 'refused' in result) {
     return false
   }
   void markMtePlannerSession(override, result.structuredSettlement, worktreeId)

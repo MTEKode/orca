@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Why: fork features ported onto upstream; split later */
 import { useNativeChatStructuredPaneNotices } from '@/components/native-chat/messages/notices/use-native-chat-structured-pane-notices'
 import {
   NativeChatCrewFrame,
@@ -42,6 +43,7 @@ import { useNativeChatFileLinkContext } from '@/components/native-chat/links/act
 import { useRecheckNativeChatFileLinksWhenTurnEnds } from '@/components/native-chat/links/actions/use-native-chat-file-link-existence'
 import { useNativeChatTabOwnerWorktreeId } from '@/components/native-chat/pane/ownership/use-native-chat-tab-owner'
 import { useStructuredAgentSession } from '@/components/native-chat/session/structured/use-structured-agent-session'
+import { useNativeChatTurnRevertSurface } from './use-native-chat-turn-revert-surface'
 import { useNativeChatImageRuntimeContext } from '@/components/native-chat/media/images/native-chat-image-runtime-context'
 import { useStructuredNativeChatPaneCommands } from '@/components/native-chat/pane/actions/use-structured-native-chat-pane-commands'
 import type { NativeChatStructuredViewProps } from '@/components/native-chat/native-chat-view-types'
@@ -107,6 +109,8 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
     ...(provisionalLaunch.launch ? { launch: provisionalLaunch.launch } : {})
   })
   useRecheckNativeChatFileLinksWhenTurnEnds(controller.isWorking)
+  // Revert-to-turn: checkpoint refs joined to turn keys, with the confirm dialog.
+  const turnRevert = useNativeChatTurnRevertSurface(props, controller, ownerWorktreeId)
   const stopControls = nativeChatStructuredStopControls(controller, hostExecution.stopping)
   const { composerError, reportComposerError } = useNativeChatComposerError(
     controller.commandRefusalCauses
@@ -212,6 +216,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
     starting: provisionalLaunch.starting,
     transportEnabled: provisionalLaunch.transportEnabled,
     worktreeId: ownerWorktreeId ?? undefined,
+    onSwitchHarness: handOff.available ? handOff.handOffTo : undefined,
     optionPickerRequest,
     setOptionPickerRequest,
     onError: reportComposerError,
@@ -322,6 +327,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                     structuredAttachments
                     runtimeContext={imageRuntimeContext}
                     deliveryNotices={deliveryNotices}
+                    turnRevert={turnRevert.surface}
                   />
                 </NativeChatHostSetupContext.Provider>
               </NativeChatUsageLimitActionsProvider>
@@ -407,6 +413,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
       {paneCommands.menu}
       {handOff.dialog}
       <LinkActionPopover request={linkActionRequest} onClose={closeLinkActions} />
+      {turnRevert.dialog}
     </div>
   )
   return <NativeChatLinkClickContext value={onLinkClick}>{root}</NativeChatLinkClickContext>

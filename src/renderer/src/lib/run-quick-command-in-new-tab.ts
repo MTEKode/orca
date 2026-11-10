@@ -9,8 +9,9 @@ import {
 } from '../../../shared/terminal/quick-commands/terminal-quick-commands'
 import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../shared/constants'
 import { shellEscapePath } from '../../../shared/shell/launch/shell-path-quoting'
-import { findWorktreeById, getRepoIdFromWorktreeId } from '@/store/slices/worktrees/worktree-slice-contract'
-import { selectWorktreesByRepo } from '@/store/folder-workspaces/folder-workspace-record-index'
+import { findFirstIndexedWorktree } from '@/lib/workspace/ownership/worktree-runtime-owner-index'
+import { getRepoIdFromWorktreeId } from '../../../shared/worktree/id'
+import { selectWorktreesByRepo } from '@/store/workspaces/catalog/workspace-record-fields'
 import { revealFloatingWorkspacePanel } from '@/components/floating-terminal/floating-workspace-panel-reveal'
 import type {
   TerminalCommandQuickCommand,
@@ -58,7 +59,7 @@ function quickCommandFloatingCwd(
   if (!repo || (repo.quickCommandsInFloatingTerminal ?? true) === false) {
     return null
   }
-  return findWorktreeById(selectWorktreesByRepo(state) ?? {}, worktreeId)?.path ?? null
+  return findFirstIndexedWorktree(selectWorktreesByRepo(state) ?? {}, worktreeId)?.path ?? null
 }
 
 function cdPrefixedCommand(cwd: string, command: string): string {

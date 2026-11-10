@@ -212,7 +212,7 @@ export function ChatBehaviorSetting({
                 label={entries.turnCheckpoints.title}
                 description={entries.turnCheckpoints.description}
                 checked={turnCheckpointsEnabled}
-                ariaLabel={translate(
+                ariaLabel={t(
                   'components.settings.nativeChat.turnCheckpointsToggleLabel',
                   'Toggle snapshot turns for revert'
                 )}
@@ -231,7 +231,7 @@ export function ChatBehaviorSetting({
                 label={entries.reviewTools.title}
                 description={entries.reviewTools.description}
                 checked={reviewToolsEnabled}
-                ariaLabel={translate(
+                ariaLabel={t(
                   'components.settings.nativeChat.reviewToolsToggleLabel',
                   'Toggle agent review tools'
                 )}

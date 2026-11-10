@@ -17,7 +17,7 @@ vi.mock('@/hooks/useAgentDetectionTarget', () => ({
   useAgentDetectionTargetForWorktree: vi.fn(() => null)
 }))
 
-vi.mock('../tab-bar/use-new-tab-agent-menu-rows', () => ({
+vi.mock('@/components/tab-bar/use-new-tab-agent-menu-rows', () => ({
   useNewTabAgentMenuRows: vi.fn(() => ({ state: 'settled', rows: [] }))
 }))
 

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Why: fork features ported onto upstream; split later */
 import {
   notifyAgentLaunchFailure,
   agentLaunchRecoveryMessage
@@ -8,6 +9,7 @@ import type {
   StructuredAgentSessionResumeSource
 } from '../../../../../../shared/agent-session/structured-agent-session-create'
 import type { TuiAgent } from '../../../../../../shared/agent-launch/catalog/tui-agent'
+import type { MteWorkerPin } from '../../../../../../shared/mte/worker-pin'
 import {
   isLocalExecutionHost,
   parseExecutionHostId,
@@ -53,6 +55,9 @@ export type AgentSessionLaunchRequest = AgentLaunchRouteArgs & {
   promptKeptByCaller?: true
   /** Options this launch asks for over the saved chat defaults, e.g. an action's model. */
   launchOptions?: Readonly<Record<string, string>>
+  /** MTE: mark the created chat as a planner and pin its workers at create time. */
+  mteRole?: 'planner'
+  mteWorker?: MteWorkerPin
   chatLaunchOptions?: Readonly<Record<string, string>>
 }
 
@@ -75,6 +80,9 @@ export type AgentSessionLaunchVerdict = Pick<
   promptKeptByCaller?: true
   draftFromScope?: string
   launchOptions?: Readonly<Record<string, string>>
+  /** MTE: mark the created chat as a planner and pin its workers at create time. */
+  mteRole?: 'planner'
+  mteWorker?: MteWorkerPin
   chatLaunchOptions?: Readonly<Record<string, string>>
 }
 
@@ -120,7 +128,9 @@ function structuredLaunchOptions(verdict: AgentSessionLaunchVerdict): Structured
     ...(verdict.executionHostId ? { executionHostId: verdict.executionHostId } : {}),
     ...(verdict.chatLaunchOptions !== undefined || verdict.launchOptions !== undefined
       ? { launchOptions: verdict.chatLaunchOptions ?? verdict.launchOptions }
-      : {})
+      : {}),
+    ...(verdict.mteRole ? { mteRole: verdict.mteRole } : {}),
+    ...(verdict.mteWorker ? { mteWorker: verdict.mteWorker } : {})
   }
 }
 
@@ -318,6 +328,8 @@ export function planAgentSessionLaunch(
     ...(request.launchOptions ? { launchOptions: request.launchOptions } : {}),
     ...(request.chatLaunchOptions !== undefined
       ? { chatLaunchOptions: request.chatLaunchOptions }
-      : {})
+      : {}),
+    ...(request.mteRole ? { mteRole: request.mteRole } : {}),
+    ...(request.mteWorker ? { mteWorker: request.mteWorker } : {})
   })
 }

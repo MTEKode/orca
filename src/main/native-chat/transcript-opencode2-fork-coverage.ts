@@ -1,7 +1,7 @@
 import type SyncDatabase from '../sqlite/sync-database'
 import { tableExists } from '../opencode-usage/schema-helpers'
 import { asRecord, parseJsonObject } from '../ai-vault/session-scanner-values'
-import { hasOpenCode2Session } from './transcript-opencode2-sqlite'
+import { hasOpenCode2Session } from './transcript-opencode-next-sqlite'
 
 export function readOpenCode2ForkCoverage(
   db: SyncDatabase,

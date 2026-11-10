@@ -8,6 +8,7 @@ import { throwIfSignalAborted } from '../../../../../shared/abort-signal-reason'
 import { openCodeTranscriptPageLimit } from '../../../../../shared/opencode-transcript-page-limit'
 import type { SessionFileCandidate } from '../../../session-scanner-types'
 import type { OpenCodeSqliteCaptureValue } from './session-scanner-opencode-sqlite-worker-protocol'
+import { aiVaultAgentForWorker } from './session-scanner-opencode-sqlite-worker-protocol'
 import { OpenCodeSqliteWorkerClient } from './session-scanner-opencode-sqlite-worker-client'
 import {
   buildOpenCodeSqliteCandidatePath,
@@ -56,9 +57,9 @@ export const listOpenCodeSqliteSessionsViaWorker = (
   args: SqliteListArgs
 ): Promise<SessionFileCandidate[]> => listForHost(args)
 
-export const listOpenCode2SqliteSessionsViaWorker = (
+export const listOpenCodeNextSqliteSessionsViaWorker = (
   args: SqliteListArgs
-): Promise<SessionFileCandidate[]> => listForHost({ ...args, agent: 'opencode2' })
+): Promise<SessionFileCandidate[]> => listForHost({ ...args, agent: 'opencode-next' })
 
 export const listZcodeSqliteSessionsViaWorker = (
   args: SqliteListArgs
@@ -68,9 +69,9 @@ export const parseOpenCodeSqliteSessionViaWorker = (
   args: SqliteParseArgs
 ): Promise<AiVault.AiVaultSession | null> => parseForHost(args)
 
-export const parseOpenCode2SqliteSessionViaWorker = (
+export const parseOpenCodeNextSqliteSessionViaWorker = (
   args: SqliteParseArgs
-): Promise<AiVault.AiVaultSession | null> => parseForHost({ ...args, agent: 'opencode2' })
+): Promise<AiVault.AiVaultSession | null> => parseForHost({ ...args, agent: 'opencode-next' })
 
 export const parseZcodeSqliteSessionViaWorker = (
   args: SqliteParseArgs
@@ -80,9 +81,9 @@ export const captureOpenCodeSqliteSessionViaWorker = (
   args: SqliteCaptureArgs
 ): Promise<OpenCodeSqliteCaptureValue> => captureForHost(args)
 
-export const captureOpenCode2SqliteSessionViaWorker = (
+export const captureOpenCodeNextSqliteSessionViaWorker = (
   args: SqliteCaptureArgs
-): Promise<OpenCodeSqliteCaptureValue> => captureForHost({ ...args, agent: 'opencode2' })
+): Promise<OpenCodeSqliteCaptureValue> => captureForHost({ ...args, agent: 'opencode-next' })
 
 export const captureZcodeSqliteSessionViaWorker = (
   args: SqliteCaptureArgs
@@ -91,7 +92,7 @@ export const captureZcodeSqliteSessionViaWorker = (
 async function listForHost(
   args: Parameters<OpenCodeSqliteWorkerClient['list']>[0]
 ): Promise<SessionFileCandidate[]> {
-  const agent = args.agent ?? 'opencode'
+  const agent = aiVaultAgentForWorker(args.agent)
   const scoped = Boolean(args.scopePaths?.length)
   const issues: AiVault.AiVaultScanIssue[] = []
   const closeSource =
@@ -170,7 +171,10 @@ async function listCandidatesForHost(
           args.agent
         )
         return result.flatMap((candidate) => {
-          const parsed = splitOpenCodeSqliteCandidate(candidate.file.path, args.agent)
+          const parsed = splitOpenCodeSqliteCandidate(
+            candidate.file.path,
+            aiVaultAgentForWorker(args.agent)
+          )
           const original = parsed && paths.get(parsed.dbPath)
           return parsed && original
             ? [
@@ -187,7 +191,7 @@ async function listCandidatesForHost(
       } catch (error) {
         throwIfSignalAborted(args.signal)
         issues.push({
-          agent: args.agent ?? 'opencode',
+          agent: aiVaultAgentForWorker(args.agent),
           kind: 'scope',
           path: first,
           ...scanIssueTextFromError(error)

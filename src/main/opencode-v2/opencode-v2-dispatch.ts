@@ -4,8 +4,8 @@ import {
   type SubmissionRejectionFact
 } from '../../shared/agent-session/failures/agent-session-failure'
 import { agentSessionFailureWords } from '../../shared/agent-session/failures/agent-session-failure-words'
+import type { AgentSessionCancelOutcome } from '../native-chat/agent-session-wire/providers/structured-agent-session-adapter-stop'
 import type {
-  AgentSessionCancelOutcome,
   AgentSessionCommandAdmission,
   AgentSessionDispatchOutcome,
   StructuredAgentSessionAdapter,

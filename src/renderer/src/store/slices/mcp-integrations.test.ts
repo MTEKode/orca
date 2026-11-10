@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createTestStore } from './store-test-helpers'
+import { createTestStore } from '../testing/app-store-test-fixture'
 
 const rpc = vi.hoisted(() => vi.fn())
-vi.mock('@/runtime/runtime-rpc-client', () => ({ callRuntimeRpc: rpc }))
+vi.mock('@/runtime/rpc/calls/runtime-rpc-call', () => ({ callRuntimeRpc: rpc }))
 
 const makeStore = createTestStore
 

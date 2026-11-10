@@ -232,7 +232,7 @@ export const RepoHeaderCreateWorkspaceButton = React.memo(function RepoHeaderCre
               aria-label={createState.ariaLabel}
               disabled
             >
-              <Plus className="size-3" />
+              <Plus className="size-3.5" />
             </Button>
           </span>
         ) : (
@@ -251,7 +251,7 @@ export const RepoHeaderCreateWorkspaceButton = React.memo(function RepoHeaderCre
               onCreateForRepo(repo, { pinHost })
             }}
           >
-            <Plus className="size-3" />
+            <Plus className="size-3.5" />
           </Button>
         )}
       </TooltipTrigger>

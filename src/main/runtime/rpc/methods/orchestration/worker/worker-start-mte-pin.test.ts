@@ -3,9 +3,12 @@ import { isOrcaSessionId } from '../../../../../../shared/orca-session-address'
 import { adoptMteWorkerPin, withMteWorkerPin } from './worker-start-mte-pin'
 
 const markMtePlanner = vi.fn()
-vi.mock('../../../../../native-chat/agent-session-wire/structured-agent-session-registry', () => ({
-  getStructuredAgentSessionHost: () => ({ deps: { store: { markMtePlanner } } })
-}))
+vi.mock(
+  '../../../../../native-chat/agent-session-wire/host/structured-agent-session-registry',
+  () => ({
+    getStructuredAgentSessionHost: () => ({ deps: { store: { markMtePlanner } } })
+  })
+)
 const pinned = { mteWorker: { agent: 'codex', model: 'gpt-5', effort: 'high' } } as const
 const S1 = 'session-1'
 if (!isOrcaSessionId(S1)) {

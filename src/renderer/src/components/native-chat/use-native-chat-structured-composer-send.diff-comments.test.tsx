@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { renderHook } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import type { NativeChatStructuredComposerTransport } from './composer/native-chat-composer-types'
+import type { NativeChatStructuredComposerTransport } from './composer/submit/native-chat-structured-composer-transport'
 import { useNativeChatStructuredComposerSend } from './composer/submit/use-native-chat-structured-composer-send'
 
 const clearDeliveredDiffComments = vi.fn(async () => true)
@@ -12,13 +12,15 @@ const comments = [
 vi.mock('@/store', () => ({
   useAppStore: { getState: () => ({ clearDeliveredDiffComments }) }
 }))
-vi.mock('@/store/diff-comment-owner', () => ({
+vi.mock('@/store/slices/diff-comments/diff-comment-owner', () => ({
   selectDiffCommentView: () => ({ owner: { kind: 'folder', worktreeId: 'w1' }, comments })
 }))
-vi.mock('@/store/worktree-diff-comments-selector', () => ({
+vi.mock('@/store/slices/diff-comments/worktree-diff-comments-selector', () => ({
   selectWorktreeDiffCommentsOrEmpty: () => comments
 }))
-vi.mock('@/lib/native-chat-telemetry', () => ({ emitNativeChatMessageSent: vi.fn() }))
+vi.mock('@/components/native-chat/telemetry/native-chat-telemetry', () => ({
+  emitNativeChatMessageSent: vi.fn()
+}))
 vi.mock('@/lib/worker-terminal-takeover-report', () => ({
   reportStructuredSessionUserInput: vi.fn()
 }))

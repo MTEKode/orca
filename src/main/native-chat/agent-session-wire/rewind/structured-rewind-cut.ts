@@ -23,6 +23,8 @@ export type StructuredRewindCut = {
 } & (
   | {
       beforeTurnId: string
+      /** Set by cuts that name the newest kept turn themselves (OpenCode); others derive it. */
+      keptTurnId?: string | null
     }
   | {
       /** Fork-based providers cut at the removed prompt. */
@@ -220,6 +222,9 @@ export function legacyRewindTurns(
 ) {
   if (!('beforeTurnId' in cut)) {
     return null
+  }
+  if (cut.keptTurnId !== undefined) {
+    return { beforeTurnId: cut.beforeTurnId, keptTurnId: cut.keptTurnId }
   }
   const keptIds = new Set(cut.kept.map((item) => agentJournalItemKey(item.identity)))
   const floor = journal.context.floor()

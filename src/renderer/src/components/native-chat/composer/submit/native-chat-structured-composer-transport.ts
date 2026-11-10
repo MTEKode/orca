@@ -13,6 +13,7 @@ import type { AgentSessionSlashCommand } from '../../../../../../shared/agent-se
 import type { StructuredAgentContextUsage } from '../../../../../../shared/agent-session/structured-agent-session-context-usage'
 import type { NativeChatComposerErrorDetail } from '../controls/native-chat-composer-error-detail'
 import type { NativeChatSideChat } from '../../messages/actions/use-native-chat-side-chat'
+import type { TuiAgent } from '../../../../../../shared/agent-launch/catalog/tui-agent'
 
 export type NativeChatStructuredComposerTransport = {
   capturePresentation: CaptureStructuredAgentSessionPresentation
@@ -49,6 +50,12 @@ export type NativeChatStructuredComposerTransport = {
   /** The session's context usage; null until the journal can state it. */
   contextUsage?: StructuredAgentContextUsage | null
   worktreeId?: string
+  /** Hands the chat off to another harness (and model/effort) from the model picker. */
+  onSwitchHarness?: (pick: {
+    agent: TuiAgent
+    model?: string
+    effort?: string
+  }) => void | Promise<void>
   /** Present only where the host can set this session's goal. */
   threadGoal?: { setObjective: (objective: string) => Promise<boolean> }
   /** `/btw`; absent where Orca can't fork this chat, so the command stays the agent's. */

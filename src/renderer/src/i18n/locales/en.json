@@ -11366,7 +11366,14 @@
             "bbbe994528": "Remove project",
             "cedbe6c02c": "When to run setup",
             "eefc3e51ef": "GitHub account",
-            "f94afd4078": "Keep fork up to date"
+            "f94afd4078": "Keep fork up to date",
+            "7e1e456a95": "Display Name",
+            "b24f00294a": "Project Icon",
+            "githubAccount": "GitHub Account",
+            "094adbe930": "Default Worktree Base",
+            "443d127b5a": "Worktree Location",
+            "projectRuntime": "Project Runtime",
+            "c5266c2c9d": "Remove Project"
           }
         },
         "runtime": {
@@ -20467,7 +20474,9 @@
           "orchestrator": "Orchestrator",
           "worker": "Worker",
           "agent": "Agent"
-        }
+        },
+        "switchHarness": "Switch harness…",
+        "loadingModels": "Loading models…"
       },
       "tool": {
         "exitCode": "exit {{value0}}",
@@ -22015,6 +22024,42 @@
     },
     "dictation": {
       "stoppedAfterSilenceSeconds": "Stopped after {{seconds}} seconds of silence"
+    },
+    "orchestrationCrew": {
+      "task": "Task",
+      "noTask": "No shared task",
+      "asksYou": "Asks you",
+      "latest": "Latest",
+      "to": "To",
+      "from": "From",
+      "more": "More for {{name}}",
+      "mentionInMessage": "Mention in message",
+      "openChat": "Open its chat",
+      "copiedAddress": "Copied {{name}}'s address",
+      "copyAddress": "Copy address",
+      "mentionAgent": "Mention {{name}}:",
+      "waitingPrefix": "Waiting for you · ",
+      "showDetails": "Show {{name}}'s task and latest message",
+      "open": "Open {{name}}",
+      "sendingUnavailable": "Sending unavailable",
+      "needsYou_one": "{{count}} needs you",
+      "needsYou_other": "{{count}} need you",
+      "workers_one": "{{count}} worker",
+      "workers_other": "{{count}} workers",
+      "managedBy": "Managed by",
+      "managing": "Managing",
+      "talkingWith": "Talking with",
+      "title": "Orchestration",
+      "collapse": "Collapse orchestration panel",
+      "mentionAll": "Mention all",
+      "show": "Show orchestration: {{counts}}",
+      "summary": "Orchestration: {{counts}}",
+      "mentionRejected": "The terminal did not accept the agent reference. Try again.",
+      "openFailed": "{{name}}: {{detail}}",
+      "terminalExited": "This terminal has exited.",
+      "chatUnavailable": "This host cannot open the chat. Try again.",
+      "openOnHost": "Open this agent on {{host}}.",
+      "cannotLocate": "This host cannot locate this agent. Try again."
     }
   },
   "dashboardPopout": {

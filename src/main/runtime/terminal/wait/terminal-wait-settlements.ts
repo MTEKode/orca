@@ -166,7 +166,7 @@ export abstract class OrcaRuntimeWithResolveExitWaiters extends OrcaRuntimeWithB
   // Why: OpenCode's composer has no prompt glyph, so only its own pane is read with its box layout.
   private hasComposerDraft(ptyId: string, context: TerminalCursorContext | null): boolean {
     const agent = this.getPaneTerminalAgent(ptyId)
-    return (agent === 'opencode' || agent === 'opencode2') && context
+    return agent === 'opencode' && context
       ? openCodeComposerHoldsDraft(context)
       : !!readTerminalComposerTypedText(context)
   }

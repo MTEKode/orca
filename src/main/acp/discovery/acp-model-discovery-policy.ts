@@ -15,8 +15,14 @@ export type AcpModelDiscovery =
     }
   | {
       kind: 'command'
+      /** Runs this program instead of the chat server (e.g. the user's CLI). */
+      binary?: string
       args: readonly string[]
       parse(stdout: string): AgentSessionModelOption[]
+      /** Catalog used when the listing command fails or times out. */
+      fallback?(): AgentSessionModelOption[]
+      /** Overrides the default listing timeout. */
+      timeoutMs?: number
       listingNamesConfiguredModel: boolean
       /** Unsupported releases use session discovery when enabled, otherwise live-chat catalogs. */
       supportsVersion?(version: string): boolean

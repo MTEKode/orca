@@ -10,7 +10,7 @@ import { getStructuredAgentSessionHost } from '../../native-chat/agent-session-w
 import type { WorkerTurnStopReportDeps } from './workers/turn-stops/worker-turn-stop-report'
 import { chatWorkerDispatches } from './workers/turn-stops/chat-worker-error-escalation'
 import { dispatchReportMailbox } from './workers/reports/dispatch-report-mailbox'
-import type { OrchestrationDb } from './db'
+import type { OrchestrationDb } from './db/orchestration-db'
 import type { MessageRow } from './db/orchestration-records'
 import { OrchestrationError } from './orchestration-error'
 import { approvalReplyOption, questionReplyResponse } from './worker-prompt-reply'

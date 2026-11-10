@@ -4,7 +4,8 @@ import {
   isRevealedWorkerSession
 } from '@/lib/agent-session/revealed-worker-tabs'
 import type { TabsSliceGet } from './tabs-slice-contract'
-import { findGroupForTab, pickNextActiveTab } from './tab-group-state'
+import { findGroupForTab } from './tab-group-state'
+import { pickNextActiveTab } from './tab-selection-history'
 
 /** Closing a revealed worker chat hides it again instead of closing its host session. */
 export function hideRevealedWorkerTab(get: TabsSliceGet, tab: Tab, worktreeId: string): boolean {

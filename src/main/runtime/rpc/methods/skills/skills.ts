@@ -42,8 +42,11 @@ import {
 import {
   SkillsCancelInstallParams,
   SkillsDiscoverParams,
-  SkillsGetInstallProgressParams
+  SkillsGetInstallProgressParams,
+  SkillsUnifiedCatalogParams
 } from '../../../../../shared/rpc-contract/skills-params'
+import { SKILL_IMPORT_METHODS } from '../skills-import'
+import { listUnifiedSkillCatalog } from '../../../../skills/unified-skill-catalog'
 import { unavailableWhileWslDistroStopped } from '../../../../skills/discovery/skill-discovery-stopped-wsl-roots'
 import { runAsWslUserAct, wslDistroForPath } from '../../../../wsl/filesystem/wsl-unc-access-gate'
 
@@ -106,6 +109,13 @@ export const SKILL_METHODS = [
         })
       }, params.sourceKinds)
   }),
+  defineMethod({
+    name: 'skills.unifiedCatalog',
+    permission: 'workspace',
+    params: SkillsUnifiedCatalogParams,
+    handler: async (params) => ({ skills: await listUnifiedSkillCatalog(params.repoPath) })
+  }),
+  ...SKILL_IMPORT_METHODS,
   defineMethod({
     name: 'skills.previewDelete',
     permission: 'workspace',

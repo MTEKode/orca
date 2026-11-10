@@ -15,6 +15,7 @@ import { isNativeLocalLocation as supportsCodexStructuredLocation } from '../../
 import { supportsClaudeStructuredLocation } from '../../../claude/structured/launch/claude-structured-location-support'
 import { supportsAcpStructuredLocation } from '../../../acp/session/acp-structured-location-support'
 import { PI_RPC_RUNTIME_METADATA } from '../../../pi/rpc-runtime-metadata'
+import { OPENCODE_V2_RUNTIME_METADATA } from '../../../opencode-v2/opencode-v2-runtime-metadata'
 import { getClaudeProfileRouter } from '../../../claude-accounts/claude-profile-installed-router'
 import {
   resolveStructuredClaudeAccountHomePath,
@@ -35,7 +36,7 @@ import type {
 } from './structured-agent-runtime-registration-types'
 
 export type StructuredAgentRuntimeCatalogEntry =
-  | { kind: 'pi' | 'codex' | 'claude'; metadata: StructuredAgentRuntimeMetadata }
+  | { kind: 'pi' | 'codex' | 'claude' | 'opencode-v2'; metadata: StructuredAgentRuntimeMetadata }
   | { kind: 'acp'; metadata: StructuredAgentRuntimeMetadata; spec: AcpLaunchSpec }
 
 // Why the host's data folder: a start runs Orca's installed release before PATH.
@@ -178,11 +179,16 @@ export const STRUCTURED_AGENT_RUNTIME_CATALOG: readonly StructuredAgentRuntimeCa
         )
     }
   },
-  ...ACP_LAUNCH_SPECS.map((spec): StructuredAgentRuntimeCatalogEntry => ({
-    kind: 'acp',
-    metadata: acpMetadata(spec),
-    spec
-  }))
+  // opencode chat runs on the v2 HTTP transport; its ACP specs stay for naming and installs.
+  ...ACP_LAUNCH_SPECS.filter(({ agent }) => agent !== 'opencode').map(
+    (spec): StructuredAgentRuntimeCatalogEntry => ({
+      kind: 'acp',
+      metadata: acpMetadata(spec),
+      spec
+    })
+  ),
+  // A new agent goes last: it shifts no configured agent's position.
+  { kind: 'opencode-v2', metadata: OPENCODE_V2_RUNTIME_METADATA }
 ]
 
 export const STRUCTURED_AGENT_RUNTIME_METADATA: readonly StructuredAgentRuntimeMetadata[] =

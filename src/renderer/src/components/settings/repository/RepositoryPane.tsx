@@ -26,6 +26,8 @@ import { RepositoryHostSetupsSection } from './hosts/RepositoryHostSetupsSection
 import { RepoSettingsDraftInput } from './RepositorySettingsDraftInput'
 import { RepositoryForkSyncSection } from './source-control/RepositoryForkSyncSection'
 import { RepositoryAgentTrustSection } from './RepositoryAgentTrustSection'
+import { RepositoryMteSections } from './identity/RepositoryMteSections'
+import { RepositoryLanguageServersSection } from '../RepositoryLanguageServersSection'
 import { RepositoryGitHubAccountSection } from './source-control/RepositoryGitHubAccountSection'
 import { useTranslate } from '@/i18n/use-translate'
 import { RepositoryWindowsRuntimeSection } from './runtime/RepositoryWindowsRuntimeSection'
@@ -183,7 +185,8 @@ export function RepositoryPane({
     sharedPaths: symlinkEntries,
     sourceControlAi: sourceControlAiEntries,
     hostSetups: hostSetupEntries,
-    projectRuntime: projectRuntimeEntries
+    projectRuntime: projectRuntimeEntries,
+    languageServers: languageServerEntries
   } = getRepositoryPaneSearchMetadata(repo, { isLocalWindowsProject }, t)
 
   const hooksSection =
@@ -329,6 +332,12 @@ export function RepositoryPane({
               forceVisible={forceFullPaneForRepoMatch}
             />
 
+            <RepositoryMteSections
+              repo={repo}
+              updateRepo={updateSelectedRepo}
+              forceVisible={forceFullPaneForRepoMatch}
+            />
+
             <RepositoryGitHubAccountSection
               repo={repo}
               updateRepo={updateSelectedRepo}
@@ -349,6 +358,14 @@ export function RepositoryPane({
             />
           </>
         ) : null}
+
+        <RepositoryLanguageServersSection
+          repo={repo}
+          updateRepo={updateSelectedRepo}
+          forceVisible={forceFullPaneForRepoMatch}
+          searchQuery={searchQuery}
+          searchEntries={languageServerEntries}
+        />
       </SettingsGroup>
     ) : null,
     hooksSection,

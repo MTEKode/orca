@@ -16,6 +16,8 @@ import {
   NativeChatComposerToolbar,
   type NativeChatComposerControl
 } from './NativeChatComposerToolbar'
+import type { MteWorkerPin } from '../../../../../../shared/mte/worker-pin'
+import type { TuiAgent } from '../../../../../../shared/agent-launch/catalog/tui-agent'
 import { NativeChatSessionOptionPickers } from '../../session/options/controls/NativeChatSessionOptionPickers'
 import { NativeChatComposerPermissionPicker } from '../../session/options/controls/NativeChatPermissionModePicker'
 import { NativeChatComposerGoalChip } from './NativeChatComposerGoalChip'
@@ -61,6 +63,15 @@ export type NativeChatComposerActionsProps = {
   contextUsage?: NativeChatContextUsageSummary | null
   /** The chat's agent, whose permission modes the picker describes. */
   agent?: string
+  /** The worker pinned on an MTE planner chat; labels the pill beside the orchestrator. */
+  mteWorker?: MteWorkerPin
+  mteWorkerPicker?: React.ReactNode
+  worktreeId?: string
+  onSwitchHarness?: (pick: {
+    agent: TuiAgent
+    model?: string
+    effort?: string
+  }) => void | Promise<void>
   /** A launch prompt: Attach and dictation are its only controls; launching is the panel's. */
   launchPrompt?: boolean
 }
@@ -94,6 +105,10 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
   contextUsage,
   focusComposer,
   agent,
+  mteWorker,
+  mteWorkerPicker,
+  worktreeId,
+  onSwitchHarness,
   launchPrompt = false
 }: NativeChatComposerActionsProps): React.JSX.Element {
   const t = useTranslate()
@@ -171,7 +186,7 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
       onClick={handleCriticalAction}
       variant={stops ? 'secondary' : 'default'}
       size="icon"
-      className="size-8 rounded-full pointer-coarse:size-10"
+      className="size-[30px] pointer-coarse:size-10"
     >
       {stops ? <Square className="size-3.5 fill-current" /> : <ArrowUp className="size-4" />}
     </Button>
@@ -301,9 +316,14 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
           isWorking={isWorking}
           pickerRequest={sessionOptionsPickerRequest}
           focusComposer={focusComposer}
+          {...(agent ? { agent } : {})}
+          {...(mteWorker ? { mteWorker } : {})}
+          {...(worktreeId ? { worktreeId } : {})}
+          {...(onSwitchHarness ? { onSwitchHarness } : {})}
         />
       )
     },
+    ...(mteWorkerPicker ? [{ id: 'mte-worker', content: mteWorkerPicker }] : []),
     ...(contextUsage
       ? [
           {

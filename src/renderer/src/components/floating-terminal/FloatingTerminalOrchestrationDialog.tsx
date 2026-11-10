@@ -9,7 +9,7 @@ import {
 import { AgentSkillSetupPanel } from '@/components/skills/setup/AgentSkillSetupPanel'
 import { IntegrationStatusPill } from '@/components/integration-status-pill'
 import { SkillFreshnessStatusPill } from '@/components/skills/freshness/SkillFreshnessStatusPill'
-import { ORCHESTRATION_SKILL_NAME } from '@/lib/skills/installation/agent-feature-skill-names'
+import { MTE_SKILL_NAME } from '@/lib/skills/installation/agent-feature-skill-names'
 import {
   GLOBAL_AGENT_SKILL_SOURCE_KINDS,
   useInstalledAgentSkill
@@ -37,7 +37,7 @@ export function FloatingTerminalOrchestrationDialog({
     loading: orchestrationSkillLoading,
     error: orchestrationSkillError,
     refresh: refreshOrchestrationSkill
-  } = useInstalledAgentSkill(ORCHESTRATION_SKILL_NAME, {
+  } = useInstalledAgentSkill(MTE_SKILL_NAME, {
     enabled: open,
     discoveryTarget: activeSkillRuntime.discoveryTarget,
     sourceKinds: GLOBAL_AGENT_SKILL_SOURCE_KINDS
@@ -79,7 +79,7 @@ export function FloatingTerminalOrchestrationDialog({
               </IntegrationStatusPill>
             ) : orchestrationSkillDetected ? (
               activeSkillRuntime.canUseSkillFreshness ? (
-                <SkillFreshnessStatusPill skillName={ORCHESTRATION_SKILL_NAME} />
+                <SkillFreshnessStatusPill skillName={MTE_SKILL_NAME} />
               ) : (
                 <IntegrationStatusPill tone="connected">
                   {t(
@@ -114,7 +114,7 @@ export function FloatingTerminalOrchestrationDialog({
             'auto.components.floating.terminal.FloatingTerminalOrchestrationDialog.f726054620',
             'Enables agents to hand off context and coordinate work through Orca.'
           )}
-          skillNames={[ORCHESTRATION_SKILL_NAME]}
+          skillNames={[MTE_SKILL_NAME]}
           installed={orchestrationSkillDetected}
           loading={orchestrationSkillLoading}
           error={activeSkillRuntime.installDisabledReason ?? orchestrationSkillError}

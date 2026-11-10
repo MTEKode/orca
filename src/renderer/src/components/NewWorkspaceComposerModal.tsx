@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Why: fork features ported onto upstream; split later */
 import type { ComposerModalData } from './new-workspace/composer-modal-data'
 import { toast } from 'sonner'
 import {
@@ -43,6 +44,7 @@ import { getWorkspaceComposerInitialFocusTarget } from '@/lib/workspace/creation
 import '@/components/sidebar/workspace-creation/folder/folder-workspace-source-repos'
 import { getFolderWorkspacePrimaryActionLabel } from '@/components/sidebar/workspace-creation/folder/folder-workspace-source-selection'
 import { useAgentMenuObservation } from '@/components/tab-bar/use-new-tab-agent-menu-rows'
+import { useNewWorkspaceOrchestration } from '@/components/new-workspace/use-new-workspace-orchestration'
 import { addAppKeyListener, removeAppKeyListener } from '@/lib/keyboard/app-keyboard-router'
 
 // Keep Add Project’s clone/SSH machinery outside the composer entry render, matching App loading.
@@ -212,7 +214,25 @@ function QuickTabBody({
       : undefined
   const quickAgentSurface = quickAgentPick.agent === quickAgent ? quickAgentPick.surface : undefined
   const launchSelection = observation.selectionFor(quickAgent, quickAgentSurface)
-  const createDisabled = formDisabled || !launchSelection.ready
+  const selectedProjectOption = cardProps.projectOptions.find(
+    (option) => option.id === cardProps.selectedProjectId
+  )
+  const isFolderWorkspaceTarget = selectedProjectOption?.kind === 'project-group'
+  const composerRepo = useAppStore((s) => s.repos.find((r) => r.id === cardProps.repoId))
+  const orchestration = useNewWorkspaceOrchestration({
+    active,
+    selectedRepoIsGit: cardProps.selectedRepoIsGit,
+    isFolderTarget: isFolderWorkspaceTarget,
+    repoPath: cardProps.selectedRepoPath,
+    executionHostId: cardProps.selectedRepoExecutionHostId,
+    ephemeralVmRecipeId: cardProps.selectedEphemeralVmRecipeId,
+    repo: composerRepo,
+    model: observation.model
+  })
+  const useOrchestration = orchestration.available && orchestration.draft.enabled
+  const buildOrchestrationChoice = orchestration.draft.buildChoice
+  const createDisabled =
+    formDisabled || (useOrchestration ? !orchestration.draft.canStart : !launchSelection.ready)
 
   const handleQuickAgentChange = useCallback(
     (
@@ -229,6 +249,13 @@ function QuickTabBody({
 
   const handleCreate = useCallback(async (): Promise<void> => {
     if (createDisabled) {
+      return
+    }
+    if (useOrchestration) {
+      const choice = buildOrchestrationChoice()
+      if (choice) {
+        await submitQuick(null, { setupOnly: false, mte: choice })
+      }
       return
     }
     await submitQuick(quickAgent, {
@@ -274,6 +301,8 @@ function QuickTabBody({
     })
   }, [
     createDisabled,
+    useOrchestration,
+    buildOrchestrationChoice,
     quickAgent,
     launchSelection.choice,
     submitQuick,
@@ -315,10 +344,6 @@ function QuickTabBody({
     }),
     [addProjectOpen, handleAddProjectCloseAutoFocus, handleProjectAdded, selectAddedProjectGroup]
   )
-  const selectedProjectOption = cardProps.projectOptions.find(
-    (option) => option.id === cardProps.selectedProjectId
-  )
-  const isFolderWorkspaceTarget = selectedProjectOption?.kind === 'project-group'
   const primaryActionLabel = isFolderWorkspaceTarget
     ? getFolderWorkspacePrimaryActionLabel(t)
     : cardProps.selectedRepoIsGit
@@ -408,6 +433,11 @@ function QuickTabBody({
           setAgentSettingsOpen(true)
         }}
         onCreate={() => void handleCreate()}
+        orchestration={
+          orchestration.available
+            ? { draft: orchestration.draft, onSelectAgent: orchestration.onSelectAgent }
+            : null
+        }
         onAddProjectOverride={handleOpenAddProject}
         onNestedDialogOpenChange={setSetLocationOpen}
       />

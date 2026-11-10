@@ -60,7 +60,6 @@ describe.skipIf(process.platform === 'win32')('WSL public-manager settings lifet
   let pendingRequest: ReturnType<typeof gate>
   const sources = {
     opencodePluginSource: '// independent v1',
-    opencode2PluginSource: '// independent v2',
     piExtensionSource: '// pi',
     ompExtensionSource: '// omp'
   }
@@ -180,7 +179,7 @@ describe.skipIf(process.platform === 'win32')('WSL public-manager settings lifet
     async ({ stage, initialEnabled, toggleBack }) => {
       pause = stage
       const setEnabled = (enabled: boolean) => {
-        settings = { disabledTuiAgents: enabled ? [] : ['opencode', 'opencode2'] }
+        settings = { disabledTuiAgents: enabled ? [] : ['opencode'] }
       }
       setEnabled(initialEnabled)
       await manager.ensureForDistro('fixture')
@@ -196,14 +195,7 @@ describe.skipIf(process.platform === 'win32')('WSL public-manager settings lifet
       }
       await pendingRequest.reached
       const sentEnabled = stage === 'plugin' ? initialEnabled : !initialEnabled
-      expect(requests[1]).toMatchObject(
-        sentEnabled
-          ? sources
-          : {
-              opencodePluginSource: '',
-              opencode2PluginSource: ''
-            }
-      )
+      expect(requests[1]).toMatchObject(sentEnabled ? sources : { opencodePluginSource: '' })
       if (stage === 'plugin') {
         setEnabled(!initialEnabled)
         waiters.push(manager.ensureForDistro('fixture'))
@@ -214,27 +206,18 @@ describe.skipIf(process.platform === 'win32')('WSL public-manager settings lifet
       pendingRequest.release()
       await Promise.all(waiters)
       expect(requests).toHaveLength(sentEnabled === finalEnabled ? 2 : 3)
-      expect(requests.at(-1)).toMatchObject(
-        finalEnabled
-          ? sources
-          : {
-              opencodePluginSource: '',
-              opencode2PluginSource: ''
-            }
-      )
-      for (const agent of ['opencode', 'opencode2'] as const) {
-        const dir = manager.getOpenCodeOverlayDir('fixture', agent)
-        if (finalEnabled) {
-          expect(dir).toBeTruthy()
-          if (!dir) {
-            throw new Error('missing enabled overlay')
-          }
-          expect(readFileSync(join(dir, 'plugins', `orca-${agent}-status.js`), 'utf8')).toBe(
-            agent === 'opencode' ? sources.opencodePluginSource : sources.opencode2PluginSource
-          )
-        } else {
-          expect(dir).toBeNull()
+      expect(requests.at(-1)).toMatchObject(finalEnabled ? sources : { opencodePluginSource: '' })
+      const dir = manager.getOpenCodeOverlayDir('fixture')
+      if (finalEnabled) {
+        expect(dir).toBeTruthy()
+        if (!dir) {
+          throw new Error('missing enabled overlay')
         }
+        expect(readFileSync(join(dir, 'plugins', 'orca-opencode-status.js'), 'utf8')).toBe(
+          sources.opencodePluginSource
+        )
+      } else {
+        expect(dir).toBeNull()
       }
       const settledCount = requests.length
       await manager.ensureForDistro('fixture')

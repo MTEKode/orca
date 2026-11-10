@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { useTranslate } from '@/i18n/use-translate'
+import { MteOrchestrationPicker } from '@/components/mte-orchestration-picker/MteOrchestrationPicker'
+import { NO_LINKED_ITEMS } from '@/components/mte-orchestration-picker/use-mte-orchestration-picker'
 import type { NewWorkspaceComposerCardProps } from './new-workspace-composer-card-props'
 
 type NewWorkspaceComposerAgentSectionProps = Pick<
@@ -24,6 +26,7 @@ type NewWorkspaceComposerAgentSectionProps = Pick<
   | 'onCreate'
   | 'advancedOpen'
   | 'onToggleAdvanced'
+  | 'orchestration'
 > & {
   advancedLocked?: boolean
   visibleQuickAgents: React.ComponentProps<typeof AgentCombobox>['agents']
@@ -49,57 +52,77 @@ export function NewWorkspaceComposerAgentSection({
   advancedLocked = false,
   onToggleAdvanced,
   defaultTuiAgent,
-  handleSetDefaultAgent
+  handleSetDefaultAgent,
+  orchestration
 }: NewWorkspaceComposerAgentSectionProps): React.JSX.Element {
   const t = useTranslate()
+  const orchestrationOn = orchestration?.draft.enabled === true
   return (
     <>
       <div className="min-w-0 space-y-1" data-contextual-tour-target="workspace-creation-agent">
-        <div className="flex items-center justify-between gap-2">
-          <label className="text-xs font-medium text-muted-foreground">
-            {t('components.newWorkspace.agentOptional', 'Agent [Optional]')}
-          </label>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-xs"
-                onClick={(event) => onOpenAgentSettings(event.currentTarget)}
-                tabIndex={-1}
-                className="size-5 shrink-0 rounded-sm text-muted-foreground hover:text-foreground"
-                aria-label={t(
-                  'auto.components.NewWorkspaceComposerCard.ab63f25397',
-                  'Open agent settings'
-                )}
-              >
-                <Settings2 className="size-3" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top" sideOffset={6}>
-              {t('auto.components.NewWorkspaceComposerCard.ba64270bdb', 'Configure agents')}
-            </TooltipContent>
-          </Tooltip>
-        </div>
-        <AgentLaunchPicker
-          model={agentSurfaceRows?.model ?? { state: 'loading', placeholderCount: 2 }}
-          agent={quickAgent}
-          value={agentPickerDraft}
-          cli={agentSurfaceRows?.selection.cli === true}
-          setupDisabled={agentSetupDisabled}
-          matchTriggerWidth={
-            selectedRepoIsGit &&
-            projectOptions?.find((option) => option.id === selectedProjectId)?.kind !==
-              'project-group'
-          }
-          onOpenAgentSettings={onOpenAgentSettings}
-          onTriggerEnter={createDisabled ? undefined : onCreate}
-          emptyLabel={t('auto.components.agent.AgentCombobox.986f946354', 'Blank Terminal')}
-          defaultAgent={defaultTuiAgent}
-          onSetDefault={handleSetDefaultAgent}
-          onSelectBlankTerminal={() => onQuickAgentChange(null)}
-          onPick={(agent, draft, entry) => onQuickAgentChange(agent, draft?.surface, draft, entry)}
-        />
+        {orchestration ? (
+          <MteOrchestrationPicker
+            draft={orchestration.draft}
+            linkedItems={NO_LINKED_ITEMS}
+            onSelectAgent={orchestration.onSelectAgent}
+          />
+        ) : null}
+        {!orchestrationOn ? (
+          <>
+            <div className="flex items-center justify-between gap-2">
+              <label className="text-xs font-medium text-muted-foreground">
+                {t('components.newWorkspace.agentOptional', 'Agent [Optional]')}
+              </label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={(event) => onOpenAgentSettings(event.currentTarget)}
+                    tabIndex={-1}
+                    className="size-5 shrink-0 rounded-sm text-muted-foreground hover:text-foreground"
+                    aria-label={t(
+                      'auto.components.NewWorkspaceComposerCard.ab63f25397',
+                      'Open agent settings'
+                    )}
+                  >
+                    <Settings2 className="size-3" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top" sideOffset={6}>
+                  {t('auto.components.NewWorkspaceComposerCard.ba64270bdb', 'Configure agents')}
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <AgentLaunchPicker
+              model={
+                agentSurfaceRows?.model ?? {
+                  state: 'loading',
+                  placeholderCount: 2
+                }
+              }
+              agent={quickAgent}
+              value={agentPickerDraft}
+              cli={agentSurfaceRows?.selection.cli === true}
+              setupDisabled={agentSetupDisabled}
+              matchTriggerWidth={
+                selectedRepoIsGit &&
+                projectOptions?.find((option) => option.id === selectedProjectId)?.kind !==
+                  'project-group'
+              }
+              onOpenAgentSettings={onOpenAgentSettings}
+              onTriggerEnter={createDisabled ? undefined : onCreate}
+              emptyLabel={t('auto.components.agent.AgentCombobox.986f946354', 'Blank Terminal')}
+              defaultAgent={defaultTuiAgent}
+              onSetDefault={handleSetDefaultAgent}
+              onSelectBlankTerminal={() => onQuickAgentChange(null)}
+              onPick={(agent, draft, entry) =>
+                onQuickAgentChange(agent, draft?.surface, draft, entry)
+              }
+            />
+          </>
+        ) : null}
       </div>
 
       <div className="!mb-2">

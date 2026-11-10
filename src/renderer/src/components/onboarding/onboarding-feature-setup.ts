@@ -6,7 +6,7 @@ import {
   COMPUTER_USE_SKILL_NAME,
   ORCA_LINEAR_SKILL_NAME,
   ORCA_CLI_SKILL_NAME,
-  ORCHESTRATION_SKILL_NAME
+  MTE_SKILL_NAME
 } from '@/lib/skills/installation/agent-feature-skill-names'
 import { BROWSER_USE_ENABLED_STORAGE_KEY } from '@/lib/browser/browser-use-setup-state'
 import { e2eConfig } from '@/lib/e2e-config'
@@ -43,7 +43,7 @@ export const ONBOARDING_FEATURE_SETUP_IDS: readonly OnboardingFeatureSetupId[] =
 const FEATURE_SKILL_NAMES: Record<OnboardingFeatureSetupId, string> = {
   browserUse: ORCA_CLI_SKILL_NAME,
   computerUse: COMPUTER_USE_SKILL_NAME,
-  orchestration: ORCHESTRATION_SKILL_NAME,
+  orchestration: MTE_SKILL_NAME,
   linearTickets: ORCA_LINEAR_SKILL_NAME
 }
 

@@ -16,6 +16,7 @@ import { registerGlimmerLanguages } from '../../monaco-languages/register-glimme
 import { registerGroovyLanguage } from '../../monaco-languages/register-groovy'
 import { registerJsonlLanguage } from '../../monaco-languages/register-jsonl'
 import { registerLeanLanguage } from '../../monaco-languages/register-lean'
+import { registerRubyLanguage } from '../../monaco-languages/register-ruby'
 import { registerMarkdownLanguage } from '../../monaco-languages/register-markdown'
 import { registerNimLanguage } from '../../monaco-languages/register-nim'
 import { registerQuartoLanguage } from '../../monaco-languages/register-quarto'
@@ -29,6 +30,8 @@ import { installMonacoDiffEditorDisposalGuard } from './monaco-diff-editor-dispo
 import { installMonacoDiffViewportTokenization } from './monaco-diff-viewport-tokenization'
 import { installMonacoPeekReferencesPreviewOptions } from './monaco-peek-preview-options'
 import { installMonacoContextMenuPaste } from '@/components/editor/install-monaco-context-menu-paste'
+import { installLspBridge } from '@/lib/lsp/install-lsp-bridge'
+import { defineOrcaMonacoThemes } from '@/lib/monaco-orca-themes'
 import { runMonacoSetupSteps } from './monaco-setup-steps'
 import { installMonacoTsWorkerIdleStop } from './monaco-ts-worker-idle-stop'
 import { onPluginFontLoadsChanged } from '@/store/plugins/appearance/plugin-fonts'
@@ -75,6 +78,7 @@ monacoTS.javascriptDefaults.setCompilerOptions({
 })
 
 runMonacoSetupSteps([
+  ['Orca editor themes', () => defineOrcaMonacoThemes(monaco)],
   ['Vue language registration', () => registerVueLanguage(monaco)],
   ['Svelte language registration', () => registerSvelteLanguage(monaco)],
   ['Astro language registration', () => registerAstroLanguage(monaco)],
@@ -82,6 +86,7 @@ runMonacoSetupSteps([
   ['CUDA language registration', () => registerCudaLanguage(monaco)],
   ['Nim language registration', () => registerNimLanguage(monaco)],
   ['Lean language registration', () => registerLeanLanguage(monaco)],
+  ['Ruby TextMate tokenizer', () => registerRubyLanguage(monaco)],
   ['Typst language registration', () => registerTypstLanguage(monaco)],
   ['Zig language registration', () => registerZigLanguage(monaco)],
   ['Groovy language registration', () => registerGroovyLanguage(monaco)],
@@ -99,7 +104,8 @@ runMonacoSetupSteps([
   ['context-menu paste', () => installMonacoContextMenuPaste(monaco)],
   ['TS worker idle stop', () => installMonacoTsWorkerIdleStop(monaco)],
   // Monaco caches glyph widths, so a plugin font that loads after first paint must re-measure.
-  ['plugin font remeasure', () => onPluginFontLoadsChanged(() => monaco.editor.remeasureFonts())]
+  ['plugin font remeasure', () => onPluginFontLoadsChanged(() => monaco.editor.remeasureFonts())],
+  ['LSP navigation bridge', () => installLspBridge(monaco)]
 ])
 
 loader.config({ monaco })

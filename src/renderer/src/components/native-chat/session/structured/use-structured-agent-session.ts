@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Why: fork features ported onto upstream; split later */
 import { useQueuedMessageEditTransport } from '../../queue/editing/use-queued-message-edit-transport'
 import type { StructuredAgentSessionViewArgs } from './structured-agent-session-view-contract'
 import { useStructuredAgentSessionCommandMenu } from '../../composer/pickers/structured-agent-session-command-refresh'
@@ -10,6 +11,10 @@ import {
   nativeChatQueueFollowUps,
   nativeChatSendFollowUp
 } from '../../../../../../shared/native-chat/input/native-chat-follow-up-behavior'
+import type {
+  AgentSessionTurnCheckpointKind,
+  AgentSessionTurnCheckpointRestoreResult
+} from '../../../../../../shared/agent-session-turn-checkpoints'
 import { structuredAgentLabel } from '@/lib/agent-session/launch/structured-agent-session-launch-label'
 import { useStructuredLegacyLaunchStop } from '@/lib/agent-session/launch/structured-agent-session-legacy-launch-stop'
 import {
@@ -309,6 +314,13 @@ export function useStructuredAgentSession(args: StructuredAgentSessionViewArgs) 
       cancelStructuredAgentSessionPrompt(admit(), turnId, prompt),
     stopBackgroundTask: (taskId?: string) =>
       stopStructuredAgentSessionBackgroundTask(mutate, taskId),
+    /** Restore the worktree to a turn checkpoint; null (with its own toast) when refused. */
+    revertTurn: (turnId: string, kind: AgentSessionTurnCheckpointKind) =>
+      mutate<AgentSessionTurnCheckpointRestoreResult>(
+        'agentSession.restoreTurnCheckpoint',
+        'agentSession.restoreTurnCheckpoint',
+        { turnId, kind }
+      ),
     respond: (item: StructuredPromptItem, response: AgentSessionPromptResponse) =>
       respondToStructuredAgentSessionPrompt({ item, response, action: admit() }),
     optionSnapshot,

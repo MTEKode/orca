@@ -9,7 +9,7 @@ import { getProviderRuntimeContextKey } from '@/runtime/hosts/observations/provi
 import {
   COMPUTER_USE_SKILL_NAME,
   ORCA_CLI_SKILL_NAME,
-  ORCHESTRATION_SKILL_NAME
+  MTE_SKILL_NAME
 } from '@/lib/skills/installation/agent-feature-skill-names'
 import {
   GLOBAL_AGENT_SKILL_SOURCE_KINDS,
@@ -88,7 +88,7 @@ export function useSetupGuideProgress(
   const {
     installed: detectedOrchestrationSkillInstalled,
     loading: detectedOrchestrationSkillLoading
-  } = useInstalledAgentSkill(ORCHESTRATION_SKILL_NAME, skillOptions)
+  } = useInstalledAgentSkill(MTE_SKILL_NAME, skillOptions)
   const providerRuntimeContextKey = getProviderRuntimeContextKey(settings)
   const linearStatusCurrent = linearStatusContextKey === providerRuntimeContextKey
   const jiraStatusCurrent = jiraStatusContextKey === providerRuntimeContextKey
