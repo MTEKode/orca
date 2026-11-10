@@ -195,7 +195,7 @@ describe('AI Vault tab title sync', () => {
       ...store,
       resolveSessionTitles: async () => titleResult('codex', title),
       setTimer: (callback, delay) => {
-        expect(delay).toBe(5 * 60_000)
+        expect(delay).toBe(30 * 60_000)
         refresh = callback
         return 1
       },
@@ -307,5 +307,113 @@ describe('AI Vault tab title sync', () => {
     completions[1]!()
     completions[2]!()
     await pending
+  })
+})
+
+function timerHarness() {
+  const timers = new Map<number, { callback: () => void; delay: number }>()
+  let nextId = 1
+  return {
+    timers,
+    setTimer: (callback: () => void, delay: number) => {
+      timers.set(nextId, { callback, delay })
+      return nextId++
+    },
+    clearTimer: (timer: ReturnType<typeof setTimeout> | number) => {
+      timers.delete(timer as number)
+    },
+    delays: () => [...timers.values()].map((timer) => timer.delay),
+    fire: (delay: number) => {
+      const entry = [...timers.entries()].find(([, timer]) => timer.delay === delay)!
+      timers.delete(entry[0])
+      entry[1].callback()
+    }
+  }
+}
+
+const settle = async () => {
+  for (let i = 0; i < 10; i++) {
+    await Promise.resolve()
+  }
+}
+
+describe('AI Vault tab title sync scheduling', () => {
+  const stored = { agent: 'codex' as const, sessionId: 'codex-session', title: 'Stored' }
+  const base = {
+    executionHostId: 'ssh:dev-box' as const,
+    worktreeId: 'worktree-1',
+    path: '/workspace/albacore'
+  }
+
+  it('does not scan at boot when titles are stored, and arms the 30 minute refresh', async () => {
+    const store = makeState({ ...base, aiVaultTitle: stored })
+    const harness = timerHarness()
+    const resolveSessionTitles = vi.fn(async () => titleResult('codex', 'Stored'))
+    const stop = startAiVaultTabTitleSync({ ...store, ...harness, resolveSessionTitles })
+    await settle()
+    expect(resolveSessionTitles).not.toHaveBeenCalled()
+    expect(harness.delays()).toEqual([30 * 60_000])
+    stop()
+  })
+
+  it('scans live requests once when the timer fires and re-arms 30 minutes', async () => {
+    const store = makeState({ ...base, aiVaultTitle: stored })
+    const harness = timerHarness()
+    const resolveSessionTitles = vi.fn(async () => titleResult('codex', 'Stored'))
+    const stop = startAiVaultTabTitleSync({ ...store, ...harness, resolveSessionTitles })
+    await settle()
+    harness.fire(30 * 60_000)
+    await vi.waitFor(() => expect(resolveSessionTitles).toHaveBeenCalledTimes(1))
+    await settle()
+    expect(harness.delays()).toEqual([30 * 60_000])
+    stop()
+  })
+
+  it('keeps the live due time across a store-change reconcile', async () => {
+    const store = makeState({ ...base, aiVaultTitle: stored })
+    const harness = timerHarness()
+    const resolveSessionTitles = vi.fn(async () => titleResult('codex', 'Stored'))
+    const stop = startAiVaultTabTitleSync({ ...store, ...harness, resolveSessionTitles })
+    await settle()
+    const [liveId] = [...harness.timers.keys()]
+    store.setWorkspacePath('/workspace/other')
+    await settle()
+    expect(resolveSessionTitles).not.toHaveBeenCalled()
+    expect([...harness.timers.keys()]).toEqual([liveId])
+    stop()
+  })
+
+  it('scans a missing title at boot and retries every 20 s until it resolves', async () => {
+    const store = makeState(base)
+    const harness = timerHarness()
+    let title = ''
+    const resolveSessionTitles = vi.fn(async () => titleResult('codex', title))
+    const stop = startAiVaultTabTitleSync({ ...store, ...harness, resolveSessionTitles })
+    await vi.waitFor(() => expect(resolveSessionTitles).toHaveBeenCalledTimes(1))
+    await settle()
+    expect(harness.delays()).toContain(20_000)
+    harness.fire(20_000)
+    await vi.waitFor(() => expect(resolveSessionTitles).toHaveBeenCalledTimes(2))
+    await settle()
+    title = 'Finally'
+    harness.fire(20_000)
+    await vi.waitFor(() =>
+      expect(store.getState().tabsByWorktree['worktree-1'][0].aiVaultTitle?.title).toBe('Finally')
+    )
+    await settle()
+    expect(harness.delays()).not.toContain(20_000)
+    stop()
+  })
+
+  it('clears a stale title and scans immediately on identity change', async () => {
+    const store = makeState({ ...base, aiVaultTitle: stored })
+    const harness = timerHarness()
+    const resolveSessionTitles = vi.fn(async () => titleResult('codex', 'Stored'))
+    const stop = startAiVaultTabTitleSync({ ...store, ...harness, resolveSessionTitles })
+    await settle()
+    store.setProviderSessionId('codex-session-2')
+    await vi.waitFor(() => expect(resolveSessionTitles).toHaveBeenCalledTimes(1))
+    expect(store.getState().tabsByWorktree['worktree-1'][0].aiVaultTitle).toBeNull()
+    stop()
   })
 })
