@@ -11,6 +11,7 @@ export type WslRelayDistroState = {
   claudeAgentViewDir?: string
   claudeConfigDir?: string
   opencodeOverlayDir?: string
+  opencode2OverlayDir?: string
   piAgentDir?: string
   ompStatusExtension?: string
   launchKinds: Set<'pi' | 'omp'>
@@ -34,6 +35,7 @@ export type WslRelayRestartSetup = Pick<
   | 'claudeAgentViewDir'
   | 'claudeConfigDir'
   | 'opencodeOverlayDir'
+  | 'opencode2OverlayDir'
   | 'piAgentDir'
   | 'ompStatusExtension'
 > & { launchKinds: readonly ('pi' | 'omp')[] }

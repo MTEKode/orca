@@ -4,7 +4,7 @@ import {
   normalizeGrokPromptId
 } from '../../../shared/agent-hook-listener/listener-limits'
 import {
-  normalizeAgentHookSource,
+  isAgentHookSource,
   type AgentHookSource
 } from '../../../shared/agent-hook-listener/transport/agent-hook-relay'
 import {
@@ -80,7 +80,7 @@ export function normalizeRemoteEnvelopeFields(envelope: {
   toolAgentType?: string
   providerSession?: unknown
 }): RemoteEnvelopeFields {
-  const source = normalizeAgentHookSource(envelope.source)
+  const source = isAgentHookSource(envelope.source) ? envelope.source : undefined
   return {
     hookEventName:
       typeof envelope.hookEventName === 'string' && envelope.hookEventName.trim().length > 0

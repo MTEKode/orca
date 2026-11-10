@@ -93,14 +93,14 @@ describe('a resume launch seeds the pane identity', () => {
     const server = await startServer()
     server.recordLaunchResumeIdentity({
       paneKey: PANE,
-      agentType: 'opencode',
+      agentType: 'opencode2',
       providerSession: RESUMED,
       launchedAt: Date.now()
     })
     server.ingestTerminalStatus({
       paneKey: PANE,
       origin: 'process',
-      payload: { state: 'working', prompt: '', agentType: 'opencode' }
+      payload: { state: 'working', prompt: '', agentType: 'opencode2' }
     })
     expect(server.getStatusSnapshotForPane(PANE)[0]).toMatchObject({
       state: 'working',

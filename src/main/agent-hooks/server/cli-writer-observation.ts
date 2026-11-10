@@ -27,7 +27,7 @@ export function retainOpenCodeWriterTopology(
 ): void {
   if (
     !event?.providerSession ||
-    (source !== 'opencode' && source !== 'mimo-code') ||
+    (source !== 'opencode' && source !== 'opencode2' && source !== 'mimo-code') ||
     !body ||
     typeof body !== 'object'
   ) {
@@ -52,8 +52,10 @@ export function cliWriterTopology(row: AgentHookEventPayload): CliWriterObservat
   return topology === 'shared'
     ? 'shared'
     : row.source !== 'opencode' &&
+        row.source !== 'opencode2' &&
         row.source !== 'mimo-code' &&
-        row.payload.agentType !== 'opencode'
+        row.payload.agentType !== 'opencode' &&
+        row.payload.agentType !== 'opencode2'
       ? 'pane-owned'
       : topology === 'pane-owned'
         ? topology

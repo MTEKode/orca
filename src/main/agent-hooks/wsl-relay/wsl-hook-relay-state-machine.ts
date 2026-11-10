@@ -90,6 +90,7 @@ export function captureWslRelaySetup(state: WslRelayDistroState): WslRelayRestar
     claudeAgentViewDir: state.claudeAgentViewDir,
     claudeConfigDir: state.claudeConfigDir,
     opencodeOverlayDir: state.opencodeOverlayDir,
+    opencode2OverlayDir: state.opencode2OverlayDir,
     piAgentDir: state.piAgentDir,
     ompStatusExtension: state.ompStatusExtension,
     launchKinds: [...state.launchKinds]
