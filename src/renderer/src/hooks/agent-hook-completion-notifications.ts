@@ -1,17 +1,17 @@
 import { useAppStore } from '@/store'
 import { parsePaneKey } from '../../../shared/workspace-layout/stable-pane-id'
-import { createAgentCompletionCoordinator } from '@/components/terminal-pane/agent-completion-coordinator'
+import { createAgentCompletionCoordinator } from '@/components/terminal-pane/agent-completion/agent-completion-coordinator'
 import type {
   AgentCompletionCoordinator,
   AgentCompletionStatusSnapshot
-} from '@/components/terminal-pane/agent-completion-coordinator-types'
+} from '@/components/terminal-pane/agent-completion/agent-completion-coordinator-types'
 import type { TerminalProcessInspection as RuntimeTerminalProcessInspection } from '../../../shared/terminal/pty/lifecycle/terminal-process-inspection'
-import { dispatchTerminalNotification } from '@/components/terminal-pane/use-notification-dispatch'
-import { collectLeafIdsInOrder } from '@/components/terminal-pane/layout-serialization'
+import { dispatchTerminalNotification } from '../components/terminal-pane/notifications/dispatch-terminal-notification'
+import { collectLeafIdsInOrder } from '../components/terminal-pane/layout/terminal-layout-leaf-traversal'
 import { getPtyIdForPaneKey } from './pane-key-pty-id'
-import { dispatchAgentHookTerminalLifecycle } from '@/components/terminal-pane/agent-hook-terminal-lifecycle'
+import { dispatchAgentHookTerminalLifecycle } from '@/components/terminal-pane/agent-completion/agent-hook-terminal-lifecycle'
+import { isAgentTaskCompleteTrackingEnabledFromState as isAgentHookCompletionTrackingEnabled } from '../components/terminal-pane/notifications/agent-task-complete-policy'
 import {
-  isAgentHookCompletionTrackingEnabled,
   shouldSyncAgentHookCompletionForStoreUpdate,
   type AgentHookCompletionStoreSnapshot
 } from './agent-hook-completion-store-sync'
@@ -20,6 +20,7 @@ import {
   discardHookLaneCompletionRequests,
   submitHookLaneCompletion
 } from './agent-hook-completion-revision-hold'
+import * as finishDrops from '@/attention/agent-finish-drop-breadcrumb'
 
 type CoordinatorEntry = {
   worktreeId: string
@@ -84,8 +85,9 @@ function pruneClosedPaneCoordinators(): void {
   }
   lastPrunedLivenessSnapshot = livenessSnapshot
   const tabIndex = buildTabIndex(livenessSnapshot.tabsByWorktree)
-  for (const paneKey of coordinatorsByPaneKey.keys()) {
+  for (const [paneKey, entry] of coordinatorsByPaneKey) {
     if (!paneCanReceiveHookCompletion(paneKey, tabIndex)) {
+      finishDrops.recordPrunedPendingFinish(entry.worktreeId, paneKey, entry.coordinator)
       disposeCoordinatorForPaneKey(paneKey)
     }
   }
@@ -211,6 +213,7 @@ function createCoordinator(paneKey: string, worktreeId: string): AgentCompletion
     dispatchHookLifecycle: (payload) => dispatchAgentHookTerminalLifecycle(paneKey, payload),
     dispatchCompletion: (title, meta) => {
       if (!hookLaneDispatchEnabled(paneKey)) {
+        finishDrops.recordHookLaneDisabled(worktreeId, paneKey)
         return
       }
       const snapshot = meta?.agentStatus
@@ -261,6 +264,7 @@ export function observeAgentHookCompletionForNotification({
   if (seedOnly !== true) {
     pruneClosedPaneCoordinators()
     if (!paneCanReceiveHookCompletion(paneKey)) {
+      finishDrops.recordFinishOnPaneNotLive(worktreeId, paneKey, payload.state)
       return
     }
   }

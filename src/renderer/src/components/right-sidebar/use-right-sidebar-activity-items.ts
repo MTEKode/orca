@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Plug, Files, GitBranch, ListChecks, Waypoints, Workflow } from 'lucide-react'
 import { useAppStore } from '@/store'
-import { useRepoById } from '@/store/selectors'
+import { useRepoById } from '@/store/repos/use-repository-catalog'
 import { isFolderRepo } from '../../../../shared/repo-kind'
 import { parseWorkspaceKey } from '../../../../shared/workspace-scope'
 import { getVisibleRightSidebarActivityItems } from './right-sidebar-activity-visibility'
@@ -16,9 +16,9 @@ import {
   usePluginPanels,
   usePluginPanelsStore,
   type PluginPanelsFetchStatus
-} from '@/store/plugin-panels'
+} from '@/store/plugins/catalog/plugin-contribution-catalog'
 import { useShortcutLabel } from '@/hooks/useShortcutLabel'
-import { translate } from '@/i18n/i18n'
+import { useTranslate } from '@/i18n/use-translate'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 import { AgentSessionHistoryIcon } from './agent-session-history-icon'
 import type { ActivityBarItem } from './activity-bar-buttons'
@@ -37,6 +37,7 @@ export function useRightSidebarActivityItems({
 }: {
   rightSidebarOpen: boolean
 }): RightSidebarActivityItems {
+  const t = useTranslate()
   const languageRevision = useUiLanguageRevision()
   const explorerShortcut = useShortcutLabel('sidebar.explorer.toggle')
   const sourceControlShortcut = useShortcutLabel('sidebar.sourceControl.toggle')
@@ -78,36 +79,33 @@ export function useRightSidebarActivityItems({
       {
         id: 'explorer',
         icon: Files,
-        title: translate('auto.components.right.sidebar.index.8bc2bbc3a0', 'Explorer'),
+        title: t('auto.components.right.sidebar.index.8bc2bbc3a0', 'Explorer'),
         shortcut: explorerShortcut === 'Unassigned' ? '' : explorerShortcut
       },
       {
         id: 'vault',
         icon: AgentSessionHistoryIcon,
-        title: translate('auto.components.right.sidebar.index.aiVaultSessionHistory', 'Agents'),
+        title: t('auto.components.right.sidebar.index.aiVaultSessionHistory', 'Agents'),
         shortcut: ''
       },
       {
         id: 'workspaces',
         icon: Workflow,
-        title: translate(
-          'auto.components.right.sidebar.index.folderWorkspaces',
-          'Attached worktrees'
-        ),
+        title: t('auto.components.right.sidebar.index.folderWorkspaces', 'Attached worktrees'),
         shortcut: '',
         folderOnly: true
       },
       {
         id: 'pr-checks',
         icon: ListChecks,
-        title: translate('auto.components.right.sidebar.index.parentPrChecks', 'PR Checks'),
+        title: t('auto.components.right.sidebar.index.parentPrChecks', 'PR Checks'),
         shortcut: '',
         folderOnly: true
       },
       {
         id: 'source-control',
         icon: GitBranch,
-        title: translate('auto.components.right.sidebar.index.0314901467', 'Source Control'),
+        title: t('auto.components.right.sidebar.index.0314901467', 'Source Control'),
         shortcut: sourceControlShortcut === 'Unassigned' ? '' : sourceControlShortcut,
         gitOnly: true,
         badgeCount: uncommittedChangeCount > 0 ? uncommittedChangeCount : undefined
@@ -115,7 +113,7 @@ export function useRightSidebarActivityItems({
       {
         id: 'checks',
         icon: ListChecks,
-        title: translate('auto.components.right.sidebar.index.83a10e3c44', 'Checks'),
+        title: t('auto.components.right.sidebar.index.83a10e3c44', 'Checks'),
         shortcut: checksShortcut === 'Unassigned' ? '' : checksShortcut,
         gitOnly: true
       },
@@ -129,7 +127,7 @@ export function useRightSidebarActivityItems({
       {
         id: 'ports',
         icon: Plug,
-        title: translate('auto.components.right.sidebar.index.441733b630', 'Ports'),
+        title: t('auto.components.right.sidebar.index.441733b630', 'Ports'),
         shortcut: portsShortcut === 'Unassigned' ? '' : portsShortcut,
         sshOnly: true
       },
@@ -144,8 +142,13 @@ export function useRightSidebarActivityItems({
       visiblePluginPanels,
       portsShortcut,
       sourceControlShortcut,
+<<<<<<< HEAD
       uncommittedChangeCount,
       languageRevision
+=======
+      languageRevision,
+      t
+>>>>>>> upstream/main
     ]
   )
 

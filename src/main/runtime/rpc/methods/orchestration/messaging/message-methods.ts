@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { defineMethod } from '../../../core'
 import type { TaskStatus } from '../../../../orchestration/db'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
@@ -17,13 +18,24 @@ import { answerQuestionReply } from './question-reply'
 import { replyToRemoteRunHome } from './reply-remote'
 import {
   ReplyParams,
+=======
+import { ORCHESTRATION_REPLY_METHOD } from './reply-method'
+import { defineOrchestrationMethod } from '../access/orchestration-method-access'
+import { inspectedRunAccess, taskCreateAccess, taskUpdateAccess } from '../access/run-access-rules'
+import type { TaskStatus } from '../../../../orchestration/db/orchestration-records'
+import { abbreviateOrchestrationTasks } from '../../../../../../shared/orchestration/orchestration-task-summary'
+import { orchestrationCallerIdentity } from '../runs/run-scope'
+import { resolveOrchestrationParty } from '../../../../orchestration/addressing/orchestration-party'
+import {
+>>>>>>> upstream/main
   InboxParams,
   TaskCreateParams,
-  TaskListParams,
-  TaskUpdateParams
-} from '../schemas'
+  TaskListParams
+} from '../../../../../../shared/rpc-contract/orchestration-params'
+import { TaskUpdateParams } from './task-update-params'
 
 export const ORCHESTRATION_MESSAGE_METHODS = [
+<<<<<<< HEAD
   defineMethod({
     name: 'orchestration.reply',
     permission: 'workspace',
@@ -115,9 +127,14 @@ export const ORCHESTRATION_MESSAGE_METHODS = [
   }),
 
   defineMethod({
+=======
+  ORCHESTRATION_REPLY_METHOD,
+  defineOrchestrationMethod({
+>>>>>>> upstream/main
     name: 'orchestration.inbox',
     permission: 'workspace',
     params: InboxParams,
+    access: { kind: 'reads', targets: { terminal: 'party' }, collection: true },
     handler: (params, { runtime }) => {
       const db = runtime.getOrchestrationDb()
       // Return empty for stale/unknown handles because historical mail outlives handle deletion (design doc §3.3).
@@ -127,28 +144,25 @@ export const ORCHESTRATION_MESSAGE_METHODS = [
             params.limit
           )
         : db.getInbox(params.limit)
-      return { messages, count: messages.length }
+      return {
+        messages: messages.map(({ answer_sender_snapshot: _answer, ...message }) => message),
+        count: messages.length
+      }
     }
   }),
 
-  defineMethod({
+  defineOrchestrationMethod({
     name: 'orchestration.taskCreate',
     permission: 'workspace',
     params: TaskCreateParams,
-    handler: (
-      params,
-      { orchestrationCompatibilityEvidence, orchestrationCaller, runtime, legacyCoordinatorRunId }
-    ) => {
+    access: {
+      kind: 'writes',
+      caller: 'callerTerminalHandle',
+      targets: { run: 'run', parent: 'task', deps: 'task' },
+      rule: taskCreateAccess
+    },
+    handler: (params, { orchestrationCaller, runtime }, { run, deps }) => {
       const db = runtime.getOrchestrationDb()
-      const deps = params.deps ? parseOrchestrationTaskDepsFlag(params.deps) : undefined
-      const run = resolveRunScope(runtime, {
-        runId: params.run,
-        callerTerminalHandle: params.callerTerminalHandle,
-        requireCurrentConsumer: true,
-        legacyCoordinatorRunId,
-        callerEvidence: orchestrationCompatibilityEvidence,
-        callerSession: orchestrationCaller
-      })
       // A handle-less session creates root Tasks: Task lineage is recorded by terminal only.
       const creatorHandle = params.callerTerminalHandle
         ? orchestrationCallerIdentity(runtime, {
@@ -180,27 +194,19 @@ export const ORCHESTRATION_MESSAGE_METHODS = [
     }
   }),
 
-  defineMethod({
+  defineOrchestrationMethod({
     name: 'orchestration.taskList',
     permission: 'workspace',
     params: TaskListParams,
-    handler: (
-      params,
-      { orchestrationCompatibilityEvidence, orchestrationCaller, runtime, legacyCoordinatorRunId }
-    ) => {
+    access: {
+      kind: 'reads',
+      caller: 'callerTerminalHandle',
+      targets: { run: 'run' },
+      collection: true,
+      rule: inspectedRunAccess
+    },
+    handler: (params, { runtime }, { run }) => {
       const db = runtime.getOrchestrationDb()
-      const explicitRun = params.run ? db.getRun(params.run) : undefined
-      const run =
-        explicitRun?.legacy === 1
-          ? explicitRun
-          : resolveRunScope(runtime, {
-              runId: params.run,
-              callerTerminalHandle: params.callerTerminalHandle,
-              requireCurrentConsumer: params.run === undefined,
-              legacyCoordinatorRunId,
-              callerEvidence: orchestrationCompatibilityEvidence,
-              callerSession: orchestrationCaller
-            })
       // Add nullable assignee_handle/dispatch_id without changing legacy non-dispatched rows.
       const joined = db.listTasksWithDispatch({
         status: params.status as TaskStatus,
@@ -223,30 +229,18 @@ export const ORCHESTRATION_MESSAGE_METHODS = [
     }
   }),
 
-  defineMethod({
+  defineOrchestrationMethod({
     name: 'orchestration.taskUpdate',
     permission: 'workspace',
     params: TaskUpdateParams,
-    handler: (
-      params,
-      { orchestrationCompatibilityEvidence, orchestrationCaller, runtime, legacyCoordinatorRunId }
-    ) => {
+    access: {
+      kind: 'writes',
+      caller: 'callerTerminalHandle',
+      targets: { id: 'task', run: 'run' },
+      rule: taskUpdateAccess
+    },
+    handler: (params, { runtime }) => {
       const db = runtime.getOrchestrationDb()
-      const run = resolveRunScope(runtime, {
-        runId: params.run,
-        callerTerminalHandle: params.callerTerminalHandle,
-        requireCurrentConsumer: true,
-        legacyCoordinatorRunId,
-        callerEvidence: orchestrationCompatibilityEvidence,
-        callerSession: orchestrationCaller
-      })
-      const existing = db.getTask(params.id)
-      if (!existing || existing.run_id !== run.id) {
-        throw new OrchestrationError(
-          'task_not_found',
-          `Task ${params.id} was not found in Run ${run.id}.`
-        )
-      }
       const task = db.updateTaskStatus(params.id, params.status, params.result)
       if (!task) {
         throw new Error(`Task not found: ${params.id}`)

@@ -53,6 +53,7 @@ type SqliteCaptureArgs = Omit<Parameters<OpenCodeSqliteWorkerClient['capture']>[
 
 type SqliteListArgs = Omit<Parameters<OpenCodeSqliteWorkerClient['list']>[0], 'agent'>
 
+<<<<<<< HEAD
 export const listOpenCodeSqliteSessionsViaWorker = (args: SqliteListArgs) => listForHost(args)
 
 export const listOpenCodeNextSqliteSessionsViaWorker = (args: SqliteListArgs) =>
@@ -60,25 +61,41 @@ export const listOpenCodeNextSqliteSessionsViaWorker = (args: SqliteListArgs) =>
 
 export const listZcodeSqliteSessionsViaWorker = (args: SqliteListArgs) =>
   listForHost({ ...args, agent: 'zcode' })
+=======
+export const listOpenCodeSqliteSessionsViaWorker = (
+  args: SqliteListArgs
+): Promise<SessionFileCandidate[]> => listForHost(args)
 
-export function parseOpenCodeSqliteSessionViaWorker(
+export const listOpenCode2SqliteSessionsViaWorker = (
+  args: SqliteListArgs
+): Promise<SessionFileCandidate[]> => listForHost({ ...args, agent: 'opencode2' })
+
+export const listZcodeSqliteSessionsViaWorker = (
+  args: SqliteListArgs
+): Promise<SessionFileCandidate[]> => listForHost({ ...args, agent: 'zcode' })
+>>>>>>> upstream/main
+
+export const parseOpenCodeSqliteSessionViaWorker = (
   args: SqliteParseArgs
-): Promise<AiVault.AiVaultSession | null> {
-  return parseForHost(args)
-}
+): Promise<AiVault.AiVaultSession | null> => parseForHost(args)
 
+<<<<<<< HEAD
 export function parseOpenCodeNextSqliteSessionViaWorker(
   args: SqliteParseArgs
 ): Promise<AiVault.AiVaultSession | null> {
   return parseForHost({ ...args, agent: 'opencode-next' })
 }
-
-export function parseZcodeSqliteSessionViaWorker(
+=======
+export const parseOpenCode2SqliteSessionViaWorker = (
   args: SqliteParseArgs
-): Promise<AiVault.AiVaultSession | null> {
-  return parseForHost({ ...args, agent: 'zcode' })
-}
+): Promise<AiVault.AiVaultSession | null> => parseForHost({ ...args, agent: 'opencode2' })
+>>>>>>> upstream/main
 
+export const parseZcodeSqliteSessionViaWorker = (
+  args: SqliteParseArgs
+): Promise<AiVault.AiVaultSession | null> => parseForHost({ ...args, agent: 'zcode' })
+
+<<<<<<< HEAD
 export const captureOpenCodeSqliteSessionViaWorker = (args: SqliteCaptureArgs) =>
   captureForHost(args)
 
@@ -87,6 +104,19 @@ export const captureOpenCodeNextSqliteSessionViaWorker = (args: SqliteCaptureArg
 
 export const captureZcodeSqliteSessionViaWorker = (args: SqliteCaptureArgs) =>
   captureForHost({ ...args, agent: 'zcode' })
+=======
+export const captureOpenCodeSqliteSessionViaWorker = (
+  args: SqliteCaptureArgs
+): Promise<OpenCodeSqliteCaptureValue> => captureForHost(args)
+
+export const captureOpenCode2SqliteSessionViaWorker = (
+  args: SqliteCaptureArgs
+): Promise<OpenCodeSqliteCaptureValue> => captureForHost({ ...args, agent: 'opencode2' })
+
+export const captureZcodeSqliteSessionViaWorker = (
+  args: SqliteCaptureArgs
+): Promise<OpenCodeSqliteCaptureValue> => captureForHost({ ...args, agent: 'zcode' })
+>>>>>>> upstream/main
 
 async function listForHost(
   args: Parameters<OpenCodeSqliteWorkerClient['list']>[0]
@@ -304,4 +334,13 @@ export async function readOpenCodeTranscriptSignalViaWorker(
     throw new Error('Invalid OpenCode transcript signal')
   }
   return value
+}
+
+export async function readOpenCodeForkCoverageViaWorker(
+  args: { dbPath: string; sessionId: string; sourceSessionId: string },
+  signal?: AbortSignal
+): Promise<string[]> {
+  const wsl = openCodeWslPath(args.dbPath)
+  const client = wsl ? await openCodeWslClient(wsl.distro, args.dbPath, signal) : getSharedClient()
+  return client.readForkCoverage({ ...args, dbPath: wsl?.linuxPath ?? args.dbPath }, signal)
 }

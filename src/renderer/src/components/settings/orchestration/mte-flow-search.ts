@@ -25,7 +25,14 @@ const LOCAL_RUNTIME_SEARCH_ENTRY_IDS: ReadonlySet<string | undefined> = new Set(
 
 const getAllMteFlowPaneSearchEntries = createLocalizedCatalog(() => [
   {
+<<<<<<< HEAD:src/renderer/src/components/settings/orchestration/mte-flow-search.ts
     title: translate('auto.components.settings.mteFlow.search.title', 'MTE flow'),
+=======
+    title: translate(
+      'auto.components.settings.orchestration.search.abafc3f10f',
+      'Agent orchestration'
+    ),
+>>>>>>> upstream/main:src/renderer/src/components/settings/orchestration/orchestration-search.ts
     description: translate(
       'auto.components.settings.mteFlow.search.description',
       'Settings for MTE orchestration runs: planner, workers and validation.'

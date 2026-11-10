@@ -5,12 +5,15 @@ import {
   type StagedStructuredLaunchPrompt,
   type StructuredLaunchPromptOptions
 } from './structured-agent-session-launch-prompt'
-import type { StructuredAgentSessionResumeSource } from '../../../../../shared/agent-session/structured-agent-session-create'
+import type {
+  StructuredAgentSessionForkSource,
+  StructuredAgentSessionResumeSource
+} from '../../../../../shared/agent-session/structured-agent-session-create'
 import type { RuntimeClientTarget } from '../../../../../shared/runtime-client-target'
 import type { ExecutionHostId } from '../../../../../shared/execution-host'
 import type { MteWorkerPin } from '../../../../../shared/mte/worker-pin'
 import type { StructuredLaunchAttempt } from './structured-agent-session-launch-request'
-import type { AgentLaunchRequestId } from '../../agent-launch-request-id'
+import type { AgentLaunchRequestId } from './routing/agent-launch-request-id'
 import type { StructuredAgentSessionCreateGate } from './structured-agent-session-launch-errors'
 
 export type StructuredAgentLaunchOptions = StructuredLaunchPromptOptions & {
@@ -24,6 +27,9 @@ export type StructuredAgentLaunchOptions = StructuredLaunchPromptOptions & {
   draftFromScope?: string
   // Conversation adoption is launch identity, not a preference; see launchIdentity.
   resumeFrom?: StructuredAgentSessionResumeSource
+  forkFrom?: StructuredAgentSessionForkSource
+  /** Client-only admission requirement; reacquired from the child after reload. */
+  forkRequiresInheritedOriginal?: boolean
   /** The host the route decided on; read only by the caller that starts the launch. */
   executionHostId?: ExecutionHostId
   /** The saved selection a paired host reported it will seed; read only by the starting caller. */

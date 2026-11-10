@@ -1,4 +1,4 @@
-import type { ChildProcessHandle } from '@orca/process-host/process-spec'
+import type { ChildProcess } from 'node:child_process'
 import { spawnProcess } from '@orca/process-host'
 import {
   forceTerminateProcessTree,
@@ -210,7 +210,7 @@ async function waitForProbe(promise: Promise<void>, ms: number): Promise<boolean
   ]).finally(() => clearTimeout(timer))
 }
 
-function killProbeRoot(child: ChildProcessHandle, signal?: NodeJS.Signals): void {
+function killProbeRoot(child: ChildProcess, signal?: NodeJS.Signals): void {
   try {
     child.kill(signal)
   } catch {

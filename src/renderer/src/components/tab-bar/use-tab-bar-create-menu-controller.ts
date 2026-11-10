@@ -1,11 +1,22 @@
 import type { TabBarCreateMenuController } from './tab-bar-create-menu-contract'
 export type { TabBarCreateMenuController } from './tab-bar-create-menu-contract'
 import { useEffect, useMemo, useRef, useState } from 'react'
+<<<<<<< HEAD
 import { focusTerminalTabSurface } from '@/lib/focus-terminal-tab-surface'
 import { useAppStore } from '../../store'
 import { useTabAgentMenuLaunch } from './QuickLaunchButton'
 import { requestNativeChatComposerFocus } from '@/components/native-chat/use-native-chat-composer-reveal-focus'
 import { openNewChatForWorktree } from './use-new-chat-launch'
+=======
+import { focusTerminalTabSurface } from '@/components/terminal-pane/input/focus/focus-terminal-tab-surface'
+import type { WindowsTerminalCapabilities } from '@/runtime/hosts/capabilities/windows-terminal-capabilities'
+import { useAppStore } from '../../store'
+import { useTabAgentMenuLaunch } from './QuickLaunchButton'
+import { requestNativeChatComposerFocus } from '@/components/native-chat/composer/focus/native-chat-composer-focus-intent'
+import { useNewTabAgentMenuRows } from './use-new-tab-agent-menu-rows'
+import type { AgentDetectionTarget } from '@/hooks/useDetectedAgents'
+import type { TabAgentLaunchOption } from './tab-agent-launch-options'
+>>>>>>> upstream/main
 import { buildTabCreateMenuOptions, type TabCreateMenuOption } from './tab-create-menu-options'
 const NEW_TAB_MENU_TERMINAL_FOCUS_RETRY_MS = 50
 const NEW_TAB_MENU_TERMINAL_FOCUS_TIMEOUT_MS = 5000
@@ -183,11 +194,13 @@ export function useTabBarCreateMenuController({
     window.addEventListener('blur', dismiss)
     return () => window.removeEventListener('blur', dismiss)
   }, [newTabMenuOpen])
-  useEffect(() => {
+  const [prevNewTabMenuOpen, setPrevNewTabMenuOpen] = useState(newTabMenuOpen)
+  if (prevNewTabMenuOpen !== newTabMenuOpen) {
+    setPrevNewTabMenuOpen(newTabMenuOpen)
     if (!newTabMenuOpen) {
       setCreateMenuQuery('')
     }
-  }, [newTabMenuOpen])
+  }
   return {
     openNewChat,
     newTabMenuOpen,

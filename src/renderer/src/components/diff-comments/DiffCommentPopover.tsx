@@ -1,4 +1,4 @@
-import { ImeTextarea } from '@/lib/ime-text-field'
+import { ImeTextarea } from '@/lib/text-input/ime/ime-text-field'
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { CornerDownLeft } from 'lucide-react'
 import { toast } from 'sonner'
@@ -7,8 +7,8 @@ import { useMountedRef } from '@/hooks/useMountedRef'
 import {
   getCommentBodySubmitState,
   hasBoundedCommentBodyText
-} from '@/lib/comment-body-submit-state'
-import { translate } from '@/i18n/i18n'
+} from '@/lib/source-control/review/comments/comment-body-submit-state'
+import { useTranslate } from '@/i18n/use-translate'
 import { installOpenDraftAddReviewNoteGuard } from '../editor/editor-shortcuts'
 import { resolveDiffCommentPopoverTop } from './diff-comment-popover-position'
 
@@ -40,6 +40,7 @@ export function DiffCommentPopover({
   left,
   lineHeight = 0,
   title,
+<<<<<<< HEAD
   placeholder = translate(
     'auto.components.diff.comments.DiffCommentPopover.commentPlaceholder',
     'Add a comment for the AI'
@@ -52,9 +53,24 @@ export function DiffCommentPopover({
     'auto.components.diff.comments.DiffCommentCard.bb0a55f856',
     'Saving…'
   ),
+=======
+  placeholder: placeholderOverride,
+  submitLabel: submitLabelOverride,
+  submittingLabel: submittingLabelOverride,
+>>>>>>> upstream/main
   onCancel,
   onSubmit
 }: Props): React.JSX.Element {
+  const t = useTranslate()
+  const placeholder =
+    placeholderOverride ??
+    t('auto.components.diff.comments.DiffCommentPopover.f6c449191e', 'Add note for the AI')
+  const submitLabel =
+    submitLabelOverride ??
+    t('auto.components.diff.comments.DiffCommentPopover.5fa4bfebaa', 'Add note')
+  const submittingLabel =
+    submittingLabelOverride ??
+    t('auto.components.diff.comments.DiffCommentCard.bb0a55f856', 'Saving…')
   const [body, setBody] = useState('')
   // Why: mirror the draft into a ref so the mousedown listener reads it fresh without re-registering each keystroke.
   const bodyRef = useRef(body)
@@ -160,7 +176,7 @@ export function DiffCommentPopover({
     }
     if (bodyState.status === 'too-large-leading-whitespace') {
       toast.error(
-        translate(
+        t(
           'auto.components.diff.comments.DiffCommentPopover.commentTooLarge',
           'Comment is too large to submit safely.'
         )
@@ -197,12 +213,12 @@ export function DiffCommentPopover({
         >
           {title ??
             (startLine && startLine !== lineNumber
-              ? translate(
+              ? t(
                   'auto.components.diff.comments.DiffCommentPopover.c845170b3b',
                   'Lines {{value0}}-{{value1}}',
                   { value0: startLine, value1: lineNumber }
                 )
-              : translate(
+              : t(
                   'auto.components.diff.comments.DiffCommentPopover.e05063cfc1',
                   'Line {{value0}}',
                   { value0: lineNumber }
@@ -236,7 +252,7 @@ export function DiffCommentPopover({
         />
         <div className="orca-diff-comment-popover-footer">
           <Button variant="ghost" size="sm" onClick={onCancel}>
-            {translate('auto.components.diff.comments.DiffCommentPopover.2b3ce6d394', 'Cancel')}
+            {t('auto.components.diff.comments.DiffCommentPopover.2b3ce6d394', 'Cancel')}
           </Button>
           <Button size="sm" onClick={handleSubmit} disabled={submitting || !canSubmitComment}>
             {submitting ? submittingLabel : submitLabel}

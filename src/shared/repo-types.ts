@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import type { NewChatDefaults } from './new-chat-defaults'
+=======
+import type { DictationTerm } from './dictation-dictionary'
+>>>>>>> upstream/main
 import type { RepoIcon } from './repo-icon'
 import type { GhAccountBinding } from './github/account-binding'
 import type { GitHubRepositoryIdentity } from './github/pull-request-types'
@@ -11,6 +15,7 @@ import type { JiraProjectReference } from './jira/jira-project-reference'
 import type { RepoLanguageServerSettings } from './language-server-types'
 import type { OrcadRetainedMarker } from './orcad-retained-marker'
 import type { EditorFormatter } from './editor-formatter'
+import type { AgentWorkspaceTrustDecision } from './agent-launch/permissions/agent-workspace-trust-decision'
 
 export type RepoKind = 'git' | 'folder'
 
@@ -70,6 +75,7 @@ export type Repo = {
   ghAccount?: GhAccountBinding
   /** Controls Orca's fork-default-branch sync offer for repos with upstream metadata. */
   forkSyncMode?: ForkSyncMode
+<<<<<<< HEAD
   /** Optional MTE end-of-flow deploy check target; the password lives only in the secret store. */
   deployCheck?: { url: string; username: string; linearDoneState?: string }
   /** Whether new chats offer the native MTE orchestration flow; undefined means 'ask'. */
@@ -78,6 +84,10 @@ export type Repo = {
   newChatDefaults?: NewChatDefaults
   /** Run shell quick commands in the floating terminal (inside the repo); undefined means true. */
   quickCommandsInFloatingTerminal?: boolean
+=======
+  /** Whether Orca pre-trusts this repo's worktrees for agents. Absent means undecided: desktop launches ask once. */
+  agentWorkspaceTrust?: AgentWorkspaceTrustDecision
+>>>>>>> upstream/main
   /** Canonical identity for the repo remote Orca should use for provider-level grouping. */
   gitRemoteIdentity?: GitRemoteIdentity | null
   /** Controls whether worktrees Orca did not create appear in the sidebar. */
@@ -112,6 +122,8 @@ export type Repo = {
   projectHostSetupMethod?: RepoProjectHostSetupMethod
   /** Local row a WSL host now owns, kept for a downgrade; set only by the mover's retention pass. */
   orcadRetained?: OrcadRetainedMarker
+  /** Dictation terms used only in this repo, kept in Orca (on the repo's host), never in the checkout. */
+  dictationTerms?: DictationTerm[]
 }
 
 /** Shared IPC shape for repos:getBaseRefDefault across main/preload/renderer; remoteCount avoids a second hint lookup. */

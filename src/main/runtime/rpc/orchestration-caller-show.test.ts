@@ -1,19 +1,10 @@
-import './unused-default-rpc-methods.test-fixture'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ORCHESTRATION_SESSION_CALLER_ERROR_CODES as CODES } from '../../../shared/orchestration-session-caller-codes'
-import {
-  mintStructuredWorkerHandle,
-  mintStructuredWorkerPaneKey,
-  structuredWorkerIdentities,
-  structuredWorkerProcessIncarnation
-} from '../structured-worker-identity'
+import '../../../shared/orchestration/orchestration-session-caller-codes'
+
 import {
   ADDRESS_X,
-  ADDRESS_Y,
   createSessionCallerHarness,
-  idOf,
   orchestrationRequest,
-  PROVIDER_ID_X,
   resultOf,
   SESSION_X,
   SESSION_Y,
@@ -22,7 +13,7 @@ import {
 } from './orchestration-session-caller-test-fixture'
 
 const hostRef = vi.hoisted((): { current: unknown } => ({ current: null }))
-vi.mock('../../native-chat/agent-session-wire/structured-agent-session-registry', () => ({
+vi.mock('../../native-chat/agent-session-wire/host/structured-agent-session-registry', () => ({
   getStructuredAgentSessionHost: () => hostRef.current
 }))
 
@@ -42,6 +33,7 @@ describe('orchestration.callerShow: a session learns its Orca session ID from th
     return orchestrationRequest('orchestration.callerShow', {}, options)
   }
 
+<<<<<<< HEAD
   it('answers a chat with its Orca session ID, even in terminal view where it also carries a pane', async () => {
     const response = await h.dispatch(
       callerShow({
@@ -120,6 +112,8 @@ describe('orchestration.callerShow: a session learns its Orca session ID from th
     expect(response).toMatchObject({ ok: false, error: { code: CODES.hostBoundary } })
   })
 
+=======
+>>>>>>> upstream/main
   it('gives the menu the Orca session ID each session of a cleared chat acts as', async () => {
     const cleared = sessionRecord(SESSION_X)
     h.records.set(SESSION_X, {

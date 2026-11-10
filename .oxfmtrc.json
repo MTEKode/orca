@@ -11,6 +11,7 @@
     ".github/actions/cloud-sql-rollout-lease/**",
     ".anti-slop-plugin/**",
     "src/main/runtime/__fixtures__/*.timing.json",
+    "src/shared/workspace-setup/__fixtures__/setup-script-imports/**",
     "resources/skills/released-digests.json",
     "resources/mte-flow/**",
     "resources/plugins/declarative/*.mjs",

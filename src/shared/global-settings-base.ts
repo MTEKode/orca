@@ -1,3 +1,5 @@
+import type { AntigravityChatAuthSettings } from './antigravity-chat-auth-config'
+import type { EmulatorOpeningSettings } from './emulator-opening-preferences'
 import type { BrowserExtensionGlobalSettings } from './browser/extensions/browser-extension-settings'
 import type { ClaudeAgentViewSettings } from './claude-agent-view'
 import type { BrowserLinkOpeningSettings } from './browser-link-opening-settings'
@@ -18,6 +20,10 @@ import type { TerminalColorOverrideGlobalSettings } from './terminal-themes/term
 import type { WindowMaterialSettings } from './window-material'
 import type { ImportedHarnessSkillsSettings } from './skills/imported-harness-skills-settings'
 import type { EditorSaveSettings } from './editor-save-settings'
+import type { NestedWorkerDepthSettings } from './orchestration/workers/nested-worker-depth'
+import type { SshRemoteControlSettings } from './ssh-remote-control-settings'
+import type { AgentWorkspaceTrustSettings } from './agent-launch/permissions/agent-workspace-trust-decision'
+import type { KeybindingGlobalSettings } from './keybindings/global-settings'
 
 /** Registers the orca-tools MCP bridge in agent launches; absent means on. */
 export type McpIntegrationsSettings = {
@@ -33,7 +39,10 @@ export type McpIntegrationsSettings = {
 }
 
 /** Settings groups owned by their feature modules and composed into GlobalSettings. */
-export type GlobalSettingsBase = ClaudeAgentViewSettings &
+export type GlobalSettingsBase = AntigravityChatAuthSettings &
+  EmulatorOpeningSettings &
+  SshRemoteControlSettings &
+  ClaudeAgentViewSettings &
   NativeChatGlobalSettings &
   NativeChatIdleStopSettings &
   WorktreeDeletionPreferences &
@@ -53,4 +62,7 @@ export type GlobalSettingsBase = ClaudeAgentViewSettings &
   ImportedHarnessSkillsSettings &
   McpIntegrationsSettings &
   EditorSaveSettings &
-  BrowserPasswordsGlobalSettings
+  BrowserPasswordsGlobalSettings &
+  NestedWorkerDepthSettings &
+  AgentWorkspaceTrustSettings &
+  KeybindingGlobalSettings

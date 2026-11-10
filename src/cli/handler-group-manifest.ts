@@ -3,12 +3,10 @@ import { BROWSER_HANDLER_GROUPS } from './browser/browser-handler-groups'
 import { JIRA_HANDLER_GROUP } from './jira-handler-group'
 import { LINEAR_HANDLER_GROUP } from './linear-handler-group'
 import { REFERENCE_HANDLER_GROUP } from './reference-handler-group'
+import { SERVE_PAIRING_HANDLER_GROUPS } from './serve-pairing-handler-groups'
 import { PLUGIN_HANDLER_GROUPS } from './plugin-handler-groups'
-import { MCP_HANDLER_GROUPS } from './mcp-handler-group'
-import { MTE_HANDLER_GROUP } from './mte-handler-group'
-
-// '|' separator: command keys contain spaces (e.g. 'serve service install').
-const splitKeys = (spec: string): string[] => spec.split('|')
+import { HOST_HANDLER_GROUPS } from './host-handler-groups'
+import { WORKTREE_HANDLER_GROUPS } from './worktree-handler-groups'
 
 export type HandlerGroup = {
   name: string
@@ -27,10 +25,12 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
     keys: ['claude-teams', 'open', 'serve', 'status'],
     load: async () => (await import('./handlers/core.js')).CORE_HANDLERS
   },
+  ...SERVE_PAIRING_HANDLER_GROUPS,
   {
-    name: 'serve-restore',
-    keys: ['serve restore resume'],
-    load: async () => (await import('./handlers/serve-restore.js')).SERVE_RESTORE_HANDLERS
+    name: 'serve-reset-identity',
+    keys: ['serve reset-identity'],
+    load: async () =>
+      (await import('./handlers/serve-reset-identity.js')).SERVE_RESET_IDENTITY_HANDLERS
   },
   {
     name: 'serve-service',
@@ -44,37 +44,54 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
   },
   {
     name: 'artifacts',
-    keys: splitKeys(
-      'artifacts list|artifacts share|artifacts update|artifacts unshare|artifacts delete'
-    ),
+    keys: [
+      'artifacts list',
+      'artifacts share',
+      'artifacts update',
+      'artifacts unshare',
+      'artifacts delete'
+    ],
     load: async () => (await import('./handlers/artifacts.js')).ARTIFACT_HANDLERS
   },
   {
     name: 'automations',
-    keys: splitKeys(
-      'automations list|automations show|automations create|automations edit|automations remove|automations run|automations runs'
-    ),
+    keys: [
+      'automations list',
+      'automations show',
+      'automations create',
+      'automations edit',
+      'automations remove',
+      'automations run',
+      'automations runs'
+    ],
     load: async () => (await import('./handlers/automations.js')).AUTOMATION_HANDLERS
   },
   {
     name: 'project',
-    keys: splitKeys(
-      'project list|project setups|project setup-existing-folder|project setup-clone|project setup-create|project setup-update|project setup-delete'
-    ),
+    keys: [
+      'project list',
+      'project setups',
+      'project setup-existing-folder',
+      'project setup-clone',
+      'project setup-create',
+      'project setup-update',
+      'project setup-delete'
+    ],
     load: async () => (await import('./handlers/project.js')).PROJECT_HANDLERS
   },
   {
     name: 'repo',
-    keys: splitKeys('repo list|repo add|repo show|repo set|repo set-base-ref|repo search-refs'),
+    keys: [
+      'repo list',
+      'repo add',
+      'repo show',
+      'repo set',
+      'repo set-base-ref',
+      'repo search-refs'
+    ],
     load: async () => (await import('./handlers/repo.js')).REPO_HANDLERS
   },
-  {
-    name: 'worktree',
-    keys: splitKeys(
-      'worktree ps|worktree list|worktree show|worktree current|worktree create|worktree set|worktree rm'
-    ),
-    load: async () => (await import('./handlers/worktree.js')).WORKTREE_HANDLERS
-  },
+  ...WORKTREE_HANDLER_GROUPS,
   {
     name: 'file',
     keys: ['file open', 'file diff', 'file open-changed'],
@@ -82,31 +99,100 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
   },
   {
     name: 'terminal',
-    keys: splitKeys(
-      'terminal list|terminal show|terminal read|terminal send|terminal wait|terminal stop|terminal rename|terminal set-pane-title|terminal create|terminal switch|terminal close|terminal split'
-    ),
+    keys: [
+      'terminal list',
+      'terminal show',
+      'terminal read',
+      'terminal send',
+      'terminal wait',
+      'terminal stop',
+      'terminal rename',
+      'terminal set-pane-title',
+      'terminal create',
+      'terminal switch',
+      'terminal close',
+      'terminal split'
+    ],
     load: async () => (await import('./handlers/terminal.js')).TERMINAL_HANDLERS
   },
   ...BROWSER_HANDLER_GROUPS,
   {
     name: 'orchestration',
-    keys: splitKeys(
-      'orchestration run-create|orchestration run-use|orchestration run-current|orchestration run-list|orchestration run-show|orchestration send|orchestration check|orchestration reply|orchestration inbox|orchestration task-create|orchestration task-list|orchestration task-update|orchestration worker-start|orchestration worker-show|orchestration worker-read|orchestration worker-stop|orchestration worker-abandon|orchestration worker-release|orchestration worker-keep-open|orchestration worker-retain|orchestration worker-list|orchestration dispatch|orchestration ask|orchestration dispatch-show|orchestration coordinator-start|orchestration coordinator-stop|orchestration request-show|orchestration gate-create|orchestration gate-resolve|orchestration gate-list|orchestration link|orchestration unlink|orchestration reset'
-    ),
+    keys: [
+      'orchestration run-create',
+      'orchestration run-use',
+      'orchestration run-current',
+      'orchestration run-list',
+      'orchestration run-show',
+      'orchestration send',
+      'orchestration check',
+      'orchestration reply',
+      'orchestration inbox',
+      'orchestration task-create',
+      'orchestration task-list',
+      'orchestration task-update',
+      'orchestration worker-start',
+      'orchestration worker-show',
+      'orchestration worker-read',
+      'orchestration worker-stop',
+      'orchestration worker-abandon',
+      'orchestration worker-release',
+      'orchestration worker-keep-open',
+      'orchestration worker-retain',
+      'orchestration worker-list',
+      'orchestration dispatch',
+      'orchestration ask',
+      'orchestration dispatch-show',
+      'orchestration coordinator-start',
+      'orchestration coordinator-stop',
+      'orchestration request-show',
+      'orchestration gate-create',
+      'orchestration gate-resolve',
+      'orchestration gate-list',
+      'orchestration reset'
+    ],
     load: async () => (await import('./handlers/orchestration.js')).ORCHESTRATION_HANDLERS
   },
   {
     name: 'emulator',
-    keys: splitKeys(
-      'emulator list|emulator devices|emulator attach|emulator tap|emulator type|emulator gesture|emulator button|emulator rotate|emulator exec|emulator kill|emulator shutdown|emulator install|emulator launch|emulator permissions|emulator ax|emulator logcat'
-    ),
+    keys: [
+      'emulator list',
+      'emulator devices',
+      'emulator attach',
+      'emulator tap',
+      'emulator type',
+      'emulator gesture',
+      'emulator button',
+      'emulator rotate',
+      'emulator exec',
+      'emulator kill',
+      'emulator shutdown',
+      'emulator install',
+      'emulator launch',
+      'emulator permissions',
+      'emulator ax',
+      'emulator logcat'
+    ],
     load: async () => (await import('./handlers/emulator.js')).EMULATOR_HANDLERS
   },
   {
     name: 'computer',
-    keys: splitKeys(
-      'computer capabilities|computer list-apps|computer permissions|computer list-windows|computer get-app-state|computer click|computer perform-secondary-action|computer scroll|computer drag|computer type-text|computer press-key|computer hotkey|computer paste-text|computer set-value'
-    ),
+    keys: [
+      'computer capabilities',
+      'computer list-apps',
+      'computer permissions',
+      'computer list-windows',
+      'computer get-app-state',
+      'computer click',
+      'computer perform-secondary-action',
+      'computer scroll',
+      'computer drag',
+      'computer type-text',
+      'computer press-key',
+      'computer hotkey',
+      'computer paste-text',
+      'computer set-value'
+    ],
     load: async () => (await import('./handlers/computer.js')).COMPUTER_HANDLERS
   },
   {
@@ -116,14 +202,25 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
   },
   {
     name: 'agent-launch',
-    keys: ['agent launch', 'agent models'],
+    keys: ['agent launch'],
     load: async () => (await import('./handlers/agent-launch.js')).AGENT_LAUNCH_HANDLERS
   },
   {
+    name: 'chat',
+    keys: ['chat rename'],
+    load: async () => (await import('./handlers/chat.js')).CHAT_HANDLERS
+  },
+  {
     name: 'connector',
-    keys: splitKeys(
-      'connector start|connector send|connector prompt|connector answer|connector cancel|connector watch|connector reply'
-    ),
+    keys: [
+      'connector start',
+      'connector send',
+      'connector prompt',
+      'connector answer',
+      'connector cancel',
+      'connector watch',
+      'connector reply'
+    ],
     load: async () => (await import('./handlers/connector.js')).CONNECTOR_HANDLERS
   },
   {
@@ -146,25 +243,7 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
     keys: ['agent-context'],
     load: async () => (await import('./handlers/introspection.js')).INTROSPECTION_HANDLERS
   },
-  {
-    name: 'environment',
-    keys: splitKeys(
-      'host name|host list|environment add|environment list|environment show|environment rm'
-    ),
-    load: async () => (await import('./handlers/environment.js')).ENVIRONMENT_HANDLERS
-  },
-  {
-    name: 'managed-server',
-    keys: splitKeys(
-      'environment status|environment update|environment rollback|environment recover|environment stop|environment cancel-stop|environment forget'
-    ),
-    load: async () => (await import('./handlers/managed-server.js')).MANAGED_SERVER_HANDLERS
-  },
-  {
-    name: 'vm',
-    keys: ['vm recipe doctor'],
-    load: async () => (await import('./handlers/vm.js')).VM_HANDLERS
-  },
+  ...HOST_HANDLER_GROUPS,
   {
     name: 'skill-sharing',
     keys: ['skills installed', 'skills share'],
@@ -185,7 +264,5 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
     name: 'ports',
     keys: ['ports'],
     load: async () => (await import('./handlers/ports.js')).PORTS_HANDLERS
-  },
-  MTE_HANDLER_GROUP,
-  ...MCP_HANDLER_GROUPS
+  }
 ]

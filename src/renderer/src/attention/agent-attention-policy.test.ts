@@ -60,6 +60,7 @@ describe('resolveAgentAttention', () => {
     expect(sink.calls).toEqual([])
   })
 
+<<<<<<< HEAD
   it('rejects coordinator-only news before liveness and admission gates, earning no unread or delivery', () => {
     const admitSurface = vi.fn()
     const hasLiveSession = vi.fn(() => true)
@@ -151,6 +152,8 @@ describe('resolveAgentAttention', () => {
     expect(admitSurface).not.toHaveBeenCalled()
   })
 
+=======
+>>>>>>> upstream/main
   it('delivers a bell without validating the surface address or writing unread', () => {
     const admitSurface = vi.fn()
     const isSurfaceViewed = vi.fn()
@@ -165,21 +168,5 @@ describe('resolveAgentAttention', () => {
     const sink = makeSink()
     applyAgentAttention(decision, sink)
     expect(sink.calls).toEqual([`deliver:${WORKSPACE}:${SUBJECT}`])
-  })
-
-  it('reports in-app workspace selection to the delivery owner', () => {
-    const decision = resolveAgentAttention(
-      completion(),
-      makeSurface({ isWorkspaceActive: (workspaceId) => workspaceId === WORKSPACE })
-    )
-    expect(decision).toMatchObject({ admitted: true, delivery: { workspaceIsActive: true } })
-  })
-
-  it('writes unread before requesting delivery so a suppressed banner still leaves a marker', () => {
-    const sink = makeSink()
-    applyAgentAttention(resolveAgentAttention(completion(), makeSurface()), sink)
-    expect(
-      sink.calls.indexOf(`unread:${WORKSPACE}:${SUBJECT}:${GROUP}:agent-completion`)
-    ).toBeLessThan(sink.calls.indexOf(`deliver:${WORKSPACE}:${SUBJECT}`))
   })
 })

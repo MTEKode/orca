@@ -13,12 +13,20 @@ import {
   type SetStateAction
 } from 'react'
 import type { editor } from 'monaco-editor'
+<<<<<<< HEAD
 import type { WorkspaceResource } from '@/lib/workspace-copy-owner'
+=======
+import type { DiffComment } from '../../../../../../shared/diff-comment-types'
+import type { WorkspaceResource } from '@/lib/workspace/ownership/workspace-copy-owner'
+>>>>>>> upstream/main
 import { toast } from 'sonner'
-import { translate } from '@/i18n/i18n'
+import { useTranslate } from '@/i18n/use-translate'
 import { useAppStore } from '@/store/index'
-import { isMarkdownComment } from '@/lib/diff-comment-compat'
-import { formatMarkdownReviewNotes, type MarkdownReviewNote } from '@/lib/markdown-review-notes'
+import { isMarkdownComment } from '@/lib/source-control/review/comments/diff-comment-compat'
+import {
+  formatMarkdownReviewNotes,
+  type MarkdownReviewNote
+} from '@/lib/editor/markdown/review-notes/markdown-review-notes'
 import { useDiffCommentDecorator } from '../../../diff-comments/useDiffCommentDecorator'
 import type { DecoratedDiffComment } from '../../../diff-comments/decorated-diff-comment'
 import {
@@ -60,6 +68,7 @@ export function useMonacoMarkdownAnnotations(params: {
   noteSource: WorkspaceResource
   markdownAnnotationsEnabled: boolean
 }): MonacoMarkdownAnnotations {
+  const t = useTranslate()
   const {
     mountedEditor,
     editorContainerRef,
@@ -221,9 +230,7 @@ export function useMonacoMarkdownAnnotations(params: {
       setCommentPopover(null)
     } else {
       // The draft stays open for retry.
-      toast.error(
-        translate('auto.components.editor.diffCommentSaveFailed', 'Failed to save comment')
-      )
+      toast.error(t('auto.components.editor.diffCommentSaveFailed', 'Failed to save comment'))
     }
   }
 

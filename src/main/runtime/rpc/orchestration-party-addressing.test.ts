@@ -1,16 +1,14 @@
-import './unused-default-rpc-methods.test-fixture'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { formatOrcaSessionAddress } from '../../../shared/orca-session-address'
 import { testOrcaSessionId } from '../../../shared/orca-session-address-test-fixture'
-import { ORCHESTRATION_SESSION_CALLER_ERROR_CODES as CODES } from '../../../shared/orchestration-session-caller-codes'
+
 import {
   mintStructuredWorkerHandle,
   mintStructuredWorkerPaneKey,
   structuredWorkerIdentities,
   structuredWorkerProcessIncarnation
-} from '../structured-worker-identity'
+} from '../orchestration/terminal-authority/structured-sessions/structured-worker-identity'
 import {
-  ADDRESS_X,
   ADDRESS_Y,
   createSessionCallerHarness,
   idOf,
@@ -19,14 +17,11 @@ import {
   SESSION_X,
   SESSION_Y,
   sessionRecord,
-  WORKER_HANDLE,
-  WORKER_PANE,
-  WORKSPACE_X,
   type SessionCallerHarness
 } from './orchestration-session-caller-test-fixture'
 
 const hostRef = vi.hoisted((): { current: unknown } => ({ current: null }))
-vi.mock('../../native-chat/agent-session-wire/structured-agent-session-registry', () => ({
+vi.mock('../../native-chat/agent-session-wire/host/structured-agent-session-registry', () => ({
   getStructuredAgentSessionHost: () => hostRef.current
 }))
 
@@ -77,74 +72,10 @@ function chatRun(sessionId = SESSION_X): Promise<string> {
 }
 
 /** Worker Y assigned a Dispatch in `runId`, as `worker-start` leaves it. */
-function assignWorker(runId: string): string {
-  return h.db.createDispatchContext({
-    taskId: h.db.createTask({ runId, spec: 'work' }).id,
-    assigneeHandle: handle,
-    assigneePaneKey: paneKey,
-    processIncarnation: structuredWorkerProcessIncarnation(SESSION_Y),
-    creator: { kind: 'session', orcaSessionId: SESSION_X },
-    maxDepth: Number.MAX_SAFE_INTEGER
-  }).id
-}
 
 /** The PTY terminal assigned a Dispatch in a Run, so it may ask that Run's coordinator. */
-function assignTerminal(runId: string): void {
-  h.db.createDispatchContext({
-    taskId: h.db.createTask({ runId, spec: 'sub' }).id,
-    assigneeHandle: WORKER_HANDLE,
-    assigneePaneKey: WORKER_PANE,
-    creator: { kind: 'system' },
-    maxDepth: Number.MAX_SAFE_INTEGER
-  })
-}
 
 describe('every target param resolves both spellings of a party to one canonical address', () => {
-  it.each(WORKER_SPELLINGS)('send: a worker at %s gets its Dispatch mailbox', async (_l, to) => {
-    const dispatchId = assignWorker(await chatRun())
-    const { message } = await as(undefined, 'orchestration.send', {
-      from: WORKER_HANDLE,
-      to,
-      subject: 's'
-    })
-    expect(message).toMatchObject({ to_handle: `dispatch:${dispatchId}` })
-  })
-
-  it("send: a chat's session address is its own direct mailbox", async () => {
-    const { message } = await as(undefined, 'orchestration.send', {
-      from: WORKER_HANDLE,
-      to: ADDRESS_Z,
-      subject: 's'
-    })
-    expect(message).toMatchObject({ to_handle: ADDRESS_Z })
-  })
-
-  it.each(WORKER_SPELLINGS)('ask: a worker coordinator is asked at %s', async (_l, to) => {
-    assignWorker(await chatRun())
-    const childRun = idOf((await as(SESSION_Y, 'orchestration.runCreate', { objective: 'c' })).run)
-    assignTerminal(childRun)
-    const asked = await as(undefined, 'orchestration.ask', {
-      from: WORKER_HANDLE,
-      to,
-      question: 'q',
-      timeoutMs: 0
-    })
-    expect(h.db.getQuestion(String(asked.messageId))).toMatchObject({ run_id: childRun })
-  })
-
-  it("ask: a chat coordinator is asked at its session address, and not at a worker's", async () => {
-    const runId = await chatRun()
-    assignTerminal(runId)
-    const ask = (to: string) =>
-      call(undefined, 'orchestration.ask', { from: WORKER_HANDLE, to, question: 'q', timeoutMs: 0 })
-
-    expect(await ask(ADDRESS_X)).toMatchObject({ ok: true })
-    expect(await ask(ADDRESS_Y)).toMatchObject({
-      ok: false,
-      error: { code: 'dispatch_run_mismatch' }
-    })
-  })
-
   it.each(WORKER_SPELLINGS)(
     'dispatch: a worker named by %s is the assignee, and its check reads the Dispatch',
     async (_l, to) => {
@@ -182,6 +113,7 @@ describe('every target param resolves both spellings of a party to one canonical
       dispatchId: idOf(dispatch)
     })
   })
+<<<<<<< HEAD
 
   it('dispatch: refuses a chat on another host with no row written', async () => {
     const runId = await chatRun()
@@ -429,4 +361,6 @@ describe('no writer stores a structured worker under its session address', () =>
     expect(h.db.getInbox(100).length).toBeGreaterThanOrEqual(7)
     expect(stored).toEqual([])
   })
+=======
+>>>>>>> upstream/main
 })

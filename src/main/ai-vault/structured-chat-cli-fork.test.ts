@@ -7,11 +7,10 @@ import { agentSessionRecordFixture } from '../../shared/agent-session/lifecycle/
 import type { AgentSessionRecord } from '../../shared/agent-session/lifecycle/agent-session-record'
 import type { AgentJournalSnapshot } from '../../shared/agent-session/journal/agent-session-journal-types'
 import { agentJournalSubmissionKey } from '../../shared/agent-session/journal/agent-session-journal-item-key'
-import { setStructuredAgentSessionHost } from '../native-chat/agent-session-wire/structured-agent-session-registry'
+import { setStructuredAgentSessionHost } from '../native-chat/agent-session-wire/host/structured-agent-session-registry'
 import { prepareStructuredChatCliFork } from './structured-chat-cli-fork'
-import { structuredAgentRuntimeRegistration } from '../runtime/structured-agent-runtime-registrations'
+import { structuredAgentRuntimeRegistration } from '../runtime/agent-session/installation/structured-agent-runtime-registrations'
 import { prepareLegacySharedCodexSessionResume } from '../codex/history/resume/codex-legacy-session-resume'
-import { AiVaultPrepareSessionResumeParams } from '../../shared/rpc-contract/ai-vault-params'
 
 let root: string | undefined
 const request = {
@@ -143,6 +142,7 @@ it.runIf(process.platform === 'win32')(
   }
 )
 
+<<<<<<< HEAD
 it('copies OpenCode directly from the selected record and preserves its typed account and copy id', async () => {
   root = await mkdtemp(join(tmpdir(), 'chat-cli-fork-'))
   const record = agentSessionRecordFixture()
@@ -172,6 +172,8 @@ it('copies OpenCode directly from the selected record and preserves its typed ac
   expect(prepare).not.toHaveBeenCalled()
 })
 
+=======
+>>>>>>> upstream/main
 it('uses the Pi file handle and refuses a mismatched saved header or missing handle', async () => {
   root = await mkdtemp(join(tmpdir(), 'chat-cli-fork-'))
   const filePath = join(root, '2026-10-15_12345678-abcd-1234-abcd-123456789abc.jsonl')
@@ -230,26 +232,4 @@ it('uses the Pi file handle and refuses a mismatched saved header or missing han
   await expect(prepareStructuredChatCliFork(request, prepare)).rejects.toThrow(
     'no saved conversation'
   )
-})
-
-it('refuses a foreign workspace or WSL record and rejects mixed chat/row requests', async () => {
-  root = await mkdtemp(join(tmpdir(), 'chat-cli-fork-'))
-  const record = agentSessionRecordFixture()
-  install(record)
-  await expect(
-    prepareStructuredChatCliFork(
-      { ...request, sourceChat: { ...request.sourceChat, workspaceId: 'other' } },
-      prepare
-    )
-  ).rejects.toThrow('on this host')
-  record.location.wslDistro = 'Ubuntu'
-  await expect(prepareStructuredChatCliFork(request, prepare)).rejects.toThrow('on this host')
-  expect(
-    AiVaultPrepareSessionResumeParams.safeParse({
-      ...request,
-      agent: 'claude',
-      filePath: '/foreign'
-    }).success
-  ).toBe(false)
-  expect(prepare).not.toHaveBeenCalled()
 })

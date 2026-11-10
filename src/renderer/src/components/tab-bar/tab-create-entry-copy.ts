@@ -1,9 +1,17 @@
 import { translate } from '@/i18n/i18n'
+import type { Translate } from '@/i18n/use-translate'
 
+<<<<<<< HEAD
 export function getTabEntryOmniboxPlaceholder(): string {
   return translate(
     'auto.components.tab.bar.TabBarCreateEntry.omniboxPlaceholderNoAgents',
     'Search open tabs, history, files, URLs…'
+=======
+export function getTabEntryOmniboxPlaceholder(t: Translate = translate): string {
+  return t(
+    'auto.components.tab.bar.TabBarCreateEntry.omniboxPlaceholderWithHistory',
+    'Search open tabs, history, files, URLs, agents…'
+>>>>>>> upstream/main
   )
 }
 

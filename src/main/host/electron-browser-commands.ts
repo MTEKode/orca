@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { RuntimeBrowserCommands } from '../runtime/browser/browser-commands'
 import { setRuntimeBrowserCommandsFactory } from '../runtime/runtime-browser-commands-factory'
 import { setBrowserHostClientProfileResolver } from '../runtime/browser-host/browser-host-client-profile-metadata'
@@ -6,12 +7,22 @@ import { setManagedBrowserProfileDeleter } from '../runtime/browser-host/managed
 import { deleteManagedBrowserProfile } from '../browser/sessions/browser-managed-session-profiles'
 import { shell } from 'electron'
 import { setMcpIntegrationBrowserOpener } from '../mcp-integrations/hub'
+=======
+import { desktopBrowserExtensions } from '../browser/extensions/browser-extension-commands'
+import { RuntimeBrowserCommands } from '../runtime/browser/commands/browser-commands'
+import { setRuntimeBrowserCommandsFactory } from '../runtime/browser/installation/runtime-browser-commands-factory'
+import { setBrowserHostClientProfileResolver } from '../runtime/browser-host/profiles/browser-host-client-profile-metadata'
+import { browserSessionRegistry } from '../browser/sessions/profiles/browser-session-registry'
+import { setManagedBrowserProfileDeleter } from '../runtime/browser-host/profiles/managed-browser-profile-removal'
+import { deleteManagedBrowserProfile } from '../browser/sessions/profiles/browser-managed-session-profiles'
+>>>>>>> upstream/main
 
 /** Importing this desktop factory loads the Chromium browser cluster. */
 export function installElectronBrowserCommands(): void {
   setRuntimeBrowserCommandsFactory((host) => new RuntimeBrowserCommands(host), {
     supportsGoogleCookieClear: () => true,
-    clientHosting: true
+    clientHosting: true,
+    extensions: desktopBrowserExtensions
   })
   setBrowserHostClientProfileResolver((browserProfileId) => {
     const profile = browserSessionRegistry.getProfile(browserProfileId)
