@@ -273,6 +273,10 @@ export const ANTIGRAVITY_LAUNCH_SPEC = {
   env: ANTIGRAVITY_ACP_ENV,
   scrubEnvironment: scrubAntigravityAcpEnvironment,
   dialect: ANTIGRAVITY_ACP_DIALECT,
+  // `agy models` (the agy CLI) lists more ids than the pinned managed ACP server serves: measured
+  // 2026-11-05, server 1.4.1 rejects claude-*/gpt-oss-* with -32602 and its session/new advertises
+  // only the gemini bases, so the live session list stays authoritative once a chat starts.
+  // `agy acp` 1.5.1 does serve them; widening the picker needs a newer pinned server.
   modelDiscovery: {
     kind: 'command',
     binary: 'agy',
