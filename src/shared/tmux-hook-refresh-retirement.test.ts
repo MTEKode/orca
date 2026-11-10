@@ -56,11 +56,11 @@ describe('tmux refresh retirement during root resolution', () => {
           paneKey: TMUX_TEST_PANE,
           tabId: 'tab-tmux',
           worktreeId: 'workspace',
-          source: 'opencode',
+          source: 'opencode2',
           connectionId: null,
           launchToken: 'new-generation',
           payload: {
-            agentType: 'opencode',
+            agentType: 'opencode2',
             state: 'waiting',
             toolName: 'shell',
             prompt: 'new turn'

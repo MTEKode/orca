@@ -5,15 +5,25 @@ describe('OpenCode hook selection', () => {
   it.each([
     'opencode --session fixture',
     '"C:\\tools\\opencode.exe" --session fixture',
-    '/usr/local/bin/opencode',
-    'sleep 30 && opencode'
-  ])('selects opencode for %s and honors a disabled integration', (command) => {
-    expect(selectOpenCodeHookAgent(undefined, command, () => true)).toBe('opencode')
-    expect(selectOpenCodeHookAgent(undefined, command, () => false)).toBeNull()
+    '/usr/local/bin/opencode'
+  ])('preserves disabled v1 identity for %s', (command) => {
+    expect(selectOpenCodeHookAgent(undefined, command, (agent) => agent === 'opencode2')).toBeNull()
   })
+  it('trusts the supplied identity for wrapped or renamed commands', () => {
+    expect(selectOpenCodeHookAgent('opencode', 'opencode2', () => true)).toBe('opencode')
+    expect(
+      selectOpenCodeHookAgent('opencode2', 'my-wrapper', (agent) => agent === 'opencode2')
+    ).toBe('opencode2')
+  })
+})
 
-  it('trusts the supplied identity for wrapped commands', () => {
-    expect(selectOpenCodeHookAgent('opencode', 'my-wrapper', () => true)).toBe('opencode')
-    expect(selectOpenCodeHookAgent('opencode', 'my-wrapper', () => false)).toBeNull()
+describe('selectOpenCodeHookAgent after a sleep prefix', () => {
+  it('selects OpenCode 2 hooks instead of the v1 fallback', () => {
+    expect(selectOpenCodeHookAgent(undefined, 'sleep 30 && opencode2', () => true)).toBe(
+      'opencode2'
+    )
+    expect(
+      selectOpenCodeHookAgent(undefined, 'sleep 30 && opencode2', (agent) => agent === 'opencode')
+    ).toBeNull()
   })
 })

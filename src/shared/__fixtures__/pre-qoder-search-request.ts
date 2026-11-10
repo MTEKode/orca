@@ -15,6 +15,7 @@ export const AI_VAULT_AGENTS = [
   'rovo',
   'copilot',
   'opencode',
+  'opencode2',
   'zcode',
   'grok',
   'openclaw',

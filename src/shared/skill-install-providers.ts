@@ -204,6 +204,12 @@ export const SKILL_INSTALL_PROVIDERS = Object.freeze([
     workspaceSegments: null
   },
   {
+    id: 'opencode2',
+    displayName: 'OpenCode 2',
+    globalSegments: null,
+    workspaceSegments: null
+  },
+  {
     id: 'mimo-code',
     displayName: 'MiMo Code',
     globalSegments: null,

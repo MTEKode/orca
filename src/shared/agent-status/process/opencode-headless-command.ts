@@ -67,7 +67,7 @@ export function findOpenCodeRunCommand(
     const binary = getCommandTokenPathBasename(tokens[commandPosition] ?? '')
       .toLowerCase()
       .replace(/\.(?:exe|cmd)$/, '')
-    if (binary !== 'opencode') {
+    if (binary !== 'opencode' && binary !== 'opencode2') {
       return null
     }
   }

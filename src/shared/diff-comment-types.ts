@@ -20,17 +20,12 @@ export type MobileDiffReviewState = {
   files: Record<string, MobileDiffReviewFileState>
 }
 
-/** Who wrote the note; absent means the user (every note written before agents could post). */
-export type DiffCommentAuthor = 'user' | 'agent'
-
 export type DiffComment = {
   id: string
   worktreeId: string
   filePath: string
   /** Undefined means a legacy diff note. */
   source?: DiffCommentSource
-  /** Agent-posted notes are received reviews: displayed, never queued for delivery. */
-  author?: DiffCommentAuthor
   /** Exact text selected when creating a markdown note, when available. */
   selectedText?: string
   /** Inclusive range start. Must be <= lineNumber when present. */
@@ -46,9 +41,4 @@ export type DiffComment = {
   diffIdentity?: string
   // Reserved for future "comments on the original side" — always 'modified' in v1.
   side: 'modified'
-}
-
-/** True for agent-posted notes; absent author is the user (legacy and current renderer writes). */
-export function isAgentDiffComment(comment: Pick<DiffComment, 'author'>): boolean {
-  return comment.author === 'agent'
 }

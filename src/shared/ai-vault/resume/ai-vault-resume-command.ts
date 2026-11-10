@@ -168,7 +168,7 @@ function defaultAiVaultResumeCommandBase(agent: AiVaultAgent): string {
     return 'hermes'
   }
   // Preserve launch subcommands and mode flags when resuming.
-  if (agent === 'rovo' || agent === 'kiro') {
+  if (agent === 'rovo' || agent === 'opencode2' || agent === 'kiro') {
     return TUI_AGENT_CONFIG[agent].launchCmd
   }
   return TUI_AGENT_CONFIG[agent].detectCmd
@@ -185,6 +185,7 @@ function buildAgentResumeInvocation(
     case 'rovo':
       // Why: the base is the full launch command, as a settings override is.
       return `${baseCommand} --restore ${sessionArg}`
+    case 'opencode2':
     case 'opencode':
     case 'pi':
     // Kimi --session/-S is workspace-scoped; retain the cwd prefix or resume fails.

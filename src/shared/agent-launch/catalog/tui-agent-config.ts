@@ -99,6 +99,22 @@ const TUI_AGENT_CONFIG_SOURCE: Record<TuiAgent, TuiAgentConfigSource> = {
       'opencode-cmd-2-0-21-timed-warm-server'
     ]
   },
+  opencode2: {
+    detectCmd: 'opencode2',
+    // The private server inherits this pane's hook endpoint and identity.
+    launchCmd: 'opencode2 --standalone',
+    promptInjectionMode: 'flag-prompt',
+    draftPasteReadySignal: 'render-cursor-after-bracketed-paste',
+    submitPasteReadySignal: 'opencode-agent-row',
+    draftPasteReadyTimeoutMs: 20_000,
+    composerReadyCaptures: [
+      'opencode-2-0-18-timed-boot-hidden-pane',
+      'opencode-2-0-21-timed-cold-standalone',
+      'opencode-2-0-21-timed-cold-standalone-hidden-pane',
+      'opencode-2-0-21-timed-natural-load-enter-dropped',
+      'opencode-2-0-14-timed-cold-standalone'
+    ]
+  },
   'mimo-code': {
     detectCmd: 'mimo',
     promptInjectionMode: 'flag-prompt',

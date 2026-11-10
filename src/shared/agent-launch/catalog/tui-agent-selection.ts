@@ -3,13 +3,14 @@ import type { GlobalSettings } from '../../global-settings-types'
 import { isTuiAgent } from './tui-agent-config'
 
 // Match desktop catalog order: this determines fallback priority without a selected default.
-export const TUI_AGENT_AUTO_PICK_ORDER: readonly TuiAgent[] = [
+export const TUI_AGENT_AUTO_PICK_ORDER = [
   'claude',
   'claude-agent-teams',
   'openclaude',
   'codex',
   'grok',
   'copilot',
+  'opencode2',
   'opencode',
   'mimo-code',
   'ante',
@@ -48,7 +49,7 @@ export const TUI_AGENT_AUTO_PICK_ORDER: readonly TuiAgent[] = [
   'openclaw',
   'codebuddy',
   'jcode'
-]
+] as const satisfies readonly TuiAgent[]
 
 // Fresh installs show Agent Teams; the migration separately preserves legacy hidden defaults.
 export const DEFAULT_DISABLED_TUI_AGENTS = [] as const satisfies readonly TuiAgent[]

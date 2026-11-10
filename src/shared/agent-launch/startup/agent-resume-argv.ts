@@ -38,6 +38,9 @@ export function getAgentResumeArgv(
       return providerSession.key === 'conversation_id' ? ['agy', '--conversation', id] : null
     case 'opencode':
       return providerSession.key === 'session_id' ? ['opencode', '--session', id] : null
+    case 'opencode2':
+      // Why: the launch command owns standalone/shared mode, including user overrides.
+      return providerSession.key === 'session_id' ? ['opencode2', '--session', id] : null
     case 'pi':
       return providerSession.key === 'session_id' && providerSession.transcriptPath
         ? ['pi', '--session', providerSession.transcriptPath]
@@ -97,8 +100,12 @@ const FORK_ARGV: Partial<
   pi: ({ transcriptPath }) => (transcriptPath ? ['pi', '--fork', transcriptPath] : null)
 }
 
-/** OpenCode/OMP17.0.5 fork through ACP session/fork then resume the copy. Refuse without host-advertised fork. */
-const FORKS_THROUGH_CHAT: ReadonlySet<string> = new Set<ResumableTuiAgent>(['opencode', 'omp'])
+/** OpenCode2.0.14/OMP17.0.5 fork through ACP session/fork then resume the copy. Refuse without host-advertised fork; OpenCode2 chats list as opencode2. */
+const FORKS_THROUGH_CHAT: ReadonlySet<string> = new Set<ResumableTuiAgent>([
+  'opencode',
+  'opencode2',
+  'omp'
+])
 
 /** Whether "Resume in New CLI" can open a copy of this agent's conversations at all. A row's own
  *  gate (`aiVaultSessionCliForkWorktreeId`) also checks that its copy can be made. */

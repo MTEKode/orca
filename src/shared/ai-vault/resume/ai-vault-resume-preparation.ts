@@ -37,7 +37,7 @@ export type AiVaultPrepareSessionResumeResult = {
   cliForkSource?: AiVaultChatForkSource
   // Cross-account hardlinks share rollouts: the host repins to the selected home. Absent/older-host replies retain the session's home.
   substituteCodexHome?: string
-  /** Chat-made fork identity and actual launch agent; older hosts omit it and make no copy. */
+  /** Chat-made fork identity and actual launch agent (opencode2 chats run opencode); older hosts omit it and make no copy. */
   forkedSession?: AiVaultConversationCopy & { agent: AiVaultAgent }
 }
 

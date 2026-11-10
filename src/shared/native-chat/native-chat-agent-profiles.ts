@@ -51,12 +51,7 @@ const NATIVE_CHAT_AGENT_PROFILES: Partial<Record<AgentType, NativeChatAgentProfi
     expandsSlashCommandsFromText: true
   },
   opencode: OPENCODE_PROFILE,
-  // Antigravity's ACP session reports no commands or skills and reads no skill folders of its own,
-  // so the picker shows shared-root scans plus the unified catalog (loaded via orca_skill_read).
-  antigravity: {
-    skillPrefix: '/',
-    skillSourceOwner: 'antigravity'
-  },
+  opencode2: OPENCODE_PROFILE,
   grok: {
     skillPrefix: '/',
     skillSourceOwner: 'grok'

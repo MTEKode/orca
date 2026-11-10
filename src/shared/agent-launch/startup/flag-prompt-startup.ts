@@ -23,7 +23,7 @@ export function buildFlagPromptStartupPlan(args: {
 }): AgentStartupPlan {
   const parsed = tokenizeStartupCommand(args.launchCommand, args.shell)
   const openCodeRun =
-    args.agent === 'opencode' && parsed.ok
+    (args.agent === 'opencode' || args.agent === 'opencode2') && parsed.ok
       ? findOpenCodeRunCommand(parsed.tokens, args.shell)
       : null
   // OpenCode run takes a positional message; --prompt belongs to its TUI.

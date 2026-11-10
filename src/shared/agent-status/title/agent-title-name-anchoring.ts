@@ -166,7 +166,7 @@ export function agentForNativeFrame(text: string): TerminalAgent | null {
 
 function agentForNativeName(text: string): TerminalAgent | null {
   const normalized = text.replace(WINDOWS_LAUNCHER_SUFFIX_RE, '').toLowerCase()
-  if (normalized === 'jcode') {
+  if (normalized === 'jcode' || normalized === 'opencode2') {
     return normalized
   }
   const agent = agentForBareName(text)

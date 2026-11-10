@@ -134,8 +134,7 @@ function deriveSlashAutocomplete(
     sessionSkills,
     undefined,
     prefix,
-    commandAvailable,
-    discovery.unifiedSkills
+    commandAvailable
   )
   return {
     mode: 'slash',

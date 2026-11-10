@@ -23,6 +23,7 @@ const AGENT_HOOK_SOURCES = [
   'antigravity',
   'amp',
   'opencode',
+  'opencode2',
   'mimo-code',
   'cursor',
   'pi',
@@ -48,12 +49,6 @@ const AGENT_HOOK_SOURCE_SET: ReadonlySet<string> = new Set(AGENT_HOOK_SOURCES)
 
 export function isAgentHookSource(value: unknown): value is AgentHookSource {
   return typeof value === 'string' && AGENT_HOOK_SOURCE_SET.has(value)
-}
-
-/** Maps a persisted or remote source to a current one: `opencode2` is the retired OpenCode id. */
-export function normalizeAgentHookSource(value: unknown): AgentHookSource | undefined {
-  const source = value === 'opencode2' ? 'opencode' : value
-  return isAgentHookSource(source) ? source : undefined
 }
 
 /** Remote transport location; excluded from dev/prod mismatch checks. */
@@ -117,7 +112,7 @@ export type AgentHookRelayEnvelope = {
 
 /** Older clients ignore the null payload; newer clients clear only the selected projection. */
 export type AgentHookUnavailableEnvelope = {
-  source: 'opencode'
+  source: 'opencode' | 'opencode2'
   paneKey: string
   tabId?: string
   worktreeId?: string

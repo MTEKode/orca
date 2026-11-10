@@ -54,6 +54,7 @@ export function isNewTurnEvent(source: AgentHookSource, eventName: unknown): boo
     case 'amp':
       return eventName === 'agent.start'
     case 'opencode':
+    case 'opencode2':
       return eventName === 'SessionStart'
     case 'mimo-code':
       return false
@@ -129,6 +130,7 @@ export function isTurnEndEvent(source: AgentHookSource, eventName: unknown): boo
     case 'jcode':
       return eventName === 'turn_end'
     case 'opencode':
+    case 'opencode2':
     case 'mimo-code':
     case 'pi':
     case 'omp':
@@ -174,7 +176,10 @@ export function hasExplicitUserPrompt(
     return true
   }
   if (extractedPrompt.source === 'role_user_text') {
-    return (source === 'opencode' || source === 'mimo-code') && eventName === 'MessagePart'
+    return (
+      (source === 'opencode' || source === 'opencode2' || source === 'mimo-code') &&
+      eventName === 'MessagePart'
+    )
   }
   if (extractedPrompt.text.length === 0) {
     return false
@@ -232,6 +237,7 @@ export function extractToolFields(
     case 'amp':
       return extractAmpToolFields(eventName, hookPayload)
     case 'opencode':
+    case 'opencode2':
     case 'mimo-code':
       return extractOpenCodeToolFields(eventName, hookPayload)
     case 'cursor':

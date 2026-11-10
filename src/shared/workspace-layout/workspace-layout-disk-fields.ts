@@ -148,8 +148,6 @@ const ENTRY_FIELDS = {
   sortOrder: TAB_ORDER,
   isPreview: tab('isPreview'),
   agentSessionAgent: tab('agentSessionAgent'),
-  // Derived per session from the structured worker identity; never persisted (a reload hides workers again).
-  agentSessionRole: 'unwritten',
   lastFocusedAt: own('view', 'lastFocusedAt')
 } as const
 

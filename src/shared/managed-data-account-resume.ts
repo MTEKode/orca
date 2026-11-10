@@ -9,7 +9,7 @@ export function managedDataAccountResumeEnv(session: {
   agent: string
   filePath?: string
 }): Record<string, string> {
-  if (session.agent !== 'opencode') {
+  if (session.agent !== 'opencode' && session.agent !== 'opencode2') {
     return {}
   }
   const accountId = session.filePath?.match(OPENCODE_ACCOUNT_STORE)?.[1]

@@ -50,8 +50,12 @@ export function isNavigationEscapeIntent(
   )
 }
 
-// First Escape may leave work running or close OpenCodeNext's dock; require a second same-turn Escape on both renderer and server.
-const DOUBLE_ESCAPE_INTERRUPT_AGENT_TYPES: ReadonlySet<AgentType> = new Set(['opencode', 'copilot'])
+// First Escape may leave work running or close OpenCode2's dock; require a second same-turn Escape on both renderer and server.
+const DOUBLE_ESCAPE_INTERRUPT_AGENT_TYPES: ReadonlySet<AgentType> = new Set([
+  'opencode',
+  'opencode2',
+  'copilot'
+])
 
 /** True when this agent only yields an interrupt on a second same-turn Escape. */
 export function requiresDoubleEscapeInterrupt(
