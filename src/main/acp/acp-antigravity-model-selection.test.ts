@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
-import { AcpStructuredOptions } from './acp-structured-options'
+import { AcpStructuredOptions } from './options/acp-structured-options'
 import { ANTIGRAVITY_ACP_DIALECT } from './acp-dialects/antigravity-dialect'
 import { acpLaunchSpecFor } from './acp-launch-specs'
-import { createAcpModelCatalogProbe } from './acp-model-catalog-probe'
+import { createAcpModelCatalogProbe } from './discovery/acp-model-catalog-probe'
 import { antigravityFallbackModelOptions } from '../../shared/antigravity/antigravity-model-listing'
 
 const SPEC = acpLaunchSpecFor('antigravity')!

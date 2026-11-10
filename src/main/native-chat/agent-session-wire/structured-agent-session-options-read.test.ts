@@ -4,7 +4,7 @@ import {
   HOST_TEST_RESTING_OPTIONS_CREATED_LINKS as created,
   hostTestRestingOptionsJournal as restingJournal,
   hostTestOptionsReadStore
-} from './structured-agent-session-host-test-data'
+} from './host/testing/structured-agent-session-host-test-data'
 import {
   CODEX_SESSION_OPTION_CATALOG,
   CLAUDE_SESSION_OPTION_CATALOG
@@ -20,7 +20,7 @@ import { optionSession } from '../../codex/structured/catalog/codex-structured-o
 import { CodexAppServerRequestError } from '../../codex/app-server/codex-app-server-request-error'
 import { structuredAgentSessionDrawnValues } from '../../../shared/agent-session/options/structured-agent-session-option-snapshot'
 
-import { structuredAgentSessionCapabilityView } from './structured-agent-session-option-models'
+import { structuredAgentSessionCapabilityView } from './options/structured-agent-session-option-models'
 import { claudeFallbackModelOptions } from '../../claude/structured/launch/claude-structured-session-options'
 import {
   acquired,
@@ -33,7 +33,7 @@ import {
   applyStructuredAgentSessionOptions,
   createStructuredAgentSessionOptionState
 } from '../../../shared/agent-session/options/structured-agent-session-options'
-import type { StructuredAgentSessionLiveOptions } from './structured-agent-session-adapter'
+import type { StructuredAgentSessionLiveOptions } from './providers/structured-agent-session-adapter'
 import { describe, expect, it, vi } from 'vitest'
 import type { AgentSessionRecord } from '../../../shared/agent-session/lifecycle/agent-session-record'
 import type { AgentJournalItemBody } from '../../../shared/agent-session/journal/agent-session-journal-types'
@@ -44,23 +44,23 @@ import {
   type AgentModelCatalogService
 } from '../agent-model-catalog/agent-model-catalog-service'
 import { AgentModelCatalogStore } from '../agent-model-catalog/agent-model-catalog-store'
-import type { StructuredAgentSessionMutationContext } from './structured-agent-session-host-mutations'
+import type { StructuredAgentSessionMutationContext } from './operations/structured-agent-session-host-mutations'
 import {
   readStructuredAgentSessionOptions,
   recordStructuredAgentSessionOptionIntent
-} from './structured-agent-session-options-read'
+} from './options/structured-agent-session-options-read'
 import { withLiveCatalogListing } from '../agent-model-catalog/agent-model-catalog-entry'
-import { StructuredAgentSessionTaskQueue } from './structured-agent-session-task-queue'
+import { StructuredAgentSessionTaskQueue } from './host/structured-agent-session-task-queue'
 import { agentModelCatalogFingerprintForRecord } from '../agent-model-catalog/agent-model-catalog-fingerprint'
 import {
   saveStructuredAgentSessionStartReadbackListing,
   type StructuredAgentSessionStartListingContext
-} from './structured-agent-session-start-listing'
+} from './startup/structured-agent-session-start-listing'
 import { recordAgentSessionRanOptions } from '../../runtime/agent-session/records/agent-session-record-options'
 import {
   claudeAndCodexAgents,
   NO_STRUCTURED_AGENTS
-} from './structured-agent-session-adapter-router-test-support'
+} from './providers/testing/structured-agent-session-adapter-router-test-support'
 
 const SESSION = 'session-1'
 

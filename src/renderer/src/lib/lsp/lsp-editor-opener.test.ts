@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { URI } from 'monaco-editor/esm/vs/base/common/uri.js'
 import type * as Monaco from 'monaco-editor'
-import { openDetectedFilePath } from '@/components/terminal-pane/terminal-file-open-routing'
+import { openDetectedFilePath } from '@/components/terminal-pane/links/files/terminal-file-open-routing'
 import { registerLspEditorOpener } from './lsp-editor-opener'
 import { LSP_PEEK_SCHEME } from './lsp-location-models'
 
-vi.mock('@/components/terminal-pane/terminal-file-open-routing', () => ({
+vi.mock('@/components/terminal-pane/links/files/terminal-file-open-routing', () => ({
   openDetectedFilePath: vi.fn()
 }))
 

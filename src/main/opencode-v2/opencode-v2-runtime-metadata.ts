@@ -4,7 +4,7 @@ import {
   type StructuredAgentCommandSettings
 } from '../native-chat/structured-agent-command-resolution'
 import type { StructuredAgentSessionHistory } from '../native-chat/structured-agent-cli-conversations'
-import type { StructuredAgentRuntimeMetadata } from '../runtime/structured-agent-runtime-registration-types'
+import type { StructuredAgentRuntimeMetadata } from '../runtime/agent-session/installation/structured-agent-runtime-registration-types'
 import { OPENCODE_SESSION_HISTORY } from '../opencode/opencode-session-history'
 import { OPENCODE_V2_STRUCTURED_AGENT } from './opencode-v2-agent-definition'
 import { createOpenCodeV2ModelCatalogProbe } from './opencode-v2-model-catalog'

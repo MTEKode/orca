@@ -6,11 +6,11 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { hasFullAgentSessionContext } from '@/lib/agent-session-continuation'
+import { hasFullAgentSessionContext } from '@/lib/agent-session/context/agent-session-continuation'
 import type {
   AgentSessionContinuationContextMode,
   AgentSessionContinuationRequest
-} from '@/lib/agent-session-continuation'
+} from '@/lib/agent-session/context/agent-session-continuation'
 
 /** The hand-off context pick (focused vs full transcript) shared by the agent and orchestration modes. */
 export function ContinuationContextSection({

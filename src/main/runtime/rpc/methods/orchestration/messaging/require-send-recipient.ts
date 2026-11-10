@@ -1,5 +1,5 @@
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
-import { orchestrationSkillRecoveryData } from '../../../../../../shared/orchestration-rpc-contract'
+import { orchestrationSkillRecoveryData } from '../../../../../../shared/orchestration/orchestration-rpc-contract'
 
 /** The resolved recipient, or the run_required refusal when neither a recipient nor a Run could be found. */
 export function requireSendRecipient(to: string | undefined): string {

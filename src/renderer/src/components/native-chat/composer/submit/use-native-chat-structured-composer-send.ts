@@ -31,8 +31,8 @@ import { nativeChatNoticeFromError } from '../controls/native-chat-composer-noti
 import { agentSessionWriteNoticeText } from '../../messages/notices/agent-session-write-notice-text'
 import { translate } from '@/i18n/i18n'
 import { useAppStore } from '@/store'
-import { selectDiffCommentView } from '@/store/diff-comment-owner'
-import { readQueuedDiffCommentsSafely } from './use-native-chat-queued-diff-comments'
+import { selectDiffCommentView } from '@/store/slices/diff-comments/diff-comment-owner'
+import { readQueuedDiffCommentsSafely } from '../../use-native-chat-queued-diff-comments'
 import { composePromptWithDiffComments } from '@/lib/native-chat-comment-delivery'
 import {
   captureNativeChatComposerSubmission,

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { Check, Circle, MessageSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { ImeInput, ImeTextarea } from '@/lib/ime-text-field'
+import { ImeInput, ImeTextarea } from '@/lib/text-input/ime/ime-text-field'
 import { useAppStore } from '@/store'
 import { translate } from '@/i18n/i18n'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'

@@ -1,5 +1,5 @@
-import type { StructuredAgentLaunchPartResolver } from '../runtime/structured-agent-launch-composition'
-import type { AcpStructuredLaunch } from './acp-structured-launch-resolution'
+import type { StructuredAgentLaunchPartResolver } from '../runtime/agent-session/launch/structured-agent-launch-composition'
+import type { AcpStructuredLaunch } from './launch/acp-structured-launch-resolution'
 import { resolveMemoryWorkspaceRoot } from '../../shared/mte/memory-workspace-root'
 import { resolveMteStartCliCommand } from '../../shared/mte/cli-command'
 import { memoryMcpServerSpec, toolsMcpServerSpec } from '../../shared/mte/mcp/mcp-server-specs'

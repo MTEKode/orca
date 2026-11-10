@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
 import type { NativeChatStructuredViewProps } from './native-chat-view-types'
-import type { NativeChatTurnRevertSurface } from './NativeChatTranscriptRow'
+import type { NativeChatTurnRevertSurface } from './messages/rows/NativeChatTranscriptRow'
 import { NativeChatTurnRevertDialog } from './NativeChatTurnRevertDialog'
 import { useNativeChatTurnCheckpoints } from './use-native-chat-turn-checkpoints'
 import { useNativeChatTurnRevert } from './use-native-chat-turn-revert'
-import type { useStructuredAgentSession } from './use-structured-agent-session'
+import type { useStructuredAgentSession } from './session/structured/use-structured-agent-session'
 
 type TurnRevertController = Pick<
   ReturnType<typeof useStructuredAgentSession>,

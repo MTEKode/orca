@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAppStore } from '@/store'
-import { useActiveRepo } from '@/store/selectors'
+import { useActiveRepo } from '../../../../cli/selectors'
 import { translate } from '@/i18n/i18n'
 import { IntegrationCardShell } from '../integrations/presentation/integration-card-shell'
 

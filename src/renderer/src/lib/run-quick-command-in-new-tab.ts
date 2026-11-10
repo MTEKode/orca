@@ -9,9 +9,9 @@ import {
 } from '../../../shared/terminal/quick-commands/terminal-quick-commands'
 import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../shared/constants'
 import { shellEscapePath } from '../../../shared/shell/launch/shell-path-quoting'
-import { findWorktreeById, getRepoIdFromWorktreeId } from '@/store/slices/worktree-helpers'
-import { selectWorktreesByRepo } from '@/store/workspace-record-selectors'
-import { revealFloatingWorkspacePanel } from '@/lib/floating-workspace-panel-reveal'
+import { findWorktreeById, getRepoIdFromWorktreeId } from '@/store/slices/worktrees/worktree-slice-contract'
+import { selectWorktreesByRepo } from '@/store/folder-workspaces/folder-workspace-record-index'
+import { revealFloatingWorkspacePanel } from '@/components/floating-terminal/floating-workspace-panel-reveal'
 import type {
   TerminalCommandQuickCommand,
   TerminalQuickCommand

@@ -1,9 +1,9 @@
 import { beforeEach, expect, it, vi } from 'vitest'
-import { buildAgentSessionContinuationPrompt } from '@/lib/agent-session-continuation'
+import { buildAgentSessionContinuationPrompt } from '@/lib/agent-session/context/agent-session-continuation'
 import { startContinuationOrchestrationRun } from './launch-continuation-orchestration'
 import type { MteOrchestrationDraft } from '@/components/mte-orchestration-picker/use-mte-orchestration-picker'
 import type { MteRunLaunchChoice } from './start-mte-run-in-worktree'
-import type { AgentSessionContinuationSource } from '@/lib/agent-session-continuation'
+import type { AgentSessionContinuationSource } from '@/lib/agent-session/context/agent-session-continuation'
 
 const mocks = vi.hoisted(() => ({
   startMteRunInWorktree: vi.fn<(args: { choice: MteRunLaunchChoice }) => Promise<boolean>>()

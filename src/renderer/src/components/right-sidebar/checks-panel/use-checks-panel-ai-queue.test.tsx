@@ -2,7 +2,7 @@
 
 import { renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type * as DraftStoreModule from '@/components/native-chat/native-chat-composer-draft-store'
+import type * as DraftStoreModule from '@/components/native-chat/drafts/native-chat-composer-draft-store'
 
 const m = vi.hoisted(() => ({
   start: vi.fn(async (input: unknown) => {
@@ -27,7 +27,7 @@ vi.mock('../source-control/ai/use-saved-source-control-action-start', () => ({
 vi.mock('@/components/native-chat/native-chat-composer-draft-insertion', () => ({
   insertNativeChatComposerDraftText: m.insert
 }))
-vi.mock('@/components/native-chat/native-chat-composer-draft-store', async (importOriginal) => ({
+vi.mock('@/components/native-chat/drafts/native-chat-composer-draft-store', async (importOriginal) => ({
   ...(await importOriginal<typeof DraftStoreModule>()),
   readNativeChatComposerDraft: () => ({ text: '' })
 }))
@@ -47,7 +47,7 @@ vi.mock(
   })
 )
 
-import { structuredAgentSessionDraftScopeKey } from '@/components/native-chat/native-chat-composer-draft-store'
+import { structuredAgentSessionDraftScopeKey } from '@/components/native-chat/drafts/native-chat-composer-draft-store'
 import { useChecksPanelAiQueue } from './review-actions/use-checks-panel-ai-queue'
 
 function model() {

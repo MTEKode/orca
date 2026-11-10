@@ -15,15 +15,15 @@ import {
   readRuntimeFixture,
   readTimedRuntimeFixture,
   replayTranscript
-} from './agent-transcript-replay-test-harness'
+} from './terminal/wait/agent-transcript-replay-test-harness'
 import {
   getLaunchedAgentReadinessLane,
   waitForLaunchedAgentComposer,
   workerStartReadsComposerMarker,
   type LaunchedAgentReadinessLane,
   type LaunchedAgentReadinessRuntime
-} from './launched-agent-composer-readiness'
-import { waitForWorktreeStartupDraft } from './runtime-worktree-startup-readiness'
+} from './terminal/wait/launched-agent-composer-readiness'
+import { waitForWorktreeStartupDraft } from './workspaces/startup/runtime-worktree-startup-readiness'
 
 // Exhaustive Record forces an evidence-lane decision whenever a TuiAgent is added.
 const EXPECTED_LANES: Record<TuiAgent, LaunchedAgentReadinessLane> = {

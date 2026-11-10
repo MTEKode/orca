@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 import { renderHook } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import type { NativeChatStructuredComposerTransport } from './native-chat-composer-types'
-import { useNativeChatStructuredComposerSend } from './use-native-chat-structured-composer-send'
+import type { NativeChatStructuredComposerTransport } from './composer/native-chat-composer-types'
+import { useNativeChatStructuredComposerSend } from './composer/submit/use-native-chat-structured-composer-send'
 
 const clearDeliveredDiffComments = vi.fn(async () => true)
 const comments = [

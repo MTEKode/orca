@@ -1,14 +1,14 @@
 import { afterEach, expect, it, vi } from 'vitest'
 import { OPENCODE_V2_STRUCTURED_AGENT } from '../../opencode-v2/opencode-v2-agent-definition'
-import { StructuredAgentRegistry } from './structured-agent-registry'
-import { envelope } from './structured-agent-session-host-test-harness'
-import { hostTestAttachParams } from './structured-agent-session-host-test-data'
+import { StructuredAgentRegistry } from './providers/structured-agent-registry'
+import { envelope } from './host/testing/structured-agent-session-host-test-harness'
+import { hostTestAttachParams } from './host/testing/structured-agent-session-host-test-data'
 import {
   createRestTestRig,
   REST_TEST_CALLER as CALLER,
   REST_TEST_SESSION as SESSION,
   type RestTestRig
-} from './structured-agent-session-rest-test-rig'
+} from './host/testing/structured-agent-session-rest-test-rig'
 
 const declared = {
   ...OPENCODE_V2_STRUCTURED_AGENT,

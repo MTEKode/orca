@@ -27,7 +27,7 @@ vi.mock('@/components/ui/popover', () => ({
   PopoverContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
 }))
 
-import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
+import { NativeChatSessionOptionPickers } from './session/options/controls/NativeChatSessionOptionPickers'
 
 const surface = {
   getSnapshot: vi.fn(() => []),

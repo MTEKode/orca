@@ -2,7 +2,7 @@ import type { AgentSessionPromptResponse } from '../../shared/agent-session/agen
 import {
   AgentSessionPromptAnswerRejectedError,
   AgentSessionPromptUnavailableError
-} from '../native-chat/agent-session-wire/structured-agent-session-adapter'
+} from '../native-chat/agent-session-wire/providers/structured-agent-session-adapter'
 import type {
   ProviderTimelineEvent,
   ProviderTimelineJoin

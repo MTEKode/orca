@@ -4,7 +4,7 @@ import type {
   AgentStatusOrchestrationContext,
   AgentStatusState
 } from './agent-status/contracts/agent-status-types'
-import { isCoordinatorOnlyChatNews, isCoordinatorOnlyNews } from './dispatched-worker-attention'
+import { isCoordinatorOnlyChatNews, isCoordinatorOnlyNews } from './orchestration/workers/dispatched-worker-attention'
 
 const SCOPE = {
   executionHostId: 'local',

@@ -11,12 +11,12 @@ import type {
   StructuredAgentSessionAdapter,
   StructuredAgentSessionCommandRun,
   StructuredAgentSessionSetOptionInput
-} from '../native-chat/agent-session-wire/structured-agent-session-adapter'
-import { AgentSessionOptionRejectedError } from '../native-chat/agent-session-wire/structured-agent-session-option-error'
+} from '../native-chat/agent-session-wire/providers/structured-agent-session-adapter'
+import { AgentSessionOptionRejectedError } from '../native-chat/agent-session-wire/options/structured-agent-session-option-error'
 import {
   structuredAgentSessionOptionModels,
   type StructuredAgentSessionLiveOptions
-} from '../native-chat/agent-session-wire/structured-agent-session-option-models'
+} from '../native-chat/agent-session-wire/options/structured-agent-session-option-models'
 import { OPENCODE_V2_AGENT_DISPLAY_NAME } from './opencode-v2-agent-definition'
 import { openCodeV2AgentOptions } from './opencode-v2-agents'
 import { OpenCodeV2PromptConflictError } from './opencode-v2-connection'

@@ -1,15 +1,15 @@
 import { useCallback } from 'react'
 import { toast } from 'sonner'
 import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
-import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-target'
-import { runtimeEnvironmentIdOrLocalUnlessTwin } from '@/lib/worktree-runtime-owner'
-import { findWorktreeById } from '@/store/slices/worktree-helpers'
-import { selectWorktreesByRepo } from '@/store/workspace-record-selectors'
+import { runtimeTargetForOwnerEnvironment } from '@/runtime/rpc/targets/runtime-client-target'
+import { runtimeEnvironmentIdOrLocalUnlessTwin } from '@/lib/workspace/ownership/worktree-runtime-owner'
+import { findWorktreeById } from '@/store/slices/worktrees/worktree-slice-contract'
+import { selectWorktreesByRepo } from '@/store/folder-workspaces/folder-workspace-record-index'
 import { useAppStore } from '@/store'
-import { getAgentCatalog } from '@/lib/agent-catalog'
+import { getAgentCatalog } from '@/components/agent/icons/AgentIcon'
 import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
 import { translate } from '@/i18n/i18n'
-import { workspaceKindForWorktreeId } from '../../../../shared/workspace-launch-kind'
+import { workspaceKindForWorktreeId } from '../../../../shared/agent-launch/contracts/workspace-launch-kind'
 import { isFolderRepo } from '../../../../shared/repo-kind'
 import { mteAdapterForAgent } from '../../../../shared/mte/adapter-for-agent'
 import { plannerKickoffPrompt } from '../../../../shared/mte/planner-prompt'
@@ -22,7 +22,7 @@ import type {
   AgentPickerDraft,
   AgentPickerEntry
 } from '../../../../shared/agent-launch/picker/agent-launch-picker'
-import type { StructuredAgentLaunchSettlement } from '@/lib/structured-agent-launch-settlement'
+import type { StructuredAgentLaunchSettlement } from '@/lib/agent-session/launch/continuation/structured-agent-launch-settlement'
 import type { Repo } from '../../../../shared/repo-types'
 import {
   useNewChatDialogStore,

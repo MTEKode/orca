@@ -7,7 +7,7 @@ import {
 } from './pty-ipc-daemon-provider-fixtures'
 import { delimiter, join } from 'node:path'
 import { LEGACY_TERMINAL_SHIM_REMOTE_ENV_KEYS } from '../../pty/shell-startup/legacy-terminal-shim-dir'
-import { wslHookRelayManager } from '../../agent-hooks/wsl-hook-relay-manager'
+import { wslHookRelayManager } from '../../agent-hooks/wsl-relay/wsl-hook-relay-manager'
 import { registerPtyHandlers } from './register-handlers'
 
 vi.mock('electron', () => import('./pty-ipc-mock-registry').then((m) => m.electronModuleMock()))

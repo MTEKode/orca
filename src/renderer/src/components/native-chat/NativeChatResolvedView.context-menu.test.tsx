@@ -3,9 +3,9 @@
 import '@testing-library/jest-dom/vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type * as ImageBlobPng from '@/lib/image-blob-png'
-import { NativeChatImageAttachmentPreview } from './NativeChatImageAttachmentPreview'
-import type { NativeChatLiveSession } from './use-native-chat-live-session'
+import type * as ImageBlobPng from '@/lib/clipboard/images/image-blob-png'
+import { NativeChatImageAttachmentPreview } from './attachments/chips/NativeChatImageAttachmentPreview'
+import type { NativeChatLiveSession } from './session/terminal/read/use-native-chat-live-session'
 import type { NativeChatMessage } from '../../../../shared/native-chat/native-chat-types'
 
 type RetainedSessionFixture = Pick<NativeChatLiveSession, 'status'> & {
@@ -53,7 +53,7 @@ vi.mock('./NativeChatComposer', () => ({
 vi.mock('@/components/editor/document-images/useLocalImageSrc', () => ({
   useLocalImageSrc: () => 'blob:original'
 }))
-vi.mock('@/lib/image-blob-png', async (importOriginal) => ({
+vi.mock('@/lib/clipboard/images/image-blob-png', async (importOriginal) => ({
   ...(await importOriginal<typeof ImageBlobPng>()),
   convertImageBlobToPng: mocks.convertImageBlobToPng
 }))
@@ -62,7 +62,7 @@ vi.mock('sonner', () => ({ toast: { success: mocks.success, error: mocks.error }
 const { NativeChatResolvedView } = await import('./NativeChatResolvedView')
 const { useAppStore } = await import('../../store')
 const { installNativeChatMessageListTestViewport } =
-  await import('./native-chat-message-list-test-viewport')
+  await import('./viewport/virtualization/native-chat-message-list-test-viewport')
 const { TooltipProvider } = await import('@/components/ui/tooltip')
 
 function RetainedBridgeChat({ visible = true }: { visible?: boolean }) {

@@ -1,7 +1,7 @@
 import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
-import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-target'
-import { findWorktreeById } from '@/store/slices/worktree-helpers'
-import { selectWorktreesByRepo } from '@/store/workspace-record-selectors'
+import { runtimeTargetForOwnerEnvironment } from '@/runtime/rpc/targets/runtime-client-target'
+import { findWorktreeById } from '@/store/slices/worktrees/worktree-slice-contract'
+import { selectWorktreesByRepo } from '@/store/folder-workspaces/folder-workspace-record-index'
 import { useAppStore } from '@/store'
 import type { MteWorkerPin } from '../../../../shared/mte/worker-pin'
 

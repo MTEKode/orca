@@ -4,8 +4,8 @@ import { useAppStore } from '@/store/index'
 import {
   readNativeChatComposerDraft,
   structuredAgentSessionDraftScopeKey
-} from '@/components/native-chat/native-chat-composer-draft-store'
-import { insertNativeChatComposerDraftText } from '@/components/native-chat/native-chat-composer-draft-insertion'
+} from '@/components/native-chat/drafts/native-chat-composer-draft-store'
+import { insertNativeChatComposerDraftText } from '@/components/native-chat/drafts/native-chat-composer-draft-insertion'
 import { activateStructuredAgentSessionTab } from '@/lib/agent-session/structured-agent-session-tab-activation'
 import { visibleStructuredChatTab } from '@/lib/agent-session/visible-structured-chat-tab'
 

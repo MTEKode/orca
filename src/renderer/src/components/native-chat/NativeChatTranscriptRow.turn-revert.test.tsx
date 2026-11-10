@@ -7,11 +7,11 @@ import { TooltipProvider } from '../ui/tooltip'
 import {
   NativeChatTranscriptRow,
   type NativeChatTranscriptRowContext
-} from './NativeChatTranscriptRow'
+} from './messages/rows/NativeChatTranscriptRow'
 import {
   buildNativeChatTranscriptSlots,
   type NativeChatTranscriptSlot
-} from './native-chat-transcript-slots'
+} from './conversation/slots/native-chat-transcript-slots'
 
 afterEach(cleanup)
 

@@ -12,10 +12,10 @@ import { OPENCODE_V2_STRUCTURED_AGENT } from '../../opencode-v2/opencode-v2-agen
 import type {
   AgentSessionDispatchOutcome,
   StructuredAgentSessionAdapter
-} from './structured-agent-session-adapter'
-import { StructuredAgentRegistry } from './structured-agent-registry'
-import { StructuredAgentSessionHost } from './structured-agent-session-host'
-import type { StructuredAgentSessionEventSink } from './structured-agent-session-event-sink'
+} from './providers/structured-agent-session-adapter'
+import { StructuredAgentRegistry } from './providers/structured-agent-registry'
+import { StructuredAgentSessionHost } from './host/structured-agent-session-host'
+import type { StructuredAgentSessionEventSink } from './journal-ingress/structured-agent-session-event-sink'
 import {
   HOST_TEST_NOW,
   HOST_TEST_SESSION as SESSION,
@@ -23,13 +23,13 @@ import {
   hostTestMessage,
   hostTestOperationId,
   resetHostTestOperationIds
-} from './structured-agent-session-host-test-data'
+} from './host/testing/structured-agent-session-host-test-data'
 import {
   closeTestJournalHostDatabases,
   openTestJournalHostDatabase
-} from '../agent-session-journal/journal-host-database-test-support'
-import { createStructuredAgentSessionLogger } from './structured-agent-session-logger'
-import { startsWhenPublished } from './structured-agent-session-instant-start.test-support'
+} from '../agent-session-journal/store-lifecycle/journal-host-database-test-support'
+import { createStructuredAgentSessionLogger } from './host/structured-agent-session-logger'
+import { startsWhenPublished } from './host/testing/structured-agent-session-instant-start.test-support'
 
 const caller = { callerKey: 'desktop' }
 const PROVIDER_SESSION = 'ses_x'

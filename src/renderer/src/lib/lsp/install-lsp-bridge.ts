@@ -2,7 +2,7 @@
 import type * as Monaco from 'monaco-editor'
 import { typescript as monacoTS } from 'monaco-editor'
 import { useAppStore } from '@/store'
-import { getWorktreeMapFromState } from '@/store/selectors'
+import { getWorktreeMapFromState } from '../../../../cli/selectors'
 import { LspDocumentSync } from './lsp-document-sync'
 import { registerLspEditorOpener } from './lsp-editor-opener'
 import { registerLspNavigationProviders } from './lsp-navigation-providers'

@@ -14,11 +14,11 @@ import {
 import type { SourceControlActionRecipe } from '../../shared/source-control/ai/recipes/source-control-ai-actions'
 import type { SpawnSourceControlAgent } from '../text-generation/source-control-text-generation-types'
 import { createMockDiscoveryChild } from '../text-generation/commit-message-text-generation-test-harness'
-import { structuredChatNamingDeps } from './structured-chat-naming-runtime'
-import type { StructuredAgentSessionAdapter } from '../native-chat/agent-session-wire/structured-agent-session-adapter'
-import { AcpTextTasks } from '../acp/acp-text-task'
+import { structuredChatNamingDeps } from './agent-session/naming/structured-chat-naming-runtime'
+import type { StructuredAgentSessionAdapter } from '../native-chat/agent-session-wire/providers/structured-agent-session-adapter'
+import { AcpTextTasks } from '../acp/text-task/acp-text-task'
 import { acpLaunchSpecFor } from '../acp/acp-launch-specs'
-import { FakeAcpChild } from '../acp/acp-scripted-connection.test-fixture'
+import { FakeAcpChild } from '../acp/process/testing/acp-scripted-connection.test-fixture'
 import recordings from './__fixtures__/chat-naming-recorded-output.json'
 
 const boundary = vi.hoisted(() => ({

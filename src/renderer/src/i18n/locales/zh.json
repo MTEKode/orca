@@ -7743,8 +7743,6 @@
           "f79084947b": "新应用程序",
           "d686e15816": "在应用程序中打开"
         },
-<<<<<<< HEAD
-=======
         "OrchestrationPane": {
           "52e0634e2c": "让协调智能体通过编排处理交接、工作树移交，以及顺序或并行的子智能体。",
           "ae79504732": "如何使用",
@@ -7760,7 +7758,6 @@
           "workerAutoReleaseKeywordRelease": "释放",
           "8a94078d05": "智能体编排"
         },
->>>>>>> upstream/main
         "OrchestrationSetupCard": {
           "e7d2a5146c": "使智能体能够通过 Orca 传递上下文并协调工作。",
           "2777ff0fdc": "编排技能"
@@ -8232,12 +8229,9 @@
           "6d119427ef": "入门清单",
           "5063bb47a5": "语音",
           "7118953f14": "使智能体能够控制您计算机上的任何应用程序。",
-<<<<<<< HEAD
           "c9841721cb": "计算机控制",
-=======
           "475980f53d": "通过 Orca 协调多个编码智能体。",
           "00c3a7950d": "编排",
->>>>>>> upstream/main
           "21f09426ea": "可选。 Orca 可与您现有的提供商登录配合使用；仅当您希望 Orca 帮助在账户之间切换时才添加账户。",
           "ec1ba547f7": "管理 AI 智能体、设置默认值并自定义命令。",
           "8afa676615": "智能体",
@@ -9987,13 +9981,9 @@
             "91fc8ab7e5": "协调",
             "13ba5c6cbd": "智能体",
             "d86705ba77": "多智能体",
-<<<<<<< HEAD
-            "a7f76b4ca7": "编排"
-=======
             "a7f76b4ca7": "编排",
             "e05ff36753": "通过消息传递、任务 DAG、调度和决策门来协调多个编码智能体。",
             "abafc3f10f": "智能体编排"
->>>>>>> upstream/main
           }
         },
         "privacy": {
@@ -23365,14 +23355,14 @@
     "terminalStopped": "WSL 发行版 {{distro}} 已停止，因此 Orca 没有启动此终端。请启动该发行版后重试。",
     "terminalUnverifiable": "Orca 无法确认 WSL 发行版 {{distro}} 是否正在运行，因此没有启动此终端。请启动该发行版后重试。"
   },
-<<<<<<< HEAD
   "mte": {
     "prepare": {
       "failed": "无法准备 MTE：{{message}}"
     },
     "planner": {
       "started": "已在 {{agent}} 中启动 MTE 规划器"
-=======
+    }
+  },
   "remoteHostBrowserControl": {
     "title": "{{host}} 正在控制一个浏览器标签页",
     "description": "此 SSH 主机上的智能体可以打开并使用其工作区中的 Orca 浏览器标签页。它控制的标签页会显示其名称。你可以在“设置 > SSH”中更改此项。",
@@ -23482,7 +23472,6 @@
       "deleteFailed": "无法删除 {{model}}。",
       "dismiss": "关闭",
       "cancelDownload": "取消下载"
->>>>>>> upstream/main
     }
   }
 }

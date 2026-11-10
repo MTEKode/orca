@@ -14,8 +14,8 @@ import {
   useNativeChatComposerRevealFocus,
   type NativeChatComposerRevealFocusArgs
 } from './use-native-chat-composer-reveal-focus'
-import type { useNativeChatFind } from './use-native-chat-find'
-import type { useStructuredNativeChatPaneCommands } from './use-structured-native-chat-pane-commands'
+import type { useNativeChatFind } from '../../viewport/find/use-native-chat-find'
+import type { useStructuredNativeChatPaneCommands } from '../../pane/actions/use-structured-native-chat-pane-commands'
 
 // Floating panels can reveal a chat beside the workspace’s chat.
 const revealedChatRoots = new Set<HTMLElement>()

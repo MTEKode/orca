@@ -8022,8 +8022,6 @@
           "f79084947b": "Nueva aplicación",
           "d686e15816": "Abrir en aplicaciones"
         },
-<<<<<<< HEAD
-=======
         "OrchestrationPane": {
           "52e0634e2c": "Pídele a un agente coordinador que use la orquestación para handoffs, handoffs de worktree y agentes secundarios secuenciales o paralelos.",
           "ae79504732": "Cómo usarlo",
@@ -8039,7 +8037,6 @@
           "workerAutoReleaseKeywordRelease": "liberar",
           "8a94078d05": "Orquestación de agentes"
         },
->>>>>>> upstream/main
         "OrchestrationSetupCard": {
           "e7d2a5146c": "Permite a los agentes transferir contexto y coordinar el trabajo a través de Orca.",
           "2777ff0fdc": "Skill de orquestación"
@@ -8512,12 +8509,9 @@
           "6d119427ef": "Lista de verificación de incorporación",
           "5063bb47a5": "Voz",
           "7118953f14": "Permite que los agentes controlen cualquier app en tu computadora.",
-<<<<<<< HEAD
           "c9841721cb": "Computer Use",
-=======
           "475980f53d": "Coordina varios agentes de codificación a través de Orca.",
           "00c3a7950d": "Orquestación",
->>>>>>> upstream/main
           "21f09426ea": "Opcional. Orca funciona con tus inicios de sesión de proveedores existentes; agrega cuentas solo si quieres que Orca te ayude a cambiar entre ellas.",
           "ec1ba547f7": "Administra agentes de IA, define uno predeterminado y personaliza comandos.",
           "8afa676615": "Agentes",
@@ -10057,7 +10051,6 @@
             "7166b9090c": "Autenticación de GitHub a través de la CLI de gh.",
             "760e2446e0": "Autenticación de Bitbucket Cloud con un token API guardado o variables de entorno.",
             "af5ae87847": "token de acceso",
-<<<<<<< HEAD
             "mcpTitle": "Integraciones MCP",
             "mcpDescription": "Conecta los servicios que Orca expone a todos los agentes como herramientas MCP (servidor orca-tools).",
             "mcpKeyword": "mcp",
@@ -10065,8 +10058,7 @@
             "mcpPosthog": "posthog",
             "mcpBetterstack": "better stack",
             "mcpContext7": "context7",
-            "mcpPixellab": "pixellab"
-=======
+            "mcpPixellab": "pixellab",
             "d8906d60a9": "Integración de Jira",
             "9e238582e8": "Integración de Bitbucket",
             "a17a94d0b0": "Integración de GitHub",
@@ -10074,7 +10066,6 @@
             "cd74b2f587": "Integración de GitLab",
             "d905b3ecee": "Integración Linear",
             "b3efe7ab71": "Integración de Azure DevOps"
->>>>>>> upstream/main
           }
         },
         "jira": {
@@ -10278,13 +10269,9 @@
             "91fc8ab7e5": "coordinación",
             "13ba5c6cbd": "agentes",
             "d86705ba77": "multi-agent",
-<<<<<<< HEAD
-            "a7f76b4ca7": "orquestación"
-=======
             "a7f76b4ca7": "orquestación",
             "e05ff36753": "Coordina varios agentes de codificación mediante mensajería, DAG de tareas, dispatch y controles de decisión.",
             "abafc3f10f": "Orquestación de agentes"
->>>>>>> upstream/main
           }
         },
         "privacy": {
@@ -19330,16 +19317,13 @@
         },
         "sessionAttachmentsFailed": "El chat {{agent}} no se pudo abrir. Utilice Reintentar en el chat y luego adjunte los archivos nuevamente.",
         "sessionAttachmentsStarting": "El chat de {{agent}} aún se está abriendo. Espera a que se abra y vuelve a adjuntar los archivos.",
-<<<<<<< HEAD
         "agentLabel": {
           "orchestrator": "Orquestador",
           "worker": "Worker",
           "agent": "Agente"
-        }
-=======
+        },
         "moreControls": "Más controles de chat",
         "exitPlanMode": "Salir del modo de planificación"
->>>>>>> upstream/main
       },
       "tool": {
         "result": "Resultado",
@@ -24100,7 +24084,6 @@
     "terminalStopped": "La distribución WSL {{distro}} está detenida, así que Orca no inició esta terminal. Inicia la distribución y vuelve a intentarlo.",
     "terminalUnverifiable": "Orca no pudo comprobar si la distribución WSL {{distro}} está en ejecución, así que no inició esta terminal. Inicia la distribución y vuelve a intentarlo."
   },
-<<<<<<< HEAD
   "mte": {
     "start": {
       "goalLabel": "Objetivo",
@@ -24132,7 +24115,7 @@
     "menuKeywordChat": "chat",
     "menuKeywordAgent": "agente",
     "menuKeywordNewChat": "nuevo chat"
-=======
+  },
   "remoteHostBrowserControl": {
     "title": "{{host}} está controlando una pestaña del navegador",
     "description": "Los agentes de este host SSH pueden abrir y usar pestañas del navegador de Orca en sus espacios de trabajo. Las pestañas que controla muestran su nombre. Puedes cambiarlo en Configuración > SSH.",
@@ -24243,6 +24226,5 @@
       "dismiss": "Descartar",
       "cancelDownload": "Cancelar descarga"
     }
->>>>>>> upstream/main
   }
 }

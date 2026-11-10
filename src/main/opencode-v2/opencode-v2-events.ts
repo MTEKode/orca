@@ -1,5 +1,5 @@
 import type { OpenCodeEvent } from '@opencode/client'
-import type { StructuredAgentSessionLogger } from '../native-chat/agent-session-wire/structured-agent-session-logger'
+import type { StructuredAgentSessionLogger } from '../native-chat/agent-session-wire/host/structured-agent-session-logger'
 
 /** Chat-relevant subscription filter; the stream always adds server.connected itself. */
 export const OPENCODE_V2_CHAT_EVENT_TYPES = [

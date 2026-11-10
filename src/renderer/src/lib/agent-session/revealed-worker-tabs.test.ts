@@ -20,7 +20,7 @@ vi.mock('@/runtime/runtime-worktree-selector', () => ({
 
 import { hideWorkerSession, isHiddenWorkerTab, revealWorkerSession } from './revealed-worker-tabs'
 import { activateStructuredAgentSessionTab } from './structured-agent-session-tab-activation'
-import { pickNextActiveTab } from '../../store/slices/tab-group-state'
+import { pickNextActiveTab } from '../../store/slices/tabs/tab-group-state'
 import { hideRevealedWorkerTab } from '../../store/slices/tabs/worker-tab-hide'
 import { useTabGroupItemProjections } from '../../components/tab-group/useTabGroupItemProjections'
 import { getActiveTabNavOrder } from '../../components/tab-bar/group-tab-order'

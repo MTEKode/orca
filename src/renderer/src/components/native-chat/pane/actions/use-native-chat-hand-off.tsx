@@ -20,10 +20,10 @@ import type { NativeChatStructuredViewProps } from '../../native-chat-view-types
 import type { NativeChatFileLinkContext } from '../../links/actions/native-chat-file-link-context'
 import { buildAgentSessionHandoffContext } from '../../../../../../shared/agent-session-handoff-context'
 
-import type { TuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent'
-import { launchAgentSessionContinuation } from '@/lib/launch-agent-session-continuation'
-import { launchAgentInNewTab } from '@/lib/launch-agent-in-new-tab'
-import { newAgentLaunchRequestId } from '@/lib/agent-launch-request-id'
+import type { TuiAgent } from '../../../../../../shared/agent-launch/catalog/tui-agent'
+import { launchAgentSessionContinuation } from '@/lib/agent-session/launch/continuation/launch-agent-session-continuation'
+import { launchAgentInNewTab } from '@/lib/agent-session/launch/new-tab/launch-agent-in-new-tab'
+import { newAgentLaunchRequestId } from '@/lib/agent-session/launch/routing/agent-launch-request-id'
 
 export type NativeChatHandOff = {
   /** This chat can seed another agent from its owning workspace. */

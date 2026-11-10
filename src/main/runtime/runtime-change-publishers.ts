@@ -2,7 +2,7 @@ import type { RuntimeClientEvent } from '../../shared/runtime-client-events'
 import { subscribeMcpIntegrationsChanged } from '../mcp-integrations'
 import { subscribeGraphifyChanged } from '../graphify'
 import { publishNativeChatFollowUpChanges } from './runtime-native-chat-follow-up-events'
-import type { RuntimeStore } from './runtime-store-contract'
+import type { RuntimeStore } from './construction/runtime-store-contract'
 
 /** Republish main-process state changes that happen outside runtime methods as client events. */
 export function publishRuntimeChangeEvents(

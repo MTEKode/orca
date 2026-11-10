@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { assertMtePlannerCaller } from './mte-planner-gate'
 import type { OrcaRuntimeService } from '../../../../orca-runtime'
-import type { OrchestrationSessionCaller } from '../../../../orchestration/orchestration-caller-identity'
+import type { OrchestrationSessionCaller } from '../../../../orchestration/addressing/orchestration-caller-identity'
 
 const runtimeWith = (gate: boolean | undefined): OrcaRuntimeService =>
   // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: test double implements only requireStore.

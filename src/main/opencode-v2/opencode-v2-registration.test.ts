@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { decodeAgentSessionAgentsResult } from '../../shared/agent-session/agent-session-registered-agents'
 import { isStructuredAgentId } from '../../shared/agent-session/lifecycle/agent-session-provider-handle-encoding'
 import { formatAgentTypeLabel } from '../../shared/agent-status/presentation/agent-type-label'
-import { STRUCTURED_AGENT_RUNTIME_CATALOG } from '../runtime/structured-agent-runtime-metadata'
+import { STRUCTURED_AGENT_RUNTIME_CATALOG } from '../runtime/agent-session/installation/structured-agent-runtime-metadata'
 import {
   STRUCTURED_AGENT_RUNTIME_REGISTRATIONS,
   structuredAgentRuntimeRegistration
-} from '../runtime/structured-agent-runtime-registrations'
+} from '../runtime/agent-session/installation/structured-agent-runtime-registrations'
 import { OPENCODE_V2_AGENT_ID } from './opencode-v2-agent-definition'
 
 describe('opencode-v2 registration', () => {

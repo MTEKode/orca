@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { AgentSessionRecord } from '../../../shared/agent-session/lifecycle/agent-session-record'
-import type { JournalRow } from '../../native-chat/agent-session-journal/journal-row-schema'
+import type { JournalRow } from '../../native-chat/agent-session-journal/durable-rows/journal-row-schema'
 import type { TurnCheckpointListEntry } from './turn-checkpoint-git-read'
 import {
   createTurnCheckpointService,

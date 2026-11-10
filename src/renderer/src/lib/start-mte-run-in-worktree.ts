@@ -1,11 +1,11 @@
 import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
 import { toast } from 'sonner'
 import { translate } from '@/i18n/i18n'
-import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-target'
-import { runtimeEnvironmentIdOrLocalUnlessTwin } from '@/lib/worktree-runtime-owner'
+import { runtimeTargetForOwnerEnvironment } from '@/runtime/rpc/targets/runtime-client-target'
+import { runtimeEnvironmentIdOrLocalUnlessTwin } from '@/lib/workspace/ownership/worktree-runtime-owner'
 import { useAppStore } from '@/store'
-import { launchAgentInNewTab } from '@/lib/launch-agent-in-new-tab'
-import { newAgentLaunchRequestId } from '@/lib/agent-launch-request-id'
+import { launchAgentInNewTab } from '@/lib/agent-session/launch/new-tab/launch-agent-in-new-tab'
+import { newAgentLaunchRequestId } from '@/lib/agent-session/launch/routing/agent-launch-request-id'
 import {
   launchSettledNewChat,
   markMtePlannerSession,
@@ -13,7 +13,7 @@ import {
 } from '@/components/tab-bar/use-new-chat-launch'
 import { agentPickerFreshLaunchInputs } from '../../../shared/agent-launch/picker/agent-launch-picker'
 import type { NewChatChoice } from '@/components/tab-bar/new-chat-dialog-store'
-import type { WorktreeCreationRequest } from '@/lib/pending-worktree-creation'
+import type { WorktreeCreationRequest } from '@/lib/workspace/creation/pending-worktree-creation'
 
 export type MteRunLaunchChoice = Extract<NewChatChoice, { mode: 'mte' }>
 

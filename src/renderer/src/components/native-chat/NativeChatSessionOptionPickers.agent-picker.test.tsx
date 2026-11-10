@@ -61,7 +61,7 @@ vi.mock('@/components/ui/popover', () => ({
   )
 }))
 
-import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
+import { NativeChatSessionOptionPickers } from './session/options/controls/NativeChatSessionOptionPickers'
 
 afterEach(cleanup)
 

@@ -1,5 +1,5 @@
 import type { ProviderTimelineEvent } from '../native-chat/agent-session-timeline/provider-timeline-event'
-import { journalToolPayload } from '../native-chat/agent-session-journal/journal-payload-bounds'
+import { journalToolPayload } from '../native-chat/agent-session-journal/item-lifecycle/journal-payload-bounds'
 import type { AgentJournalToolCallItem } from '../../shared/agent-session/journal/agent-session-journal-types'
 import { normalizedOpenCodeV2ToolName } from './opencode-v2-tool-translation'
 

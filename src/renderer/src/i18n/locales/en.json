@@ -8876,8 +8876,6 @@
           "f79084947b": "New app",
           "d686e15816": "Open in apps"
         },
-<<<<<<< HEAD
-=======
         "OrchestrationPane": {
           "52e0634e2c": "Ask a coordinator agent to use orchestration for handoffs, worktree handovers, and sequential or parallel child agents.",
           "ae79504732": "How to use it",
@@ -8893,7 +8891,6 @@
           "7bc082f4de": "Copy install command",
           "8a94078d05": "Agent orchestration"
         },
->>>>>>> upstream/main
         "OrchestrationSetupCard": {
           "e7d2a5146c": "Enables agents to hand off context and coordinate work through Orca.",
           "2777ff0fdc": "Orchestration skill"
@@ -9383,12 +9380,9 @@
           "6d119427ef": "Onboarding checklist",
           "5063bb47a5": "Voice",
           "7118953f14": "Enable agents to control any app on your computer.",
-<<<<<<< HEAD
           "c9841721cb": "Computer Use",
-=======
           "475980f53d": "Coordinate multiple coding agents through Orca.",
           "00c3a7950d": "Orchestration",
->>>>>>> upstream/main
           "21f09426ea": "Optional. Orca works with your existing provider logins; add accounts only if you want Orca to help switch between them.",
           "ec1ba547f7": "Manage AI agents, set a default, and customize commands.",
           "8afa676615": "Agents",
@@ -9409,10 +9403,8 @@
           "tasksDescription": "Connect providers, install the Linear skill, and choose what appears in Tasks.",
           "remoteServersDescription": "Run Orca on another machine and work on it from here.",
           "noSettingsFoundForQuery": "No settings found for \"{{value0}}\"",
-<<<<<<< HEAD
           "mteFlowTitle": "MTE flow",
-          "mteFlowDescription": "Settings for MTE orchestration runs: planner, workers and validation."
-=======
+          "mteFlowDescription": "Settings for MTE orchestration runs: planner, workers and validation.",
           "045db77e21": "SSH hosts",
           "c0900fa64a": "Task sources",
           "129ae9859c": "Mobile emulator",
@@ -9426,7 +9418,6 @@
           "c2bb9fc528": "Floating workspace",
           "f1fddf7764": "Input & editing",
           "d60b7f0e58": "Quick commands"
->>>>>>> upstream/main
         },
         "SettingsFormControls": {
           "42a4d15a30": "No matching fonts.",
@@ -10949,7 +10940,6 @@
             "7166b9090c": "GitHub authentication via the gh CLI.",
             "760e2446e0": "Bitbucket Cloud authentication with a saved API token or environment variables.",
             "af5ae87847": "access token",
-<<<<<<< HEAD
             "mcpTitle": "MCP integrations",
             "mcpDescription": "Connect services Orca exposes to every agent as MCP tools (orca-tools server).",
             "mcpKeyword": "mcp",
@@ -10963,8 +10953,7 @@
             "graphKw": "graph",
             "graphKwGemini": "gemini",
             "graphKwKg": "knowledge graph",
-            "graphKwGoogle": "google ai"
-=======
+            "graphKwGoogle": "google ai",
             "d8906d60a9": "Jira integration",
             "9e238582e8": "Bitbucket integration",
             "a17a94d0b0": "GitHub integration",
@@ -10972,7 +10961,6 @@
             "cd74b2f587": "GitLab integration",
             "d905b3ecee": "Linear integration",
             "b3efe7ab71": "Azure DevOps integration"
->>>>>>> upstream/main
           }
         },
         "jira": {
@@ -11181,13 +11169,9 @@
             "91fc8ab7e5": "coordination",
             "13ba5c6cbd": "agents",
             "d86705ba77": "multi-agent",
-<<<<<<< HEAD
-            "a7f76b4ca7": "orchestration"
-=======
             "a7f76b4ca7": "orchestration",
             "e05ff36753": "Coordinate multiple coding agents via messaging, task DAGs, dispatch, and decision gates.",
             "abafc3f10f": "Agent orchestration"
->>>>>>> upstream/main
           }
         },
         "privacy": {

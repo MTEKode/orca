@@ -1,7 +1,7 @@
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
-import { isGroupAddress } from '../../../../orchestration/groups'
+import { isGroupAddress } from '../../../../orchestration/addressing/groups/group-addressing'
 import type { OrchestrationDb } from '../../../../orchestration/db'
-import type { OrchestrationCoordinatorKey } from '../../../../orchestration/orchestration-caller-identity'
+import type { OrchestrationCoordinatorKey } from '../../../../orchestration/addressing/orchestration-caller-identity'
 import { findCallerWorkerDispatches } from '../../../../orchestration/db/runs/worker-run-binding'
 
 const NOT_ALLOWED_MESSAGE =

@@ -18,7 +18,7 @@ import {
   installStructuredHostStub,
   SESSION,
   STRUCTURED_CLIENT
-} from './structured-agent-session-rpc.test-fixture'
+} from './structured-sessions/protocol/structured-agent-session-rpc.test-fixture'
 import { TURN_CHECKPOINT_METHODS } from './turn-checkpoint-methods'
 
 function fakeService(overrides: Partial<TurnCheckpointService> = {}): TurnCheckpointService {
