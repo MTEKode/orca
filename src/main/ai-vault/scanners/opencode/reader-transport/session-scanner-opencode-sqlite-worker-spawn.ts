@@ -8,7 +8,6 @@ import { throwIfSignalAborted } from '../../../../../shared/abort-signal-reason'
 import { openCodeTranscriptPageLimit } from '../../../../../shared/opencode-transcript-page-limit'
 import type { SessionFileCandidate } from '../../../session-scanner-types'
 import type { OpenCodeSqliteCaptureValue } from './session-scanner-opencode-sqlite-worker-protocol'
-import { aiVaultAgentForWorker } from './session-scanner-opencode-sqlite-worker-protocol'
 import { OpenCodeSqliteWorkerClient } from './session-scanner-opencode-sqlite-worker-client'
 import {
   buildOpenCodeSqliteCandidatePath,
@@ -53,45 +52,46 @@ type SqliteCaptureArgs = Omit<Parameters<OpenCodeSqliteWorkerClient['capture']>[
 
 type SqliteListArgs = Omit<Parameters<OpenCodeSqliteWorkerClient['list']>[0], 'agent'>
 
-export const listOpenCodeSqliteSessionsViaWorker = (args: SqliteListArgs) => listForHost(args)
+export const listOpenCodeSqliteSessionsViaWorker = (
+  args: SqliteListArgs
+): Promise<SessionFileCandidate[]> => listForHost(args)
 
-export const listOpenCodeNextSqliteSessionsViaWorker = (args: SqliteListArgs) =>
-  listForHost({ ...args, agent: 'opencode-next' })
+export const listOpenCode2SqliteSessionsViaWorker = (
+  args: SqliteListArgs
+): Promise<SessionFileCandidate[]> => listForHost({ ...args, agent: 'opencode2' })
 
-export const listZcodeSqliteSessionsViaWorker = (args: SqliteListArgs) =>
-  listForHost({ ...args, agent: 'zcode' })
+export const listZcodeSqliteSessionsViaWorker = (
+  args: SqliteListArgs
+): Promise<SessionFileCandidate[]> => listForHost({ ...args, agent: 'zcode' })
 
-export function parseOpenCodeSqliteSessionViaWorker(
+export const parseOpenCodeSqliteSessionViaWorker = (
   args: SqliteParseArgs
-): Promise<AiVault.AiVaultSession | null> {
-  return parseForHost(args)
-}
+): Promise<AiVault.AiVaultSession | null> => parseForHost(args)
 
-export function parseOpenCodeNextSqliteSessionViaWorker(
+export const parseOpenCode2SqliteSessionViaWorker = (
   args: SqliteParseArgs
-): Promise<AiVault.AiVaultSession | null> {
-  return parseForHost({ ...args, agent: 'opencode-next' })
-}
+): Promise<AiVault.AiVaultSession | null> => parseForHost({ ...args, agent: 'opencode2' })
 
-export function parseZcodeSqliteSessionViaWorker(
+export const parseZcodeSqliteSessionViaWorker = (
   args: SqliteParseArgs
-): Promise<AiVault.AiVaultSession | null> {
-  return parseForHost({ ...args, agent: 'zcode' })
-}
+): Promise<AiVault.AiVaultSession | null> => parseForHost({ ...args, agent: 'zcode' })
 
-export const captureOpenCodeSqliteSessionViaWorker = (args: SqliteCaptureArgs) =>
-  captureForHost(args)
+export const captureOpenCodeSqliteSessionViaWorker = (
+  args: SqliteCaptureArgs
+): Promise<OpenCodeSqliteCaptureValue> => captureForHost(args)
 
-export const captureOpenCodeNextSqliteSessionViaWorker = (args: SqliteCaptureArgs) =>
-  captureForHost({ ...args, agent: 'opencode-next' })
+export const captureOpenCode2SqliteSessionViaWorker = (
+  args: SqliteCaptureArgs
+): Promise<OpenCodeSqliteCaptureValue> => captureForHost({ ...args, agent: 'opencode2' })
 
-export const captureZcodeSqliteSessionViaWorker = (args: SqliteCaptureArgs) =>
-  captureForHost({ ...args, agent: 'zcode' })
+export const captureZcodeSqliteSessionViaWorker = (
+  args: SqliteCaptureArgs
+): Promise<OpenCodeSqliteCaptureValue> => captureForHost({ ...args, agent: 'zcode' })
 
 async function listForHost(
   args: Parameters<OpenCodeSqliteWorkerClient['list']>[0]
 ): Promise<SessionFileCandidate[]> {
-  const agent = aiVaultAgentForWorker(args.agent)
+  const agent = args.agent ?? 'opencode'
   const scoped = Boolean(args.scopePaths?.length)
   const issues: AiVault.AiVaultScanIssue[] = []
   const closeSource =
@@ -170,10 +170,7 @@ async function listCandidatesForHost(
           args.agent
         )
         return result.flatMap((candidate) => {
-          const parsed = splitOpenCodeSqliteCandidate(
-            candidate.file.path,
-            aiVaultAgentForWorker(args.agent)
-          )
+          const parsed = splitOpenCodeSqliteCandidate(candidate.file.path, args.agent)
           const original = parsed && paths.get(parsed.dbPath)
           return parsed && original
             ? [
@@ -190,7 +187,7 @@ async function listCandidatesForHost(
       } catch (error) {
         throwIfSignalAborted(args.signal)
         issues.push({
-          agent: aiVaultAgentForWorker(args.agent),
+          agent: args.agent ?? 'opencode',
           kind: 'scope',
           path: first,
           ...scanIssueTextFromError(error)
@@ -304,4 +301,13 @@ export async function readOpenCodeTranscriptSignalViaWorker(
     throw new Error('Invalid OpenCode transcript signal')
   }
   return value
+}
+
+export async function readOpenCodeForkCoverageViaWorker(
+  args: { dbPath: string; sessionId: string; sourceSessionId: string },
+  signal?: AbortSignal
+): Promise<string[]> {
+  const wsl = openCodeWslPath(args.dbPath)
+  const client = wsl ? await openCodeWslClient(wsl.distro, args.dbPath, signal) : getSharedClient()
+  return client.readForkCoverage({ ...args, dbPath: wsl?.linuxPath ?? args.dbPath }, signal)
 }

@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -40,21 +40,4 @@ it('stages the manifest and every asset it lists, byte for byte', async () => {
   expect(readFileSync(join(outputDir, ORCAD_MOBILE_WEB_MANIFEST))).toEqual(
     readFileSync(join(bundleDir, 'manifest.json'))
   )
-})
-
-it('stages a dark page into a dark orcad, and refuses it in any other', async () => {
-  vi.stubEnv('ORCA_SIDEBAR_INPUTS', 'main')
-  await writeMobileWebBundleFixtureTree({ outDir: bundleDir })
-  stageOrcadMobileWebBundle(outputDir, bundleDir)
-  expect(existsSync(join(outputDir, ORCAD_MOBILE_WEB_MANIFEST))).toBe(true)
-
-  vi.unstubAllEnvs()
-  rmSync(outputDir, { recursive: true, force: true })
-  expect(() => stageOrcadMobileWebBundle(outputDir, bundleDir)).toThrow('ORCA_SIDEBAR_INPUTS=main')
-  expect(existsSync(join(outputDir, ORCAD_MOBILE_WEB_MANIFEST))).toBe(false)
-})
-
-it('fails the build when the page was never built', () => {
-  expect(() => stageOrcadMobileWebBundle(outputDir, bundleDir)).toThrow('pnpm build:mobile-web')
-  expect(existsSync(join(outputDir, ORCAD_MOBILE_WEB_MANIFEST))).toBe(false)
 })

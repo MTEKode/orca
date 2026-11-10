@@ -24,7 +24,6 @@ import type {
   AgentSessionAcceptedInputSources,
   AgentSessionOptionsResult
 } from './agent-session-options-result'
-import { STRUCTURED_AGENT_OPTION_ID } from './structured-agent-session-agent-option'
 import { labelFromModelId } from '../../model-id-label'
 import type { AgentSessionModelCatalogResult } from '../agent-session-wire'
 import { listingVerifiedModelIds } from './structured-agent-session-listing-verified-ids'
@@ -61,6 +60,9 @@ export type StructuredAgentSessionOptionState = {
   verifiedModelIds?: readonly string[]
   record: StructuredAgentSessionOptionRecord
   optionsAnswerPresent?: true
+  sessionNeverStarted?: boolean
+  /** Latest catalog observation, separate from static old-host seed knowledge. */
+  catalogNamesConfiguredModel?: boolean
   acceptedInputSources?: Partial<
     Record<keyof AgentSessionAcceptedInputSources, 'saved' | 'seeded' | 'policy' | 'picked'>
   >
@@ -70,13 +72,11 @@ export type StructuredAgentSessionOptionState = {
   defaultsUnsent?: true
   /** The permission mode the host or launch last stated; null shows no picker. */
   permissionMode: string | null
+  interactionModeSupported?: boolean
   reportedPermissionMode?: string | null
   permissionOwnSupported?: boolean | null
   reportedModel?: string
   reportedEffort?: string
-  /** Selectable agents and the one running; absent shows no Agent picker. */
-  agents?: AgentSessionOptionsResult['agents']
-  currentAgent?: string
   /** The host is still listing models; it only keeps a seed from settling to built-in, since controls follow their data. */
   listingInProgress?: boolean
   fastModeRestricted?: boolean
@@ -117,8 +117,15 @@ export function applyStructuredAgentSessionModelCatalog(
 ): StructuredAgentSessionOptionState {
   const installed = usesInstalledAgentModelCatalog(state.record.agent, options.coherentCatalog)
   const listingInProgress = catalog.listingInProgress === true
-  if (Boolean(state.listingInProgress) !== listingInProgress) {
-    state = { ...state, listingInProgress }
+  const catalogNamesConfiguredModel =
+    catalog.origin === 'unknown' || catalog.unavailable
+      ? undefined
+      : catalog.listingNamesConfiguredModel
+  if (
+    Boolean(state.listingInProgress) !== listingInProgress ||
+    state.catalogNamesConfiguredModel !== catalogNamesConfiguredModel
+  ) {
+    state = { ...state, listingInProgress, catalogNamesConfiguredModel }
   }
   if (state.catalogSource === 'live' && !installed) {
     return enrichStructuredAgentEfforts(state, catalog)
@@ -190,7 +197,8 @@ export function applyStructuredAgentSessionOptions(
       ...(current.model ? { model: current.model } : {}),
       ...(!policyEffort && current.effort ? { effort: current.effort } : {}),
       ...(current.fastMode !== undefined ? { fastMode: current.fastMode } : {}),
-      ...(current.serviceTier ? { serviceTier: current.serviceTier } : {})
+      ...(current.serviceTier ? { serviceTier: current.serviceTier } : {}),
+      ...(current.interactionMode ? { interactionMode: current.interactionMode } : {})
     },
     (id) =>
       current.defaulted?.some((key) => key === id)
@@ -205,6 +213,8 @@ export function applyStructuredAgentSessionOptions(
   return {
     ...state,
     optionsAnswerPresent: true,
+    interactionModeSupported: current.interactionMode !== undefined,
+    sessionNeverStarted: result.sessionNeverStarted,
     reportedModel: current.reportedModel,
     reportedEffort: state.record.agent === 'pi' ? current.reportedEffort : undefined,
     catalog: keepCatalog ? state.catalog : answeredCatalog,
@@ -229,9 +239,7 @@ export function applyStructuredAgentSessionOptions(
         ? result.listedModelIds
         : undefined,
     permissionMode: result.current.permissionMode ?? null,
-    reportedPermissionMode: result.current.reportedPermissionMode,
-    agents: result.agents,
-    currentAgent: result.current.agent
+    reportedPermissionMode: result.current.reportedPermissionMode
   }
 }
 
@@ -250,10 +258,7 @@ export function commitStructuredAgentSessionOption(
   if (id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID) {
     return { ...state, permissionMode: value, reportedPermissionMode: undefined }
   }
-  if (id === STRUCTURED_AGENT_OPTION_ID) {
-    return { ...state, currentAgent: value }
-  }
-  if (!state.catalog) {
+  if (!state.catalog && id !== 'interactionMode') {
     return state
   }
   const decoded = decodeStructuredAgentSessionOptionValue(id, value)
@@ -277,7 +282,7 @@ export function commitStructuredAgentSessionOptionValues(
   origin: 'picked' | 'seeded' = 'picked'
 ): StructuredAgentSessionOptionState {
   let next = state
-  for (const id of [...STRUCTURED_LAUNCH_OPTION_IDS, STRUCTURED_AGENT_OPTION_ID]) {
+  for (const id of STRUCTURED_LAUNCH_OPTION_IDS) {
     const value = values[id]
     if (value !== undefined) {
       next = commitStructuredAgentSessionOption(next, id, value, origin)

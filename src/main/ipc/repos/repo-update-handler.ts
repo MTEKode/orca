@@ -7,11 +7,9 @@ import { isFolderRepo } from '../../../shared/repo-kind'
 import type { ExecutionHostId } from '../../../shared/execution-host'
 import { getRepoExecutionHostId, normalizeExecutionHostId } from '../../../shared/execution-host'
 import { normalizeRepoBadgeColor } from '../../../shared/repo-badge-color'
-import { normalizeRepoLanguageServerSettings } from '../../../shared/repo-language-server-settings'
 import { sanitizeRepoIcon } from '../../../shared/repo-icon'
 import { normalizeGhAccountBinding } from '../../../shared/github/account-binding'
 import type { GhAccountBinding } from '../../../shared/github/account-binding'
-import { sanitizeNewChatDefaults } from '../../../shared/new-chat-defaults'
 import { normalizeRepoSourceControlAiOverrides } from '../../../shared/source-control/ai/settings/source-control-ai-repo-settings'
 import {
   normalizeCustomWorktreeVisibilitySources,
@@ -19,26 +17,13 @@ import {
 } from '../../../shared/worktree/visibility-sources'
 import { prepareLocalWorktreeRootForRepo } from '../../workspaces/creation/worktree-root-preparation'
 import { commitProvenRepoKindChange } from '../../workspaces/catalog/folder-repo-git-conversion'
+import { normalizeDictationTerms } from '../../../shared/dictation-dictionary'
 import { invalidateAuthorizedRootsCache } from '../worktrees/removal/registered-worktree-roots-cache'
-import { getLspSessionManager } from '../../lsp/lsp-session-registry'
 import { notifyReposChanged } from './repos-changed-notification'
 import {
   assertWslMoveProjectWritable,
   isWslMoveSourceHost
 } from '../../persistence/moving-wsl-projects/wsl-move-scope-guard'
-
-function isValidDeployCheck(value: unknown): boolean {
-  if (value === undefined) {
-    return true
-  }
-  const v = value as { url?: unknown; username?: unknown } | null
-  return (
-    v !== null &&
-    typeof v === 'object' &&
-    typeof v.url === 'string' &&
-    typeof v.username === 'string'
-  )
-}
 
 export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Store): void {
   ipcMain.handle(
@@ -61,22 +46,19 @@ export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Stor
             | 'worktreeBasePath'
             | 'kind'
             | 'symlinkPaths'
-            | 'languageServers'
+            | 'dictationTerms'
             | 'issueSourcePreference'
             | 'forkSyncMode'
-            | 'mteFlowPrompt'
-            | 'newChatDefaults'
-            | 'deployCheck'
-            | 'quickCommandsInFloatingTerminal'
+            | 'agentWorkspaceTrust'
             | 'externalWorktreeVisibilityPromptDismissedAt'
             | 'externalWorktreeInboxBaselinePaths'
             | 'importedExternalWorktreePaths'
             | 'customWorktreeVisibilitySources'
             | 'worktreeVisibilitySourcePreferences'
             | 'projectGroupId'
-            | 'projectGroupOrder'
           >
         > & {
+          projectGroupOrder?: number | null
           externalWorktreeVisibility?: Repo['externalWorktreeVisibility'] | null
           agentWorktreeVisibility?: Repo['agentWorktreeVisibility'] | null
           sourceControlAi?: Repo['sourceControlAi'] | null
@@ -110,18 +92,6 @@ export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Stor
       ) {
         delete updates.forkSyncMode
       }
-      if (
-        'mteFlowPrompt' in updates &&
-        updates.mteFlowPrompt !== undefined &&
-        updates.mteFlowPrompt !== 'ask' &&
-        updates.mteFlowPrompt !== 'never'
-      ) {
-        delete updates.mteFlowPrompt
-      }
-      sanitizeNewChatDefaults(updates)
-      if ('deployCheck' in updates && !isValidDeployCheck(updates.deployCheck)) {
-        delete updates.deployCheck
-      }
       // Null clears the binding; malformed values must not become account selections.
       if ('ghAccount' in updates) {
         if (updates.ghAccount == null) {
@@ -140,6 +110,14 @@ export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Stor
         const v = updates.symlinkPaths as unknown
         if (!Array.isArray(v) || !v.every((e) => typeof e === 'string')) {
           delete updates.symlinkPaths
+        }
+      }
+      if ('dictationTerms' in updates) {
+        const terms = normalizeDictationTerms(updates.dictationTerms)
+        if (terms) {
+          updates.dictationTerms = terms
+        } else {
+          delete updates.dictationTerms
         }
       }
       if ('worktreeBasePath' in updates && updates.worktreeBasePath !== undefined) {
@@ -258,10 +236,6 @@ export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Stor
           updates.sourceControlAi = normalizedSourceControlAi
         }
       }
-      // Why: settings gate spawning repo-controlled code, so malformed input clears instead of coercing.
-      if ('languageServers' in updates) {
-        updates.languageServers = normalizeRepoLanguageServerSettings(updates.languageServers)
-      }
       const hostId = args.hostId ? normalizeExecutionHostId(args.hostId) : null
       if (args.hostId && !hostId) {
         return null
@@ -294,9 +268,6 @@ export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Stor
         if ('worktreeBasePath' in updates) {
           void prepareLocalWorktreeRootForRepo(store, updated)
           invalidateAuthorizedRootsCache()
-        }
-        if ('languageServers' in updates) {
-          getLspSessionManager()?.disposeForRepo(args.repoId)
         }
         notifyReposChanged(mainWindow)
       }

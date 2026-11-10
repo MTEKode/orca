@@ -6,10 +6,16 @@ import {
   getTabEntryOptions,
   isTabEntryAbsolutePathLike
 } from './tab-create-entry-action'
+import {
+  agentResultSetupOption,
+  matchingAgentLaunchOptions,
+  tabAgentLaunchOptionDisabled
+} from './tab-agent-launch-options'
 import { findMatchingTabCreateMenuOptions } from './tab-create-menu-options'
 import { getActiveOptionId, type ActiveOption } from './tab-create-entry-active-option'
 import {
   EntryActionRow,
+  useEntrySetupSubmenu,
   EntryStatusRow,
   RESULT_LISTBOX_ID,
   resultOptionDomId
@@ -23,7 +29,8 @@ import { useTabCreateEntrySearchResults } from './use-tab-create-entry-search-re
 import { DEFAULT_SEARCH_ENGINE } from '../../../../shared/browser-url'
 import { getRendererAppPlatform } from '@/lib/renderer-app-platform'
 import { useAppStore } from '@/store'
-import { isQuickOpenQueryTooLarge } from '../quick-open-search'
+import { useFileListWorktree } from '@/store/workspaces/selection/use-selected-worktree'
+import { isQuickOpenQueryTooLarge } from '../../../../shared/quick-open/quick-open-path-search'
 import { parseForcedSearchQuery } from './tab-create-entry-forced-search'
 import { useNetworkSafeTabEntrySelection } from './tab-create-entry-network-selection'
 import { focusTabEntryMenuItemAtEdge } from './tab-create-entry-keyboard-focus'
@@ -31,26 +38,33 @@ import {
   getTabEntryChooseActionMessage,
   getTabEntryOmniboxPlaceholder
 } from './tab-create-entry-copy'
-import { EMPTY_MENU_OPTIONS } from './tab-create-entry-empty-options'
+import { EMPTY_AGENT_OPTIONS, EMPTY_MENU_OPTIONS } from './tab-create-entry-empty-options'
 import type { TabEntryActionClassification } from './tab-create-entry-classifier'
 import type { TabBarCreateEntryProps } from './tab-create-entry-props'
+import { useTranslate } from '@/i18n/use-translate'
 
 export default function TabBarCreateEntry(props: TabBarCreateEntryProps): React.JSX.Element {
   return <TabBarCreateEntrySession key={String(props.menuOpen)} {...props} />
 }
 
 function TabBarCreateEntrySession({
+  agentOptions = EMPTY_AGENT_OPTIONS,
+  agentPickerEntries,
   groupId,
   menuOpen,
   menuOptions = EMPTY_MENU_OPTIONS,
   onDidOpenEntry,
+  onLaunchAgent,
+  onLaunchAgentOption,
   onOpenDefaultTerminal,
   onOpenEntry,
   onQueryChange,
   onQueueSwitchFocus,
   onSelectMenuOption,
+  terminalPending,
   worktreeId
 }: TabBarCreateEntryProps): React.JSX.Element {
+  const t = useTranslate()
   const [query, setQuery] = useState('')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -58,6 +72,7 @@ function TabBarCreateEntrySession({
   const [selectionGuidance, setSelectionGuidance] = useState<string | null>(null)
   // null = follow ranking (deferred tabs can prepend); set on arrow keys only.
   const [pinnedOptionId, setPinnedOptionId] = useState<string | null>(null)
+  const setupSubmenu = useEntrySetupSubmenu()
   const inputRef = useRef<HTMLInputElement>(null)
   const submissionIdRef = useRef(0)
   useEffect(
@@ -87,9 +102,7 @@ function TabBarCreateEntrySession({
   )
   const allowAbsolutePaths = useAppStore(allowAbsolutePathsSelector)
   // Deduplicate using the workspace filesystem; the client platform cannot establish path case sensitivity.
-  const worktreePath = useAppStore((state) =>
-    menuOpen ? (state.getKnownWorktreeById(worktreeId)?.path ?? null) : null
-  )
+  const worktreePath = useFileListWorktree(menuOpen ? worktreeId : null)?.path ?? null
   const localPlatform = getRendererAppPlatform() === 'win32' ? 'windows' : 'posix'
   const searchEngine = useAppStore(
     (state) => state.browserDefaultSearchEngine ?? DEFAULT_SEARCH_ENGINE
@@ -140,6 +153,14 @@ function TabBarCreateEntrySession({
     query,
     tabResults
   })
+  const matchingAgentOptions = useMemo(
+    () =>
+      terminalQueryMode
+        ? EMPTY_AGENT_OPTIONS
+        : matchingAgentLaunchOptions(agentPickerEntries, agentOptions, query, terminalPending),
+    [agentOptions, agentPickerEntries, query, terminalPending, terminalQueryMode]
+  )
+
   const disabled = !onOpenEntry
   const hasQuery = query.trim().length > 0
   const activeOptions: ActiveOption[] = [
@@ -149,6 +170,10 @@ function TabBarCreateEntrySession({
     })),
     ...matchingMenuOptions.map((option) => ({
       kind: 'menu' as const,
+      option
+    })),
+    ...matchingAgentOptions.map((option) => ({
+      kind: 'agent' as const,
       option
     })),
     ...placeHistoryRowsInEntryOptions(options, historyRows)
@@ -169,11 +194,11 @@ function TabBarCreateEntrySession({
     statusOption != null &&
     (statusOption.classification.kind === 'empty' || statusOption.classification.kind === 'blocked')
       ? statusOption.classification.message
-      : getTabEntryOmniboxPlaceholder()
+      : getTabEntryOmniboxPlaceholder(t)
 
   const submitOption = (option?: ActiveOption) => {
     if (disabled || pending) {
-      return
+      return false
     }
     const selectedOption = option ?? selectedActiveOption ?? null
     if (!selectedOption) {
@@ -211,6 +236,18 @@ function TabBarCreateEntrySession({
       onSelectMenuOption?.(selectedOption.option)
       onDidOpenEntry?.()
       return
+    }
+    if (selectedOption.kind === 'agent') {
+      if (tabAgentLaunchOptionDisabled(selectedOption.option)) {
+        return false
+      }
+      const accepted = onLaunchAgentOption
+        ? onLaunchAgentOption(selectedOption.option)
+        : onLaunchAgent?.(selectedOption.option.agent)
+      if (accepted !== false) {
+        onDidOpenEntry?.()
+      }
+      return accepted
     }
     // Route history through typed-URL navigation to preserve workspace targeting and SSH resolution.
     const classification: TabEntryActionClassification =
@@ -306,10 +343,10 @@ function TabBarCreateEntrySession({
               ? resultOptionDomId(activeSelectedIndex)
               : undefined
           }
-          aria-label={getTabEntryOmniboxPlaceholder()}
+          aria-label={getTabEntryOmniboxPlaceholder(t)}
           aria-invalid={error ? true : undefined}
           aria-errormessage={error ? 'tab-create-entry-error' : undefined}
-          placeholder={getTabEntryOmniboxPlaceholder()}
+          placeholder={getTabEntryOmniboxPlaceholder(t)}
           className="h-9 rounded-none border-0 bg-transparent px-0 text-xs font-normal text-foreground shadow-none placeholder:font-normal placeholder:text-muted-foreground focus-visible:border-0 focus-visible:ring-0 aria-invalid:border-0 aria-invalid:ring-0 md:text-xs dark:bg-transparent"
         />
       </div>
@@ -349,6 +386,16 @@ function TabBarCreateEntrySession({
                 id={resultOptionDomId(index)}
                 option={option}
                 selected={index === activeSelectedIndex}
+                setupOpen={setupSubmenu.openId === getActiveOptionId(option)}
+                onSetupOpenChange={(open) => setupSubmenu.change(getActiveOptionId(option), open)}
+                onHover={() => setupSubmenu.hover(getActiveOptionId(option))}
+                onUseAgent={
+                  option.kind === 'agent' && option.option.pickerEntry
+                    ? (draft) =>
+                        submitOption(agentResultSetupOption(option, draft, terminalPending))
+                    : undefined
+                }
+                terminalPending={terminalPending}
                 disabled={disabled || pending}
                 loading={pending && index === activeSelectedIndex}
                 onClick={() => {

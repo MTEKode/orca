@@ -6,13 +6,13 @@ import type { MteOrchestrationDraft } from '@/components/mte-orchestration-picke
 import type { AgentComboboxSurfaceRows } from '@/components/agent/agent-combobox-surface-items'
 import type { ComposerAgentRows } from '@/hooks/composer-state/composer-agent-rows-target'
 import type RepoCombobox from '@/components/repo/RepoCombobox'
-import type { NewWorkspaceProjectOption } from '@/lib/new-workspace-project-options'
+import type { NewWorkspaceProjectOption } from '@/lib/workspace/creation/new-workspace-project-options'
 import type {
   NeedsSetupProjectHostOption,
   ProjectHostSetupOption
-} from '@/lib/project-host-setup-options'
+} from '@/lib/workspace/creation/project-host-setup-options'
 import type { SetupConfig } from '../../../../shared/orca-hook-setup-config'
-import type { WorkspaceCreateErrorDisplay } from '@/lib/workspace-create-error-format'
+import type { WorkspaceCreateErrorDisplay } from '@/lib/workspace/creation/workspace-create-error-format'
 import type { SmartNameMode } from '../../../../shared/new-workspace/smart-workspace-source-results'
 import type SmartWorkspaceNameField from './SmartWorkspaceNameField'
 import type { SmartWorkspaceNameSelection } from '@/components/new-workspace/smart-workspace-name-field-model'
@@ -23,7 +23,7 @@ import type { LinearIssue } from '../../../../shared/linear/issue-types'
 import type { OrcaHooks, SetupAgentStartupPolicy } from '../../../../shared/orca-yaml-hook-types'
 import type { SparsePreset } from '../../../../shared/worktree/create-types'
 import type { SshConnectionStatus } from '../../../../shared/ssh-types'
-import type { TaskSourceContext } from '../../../../shared/task-source-context'
+import type { TaskSourceContext } from '../../../../shared/work-items/task-source-context'
 import type { TuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent'
 import type { ExecutionHostId } from '../../../../shared/execution-host'
 
@@ -115,6 +115,8 @@ export type NewWorkspaceComposerCardProps = {
   detectedAgentIds: Set<TuiAgent> | null
   onOpenAgentSettings: (invoker: HTMLButtonElement) => void
   advancedOpen: boolean
+  setupChoiceRevealRequest: number
+  onSetupChoiceRevealed: () => void
   onToggleAdvanced: () => void
   createDisabled: boolean
   /** MTE orchestration entry point; shown in place of the Agent field when the create can start a run. */

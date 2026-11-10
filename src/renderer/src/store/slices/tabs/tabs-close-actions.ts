@@ -1,42 +1,39 @@
-import { retireRemovedNativeChatDraftPositions } from '@/components/native-chat/native-chat-draft-cache'
-import { retireStructuredAgentSessionReadOwner } from '@/components/native-chat/structured-agent-session-read-owner-registry'
-import type { TabsSlice, TabsSliceGet, TabsSliceSet } from './tabs-slice-contract'
-import { collapseGroupLayout } from '../../../../../shared/workspace-layout/tab-group-layout-tree'
+import { editorTabRetirement } from '../editor/tabs/editor-tab-retirement'
 import {
-  findGroupForTab,
-  findTabAndWorktree,
-  pickNextActiveTab,
-  sanitizeRecentTabIds
-} from '../tab-group-state'
+  landsOnEmptiedWorktree,
+  emptiedWorktreeLandingPatch,
+  landOnEmptiedWorktree
+} from './tabs-empty-workspace'
+import { retireRemovedNativeChatDraftPositions } from '@/components/native-chat/drafts/native-chat-draft-position-retirement'
+import { retireStructuredAgentSessionReadOwner } from '@/components/native-chat/session/structured/read/structured-agent-session-read-owner-registry'
+import type { TabsSlice, TabsSliceGet, TabsSliceSet } from './tabs-slice-contract'
+import { collapseWorktreeGroupLayout } from '../../../../../shared/workspace-layout/tab-group-layout-tree'
+import { findGroupForTab, findTabAndWorktree } from './tab-group-state'
+import { pickNextActiveTab, sanitizeRecentTabIds } from './tab-selection-history'
 import { dedupeTabOrder } from '../../../../../shared/workspace-layout/tab-order'
 import { buildActiveSurfacePatch } from './tabs-surface'
-import { beginStructuredAgentSessionTabClose } from '@/runtime/structured-agent-session-tab-retirement'
+import { beginStructuredAgentSessionTabClose } from '@/runtime/native-chat/tab-retirement/structured-agent-session-tab-retirement'
 import {
   hasStructuredAgentSessionLaunchCancellationTombstone,
   shouldRetainStructuredAgentSessionLaunchTab
 } from '@/lib/agent-session/launch/structured-agent-session-launch-registry'
-import { clearWebSessionFocusIntentIfMatches } from '@/runtime/web-session-focus-intent'
-import { ownsGlobalSelection } from '../../global-selection-owner'
+import { clearWebSessionFocusIntentIfMatches } from '@/runtime/web-session-tabs-sync/navigation/web-session-focus-intent'
+import { ownsGlobalSelection } from '../../workspaces/selection/global-selection-owner'
 import {
   structuredAgentSessionFocusOwner,
   structuredAgentSessionTargetForTab
-} from '@/runtime/structured-agent-session-owner'
+} from '@/runtime/native-chat/session-ownership/structured-agent-session-owner'
 import { omitRecordKeys } from '../worktrees/teardown/record-key-omission'
 import { removeTabsAttention } from '../workspace-attention/subject-attention-transitions'
 import { settleAttentionRemovedBy } from '../workspace-attention/attention-removal-follow-up'
 import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../../shared/layout-owner-switch'
 import { closeContentTabThroughLayoutOwner } from './content-tab-close-through-layout-owner'
 import { isEditorTabContentType } from '../editor/tabs/editor-tab-content-type'
-import {
-  emptiedWorktreeLandingPatch,
-  landOnEmptiedWorktree,
-  landsOnEmptiedWorktree
-} from './emptied-worktree-landing'
 import type { TuiAgent } from '../../../../../shared/agent-launch/catalog/tui-agent'
 import { isTuiAgent } from '../../../../../shared/agent-launch/catalog/tui-agent-config'
 import { LOCAL_EXECUTION_HOST_ID } from '../../../../../shared/execution-host'
-import { hideRevealedWorkerTab } from './worker-tab-hide'
 import { forgetDesktopCreatedServerTab } from '@/lib/desktop-created-server-tabs'
+import { replaceRecordEntries, replaceTabBuckets } from '../../keyed-record-transitions'
 
 export function createTabsCloseActions(
   set: TabsSliceSet,
@@ -50,10 +47,9 @@ export function createTabsCloseActions(
         return null
       }
       const { tab, worktreeId } = found
-      // A revealed worker chat only returns to hidden: the host keeps the session and its tab.
-      if (hideRevealedWorkerTab(get, tab, worktreeId)) {
-        return { closedTabId: tabId, wasLastTab: false, worktreeId }
-      }
+      const retireEditor = opts?.editorRetirementHandled
+        ? () => {}
+        : editorTabRetirement(set, get, state, tab)
       forgetDesktopCreatedServerTab(tab.id)
       forgetDesktopCreatedServerTab(tab.entityId)
       const group = findGroupForTab(state.groupsByWorktree, worktreeId, tab.groupId)
@@ -154,33 +150,35 @@ export function createTabsCloseActions(
             )
             let nextLayoutByWorktree = current.layoutByWorktree
             let nextActiveGroupIdByWorktree = current.activeGroupIdByWorktree
-            if (
-              group &&
-              wasLastTab &&
-              current.layoutByWorktree[worktreeId] &&
-              nextGroups.length > 1
-            ) {
+            const currentLayout = current.layoutByWorktree[worktreeId]
+            if (group && wasLastTab && currentLayout && nextGroups.length > 1) {
               nextGroups = nextGroups.filter((candidate) => candidate.id !== group.id)
-              const collapsedState = collapseGroupLayout(
-                current.layoutByWorktree,
-                current.activeGroupIdByWorktree,
-                worktreeId,
+              const collapsed = collapseWorktreeGroupLayout(
+                currentLayout,
+                current.activeGroupIdByWorktree[worktreeId],
                 group.id,
                 nextGroups[0]?.id ?? null
               )
-              nextLayoutByWorktree = collapsedState.layoutByWorktree
-              nextActiveGroupIdByWorktree = collapsedState.activeGroupIdByWorktree
+              nextLayoutByWorktree = replaceRecordEntries(current.layoutByWorktree, [
+                [worktreeId, collapsed.layout]
+              ])
+              nextActiveGroupIdByWorktree = replaceRecordEntries(current.activeGroupIdByWorktree, [
+                [worktreeId, collapsed.activeGroupId]
+              ])
             }
+            const nextUnifiedTabsByWorktree = replaceTabBuckets(current.unifiedTabsByWorktree, [
+              [worktreeId, nextTabs]
+            ])
+            const nextGroupsByWorktree = replaceRecordEntries(current.groupsByWorktree, [
+              [worktreeId, nextGroups]
+            ])
             // Unwinding a failed create added no tab; preserve the original selection instead of landing on welcome.
             const shouldDeactivateWorktree =
               !opts?.preserveWorktreeSelection &&
               landsOnEmptiedWorktree(current, worktreeId, nextTabs.length)
             return {
-              unifiedTabsByWorktree: { ...current.unifiedTabsByWorktree, [worktreeId]: nextTabs },
-              groupsByWorktree: {
-                ...current.groupsByWorktree,
-                [worktreeId]: nextGroups
-              },
+              unifiedTabsByWorktree: nextUnifiedTabsByWorktree,
+              groupsByWorktree: nextGroupsByWorktree,
               layoutByWorktree: nextLayoutByWorktree,
               activeGroupIdByWorktree: nextActiveGroupIdByWorktree,
               // Avoid no-op unread allocations that wake full-state selectors.
@@ -194,14 +192,8 @@ export function createTabsCloseActions(
                 ? buildActiveSurfacePatch(
                     {
                       ...current,
-                      unifiedTabsByWorktree: {
-                        ...current.unifiedTabsByWorktree,
-                        [worktreeId]: nextTabs
-                      },
-                      groupsByWorktree: {
-                        ...current.groupsByWorktree,
-                        [worktreeId]: nextGroups
-                      },
+                      unifiedTabsByWorktree: nextUnifiedTabsByWorktree,
+                      groupsByWorktree: nextGroupsByWorktree,
                       layoutByWorktree: nextLayoutByWorktree,
                       activeGroupIdByWorktree: nextActiveGroupIdByWorktree
                     },
@@ -217,7 +209,10 @@ export function createTabsCloseActions(
         ORCA_LAYOUT_OWNER_IS_MAIN &&
         closeContentTabThroughLayoutOwner(get, tab, {
           nextActiveTabId,
-          closeHere,
+          closeHere: () => {
+            closeHere()
+            retireEditor()
+          },
           // An editor close lands through closeFile, which owns its content.
           ...(isEditorTabContentType(tab.contentType) || opts?.preserveWorktreeSelection
             ? {}
@@ -233,7 +228,8 @@ export function createTabsCloseActions(
                     { tabsBefore: state }
                   )
               }
-            : {})
+            : {}),
+          ...(isEditorTabContentType(tab.contentType) ? { closed: retireEditor } : {})
         })
       ) {
         if (opts?.recordInteraction !== false) {
@@ -242,6 +238,7 @@ export function createTabsCloseActions(
         return { closedTabId: tabId, wasLastTab, worktreeId }
       }
       closeHere()
+      retireEditor()
       if (opts?.recordInteraction !== false) {
         get().recordFeatureInteraction?.('terminal-tabs')
       }

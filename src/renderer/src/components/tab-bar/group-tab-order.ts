@@ -1,3 +1,4 @@
+import { workspaceEditorFiles } from '@/store/slices/editor/tabs/workspace-editor-files'
 import type { Tab, TabGroup } from '../../../../shared/tab-types'
 import type { AppState } from '../../store/types'
 import { isHiddenWorkerTab } from '@/lib/agent-session/revealed-worker-tabs'
@@ -166,7 +167,8 @@ export function getActiveTabNavOrder(
   )
   const terminalIds = ids.terminalIds ?? (state.tabsByWorktree[worktreeId] ?? []).map((t) => t.id)
   const editorIds =
-    ids.editorIds ?? state.openFiles.filter((f) => f.worktreeId === worktreeId).map((f) => f.id)
+    ids.editorIds ??
+    workspaceEditorFiles(state.openFiles, state.unifiedTabsByWorktree[worktreeId]).map((f) => f.id)
   const browserIds =
     ids.browserIds ?? (state.browserTabsByWorktree?.[worktreeId] ?? []).map((t) => t.id)
   const simulatorIds =

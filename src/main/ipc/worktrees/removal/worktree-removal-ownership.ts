@@ -1,15 +1,14 @@
 import type { OrcaRuntimeService } from '../../../runtime/orca-runtime'
 import { getLocalPtyProvider } from '../../pty/provider/registry'
 import { clearProviderPtyState } from '../../pty/provider/state-cleanup'
-import { killAllProcessesForWorktree } from '../../../runtime/worktree-teardown'
+import { killAllProcessesForWorktree } from '../../../runtime/workspaces/removal/worktree-teardown'
 import type { Store } from '../../../persistence/loading-store/store'
-import { getRepoExecutionHostId, LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
-import type { ExecutionHostId } from '../../../../shared/execution-host'
+import { getRepoExecutionHostId, type ExecutionHostId } from '../../../../shared/execution-host'
+
 import type { Repo } from '../../../../shared/repo-types'
 import { hasWorktreeRemovalRepoOwnerOnOtherHost } from '../../../workspaces/removal/worktree-removal-repo-owner'
 import { getRepoIdFromWorktreeId } from '../../../../shared/worktree/id'
-import { getLspSessionManager } from '../../../lsp/lsp-session-registry'
-import { agentHookServer } from '../../../agent-hooks/server'
+import { agentHookServer } from '../../../agent-hooks/server/agent-hook-server'
 import { removeWorktreeMetaRow } from '../../../persistence/host-qualified-worktree-meta'
 import { pruneWorktreePRRefreshAliases } from '../../../github/pr-refresh-coordinator'
 import {
@@ -87,10 +86,6 @@ export function removeWorktreeMetadataAndTransientState(
   )
   // Path-derived IDs are reusable; retire old process state before a new workspace can inherit it.
   removeWorktreeMetaRow(store, worktreeId, hostId)
-  // LSP sessions are local-only; remote removal must leave a same-ID local session alive.
-  if (!hostId || hostId === LOCAL_EXECUTION_HOST_ID) {
-    getLspSessionManager()?.disposeForWorktree(worktreeId)
-  }
   // Status retirement is host/pane-scoped, even when another owner keeps the same workspace ID.
   agentHookServer.dropStatusEntriesForRemovedWorktree(worktreeId, hostId ?? persistedHostId)
   if (!preservesSameIdOwner) {

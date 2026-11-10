@@ -1,18 +1,25 @@
-import type { OrchestrationDb } from '../orchestration/db'
+import {
+  normalizeMobileSessionTabSelection,
+  selectMobileSessionTab
+} from './mobile-session-tab-selection'
 import type { OrcaRuntimeService } from '../orca-runtime'
-import type {
-  RuntimeMobileSessionAgentTab,
-  RuntimeMobileSessionTabsSnapshot
-} from '../../../shared/runtime-types'
+import type { RuntimeMobileSessionAgentTab } from '../../../shared/runtime-mobile-session-tab-contracts'
+import type { RuntimeMobileSessionTabsSnapshot } from '../../../shared/runtime-session-contracts'
 import { defaultAgentChatLabel } from '../../../shared/agent-session/agent-session-chat-label'
-import { resolveStructuredWorkerIdentityForSession } from '../structured-worker-authority'
-import { getHeadlessMobileSessionGroupId } from '../mobile-session-layout-projection'
+import { getHeadlessMobileSessionGroupId } from '../terminal/surface/mobile-session-layout-projection'
 import type { StructuredSessionSurface } from '../agent-session/structured-agent-session-close'
 import type { StructuredAgentId } from '../../../shared/agent-session/lifecycle/agent-session-provider-handle'
-import { chatTabId } from '../agent-session/agent-session-tab-layout'
-import { getStructuredAgentSessionHost } from '../../native-chat/agent-session-wire/structured-agent-session-registry'
+import { insertTabIdIntoOrder } from '../../../shared/workspace-layout/tab-order'
+import {
+  chatTabId,
+  resolveChatTabPlacement,
+  type ChatTabPlacement
+} from '../agent-session/agent-session-tab-layout'
+import { getStructuredAgentSessionHost } from '../../native-chat/agent-session-wire/host/structured-agent-session-registry'
 import { mobileChatTabId, newReopenedChatTabId } from '../agent-session/agent-session-tab-identity'
 import { isReopenedChatTabId } from '../../../shared/agent-session/view/structured-agent-session-host-tab-id'
+import type { MainSessionTabRows } from './main-session-tab-rows'
+import { withMainTabOrder } from './main-session-tab-order'
 
 export type StructuredSessionTabPublicationInput = {
   workspaceId: string
@@ -115,36 +122,24 @@ export async function admitStructuredSessionTabPublication(
 
 export type StructuredSessionRawPublicationInput = Pick<
   StructuredSessionTabPublicationInput,
-  'workspaceId' | 'sessionId' | 'agent' | 'activate' | 'notify' | 'tabId'
-> & { eligible?: () => boolean }
+  | 'workspaceId'
+  | 'sessionId'
+  | 'agent'
+  | 'activate'
+  | 'notify'
+  | 'tabId'
+  | 'placement'
+  | 'placedByWindow'
+> & { eligible?: () => boolean; savedOrder?: MainSessionTabRows }
 
 export function projectStructuredSessionTab(
   runtime: Pick<OrcaRuntimeService, 'mobileSessionTabsByWorktree' | 'storeMobileSessionSnapshot'>,
   input: StructuredSessionRawPublicationInput,
-  emit: (snapshot: RuntimeMobileSessionTabsSnapshot) => void,
-  db?: OrchestrationDb | null
+  emit: (snapshot: RuntimeMobileSessionTabsSnapshot) => void
 ): void {
-  let existing = runtime.mobileSessionTabsByWorktree.get(input.workspaceId)
-  // Why: after a restart the registry is cold; the durable row still says this chat is a worker.
-  const isWorker = Boolean(resolveStructuredWorkerIdentityForSession(input.sessionId, db))
+  const existing = runtime.mobileSessionTabsByWorktree.get(input.workspaceId)
   const id =
     input.tabId && isReopenedChatTabId(input.tabId) ? input.tabId : mobileChatTabId(input.sessionId)
-  if (
-    isWorker &&
-    existing?.tabs.some(
-      (tab) => tab.id === id && tab.type === 'agent-session' && tab.role !== 'worker'
-    )
-  ) {
-    // Reused tab that never got the marker (restored before the identity was known): mark it in place.
-    existing = {
-      ...existing,
-      snapshotVersion: existing.snapshotVersion + 1,
-      tabs: existing.tabs.map((tab) =>
-        tab.id === id && tab.type === 'agent-session' ? { ...tab, role: 'worker' as const } : tab
-      )
-    }
-    emit(runtime.storeMobileSessionSnapshot(input.workspaceId, existing))
-  }
   if (existing?.tabs.some((tab) => tab.id === id)) {
     // Background republish does not write/emit; healing missing client mirrors needs activate or explicit republish.
     if (!input.activate) {
@@ -165,15 +160,22 @@ export function projectStructuredSessionTab(
       activeGroupId: groupId ?? existing.activeGroupId,
       activeTabId: id,
       activeTabType: 'agent-session',
-      tabGroups: priorGroups.map((group) =>
-        group.id === groupId ? { ...group, activeTabId: id } : group
-      ),
+      ...(existing.tabGroups !== undefined
+        ? {
+            tabGroups: priorGroups.map((group) =>
+              group.id === groupId ? { ...group, activeTabId: id } : group
+            )
+          }
+        : {}),
       tabs: existing.tabs.map((tab) => ({ ...tab, isActive: tab.id === id }))
     }
     if (input.eligible?.() === false) {
       throw new Error('Chat tab publication was superseded')
     }
-    const stored = runtime.storeMobileSessionSnapshot(input.workspaceId, snapshot)
+    const stored = runtime.storeMobileSessionSnapshot(
+      input.workspaceId,
+      normalizeMobileSessionTabSelection(snapshot)
+    )
     if (input.notify !== false) {
       emit(stored)
     }
@@ -185,7 +187,6 @@ export function projectStructuredSessionTab(
     title: defaultAgentChatLabel(input.agent),
     sessionId: input.sessionId,
     agent: input.agent,
-    ...(isWorker ? { role: 'worker' as const } : {}),
     isActive: input.activate
   }
   const tabs = [...(existing?.tabs ?? [])].map((candidate) => ({
@@ -193,26 +194,39 @@ export function projectStructuredSessionTab(
     isActive: input.activate ? false : candidate.isActive
   }))
   tabs.push(tab)
-  const priorGroups = existing?.tabGroups ?? [
+  const navigation = existing ?? input.savedOrder
+  const priorGroups = navigation?.tabGroups ?? [
     {
       id: getHeadlessMobileSessionGroupId(input.workspaceId),
-      activeTabId: existing?.activeTabId ?? null,
+      activeTabId: navigation?.activeTabId ?? null,
       tabOrder: []
     }
   ]
   // Why: the window can list the chat before main restores its row; keep the place it gave it.
   const listingGroupId = priorGroups.find((group) => group.tabOrder.includes(id))?.id
+  // Saved owners supply their applied order; only window owners decide placement here.
+  const placement: ChatTabPlacement = input.savedOrder
+    ? {
+        groupId: input.savedOrder.tabGroups?.find((group) => group.tabOrder.includes(id))?.id
+      }
+    : resolveChatTabPlacement(
+        priorGroups,
+        existing?.activeGroupId ?? undefined,
+        input.placement,
+        existing?.tabs.flatMap((row) => (row.type === 'agent-session' ? [row] : []))
+      )
   const groupId =
-    listingGroupId ??
-    (priorGroups.some((group) => group.id === existing?.activeGroupId)
-      ? existing!.activeGroupId!
-      : priorGroups[0]!.id)
+    (input.savedOrder ? placement.groupId : (listingGroupId ?? placement.groupId)) ??
+    priorGroups[0]?.id ??
+    getHeadlessMobileSessionGroupId(input.workspaceId)
   const tabGroups = priorGroups.map((group) =>
     group.id === groupId
       ? {
           ...group,
           activeTabId: input.activate ? id : group.activeTabId,
-          tabOrder: listingGroupId ? group.tabOrder : [...group.tabOrder, id]
+          tabOrder: listingGroupId
+            ? group.tabOrder
+            : insertTabIdIntoOrder(group.tabOrder, tabs, id, false, placement.afterTabId)
         }
       : group
   )
@@ -220,17 +234,22 @@ export function projectStructuredSessionTab(
     worktree: input.workspaceId,
     publicationEpoch: existing?.publicationEpoch ?? `structured:${Date.now().toString(36)}`,
     snapshotVersion: (existing?.snapshotVersion ?? 0) + 1,
-    activeGroupId: input.activate ? groupId : (existing?.activeGroupId ?? groupId),
-    activeTabId: input.activate ? id : (existing?.activeTabId ?? null),
-    activeTabType: input.activate ? 'agent-session' : (existing?.activeTabType ?? null),
-    tabGroups,
+    activeGroupId: input.activate ? groupId : navigation ? navigation.activeGroupId : groupId,
+    activeTabId: input.activate ? id : (navigation?.activeTabId ?? null),
+    activeTabType: input.activate ? 'agent-session' : (navigation?.activeTabType ?? null),
+    ...(navigation?.tabGroups !== undefined || !existing ? { tabGroups } : {}),
     ...(existing?.tabGroupLayout ? { tabGroupLayout: existing.tabGroupLayout } : {}),
     tabs
   }
   if (input.eligible?.() === false) {
     throw new Error('Chat tab publication was superseded')
   }
-  const stored = runtime.storeMobileSessionSnapshot(input.workspaceId, snapshot)
+  const selected = input.savedOrder
+    ? withMainTabOrder(snapshot, input.savedOrder, input.activate ? tab : undefined)
+    : input.activate
+      ? selectMobileSessionTab(snapshot, tab)
+      : normalizeMobileSessionTabSelection(snapshot)
+  const stored = runtime.storeMobileSessionSnapshot(input.workspaceId, selected)
   if (input.notify !== false) {
     emit(stored)
   }

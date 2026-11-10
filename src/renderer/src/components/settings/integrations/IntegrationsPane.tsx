@@ -1,5 +1,3 @@
-import { useEffect } from 'react'
-import { useAppStore } from '@/store'
 import {
   AzureDevOpsIntegrationCard,
   GiteaIntegrationCard
@@ -11,89 +9,66 @@ import {
 } from '../../integrations/source-control/cli-source-control-integration-cards'
 import { JiraIntegrationCard } from '../../integrations/task-trackers/jira-integration-card'
 import { LinearIntegrationCard } from '../../integrations/task-trackers/linear-integration-card'
-import { GoogleAiKeyCard } from '../GoogleAiKeyCard'
-import { McpIntegrationCard } from '../McpIntegrationCard'
-import { MCP_INTEGRATION_CATALOG } from '../../../../../shared/mcp-integrations/catalog'
+import { IntegrationCardPresentationProvider } from '../../integrations/presentation/integration-card-presentation'
 import { useIntegrationProviderStatusRefresh } from '../../../hooks/use-integration-provider-status-refresh'
-import { translate } from '@/i18n/i18n'
+import { SettingsGroup } from '../section-layout/SettingsGroup'
+import { useTranslate } from '@/i18n/use-translate'
+
+// Flat presentation turns each provider into one row: -mx-4 cancels its inset, and inner rules are dropped so only rows divide.
+function ProviderRow({ children }: { children: React.ReactNode }): React.JSX.Element {
+  return (
+    <div data-settings-row="" className="[&_.border-t]:border-t-0 [&>*]:-mx-4">
+      {children}
+    </div>
+  )
+}
 
 export function IntegrationsPane(): React.JSX.Element {
+  const t = useTranslate()
   useIntegrationProviderStatusRefresh()
-  const refreshMcpIntegrations = useAppStore((s) => s.refreshMcpIntegrations)
-  useEffect(() => {
-    void refreshMcpIntegrations()
-  }, [refreshMcpIntegrations])
 
   return (
-    <div className="space-y-5">
-      <section className="space-y-3">
-        <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-foreground">
-            {translate('auto.components.settings.IntegrationsPane.298c65ecac', 'Review providers')}
-          </h3>
-          <p className="text-xs text-muted-foreground">
-            {translate(
-              'auto.components.settings.IntegrationsPane.1683acbac4',
-              'Connect the source hosts Orca can use for pull requests, merge requests, checks, and review status.'
-            )}
-          </p>
-        </div>
-        <div className="space-y-3">
-          <GitHubIntegrationCard />
-          <GitLabIntegrationCard />
-          <BitbucketIntegrationCard />
-          <AzureDevOpsIntegrationCard />
-          <GiteaIntegrationCard />
-        </div>
-      </section>
-
-      <section className="space-y-3">
-        <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-foreground">
-            {translate('auto.components.settings.IntegrationsPane.70e885705b', 'Task providers')}
-          </h3>
-          <p className="text-xs text-muted-foreground">
-            {translate(
-              'auto.components.settings.IntegrationsPane.3ba07f933b',
-              'Connect issue trackers Orca can use to browse tasks and start workspaces with linked context.'
-            )}
-          </p>
-        </div>
-        <div className="space-y-3">
-          <LinearIntegrationCard />
-          <JiraIntegrationCard />
-        </div>
-      </section>
-      <section className="space-y-3">
-        <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-foreground">
-            {translate(
-              'auto.components.settings.IntegrationsPane.mcpIntegrationsTitle',
-              'MCP integrations'
-            )}
-          </h3>
-          <p className="text-xs text-muted-foreground">
-            {translate(
-              'auto.components.settings.IntegrationsPane.mcpIntegrationsDescription',
-              'Connect services Orca exposes to every agent as MCP tools (orca-tools server).'
-            )}
-          </p>
-        </div>
-        <div className="space-y-3">
-          {Object.values(MCP_INTEGRATION_CATALOG).map((definition) => (
-            <McpIntegrationCard key={definition.id} definition={definition} />
-          ))}
-        </div>
-      </section>
-      <section className="space-y-3">
-        <h3 className="text-sm font-semibold text-foreground">
-          {translate(
-            'auto.components.settings.IntegrationsPane.knowledgeGraphTitle',
-            'Knowledge graph'
+    <IntegrationCardPresentationProvider value="setup-guide">
+      <div className="space-y-8">
+        <SettingsGroup
+          title={t('auto.components.settings.IntegrationsPane.298c65ecac', 'Review providers')}
+          description={t(
+            'auto.components.settings.IntegrationsPane.1683acbac4',
+            'Connect the source hosts Orca can use for pull requests, merge requests, checks, and review status.'
           )}
-        </h3>
-        <GoogleAiKeyCard />
-      </section>
-    </div>
+        >
+          <ProviderRow>
+            <GitHubIntegrationCard />
+          </ProviderRow>
+          <ProviderRow>
+            <GitLabIntegrationCard />
+          </ProviderRow>
+          <ProviderRow>
+            <BitbucketIntegrationCard />
+          </ProviderRow>
+          <ProviderRow>
+            <AzureDevOpsIntegrationCard />
+          </ProviderRow>
+          <ProviderRow>
+            <GiteaIntegrationCard />
+          </ProviderRow>
+        </SettingsGroup>
+
+        <SettingsGroup
+          title={t('auto.components.settings.IntegrationsPane.70e885705b', 'Task providers')}
+          description={t(
+            'auto.components.settings.IntegrationsPane.3ba07f933b',
+            'Connect issue trackers Orca can use to browse tasks and start workspaces with linked context.'
+          )}
+        >
+          <ProviderRow>
+            <LinearIntegrationCard />
+          </ProviderRow>
+          <ProviderRow>
+            <JiraIntegrationCard />
+          </ProviderRow>
+        </SettingsGroup>
+      </div>
+    </IntegrationCardPresentationProvider>
   )
 }

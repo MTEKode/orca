@@ -3,8 +3,8 @@ import type {
   ComputerUsePermissionSetupResult,
   ComputerUsePermissionStatusResult
 } from '../../../../shared/computer-use-permissions-types'
-import { MTE_SKILL_NAME } from '@/lib/agent-feature-skill-names'
-import { BROWSER_USE_ENABLED_STORAGE_KEY } from '@/lib/browser-use-setup-state'
+import { ORCHESTRATION_SKILL_NAME } from '@/lib/skills/installation/agent-feature-skill-names'
+import { BROWSER_USE_ENABLED_STORAGE_KEY } from '@/lib/browser/browser-use-setup-state'
 import { ORCHESTRATION_ENABLED_STORAGE_KEY } from '@/lib/orchestration-setup-state'
 import {
   runOnboardingFeatureSetup,
@@ -67,7 +67,7 @@ describe('onboarding feature setup runner', () => {
     const result = await runOnboardingFeatureSetup(selection, deps)
 
     expect(result.selectedIds).toEqual(['orchestration'])
-    expect(result.skillNames).toEqual([MTE_SKILL_NAME])
+    expect(result.skillNames).toEqual([ORCHESTRATION_SKILL_NAME])
     expect(result.computerUsePermissionsOpened).toBe(false)
     expect(deps.getComputerUsePermissionStatus).not.toHaveBeenCalled()
     expect(deps.openComputerUsePermissionSetup).not.toHaveBeenCalled()
@@ -97,7 +97,12 @@ describe('onboarding feature setup runner', () => {
       deps
     )
 
-    expect(result.skillNames).toEqual(['orca-cli', 'orca-computer-use', 'mte', 'orca-linear'])
+    expect(result.skillNames).toEqual([
+      'orca-cli',
+      'orca-computer-use',
+      'orchestration',
+      'orca-linear'
+    ])
     expect(result.computerUsePermissionsOpened).toBe(false)
     expect(openComputerUsePermissionSetup).not.toHaveBeenCalled()
     expect(result.warnings).toContainEqual({
