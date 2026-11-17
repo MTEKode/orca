@@ -7,8 +7,8 @@ describe('MTE_PLANNER_PROMPT', () => {
     expect(MTE_PLANNER_PROMPT).toContain('never edit code outside `.mte/`')
   })
 
-  it('prescribes numbered question batches of 2-4 and a requirements lock replay', () => {
-    expect(MTE_PLANNER_PROMPT).toContain('numbered batches of 2-4')
+  it('prescribes interactive question batches of 2-4 and a requirements lock replay', () => {
+    expect(MTE_PLANNER_PROMPT).toContain('Ask questions in batches of 2-4')
     expect(MTE_PLANNER_PROMPT).toContain('requirements lock')
     expect(MTE_PLANNER_PROMPT).toContain('BEFORE creating any task')
   })

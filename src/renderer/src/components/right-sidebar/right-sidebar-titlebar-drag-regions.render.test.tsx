@@ -247,58 +247,16 @@ describe('right sidebar panel routing', () => {
     mockAppState.vaultLoad.pending = false
   })
 
-  it('focuses session search on an explicit switch but not when restoring the tab', async () => {
+  it('falls back to Files when the stored tab is the retired Agents (vault) tab', async () => {
     mockAppState.rightSidebarTab = 'vault'
     const container = document.createElement('div')
-    document.body.appendChild(container)
     const root = createRoot(container)
     try {
-      await import('./ai-vault/panel/AiVaultSidebarPanel')
       await act(async () => root.render(<RightSidebar />))
-      expect(container.querySelector('[aria-label="Search sessions"]')).not.toBeNull()
-      expect(document.activeElement).not.toBe(
-        container.querySelector('[aria-label="Search sessions"]')
-      )
-
-      await act(async () => mockAppState.setRightSidebarTab('explorer'))
-      await act(async () => mockAppState.setRightSidebarTab('vault'))
-      expect(document.activeElement).toBe(container.querySelector('[aria-label="Search sessions"]'))
+      expect(container.querySelector('[aria-label="Search sessions"]')).toBeNull()
+      expect(container.innerHTML).toContain('data-file-explorer')
     } finally {
       await act(async () => root.unmount())
-      container.remove()
-    }
-  })
-
-  it('does not move focus after the user types while session search is loading', async () => {
-    let finishLoad = (): void => {}
-    mockAppState.vaultLoad.pending = true
-    mockAppState.vaultLoad.promise = new Promise<void>((resolve) => {
-      finishLoad = resolve
-    })
-    const container = document.createElement('div')
-    const otherInput = document.createElement('input')
-    document.body.append(otherInput, container)
-    const root = createRoot(container)
-    try {
-      await import('./ai-vault/panel/AiVaultSidebarPanel')
-      await act(async () => root.render(<RightSidebar />))
-      otherInput.focus()
-      await act(async () => mockAppState.setRightSidebarTab('vault'))
-      await act(async () =>
-        otherInput.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true }))
-      )
-      await act(async () => {
-        mockAppState.vaultLoad.pending = false
-        finishLoad()
-      })
-      expect(container.querySelector('[aria-label="Search sessions"]')).not.toBeNull()
-      expect(document.activeElement).toBe(otherInput)
-    } finally {
-      mockAppState.vaultLoad.pending = false
-      finishLoad()
-      await act(async () => root.unmount())
-      container.remove()
-      otherInput.remove()
     }
   })
 
@@ -366,7 +324,7 @@ describe('right sidebar panel routing', () => {
 
     await act(async () => {
       container
-        .querySelector<HTMLButtonElement>('[aria-label^="Explorer"]')
+        .querySelector<HTMLButtonElement>('[aria-label^="Files"]')
         ?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
 

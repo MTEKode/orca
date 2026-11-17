@@ -30,7 +30,8 @@ export function BranchEntryRow({
   connectionId,
   onOpen,
   commentCount,
-  showPathHint = true
+  showPathHint = true,
+  comments
 }: {
   entry: GitBranchChangeEntry
   currentWorktreeId: string
@@ -103,7 +104,11 @@ export function BranchEntryRow({
               setCommentsExpanded((prev) => !prev)
             }}
           >
-            {commentsExpanded ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
+            {commentsExpanded ? (
+              <ChevronDown className="size-3" />
+            ) : (
+              <ChevronRight className="size-3" />
+            )}
             <MessageSquare className="size-3" />
             <span className="tabular-nums">{commentCount}</span>
           </button>
@@ -121,10 +126,15 @@ export function BranchEntryRow({
           {comments!.map((c) => (
             <div key={c.id} className="text-[11px] leading-tight">
               <div className="flex items-center gap-1 text-muted-foreground">
-                <span className="font-medium">{c.author ?? 'Unknown'}</span>
+                <span className="font-medium">
+                  {c.author ??
+                    t('components.source-control.inlineComment.unknownAuthor', 'Unknown')}
+                </span>
                 <span className="text-[10px]">•</span>
                 <span className="text-[10px]">
-                  {c.lineNumber === 0 ? 'file' : `L${c.lineNumber}`}
+                  {c.lineNumber === 0
+                    ? t('components.source-control.inlineComment.fileScope', 'file')
+                    : `L${c.lineNumber}`}
                 </span>
               </div>
               <div className="text-foreground/90 whitespace-pre-wrap break-words mt-0.5">

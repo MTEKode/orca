@@ -16,6 +16,10 @@ import { useShallow } from 'zustand/react/shallow'
 import { STRUCTURED_AGENT_SESSION_AVAILABILITY_RUNTIME_CAPABILITY as AVAILABILITY } from '../../../../shared/agent-session/structured-agent-session-surface-capabilities'
 import { LOCAL_EXECUTION_HOST_ID, parseExecutionHostId } from '../../../../shared/execution-host'
 import { isTuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent-config'
+import {
+  PRIMARY_AGENTS,
+  isPrimaryAgent
+} from '../../../../shared/agent-launch/catalog/primary-agents'
 import { useAgentPickerRefusedWake } from './use-agent-picker-refused-wake'
 import { buildAgentLaunchRouteInput } from '@/lib/agent-session/launch/routing/agent-launch-route-input'
 import { workspaceKindForWorktreeId } from '../../../../shared/agent-launch/contracts/workspace-launch-kind'
@@ -165,17 +169,13 @@ export function useAgentMenuObservation(
     )
   const chatAgents = [
     ...new Set([
-      'claude',
-      'codex',
-      'opencode',
-      'pi',
-      'antigravity',
-      ...(localCatalog ?? []).filter((a) => ['claude', 'codex', 'opencode', 'pi', 'antigravity'].includes(a)),
-      ...(hostCatalog ?? []).filter((a) => ['claude', 'codex', 'opencode', 'pi', 'antigravity'].includes(a)),
+      ...PRIMARY_AGENTS,
+      ...(localCatalog ?? []).filter(isPrimaryAgent),
+      ...(hostCatalog ?? []).filter(isPrimaryAgent),
       ...Object.keys(settings?.nativeChatProviders ?? {})
         .filter(isTuiAgent)
         .filter((agent) => nativeChatPreferenceFor(settings, agent))
-        .filter((a) => ['claude', 'codex', 'opencode', 'pi', 'antigravity'].includes(a))
+        .filter(isPrimaryAgent)
     ])
   ].filter(isTuiAgent)
   const inventoryFailed =

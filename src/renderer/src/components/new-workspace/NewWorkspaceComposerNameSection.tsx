@@ -105,7 +105,9 @@ export function NewWorkspaceComposerNameSection({
       {/* Base branch picker at the top (Conductor style) */}
       {showBaseRefPicker && onBaseBranchChange ? (
         <div className="flex items-center gap-2 border-b border-border pb-2">
-          <span className="text-xs font-medium text-muted-foreground">Base branch:</span>
+          <span className="text-xs font-medium text-muted-foreground">
+            {t('components.new-workspace.baseBranchLabel', 'Base branch:')}
+          </span>
           <ComposerBaseRefPicker
             repoId={repoId}
             baseBranch={baseBranch}

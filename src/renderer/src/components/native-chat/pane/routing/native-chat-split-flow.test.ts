@@ -48,7 +48,7 @@ vi.mock('@/runtime/rpc/calls/runtime-rpc-call', async (original) =>
 )
 createTabsSliceMockApi()
 
-import { runNativeChatSplitTarget } from './native-chat-layout-actions'
+import { runNativeChatSplitTarget, runNativeChatTerminalBeside } from './native-chat-layout-actions'
 import { dispatchWorkspaceTabCommand } from '@/lib/workspace/tabs/workspace-tab-commands'
 
 beforeAll(async () => {
@@ -108,6 +108,31 @@ it('Closing the chat keeps the workspace open on its landing; Close there leaves
   state = store.getState()
   expect(state.activeWorktreeId).toBeNull()
   expect(state.splitLandingGroupIds).toEqual({})
+})
+
+it('Terminal Beside Chat opens one terminal pane right of the chat, then reuses it', async () => {
+  const worktreeId = folderWorkspaceKey('beside-folder')
+  const { source, target } = sourceChat(worktreeId)
+  store.setState({ activeWorktreeId: worktreeId })
+  expect(runNativeChatTerminalBeside(target)).toBe(true)
+  await vi.waitFor(() => expect(store.getState().groupsByWorktree[worktreeId]).toHaveLength(2))
+  const [chatGroup, terminalGroup] = store.getState().groupsByWorktree[worktreeId]
+  expect(chatGroup.id).toBe(source.groupId)
+  expect(store.getState().layoutByWorktree[worktreeId]).toMatchObject({
+    direction: 'horizontal',
+    first: { groupId: source.groupId },
+    second: { groupId: terminalGroup.id }
+  })
+  const terminals = () =>
+    store
+      .getState()
+      .unifiedTabsByWorktree[worktreeId].filter((tab) => tab.contentType === 'terminal')
+  expect(terminals().map((tab) => tab.groupId)).toEqual([terminalGroup.id])
+  store.getState().focusGroup(worktreeId, source.groupId)
+  expect(runNativeChatTerminalBeside(target)).toBe(true)
+  expect(store.getState().activeGroupIdByWorktree[worktreeId]).toBe(terminalGroup.id)
+  expect(store.getState().groupsByWorktree[worktreeId]).toHaveLength(2)
+  expect(terminals()).toHaveLength(1)
 })
 
 it('Close leaves an empty split that is waiting on chosen content', () => {

@@ -77,6 +77,7 @@ async function proveKeySavedOnServer(options: {
   })
   await page.getByRole('combobox', { name: 'Host' }).click()
   await page.getByRole('option', { name: HOST_NAME }).click()
+  await page.getByText('Other providers').click()
   const section = page.locator('#accounts-minimax')
   await section.scrollIntoViewIfNeeded()
   await expect(section.getByText('Credentials not set')).toBeVisible({ timeout: 30_000 })

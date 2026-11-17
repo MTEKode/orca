@@ -312,6 +312,13 @@
           }
         }
       },
+      "feature": {
+        "wall": {
+          "AgentCapabilitiesSetupAction": {
+            "ac07f8887f": "MTE flow"
+          }
+        }
+      },
       "github": {
         "PRFilterSections": {
           "labelCount_one": "{{count}} label",
@@ -411,6 +418,8 @@
             "clearNotesFromWorkspace_other": "Clear {{count}} notes from this workspace?",
             "commitsAheadShort_one": "{{count}} ahead",
             "commitsAheadShort_other": "{{count}} ahead",
+            "commitsBehindShort_one": "{{count}} behind",
+            "commitsBehindShort_other": "{{count}} behind",
             "compareBaseCommitsAhead_one": "{{count}} commit ahead of {{ref}}",
             "compareBaseCommitsAhead_other": "{{count}} commits ahead of {{ref}}",
             "compareBaseCommitsBehind_one": "{{count}} commit behind {{ref}}",
@@ -557,6 +566,9 @@
               }
             }
           },
+          "index": {
+            "aiVaultSessionHistory": "Agents"
+          },
           "pull": {
             "policy": {
               "notice": {
@@ -574,7 +586,9 @@
               "compare": {
                 "summary": {
                   "commitsAhead_one": "{{count}} commit ahead of {{ref}}",
-                  "commitsAhead_other": "{{count}} commits ahead of {{ref}}"
+                  "commitsAhead_other": "{{count}} commits ahead of {{ref}}",
+                  "commitsBehind_one": "{{count}} commit behind {{ref}}",
+                  "commitsBehind_other": "{{count}} commits behind {{ref}}"
                 }
               },
               "discard": {
@@ -645,6 +659,28 @@
         "McpIntegrationCard": {
           "description": "Exposed to agents as MCP tools.",
           "graphifyHint": "Build graphs from the Graph panel or `orca graph build`."
+        },
+        "MteFlowPane": {
+          "description": "Settings for MTE orchestration runs: planner, workers and validation.",
+          "examplesDescription": "Ask an agent to use the MTE skill to plan, dispatch workers and validate a goal.",
+          "skillDescription": "Enables agents to start and drive MTE runs through Orca.",
+          "skillTitle": "MTE skill",
+          "title": "MTE flow"
+        },
+        "OrchestrationPane": {
+          "07641b9768": "Orchestration skill",
+          "2aacdb0517": "Coordinate coding agents across handoffs, worktree handovers, and child-agent work.",
+          "52e0634e2c": "Ask a coordinator agent to use orchestration for handoffs, worktree handovers, and sequential or parallel child agents.",
+          "7bc082f4de": "Copy install command",
+          "8a94078d05": "Agent orchestration",
+          "9bedd2a6e5": "Enables agents to hand off context and coordinate work through Orca.",
+          "ae79504732": "How to use it",
+          "nestedWorkerDepthDescription": "How many generations of dispatched workers may spawn their own workers. 1 keeps the agent tree flat: a coordinator dispatches workers, and those workers do not dispatch.",
+          "nestedWorkerDepthTitle": "Nested worker depth",
+          "workerAutoReleaseDescription": "Closes a worker's terminal or chat 2 minutes after it finishes, unless you choose Keep open. If it starts working again, the 2 minutes start over when it finishes.",
+          "workerAutoReleaseKeywordClose": "close",
+          "workerAutoReleaseKeywordRelease": "release",
+          "workerAutoReleaseTitle": "Auto-close finished workers"
         },
         "OrchestrationSkillAgentCoverage": {
           "fullCoverage_one": "All 1 detected agent has the skill.",
@@ -725,11 +761,14 @@
           "update": "Update"
         },
         "Settings": {
+          "00c3a7950d": "Orchestration",
           "084d8fac5b": "Privacy & Security",
           "23931df7e8": "Remote Hosts",
           "23c6874fdf": "AI Capabilities",
+          "475980f53d": "Coordinate multiple coding agents through Orca.",
           "8bd117d669": "Interface",
           "9abb9be3bc": "Set Up",
+          "c9841721cb": "Computer Use",
           "e1578cd4bc": "Workflows"
         },
         "SshPane": {
@@ -821,9 +860,10 @@
           "permissionsRequired_one": "{{value0}} permission required before agents can operate app windows.",
           "permissionsRequired_other": "{{value0}} permissions required before agents can operate app windows."
         },
-        "repository": {
+        "orchestration": {
           "search": {
-            "keepForkUpToDate": "Keep Fork Up to Date"
+            "abafc3f10f": "Agent orchestration",
+            "e05ff36753": "Coordinate multiple coding agents via messaging, task DAGs, dispatch, and decision gates."
           }
         },
         "sshHostServer": {
@@ -1286,6 +1326,47 @@
       }
     },
     "lib": {
+      "agent": {
+        "catalog": {
+          "060d152fb5": "Trae",
+          "09973b4d84": "OMP",
+          "0baad2d5d2": "Grok",
+          "12e6baa4f7": "Gemini",
+          "1f8a19e9ad": "Autohand Code",
+          "28810273af": "Kimi",
+          "4238b771b5": "Codebuff",
+          "4e63c7b956": "Rovo Dev",
+          "5dff448636": "OpenClaw",
+          "5e8eff11b3": "Auggie",
+          "667c104cff": "Cursor",
+          "6f8056a565": "Command Code",
+          "706b0fe68b": "GitHub Copilot",
+          "739a930554": "Droid",
+          "8a9ba743cc": "Hermes",
+          "8da11d876c": "Goose",
+          "918ba4ffed": "Kilocode",
+          "9477377a2a": "Charm",
+          "9e2a9bb87b": "Continue",
+          "a5fc0cb622": "OpenClaude",
+          "b32627f09b": "Aider",
+          "bee242fe3d": "Qwen Code",
+          "bf53f09bf8": "Claude Agent Teams",
+          "c73c573939": "Amp",
+          "ca73055bd0": "Mistral Vibe",
+          "cbaf0c2e0b": "Cline",
+          "codebuddy_label": "CodeBuddy",
+          "d443a47995": "Prime Agent",
+          "da41abbdd4": "Ante",
+          "dsh_label": "DeepSeek Harness",
+          "e0247254f2": "Kiro",
+          "freebuff_label": "Freebuff",
+          "jcode_label": "Jcode",
+          "mimo_code_label": "MiMo Code",
+          "qoder_cn_label": "Qoder CLI China",
+          "qoder_label": "Qoder CLI",
+          "zcode_label": "ZCode"
+        }
+      },
       "dropFailureReason": {
         "changed": "The file changed while it was uploading. Try again.",
         "disconnected": "The host is disconnected.",
@@ -1974,6 +2055,12 @@
         }
       }
     },
+    "orchestrationCrew": {
+      "needsYou_one": "{{count}} needs you",
+      "needsYou_other": "{{count}} need you",
+      "workers_one": "{{count}} worker",
+      "workers_other": "{{count}} workers"
+    },
     "tab": {
       "bar": {
         "bulkClose": {
@@ -2105,6 +2192,11 @@
       "startRefUnresolved": "Could not resolve provisioned-root start ref: {{ref}}",
       "suspendExited": "Suspend exited with code {{exitCode}}.",
       "suspendExitedWithoutCode": "Suspend exited with code unknown."
+    }
+  },
+  "flow": {
+    "stage": {
+      "validating": "Validation"
     }
   },
   "jira": {

@@ -59,14 +59,14 @@ export function buildDefaultSettings(args: {
     uiLanguage: UI_LANGUAGE_SYSTEM,
     uiLanguagePortugueseMigrationApplied: true,
     appIcon: DEFAULT_APP_ICON_ID,
-    appFontFamily: 'Monaspace Krypton Var',
+    appFontFamily: args.appFontFamily,
     editorAutoSave: false,
     editorFormatOnSave: false,
     editorInsertFinalNewline: false,
     editorAutoSaveDelayMs: args.editorAutoSaveDelayMs,
     editorMinimapEnabled: false,
     // Why empty: the editor keeps following the terminal font unless the user opts in.
-    editorFontFamily: 'Monaspace Krypton Var',
+    editorFontFamily: '',
     editorWordWrap: true,
     richMarkdownSpellcheckEnabled: true,
     markdownDefaultViewMode: 'rich',
@@ -76,7 +76,7 @@ export function buildDefaultSettings(args: {
     primarySelectionMiddleClickPasteDefaultedForTerminalDefaults:
       args.primarySelectionMiddleClickPaste,
     terminalFontSize: 14,
-    terminalFontFamily: 'Monaspace Radon Var',
+    terminalFontFamily: args.terminalFontFamily,
     terminalFontWeight: args.terminalFontWeight,
     terminalFontWeightWindowsRegular: args.terminalFontWeightWindowsRegular,
     terminalFontWeightBold: DEFAULT_TERMINAL_FONT_WEIGHT_BOLD,
@@ -212,6 +212,15 @@ export function buildDefaultSettings(args: {
     activeCodexManagedAccountIdsByRuntime: { host: null, wsl: {} },
     claudeManagedAccounts: [],
     activeClaudeManagedAccountId: null,
+    terminalScopeHistoryByWorktree: true,
+    terminalHiddenViewParking: true,
+    // Default-on kill switches use !== false so older persisted settings retain behavior.
+    terminalSshViewParking: true,
+    terminalHiddenWorktreeRetentionBudget: true,
+    browserGuestWorktreeRetentionBudget: true,
+    terminalMainSideEffectAuthority: true,
+    terminalHiddenDeliveryGate: true,
+    terminalModelQueryAuthority: true,
     defaultTuiAgent: null,
     disabledTuiAgents: [...DEFAULT_DISABLED_TUI_AGENTS],
     pluginSystemEnabled: true,
@@ -228,7 +237,6 @@ export function buildDefaultSettings(args: {
     skipDeleteAutomationConfirm: false,
     skipDeleteArtifactConfirm: false,
     skipCodexRateLimitResetConfirm: false,
-    // Simplified: only GitHub + Linear
     defaultTaskViewPreset: 'all',
     defaultTaskSource: 'github',
     visibleTaskProviders: [...TASK_PROVIDERS],
@@ -291,12 +299,7 @@ export function buildDefaultSettings(args: {
     // Why: local desktop stays the default until the user picks a saved runtime environment.
     activeRuntimeEnvironmentId: null,
     // Why: hydrate a stable empty shape so renderer optional-chained reads never hit undefined.
-    githubProjects: {
-      pinned: [],
-      recent: [],
-      lastViewByProject: {},
-      activeProject: null
-    },
+    githubProjects: { pinned: [], recent: [], lastViewByProject: {}, activeProject: null },
     // Why: keep agent/model maps empty so first use follows the default agent's model, not a frozen stale choice.
     commitMessageAi: {
       enabled: true,

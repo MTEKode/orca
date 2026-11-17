@@ -13133,6 +13133,23 @@
         },
         "BrowserUseEnableSwitch": {
           "ce4d6f80d8": "Activar Agent Browser Use"
+        },
+        "MteFlowPane": {
+          "flowTemplates": "Plantillas de Flow",
+          "template": {
+            "bugFix": "Corrección de errores",
+            "bugFixDescription": "Corrección rápida con 1 worker y validación",
+            "bugFixExample": "Usa Flow para corregir el error de inicio de sesión en auth-service.ts",
+            "feature": "Funcionalidad",
+            "featureDescription": "Implementación de una funcionalidad con varios workers",
+            "featureExample": "Usa Flow para implementar la autenticación de usuarios con OAuth",
+            "refactor": "Refactorización",
+            "refactorDescription": "Workers secuenciales para refactorizar con seguridad",
+            "refactorExample": "Usa Flow para refactorizar la capa de base de datos y usar el nuevo ORM",
+            "exploration": "Exploración",
+            "explorationDescription": "Investigación y planificación sin cambios de código",
+            "explorationExample": "Usa Flow para explorar el código y planificar una estrategia de migración"
+          }
         }
       },
       "right": {
@@ -13660,7 +13677,10 @@
             "markResolved": "Marcar como resuelto",
             "keepFile": "Conservar archivo",
             "keepDeletion": "Mantener eliminación",
-            "refreshAll": "Actualizar todo"
+            "refreshAll": "Actualizar todo",
+            "updateFromBase": "Actualizar desde {{ref}}",
+            "commitsBehindShort_one": "{{count}} por detrás",
+            "commitsBehindShort_other": "{{count}} por detrás"
           },
           "SourceControlAgentActionDialog": {
             "8e856842d1": "No se pudo iniciar el agente seleccionado.",
@@ -14029,7 +14049,7 @@
             "441733b630": "Puertos",
             "83a10e3c44": "Checks",
             "0314901467": "Control de código fuente",
-            "8bc2bbc3a0": "Explorador",
+            "8bc2bbc3a0": "Archivos",
             "9fffaf17c1": "Alternar barra lateral derecha ({{value0}})",
             "aiVaultSessionHistory": "Agentes",
             "folderWorkspaces": "Worktrees adjuntos",
@@ -14258,7 +14278,9 @@
                 "summary": {
                   "commitsAhead_one": "{{count}} commit por delante de {{ref}}",
                   "commitsAhead_other": "{{count}} commits por delante de {{ref}}",
-                  "commitsAhead_many": "{{count}} commits por delante de {{ref}}"
+                  "commitsAhead_many": "{{count}} commits por delante de {{ref}}",
+                  "commitsBehind_one": "{{count}} commit por detrás de {{ref}}",
+                  "commitsBehind_other": "{{count}} commits por detrás de {{ref}}"
                 }
               },
               "conflict": {
@@ -19519,7 +19541,10 @@
         "skip": "Omitir",
         "sending": "Enviando…",
         "terminalRequired": "Responda esta pregunta OMP en la terminal.",
-        "openTerminal": "Responder en la terminal"
+        "openTerminal": "Responder en la terminal",
+        "discussAnswer": "[DISCUSS] Hagamos una lluvia de ideas sobre este tema antes de decidir.",
+        "discuss": "Debatir esto primero",
+        "discussHint": "Entra en modo lluvia de ideas para explorar opciones"
       },
       "approval": {
         "needsNewerOrca": "Esta solicitud necesita una versión más reciente de Orca.",
@@ -20081,7 +20106,8 @@
         "many_many": "{{count}} solicitudes de extracción creadas"
       },
       "splitRight": "Dividir a la derecha",
-      "splitDown": "Dividir hacia abajo"
+      "splitDown": "Dividir hacia abajo",
+      "terminalBeside": "Terminal junto al chat"
     },
     "tab": {
       "bar": {
@@ -20893,6 +20919,15 @@
     },
     "dictation": {
       "stoppedAfterSilenceSeconds": "Detenido tras {{seconds}} segundos de silencio"
+    },
+    "new-workspace": {
+      "baseBranchLabel": "Rama base:"
+    },
+    "source-control": {
+      "inlineComment": {
+        "unknownAuthor": "Desconocido",
+        "fileScope": "archivo"
+      }
     }
   },
   "dashboardPopout": {
@@ -21613,6 +21648,7 @@
         "failed": "No se pudo iniciar sesión. Vuelve a intentarlo."
       }
     },
+    "otherProviders": "Otros proveedores",
     "remoteScopeAccountsAddHere": "Mostrando cuentas administradas por {{value0}}. Las cuentas nuevas inician sesión allí; terminas en el navegador de este dispositivo."
   },
   "osDocumentOpen": {
@@ -24231,12 +24267,11 @@
   "agents": {
     "compatibility": {
       "title": "Capacidades de agentes",
-      "hint": "No todos los agentes soportan las mismas funciones. Claude y Pi tienen el conjunto de funciones más completo. Verifica las capacidades antes de configurar flujos de trabajo."
+      "hint": "No todos los agentes admiten las mismas funciones. Comprueba las capacidades antes de configurar flujos de trabajo."
     },
     "capability": {
       "permissions": "Control de permisos",
-      "orchestration": "Orquestación Flow",
-      "computerUse": "Uso de computadora"
+      "orchestration": "Orquestación Flow"
     },
     "health": {
       "title": "Estado de agentes",
@@ -24245,8 +24280,9 @@
       "warnings": "advertencias",
       "errors": "errores",
       "ready": "Listo para usar",
-      "notConfigured": "Usando comando predeterminado",
-      "piModelNotSupported": "Pi no soporta selección de modelo"
+      "notInstalled": "CLI no encontrada en este equipo",
+      "checking": "Comprobando…",
+      "checkFailed": "No se pudieron comprobar los agentes instalados"
     }
   },
   "flow": {
@@ -24274,9 +24310,15 @@
       "pending": "Pendiente",
       "running": "Ejecutando",
       "completed": "Completado",
-      "failed": "Fallido"
+      "failed": "Fallido",
+      "defaultName": "Worker",
+      "unknownAgent": "Agente desconocido",
+      "error": "El worker ha fallado"
     },
     "retryWorker": "Reintentar",
-    "retryWorkerHint": "Reiniciar este worker"
+    "retryWorkerHint": "Reiniciar este worker",
+    "retryWorkerFailed": "No se pudo reintentar el worker",
+    "defaultGoal": "Tarea de orquestación",
+    "activityTitle": "Flow"
   }
 }

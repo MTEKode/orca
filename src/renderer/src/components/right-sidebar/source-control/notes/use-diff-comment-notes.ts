@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { translate } from '@/i18n/i18n'
 import { useTranslate } from '@/i18n/use-translate'
 import { formatDiffComments } from '../../../../../../shared/diff-comments-format'
+import type { DiffComment } from '../../../../../../shared/diff-comment-types'
 import { describeClipboardWriteFailure } from '@/lib/clipboard/clipboard-write-failure'
 import { useVisibleWorktreeDiffComments } from '../../../diff-comments/use-visible-worktree-diff-comments'
 import {

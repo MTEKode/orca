@@ -58,7 +58,9 @@ const SidebarHeader = React.memo(function SidebarHeader({
           className="min-w-0 truncate select-none pl-2 pr-0.5 text-[13px] font-semibold text-muted-foreground/80"
           data-sidebar-section-title={groupBy === 'repo' ? 'projects' : 'workspaces'}
         >
-          {groupBy === 'repo' ? 'Projects' : 'Workspaces'}
+          {groupBy === 'repo'
+            ? t('dashboard.sidebar.projects', 'Projects')
+            : t('dashboard.sidebar.workspaces', 'Workspaces')}
         </span>
         {/* WorktreeList portals the collapse-all toggle here; it owns the rendered project rows. */}
         <div ref={projectsCollapseTarget} className="flex shrink-0 items-center empty:hidden" />

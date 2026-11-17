@@ -14065,7 +14065,22 @@
           "nestedWorkerDepthTitle": "Nested worker depth",
           "nestedWorkerDepthDescription": "How many generations of dispatched workers may spawn their own workers. 1 keeps the agent tree flat: a coordinator dispatches workers, and those workers do not dispatch.",
           "workerAutoReleaseTitle": "Auto-close finished workers",
-          "workerAutoReleaseDescription": "Closes a worker's terminal or chat 2 minutes after it finishes, unless you choose Keep open. If it starts working again, the 2 minutes start over when it finishes."
+          "workerAutoReleaseDescription": "Closes a worker's terminal or chat 2 minutes after it finishes, unless you choose Keep open. If it starts working again, the 2 minutes start over when it finishes.",
+          "flowTemplates": "Flow templates",
+          "template": {
+            "bugFix": "Bug fix",
+            "bugFixDescription": "Quick fix with 1 worker and validation",
+            "bugFixExample": "Use Flow to fix the login bug in auth-service.ts",
+            "feature": "Feature",
+            "featureDescription": "Multi-worker feature implementation",
+            "featureExample": "Use Flow to implement user authentication with OAuth",
+            "refactor": "Refactor",
+            "refactorDescription": "Sequential workers for safe refactoring",
+            "refactorExample": "Use Flow to refactor the database layer to use the new ORM",
+            "exploration": "Exploration",
+            "explorationDescription": "Research and planning without code changes",
+            "explorationExample": "Use Flow to explore the codebase and plan a migration strategy"
+          }
         },
         "mteFlow": {
           "search": {
@@ -14611,7 +14626,10 @@
             "markResolved": "Mark as resolved",
             "keepFile": "Keep file",
             "keepDeletion": "Keep deletion",
-            "refreshAll": "Refresh all"
+            "refreshAll": "Refresh all",
+            "updateFromBase": "Update from {{ref}}",
+            "commitsBehindShort_one": "{{count}} behind",
+            "commitsBehindShort_other": "{{count}} behind"
           },
           "SourceControlAgentActionDialog": {
             "8e856842d1": "Could not start the selected agent.",
@@ -14980,7 +14998,7 @@
             "441733b630": "Ports",
             "83a10e3c44": "Checks",
             "0314901467": "Source Control",
-            "8bc2bbc3a0": "Explorer",
+            "8bc2bbc3a0": "Files",
             "9fffaf17c1": "Toggle right sidebar ({{value0}})",
             "aiVaultSessionHistory": "Agents",
             "folderWorkspaces": "Attached worktrees",
@@ -15201,7 +15219,9 @@
               "compare": {
                 "summary": {
                   "commitsAhead_one": "{{count}} commit ahead of {{ref}}",
-                  "commitsAhead_other": "{{count}} commits ahead of {{ref}}"
+                  "commitsAhead_other": "{{count}} commits ahead of {{ref}}",
+                  "commitsBehind_one": "{{count}} commit behind {{ref}}",
+                  "commitsBehind_other": "{{count}} commits behind {{ref}}"
                 }
               },
               "conflict": {
@@ -20715,7 +20735,10 @@
         "skip": "Skip",
         "sending": "Sending…",
         "terminalRequired": "Answer this OMP question in the terminal.",
-        "openTerminal": "Answer in terminal"
+        "openTerminal": "Answer in terminal",
+        "discussAnswer": "[DISCUSS] Let's brainstorm this topic before deciding.",
+        "discuss": "Discuss this first",
+        "discussHint": "Enter brainstorming mode to explore ideas"
       },
       "ask": {
         "awaiting": "Awaiting user input:",
@@ -21186,6 +21209,7 @@
       "explicitChatWindows": "This agent's chat isn't available on Windows yet. Open it in a terminal instead.",
       "splitRight": "Split Right",
       "splitDown": "Split Down",
+      "terminalBeside": "Terminal Beside Chat",
       "sideChat": {
         "description": "Ask a side question in a fork beside this chat",
         "argumentHint": "<question>",
@@ -22061,6 +22085,15 @@
       "chatUnavailable": "This host cannot open the chat. Try again.",
       "openOnHost": "Open this agent on {{host}}.",
       "cannotLocate": "This host cannot locate this agent. Try again."
+    },
+    "new-workspace": {
+      "baseBranchLabel": "Base branch:"
+    },
+    "source-control": {
+      "inlineComment": {
+        "unknownAuthor": "Unknown",
+        "fileScope": "file"
+      }
     }
   },
   "dashboardPopout": {
@@ -23123,6 +23156,7 @@
         "failed": "Sign-in failed. Try again."
       }
     },
+    "otherProviders": "Other providers",
     "remoteScopeAccountsAddHere": "Showing accounts managed by {{value0}}. New accounts sign in there; you finish in this device’s browser."
   },
   "fileSearch": {
@@ -25033,12 +25067,11 @@
   "agents": {
     "compatibility": {
       "title": "Agent capabilities",
-      "hint": "Not all agents support the same features. Claude and Pi have the most complete feature set. Check capabilities before configuring workflows."
+      "hint": "Not all agents support the same features. Check capabilities before configuring workflows."
     },
     "capability": {
       "permissions": "Permission control",
-      "orchestration": "Flow orchestration",
-      "computerUse": "Computer use"
+      "orchestration": "Flow orchestration"
     },
     "health": {
       "title": "Agent health",
@@ -25047,8 +25080,9 @@
       "warnings": "warnings",
       "errors": "errors",
       "ready": "Ready to use",
-      "notConfigured": "Using default command",
-      "piModelNotSupported": "Pi does not support model selection"
+      "notInstalled": "CLI not found on this computer",
+      "checking": "Checking…",
+      "checkFailed": "Could not check installed agents"
     }
   },
   "flow": {
@@ -25076,9 +25110,15 @@
       "pending": "Pending",
       "running": "Running",
       "completed": "Completed",
-      "failed": "Failed"
+      "failed": "Failed",
+      "defaultName": "Worker",
+      "unknownAgent": "Unknown agent",
+      "error": "Worker failed"
     },
     "retryWorker": "Retry",
-    "retryWorkerHint": "Restart this worker"
+    "retryWorkerHint": "Restart this worker",
+    "retryWorkerFailed": "Could not retry the worker",
+    "defaultGoal": "Orchestration task",
+    "activityTitle": "Flow"
   }
 }

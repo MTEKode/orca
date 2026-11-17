@@ -68,6 +68,8 @@ it('projects one capable source through cold, deadline, late, failed-refresh and
     useAppStore.setState((state) => ({
       settings: {
         ...state.settings!,
+        // The direct launch below asserts the terminal startup plan; chat is the default surface.
+        agentDefaultSurface: 'terminal',
         agentDefaultArgs: { claude: '--verbose' },
         agentDefaultEnv: { claude: { KEEP: 'caller' } }
       },

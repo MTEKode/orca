@@ -33,7 +33,8 @@ export function SourceControlBranchSection({
   activeConnectionId,
   openCommittedDiff,
   openBranchAllDiffs,
-  diffCommentCountByPath
+  diffCommentCountByPath,
+  diffCommentsByPath
 }: {
   activeOpenRowKeys: ReadonlySet<string>
   branchSummary: GitBranchCompareSummary
