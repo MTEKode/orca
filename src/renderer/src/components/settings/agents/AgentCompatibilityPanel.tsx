@@ -3,6 +3,8 @@ import { CheckCircle2, XCircle, AlertCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useTranslate } from '@/i18n/use-translate'
+import { PRIMARY_AGENTS } from '../../../../../shared/agent-launch/catalog/primary-agents'
+import { isMteOrchestrationAgent } from '../../../../../shared/mte/orchestration-agents'
 import { TUI_AGENT_DISPLAY_NAMES } from '../../../../../shared/agent-launch/catalog/tui-agent-display-names'
 import { agentChatPermissionModes } from '../../../../../shared/agent-launch/permissions/agent-chat-permission-support'
 
@@ -18,15 +20,12 @@ type AgentInfo = {
   capabilities: AgentCapability[]
 }
 
-const PRIMARY_AGENTS = ['claude', 'codex', 'opencode', 'pi', 'antigravity'] as const
-
 export function AgentCompatibilityPanel(): React.JSX.Element {
   const t = useTranslate()
 
   const agents: AgentInfo[] = PRIMARY_AGENTS.map((agentId) => {
     const supportsPermissions = agentChatPermissionModes(agentId) !== undefined
-    const supportsOrchestration = agentId === 'claude' || agentId === 'pi'
-    const supportsComputerUse = agentId === 'claude' || agentId === 'pi'
+    const supportsOrchestration = isMteOrchestrationAgent(agentId)
 
     return {
       id: agentId,
@@ -41,12 +40,8 @@ export function AgentCompatibilityPanel(): React.JSX.Element {
           id: 'orchestration',
           label: t('agents.capability.orchestration', 'Flow orchestration'),
           supported: supportsOrchestration
-        },
-        {
-          id: 'computer-use',
-          label: t('agents.capability.computerUse', 'Computer use'),
-          supported: supportsComputerUse
         }
+        // ponytail: no computer-use row; `orca computer` is a CLI any agent can call and no per-agent capability data exists. Add the row when such data does.
       ]
     }
   })
@@ -91,7 +86,7 @@ export function AgentCompatibilityPanel(): React.JSX.Element {
             <p className="text-xs text-muted-foreground">
               {t(
                 'agents.compatibility.hint',
-                'Not all agents support the same features. Claude and Pi have the most complete feature set. Check capabilities before configuring workflows.'
+                'Not all agents support the same features. Check capabilities before configuring workflows.'
               )}
             </p>
           </div>

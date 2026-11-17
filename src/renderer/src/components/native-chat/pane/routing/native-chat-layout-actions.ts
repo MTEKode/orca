@@ -98,6 +98,42 @@ export function runNativeChatSplitTarget(
   return true
 }
 
+/** One click to chat + terminal on one screen: reuse the pane beside the chat, else split right. */
+export function runNativeChatTerminalBeside(
+  target: Extract<NativeChatSplitTarget, { kind: 'workspace-tab' }>
+): boolean {
+  const state = useAppStore.getState()
+  const source = findSplitSource(state, target)
+  if (!source) {
+    return false
+  }
+  const { worktreeId } = source
+  // ponytail: first other group counts as "beside"; pick by layout adjacency if 3+ panes matter.
+  const beside = state.groupsByWorktree[worktreeId]?.find((group) => group.id !== target.groupId)
+  const shown = state.unifiedTabsByWorktree[worktreeId]?.find(
+    (tab) => tab.id === beside?.activeTabId
+  )
+  if (beside && shown?.contentType === 'terminal' && shown.viewMode !== 'chat') {
+    state.focusGroup(worktreeId, beside.id)
+    return true
+  }
+  void openNewTerminalTabInWorkspace(
+    useAppStore.getState,
+    worktreeId,
+    beside?.id ?? target.groupId,
+    beside ? undefined : { sourceGroupId: target.groupId, splitDirection: 'right' }
+  ).catch(() => {
+    toast.error(
+      translate(
+        'auto.store.slices.worktrees.localBaseRefUnshallowFailed',
+        'Could not open a terminal for this workspace'
+      )
+    )
+  })
+  state.recordFeatureInteraction('tab-splits')
+  return true
+}
+
 export function runActiveNativeChatSplit(
   worktreeId: string | null,
   groupId: string | null,

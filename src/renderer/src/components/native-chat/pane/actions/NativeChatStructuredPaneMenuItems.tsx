@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { PanelBottomClose, PanelRightClose, X } from 'lucide-react'
+import { PanelBottomClose, PanelRightClose, SquareTerminal, X } from 'lucide-react'
 import {
   DropdownMenuItem,
   DropdownMenuSeparator,
@@ -47,6 +47,10 @@ export function NativeChatStructuredPaneMenuItems({
         <PanelBottomClose />
         {t('components.native-chat.splitDown', 'Split Down')}
         <DropdownMenuShortcut>{splitShortcutLabels?.down}</DropdownMenuShortcut>
+      </DropdownMenuItem>
+      <DropdownMenuItem onSelect={actions.onTerminalBeside}>
+        <SquareTerminal />
+        {t('components.native-chat.terminalBeside', 'Terminal Beside Chat')}
       </DropdownMenuItem>
       {providerSessionId || resolveOrcaSessionId ? (
         <>

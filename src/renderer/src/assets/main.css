@@ -4144,17 +4144,6 @@ body:has([data-contextual-tour-target='tab-create-menu'][data-state='open'])
 }
 
 /* Worktree card improvements */
-[data-worktree-card] .badge-outline {
-  font-size: 10px;
-  font-weight: 500;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-[data-worktree-card] .text-\[14px\] {
-  font-weight: 600;
-}
-
 [data-compact-agent-list='true'] .compact-agent-row {
   padding: 4px 8px;
   margin: 1px 0;

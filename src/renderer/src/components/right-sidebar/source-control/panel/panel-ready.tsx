@@ -100,8 +100,6 @@ export function SourceControlPanelReady(props: SourceControlPanelReadyProps) {
           compareBaseRef={compareBaseRef}
           headDisplay={gitIdentityDisplay}
           manualReviewUrl={manualReviewUrl}
-          showOnlyLastCommit={model.showOnlyLastCommit}
-          onShowOnlyLastCommitChange={model.setShowOnlyLastCommit}
           onUpdateFromBase={() => {
             if (compareBaseRef) {
               void runRemoteAction('rebase')

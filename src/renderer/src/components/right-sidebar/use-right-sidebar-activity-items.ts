@@ -106,7 +106,7 @@ export function useRightSidebarActivityItems({
       {
         id: 'flow',
         icon: Workflow,
-        title: t('flow.dashboard', 'Flow'),
+        title: t('flow.activityTitle', 'Flow'),
         shortcut: ''
       },
       // Agents (vault) tab removed from activity bar

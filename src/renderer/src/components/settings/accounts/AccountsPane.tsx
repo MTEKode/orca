@@ -319,39 +319,18 @@ export function AccountsPane({
     runCodexAccountAction,
     recordOpenCodeSettingEdit
   }
-  const visibleSections = [
-    !searchQuery || /opencode|devin|account/i.test(searchQuery) ? (
-      <div key={accountOwnerKey} className="space-y-8">
-        <ManagedDataAccountsSection provider="opencode" target={accountOwner} />
-        <ManagedDataAccountsSection provider="devin" target={accountOwner} />
-      </div>
-    ) : null,
-    wslSupportedPlatform &&
-    !isRemoteAccountScope &&
-    !wslHostDistro &&
-    matchesSettingsSearch(searchQuery, getAccountsLocationSearchEntries())
-      ? renderAccountsLocationSection(model, t)
-      : null,
-    matchesSettingsSearch(searchQuery, getAccountsClaudeSearchEntries())
-      ? renderClaudeAccountsSection(model, t, intlLocale)
-      : null,
-    matchesSettingsSearch(searchQuery, getAccountsCodexSearchEntries())
-      ? renderCodexAccountsSection(model, t, intlLocale)
-      : null,
-    matchesSettingsSearch(searchQuery, getAccountsGeminiSearchEntries())
-      ? renderGeminiAccountsSection(model, t)
-      : null,
-    matchesSettingsSearch(searchQuery, getAccountsAntigravitySearchEntries()) ? (
-      <AntigravityAccountsSection
-        key={`antigravity:${accountOwnerKey}:${accountRuntime.runtime}:${accountRuntime.wslDistro ?? ''}`}
-        owner={accountOwner}
-        target={{ runtime: accountRuntime.runtime, wslDistro: accountRuntime.wslDistro }}
-        label={accountRuntimeSentenceLabel}
-        ownerPlatform={accountOwnerPlatform}
+  const managedDataSearchMatch = (name: RegExp): boolean => !searchQuery || name.test(searchQuery)
+  // ponytail: providers outside the fork's agent catalog stay functional but folded; delete them once their usage panes go.
+  const otherSections = [
+    managedDataSearchMatch(/devin|account/i) ? (
+      <ManagedDataAccountsSection
+        key={`devin:${accountOwnerKey}`}
+        provider="devin"
+        target={accountOwner}
       />
     ) : null,
-    matchesSettingsSearch(searchQuery, getAccountsOpencodeSearchEntries())
-      ? renderOpenCodeAccountsSection(model, t)
+    matchesSettingsSearch(searchQuery, getAccountsGeminiSearchEntries())
+      ? renderGeminiAccountsSection(model, t)
       : null,
     matchesSettingsSearch(searchQuery, getAccountsMiniMaxSearchEntries()) ? (
       <MiniMaxAccountsSection
@@ -374,6 +353,50 @@ export function AccountsPane({
         host={usageCredentialHost}
         usageSettings={usageHostSettings}
       />
+    ) : null
+  ]
+  const visibleSections = [
+    managedDataSearchMatch(/opencode|account/i) ? (
+      <ManagedDataAccountsSection
+        key={`opencode:${accountOwnerKey}`}
+        provider="opencode"
+        target={accountOwner}
+      />
+    ) : null,
+    wslSupportedPlatform &&
+    !isRemoteAccountScope &&
+    !wslHostDistro &&
+    matchesSettingsSearch(searchQuery, getAccountsLocationSearchEntries())
+      ? renderAccountsLocationSection(model, t)
+      : null,
+    matchesSettingsSearch(searchQuery, getAccountsClaudeSearchEntries())
+      ? renderClaudeAccountsSection(model, t, intlLocale)
+      : null,
+    matchesSettingsSearch(searchQuery, getAccountsCodexSearchEntries())
+      ? renderCodexAccountsSection(model, t, intlLocale)
+      : null,
+    matchesSettingsSearch(searchQuery, getAccountsAntigravitySearchEntries()) ? (
+      <AntigravityAccountsSection
+        key={`antigravity:${accountOwnerKey}:${accountRuntime.runtime}:${accountRuntime.wslDistro ?? ''}`}
+        owner={accountOwner}
+        target={{ runtime: accountRuntime.runtime, wslDistro: accountRuntime.wslDistro }}
+        label={accountRuntimeSentenceLabel}
+        ownerPlatform={accountOwnerPlatform}
+      />
+    ) : null,
+    matchesSettingsSearch(searchQuery, getAccountsOpencodeSearchEntries())
+      ? renderOpenCodeAccountsSection(model, t)
+      : null,
+    otherSections.some((section) => section !== null) ? (
+      // Search forces it open so matches are never hidden; deep links open it in scrollSubsectionIntoView.
+      <details key="other-providers" open={searchQuery ? true : undefined}>
+        <summary className="cursor-pointer text-sm font-medium text-muted-foreground hover:text-foreground">
+          {t('accounts.otherProviders', 'Other providers')}
+        </summary>
+        <div className="mt-6">
+          <SettingsSectionStack sections={otherSections} />
+        </div>
+      </details>
     ) : null
   ]
 

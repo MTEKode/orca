@@ -125,6 +125,8 @@ export function scrollSubsectionIntoView(targetId: string, container?: HTMLEleme
   if (!target) {
     return
   }
+  // A target folded inside a closed <details> has no layout box; open it before measuring.
+  target.closest('details')?.setAttribute('open', '')
   if (!container) {
     target.scrollIntoView({ block: 'start' })
     return

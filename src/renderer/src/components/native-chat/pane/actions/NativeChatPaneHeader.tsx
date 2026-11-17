@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { MessageSquarePlus, SquareSplitVertical } from 'lucide-react'
+import { MessageSquarePlus, SquareSplitVertical, SquareTerminal } from 'lucide-react'
 import { ShortcutKeyCombo } from '@/components/ShortcutKeyCombo'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -42,6 +42,7 @@ export function NativeChatPaneHeader({
   const documentDark = useDocumentDarkTheme()
   const light = colorScheme ? colorScheme === 'light' : !documentDark
   const split = t('components.native-chat.splitRight', 'Split Right')
+  const terminalBeside = t('components.native-chat.terminalBeside', 'Terminal Beside Chat')
   const splitShortcutCombos = useShortcutKeyComboDetails('terminal.splitRight')
   const handOffLabel = t(
     'components.agentSessionContinuation.handOffToAnotherAgent',
@@ -120,6 +121,25 @@ export function NativeChatPaneHeader({
                 </Fragment>
               ))}
             </span>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              type="button"
+              variant="pane-title"
+              size="icon-xs"
+              aria-label={terminalBeside}
+              onClick={(event) => {
+                event.stopPropagation()
+                actions.onTerminalBeside()
+              }}
+            >
+              <SquareTerminal className="size-3" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" sideOffset={4}>
+            {terminalBeside}
           </TooltipContent>
         </Tooltip>
         <NativeChatSettingsButton />

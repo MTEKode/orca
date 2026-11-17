@@ -7,6 +7,7 @@ import { translate } from '@/i18n/i18n'
 import { useTranslate } from '@/i18n/use-translate'
 import { NativeChatQuestionText } from './NativeChatQuestionText'
 import { NativeChatQuestionOption } from './NativeChatQuestionOption'
+import { QuestionDiscussBar } from './NativeChatQuestionDiscussBar'
 import type { AskAnswerSelection } from '../../../../../shared/native-chat/input/native-chat-ask-answer'
 import type { AskPrompt } from '../../../../../shared/native-chat/input/native-chat-ask-types'
 import { NativeChatPromptCollapseToggle } from './NativeChatPromptCollapse'
@@ -296,9 +297,7 @@ export function NativeChatQuestionCard({
                   content={q.question}
                   className="min-w-0 break-words text-sm font-semibold text-foreground [&_p]:my-0 [&_p+p]:mt-2"
                 />
-                {q.header ? (
-                  <p className="mt-1 text-xs text-muted-foreground">{q.header}</p>
-                ) : null}
+                {q.header ? <p className="mt-1 text-xs text-muted-foreground">{q.header}</p> : null}
               </div>
               <div className="flex shrink-0 items-center gap-1">
                 {collapse ? (
@@ -320,32 +319,7 @@ export function NativeChatQuestionCard({
               </div>
             </div>
           </div>
-          {/* Discuss button for brainstorming mode */}
-          <div className="flex items-center gap-2 border-b border-border/40 bg-accent/5 px-3.5 py-2">
-            <button
-              type="button"
-              disabled={isSubmitting}
-              onClick={() => {
-                // Send a message requesting brainstorming mode
-                setOther(index, '[DISCUSS] Let\'s brainstorm this topic before deciding.')
-                setSelections((prev) => {
-                  const next = prev.map((sel) => sel.filter((i) => i !== TYPED_ANSWER))
-                  next[index] = [...(next[index] ?? []), TYPED_ANSWER]
-                  return next
-                })
-              }}
-              className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none"
-            >
-              <MessageCircleQuestion className="size-3.5" />
-              {t('components.native-chat.question.discuss', 'Discuss this first')}
-            </button>
-            <span className="text-xs text-muted-foreground/70">
-              {t(
-                'components.native-chat.question.discussHint',
-                'Enter brainstorming mode to explore ideas'
-              )}
-            </span>
-          </div>
+          <QuestionDiscussBar disabled={isSubmitting} onDiscuss={(a) => setOther(index, a)} />
 
           <div className="max-h-[50vh] divide-y divide-border/60 overflow-y-auto border-t border-border scrollbar-sleek">
             {q.options.map((opt, i) => (

@@ -2,7 +2,10 @@ import { useMemo } from 'react'
 import { useAppStore } from '@/store'
 import { useTranslate } from '@/i18n/use-translate'
 import { useTabGroupTabCloseCommands } from '../../../tab-group/useTabGroupTabCloseCommands'
-import { runNativeChatSplitTarget } from '../routing/native-chat-layout-actions'
+import {
+  runNativeChatSplitTarget,
+  runNativeChatTerminalBeside
+} from '../routing/native-chat-layout-actions'
 import type { Tab, TabGroup } from '../../../../../../shared/tab-types'
 
 const EMPTY_TABS: Tab[] = []
@@ -23,6 +26,8 @@ export function useStructuredChatPaneActions(tabId: string, worktreeId: string, 
       runNativeChatSplitTarget({ kind: 'workspace-tab', unifiedTabId: tabId, groupId }, 'right'),
     onSplitDown: () =>
       runNativeChatSplitTarget({ kind: 'workspace-tab', unifiedTabId: tabId, groupId }, 'down'),
+    onTerminalBeside: () =>
+      runNativeChatTerminalBeside({ kind: 'workspace-tab', unifiedTabId: tabId, groupId }),
     canClosePane: groups.length > 1 || !groupTabs.find((tab) => tab.id === tabId)?.isPinned,
     closeLabel,
     onClosePane: () => closeItem(tabId)
