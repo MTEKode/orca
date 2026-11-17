@@ -1,0 +1,31 @@
+{
+  "$schema": "https://raw.githubusercontent.com/stablyai/orca/main/docs/schemas/plugins/orca-plugin.v2.schema.json",
+  "id": "flow-dashboard",
+  "name": "Flow Dashboard",
+  "version": "1.0.0",
+  "description": "Real-time orchestration flow dashboard showing active runs, worker status, and timeline",
+  "execution": "sandboxed-ui",
+  "pluginApi": 1,
+  "engines": {
+    "orca": ">=1.4.246"
+  },
+  "main": "dist/worker.js",
+  "contributes": {
+    "panels": [
+      {
+        "id": "flow-dashboard",
+        "title": "Flow",
+        "entry": "dist/panel.tsx",
+        "icon": "$(rocket)"
+      }
+    ],
+    "events": [
+      "agent.status.changed",
+      "workspace.changed"
+    ]
+  },
+  "capabilities": [
+    "agent:read",
+    "workspace:read"
+  ]
+}

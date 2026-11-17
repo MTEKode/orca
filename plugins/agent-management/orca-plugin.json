@@ -1,0 +1,30 @@
+{
+  "$schema": "https://raw.githubusercontent.com/stablyai/orca/main/docs/schemas/plugins/orca-plugin.v2.schema.json",
+  "id": "agent-management",
+  "name": "Agent Management",
+  "version": "1.0.0",
+  "description": "Agent compatibility and health monitoring panels",
+  "execution": "sandboxed-ui",
+  "pluginApi": 1,
+  "engines": {
+    "orca": ">=1.4.246"
+  },
+  "contributes": {
+    "panels": [
+      {
+        "id": "agent-compatibility",
+        "title": "Agent Compatibility",
+        "entry": "dist/compatibility-panel.tsx",
+        "icon": "$(check-circle)"
+      },
+      {
+        "id": "agent-health",
+        "title": "Agent Health",
+        "entry": "dist/health-panel.tsx",
+        "icon": "$(heart)"
+      }
+    ],
+    "events": ["agent.status.changed"]
+  },
+  "capabilities": ["agent:read"]
+}
