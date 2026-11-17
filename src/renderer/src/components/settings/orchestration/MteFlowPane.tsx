@@ -30,6 +30,7 @@ import {
 } from './nested-worker-depth-copy'
 import { OrchestrationWorkerAutoReleaseSetting } from './OrchestrationWorkerAutoReleaseSetting'
 import { SettingsGroup } from '../section-layout/SettingsGroup'
+import { Card, CardContent } from '@/components/ui/card'
 
 const EXAMPLE_ICONS = {
   handoff: ArrowRightLeft,
@@ -41,6 +42,30 @@ const EXAMPLE_ICONS = {
 
 function resolveOrchestrationExampleIcon(example: SkillUsageExample): LucideIcon {
   return EXAMPLE_ICONS[example.id as keyof typeof EXAMPLE_ICONS] ?? Workflow
+}
+
+function FlowTemplateCard({
+  title,
+  description,
+  example
+}: {
+  title: string
+  description: string
+  example: string
+}): React.JSX.Element {
+  return (
+    <Card className="hover:bg-accent/50 transition-colors cursor-pointer">
+      <CardContent className="p-4">
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium">{title}</h4>
+          <p className="text-xs text-muted-foreground">{description}</p>
+          <div className="rounded bg-muted/50 p-2">
+            <code className="text-xs">{example}</code>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
 }
 
 type MteFlowPaneProps = {
@@ -96,10 +121,10 @@ export function MteFlowPane({ settings, updateSettings }: MteFlowPaneProps): Rea
 
   return (
     <SearchableSetting
-      title={t('auto.components.settings.MteFlowPane.title', 'MTE flow')}
+      title={t('auto.components.settings.MteFlowPane.title', 'Flow')}
       description={t(
         'auto.components.settings.MteFlowPane.description',
-        'Settings for MTE orchestration runs: planner, workers and validation.'
+        'Settings for Flow orchestration: planner, workers and validation.'
       )}
       keywords={searchEntries[0].keywords}
       forceVisible
@@ -109,10 +134,10 @@ export function MteFlowPane({ settings, updateSettings }: MteFlowPaneProps): Rea
         <div className="py-4">
           <AgentSkillSetupPanel
             variant="inline"
-            title={t('auto.components.settings.MteFlowPane.skillTitle', 'MTE skill')}
+            title={t('auto.components.settings.MteFlowPane.skillTitle', 'Flow orchestration')}
             description={t(
               'auto.components.settings.MteFlowPane.skillDescription',
-              'Enables agents to start and drive MTE runs through Orca.'
+              'Enables agents to orchestrate work: plan tasks, dispatch workers, and validate results. Click install to enable Flow in your agents.'
             )}
             skillNames={[MTE_SKILL_NAME]}
             installed={orchestrationSkillDetected}
@@ -177,12 +202,64 @@ export function MteFlowPane({ settings, updateSettings }: MteFlowPaneProps): Rea
         heading={t('auto.components.settings.MteFlowPane.ae79504732', 'How to use it')}
         description={t(
           'auto.components.settings.MteFlowPane.examplesDescription',
-          'Ask an agent to use the MTE skill to plan, dispatch workers and validate a goal.'
+          'Ask an agent to use the Flow skill to plan, dispatch workers and validate a goal.'
         )}
         examples={getMteUsageExamples()}
         resolveIcon={resolveOrchestrationExampleIcon}
         slashCommand={`/${MTE_SKILL_NAME}`}
       />
+
+      <div className="space-y-4">
+        <h3 className="text-sm font-medium">
+          {t('auto.components.settings.MteFlowPane.flowTemplates', 'Flow templates')}
+        </h3>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <FlowTemplateCard
+            title={t('auto.components.settings.MteFlowPane.template.bugFix', 'Bug fix')}
+            description={t(
+              'auto.components.settings.MteFlowPane.template.bugFixDescription',
+              'Quick fix with 1 worker and validation'
+            )}
+            example={t(
+              'auto.components.settings.MteFlowPane.template.bugFixExample',
+              'Use Flow to fix the login bug in auth-service.ts'
+            )}
+          />
+          <FlowTemplateCard
+            title={t('auto.components.settings.MteFlowPane.template.feature', 'Feature')}
+            description={t(
+              'auto.components.settings.MteFlowPane.template.featureDescription',
+              'Multi-worker feature implementation'
+            )}
+            example={t(
+              'auto.components.settings.MteFlowPane.template.featureExample',
+              'Use Flow to implement user authentication with OAuth'
+            )}
+          />
+          <FlowTemplateCard
+            title={t('auto.components.settings.MteFlowPane.template.refactor', 'Refactor')}
+            description={t(
+              'auto.components.settings.MteFlowPane.template.refactorDescription',
+              'Sequential workers for safe refactoring'
+            )}
+            example={t(
+              'auto.components.settings.MteFlowPane.template.refactorExample',
+              'Use Flow to refactor the database layer to use the new ORM'
+            )}
+          />
+          <FlowTemplateCard
+            title={t('auto.components.settings.MteFlowPane.template.exploration', 'Exploration')}
+            description={t(
+              'auto.components.settings.MteFlowPane.template.explorationDescription',
+              'Research and planning without code changes'
+            )}
+            example={t(
+              'auto.components.settings.MteFlowPane.template.explorationExample',
+              'Use Flow to explore the codebase and plan a migration strategy'
+            )}
+          />
+        </div>
+      </div>
     </SearchableSetting>
   )
 }

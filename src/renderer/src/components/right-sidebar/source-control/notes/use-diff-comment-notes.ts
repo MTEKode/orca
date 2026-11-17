@@ -37,6 +37,18 @@ export function useSourceControlDiffCommentNotes({
     }
     return map
   }, [diffCommentsForActive])
+  const diffCommentsByPath = useMemo(() => {
+    const map = new Map<string, DiffComment[]>()
+    for (const c of diffCommentsForActive) {
+      const list = map.get(c.filePath) ?? []
+      list.push(c)
+      map.set(c.filePath, list)
+    }
+    for (const list of map.values()) {
+      list.sort((a, b) => a.lineNumber - b.lineNumber)
+    }
+    return map
+  }, [diffCommentsForActive])
   const diffCommentsPrompt = useMemo(
     () => formatDiffComments(diffCommentsForActive),
     [diffCommentsForActive]
@@ -147,6 +159,7 @@ export function useSourceControlDiffCommentNotes({
   return {
     diffCommentCount,
     diffCommentCountByPath,
+    diffCommentsByPath,
     diffCommentsCopied,
     diffCommentsExpanded,
     diffCommentsForActive,

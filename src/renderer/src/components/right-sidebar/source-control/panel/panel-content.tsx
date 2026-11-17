@@ -26,6 +26,7 @@ export function SourceControlPanelContent(props: SourceControlPanelReadyProps) {
     collapsedTreeDirs,
     conflictOperation,
     diffCommentCountByPath,
+    diffCommentsByPath,
     displaySections,
     entries,
     expandedSubmoduleKeys,
@@ -198,6 +199,7 @@ export function SourceControlPanelContent(props: SourceControlPanelReadyProps) {
           handleUnstage={handleUnstage}
           requestDiscardEntry={requestDiscardEntry}
           diffCommentCountByPath={diffCommentCountByPath}
+          diffCommentsByPath={diffCommentsByPath}
         />
       )}
 
@@ -234,6 +236,7 @@ export function SourceControlPanelContent(props: SourceControlPanelReadyProps) {
           openCommittedDiff={openCommittedDiff}
           openBranchAllDiffs={openBranchAllDiffs}
           diffCommentCountByPath={diffCommentCountByPath}
+          diffCommentsByPath={diffCommentsByPath}
         />
       )}
 

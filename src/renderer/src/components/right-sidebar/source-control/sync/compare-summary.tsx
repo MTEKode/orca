@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowUp, RefreshCw, Settings2, type LucideIcon } from 'lucide-react'
+import { ArrowDown, ArrowUp, RefreshCw, Settings2, type LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useTranslate } from '@/i18n/use-translate'
@@ -65,11 +65,13 @@ export function shouldShowCompareSummary(summary: GitBranchCompareSummary | null
 export function CompareSummary({
   summary,
   onChangeBaseRef,
-  onRetry
+  onRetry,
+  onUpdateFromBase
 }: {
   summary: GitBranchCompareSummary | null
   onChangeBaseRef: () => void
   onRetry: () => void
+  onUpdateFromBase?: () => void
 }): React.JSX.Element | null {
   const t = useTranslate()
   if (!summary || summary.status === 'loading') {
@@ -116,7 +118,9 @@ export function CompareSummary({
   }
 
   const commitsAhead = summary.commitsAhead
+  const commitsBehind = summary.commitsBehind
   const showCommitsAhead = typeof commitsAhead === 'number' && commitsAhead > 0
+  const showCommitsBehind = typeof commitsBehind === 'number' && commitsBehind > 0
   const commitsAheadTitle = !showCommitsAhead
     ? undefined
     : t(
@@ -128,23 +132,58 @@ export function CompareSummary({
           defaultValue_one: '{{count}} commit ahead of {{ref}}'
         }
       )
+  const commitsBehindTitle = !showCommitsBehind
+    ? undefined
+    : t(
+        'auto.components.right.sidebar.source.control.compare.summary.commitsBehind',
+        '{{count}} commits behind {{ref}}',
+        {
+          count: commitsBehind,
+          ref: summary.baseRef,
+          defaultValue_one: '{{count}} commit behind {{ref}}'
+        }
+      )
 
-  if (!showCommitsAhead) {
+  if (!showCommitsAhead && !showCommitsBehind) {
     return null
   }
 
   return (
     <div className="flex items-center gap-2 text-xs text-muted-foreground">
-      <span className="flex min-w-0 items-center gap-1" title={commitsAheadTitle}>
-        <ArrowUp className="size-3" />
-        <span>
-          {t('auto.components.right.sidebar.SourceControl.commitsAheadShort', '{{count}} ahead', {
-            count: commitsAhead,
-            defaultValue_one: '{{count}} ahead'
-          })}
+      {showCommitsAhead && (
+        <span className="flex min-w-0 items-center gap-1" title={commitsAheadTitle}>
+          <ArrowUp className="size-3" />
+          <span>
+            {t('auto.components.right.sidebar.SourceControl.commitsAheadShort', '{{count}} ahead', {
+              count: commitsAhead,
+              defaultValue_one: '{{count}} ahead'
+            })}
+          </span>
         </span>
-      </span>
+      )}
+      {showCommitsBehind && (
+        <span className="flex min-w-0 items-center gap-1" title={commitsBehindTitle}>
+          <ArrowDown className="size-3" />
+          <span>
+            {t('auto.components.right.sidebar.SourceControl.commitsBehindShort', '{{count}} behind', {
+              count: commitsBehind,
+              defaultValue_one: '{{count}} behind'
+            })}
+          </span>
+        </span>
+      )}
       <div className="ml-auto flex shrink-0 items-center gap-2">
+        {showCommitsBehind && onUpdateFromBase && (
+          <CompareSummaryToolbarButton
+            icon={ArrowDown}
+            label={t(
+              'auto.components.right.sidebar.SourceControl.updateFromBase',
+              'Update from {{ref}}',
+              { ref: summary.baseRef }
+            )}
+            onClick={onUpdateFromBase}
+          />
+        )}
         <CompareSummaryToolbarButton
           icon={Settings2}
           label={t('auto.components.right.sidebar.SourceControl.493f963029', 'Change base ref')}

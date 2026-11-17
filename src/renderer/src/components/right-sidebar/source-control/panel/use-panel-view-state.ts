@@ -49,6 +49,8 @@ export function useSourceControlPanelViewState({
   const [baseRefDialogOpen, setBaseRefDialogOpen] = useState(false)
   const [filterQuery, setFilterQuery] = useState('')
   const isGitHistoryExpanded = !collapsedSections.has('history')
+  // Filter for showing only last commit changes vs all changes
+  const [showOnlyLastCommit, setShowOnlyLastCommit] = useState(false)
 
   const handleToggleSourceControlViewMode = useCallback(() => {
     const current = useAppStore.getState().settings
@@ -117,6 +119,8 @@ export function useSourceControlPanelViewState({
     setFileListScrollElement,
     setFilterExpanded,
     setFilterQuery,
+    showOnlyLastCommit,
+    setShowOnlyLastCommit,
     sourceControlGroupOrder,
     sourceControlRef,
     sourceControlViewMode,

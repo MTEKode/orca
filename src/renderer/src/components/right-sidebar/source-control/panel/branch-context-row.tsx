@@ -1,5 +1,5 @@
 import React from 'react'
-import { ExternalLink, Loader2, RefreshCw } from 'lucide-react'
+import { ArrowDown, ExternalLink, Loader2, RefreshCw } from 'lucide-react'
 import type { GitBranchCompareSummary } from '../../../../../../shared/git/diff/git-diff-compare-types'
 import type { GitBranchLineTotal } from '../../../../../../shared/git/status/git-status-types'
 import { cn } from '@/lib/utils'
@@ -104,7 +104,8 @@ export function SourceControlBranchContextRow({
   manualReviewUrl,
   branchLineTotal,
   onChangeBaseRef,
-  onRetry
+  onRetry,
+  onUpdateFromBase
 }: {
   summary: GitBranchCompareSummary | null
   compareBaseRef: string | null
@@ -114,6 +115,7 @@ export function SourceControlBranchContextRow({
   branchLineTotal?: GitBranchLineTotal | null
   onChangeBaseRef: () => void
   onRetry: () => void
+  onUpdateFromBase?: () => void
 }): React.JSX.Element | null {
   const t = useTranslate()
   const displayedBaseRef = resolveSourceControlDisplayedBaseRef(summary, compareBaseRef)
@@ -211,6 +213,9 @@ export function SourceControlBranchContextRow({
     (stat) => <ContextStat key={stat.key} stat={stat} />
   )
 
+  const commitsBehind = summary.commitsBehind
+  const showUpdateButton = typeof commitsBehind === 'number' && commitsBehind > 0 && onUpdateFromBase
+
   return (
     <CompareFlowGroup flowLabel={flowLabel} className="min-w-0 text-[11px] text-muted-foreground">
       <StackedCompareFlow
@@ -223,6 +228,31 @@ export function SourceControlBranchContextRow({
         trailing={
           <>
             {compareStatNodes}
+            {showUpdateButton && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className="inline-flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground/70 transition-colors hover:bg-accent hover:text-foreground"
+                    onClick={onUpdateFromBase}
+                    aria-label={t(
+                      'auto.components.right.sidebar.SourceControl.updateFromBase',
+                      'Update from {{ref}}',
+                      { ref: baseLabel }
+                    )}
+                  >
+                    <ArrowDown className="size-3" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" sideOffset={6}>
+                  {t(
+                    'auto.components.right.sidebar.SourceControl.updateFromBase',
+                    'Update from {{ref}}',
+                    { ref: baseLabel }
+                  )}
+                </TooltipContent>
+              </Tooltip>
+            )}
             <ManualReviewLinkButton url={manualReviewUrl} />
           </>
         }

@@ -15,6 +15,7 @@ const FolderWorkspaceWorktreesPanel = lazy(() => import('./FolderWorkspaceWorktr
 const FolderWorkspacePrChecksPanel = lazy(
   () => import('./hosted-review/folder-checks/FolderWorkspacePrChecksPanel')
 )
+const FlowDashboard = lazy(() => import('../flow-dashboard/FlowDashboard'))
 const PluginPanel = lazy(() => import('./plugin-panels/PluginPanel'))
 
 type RightSidebarPanelContentProps = {
@@ -65,6 +66,7 @@ export function RightSidebarPanelContent({
             isVisible={rightSidebarOpen && effectiveTab === 'pr-checks'}
           />
         )}
+        {effectiveTab === 'flow' && <FlowDashboard />}
         {/* Remount on plugin changes so an old iframe cannot post through the next plugin's rebound bridge. */}
         {isPluginPanelTabKey(effectiveTab) && (
           <PluginPanel key={effectiveTab} tabKey={effectiveTab} />

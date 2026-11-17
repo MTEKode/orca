@@ -194,6 +194,7 @@
         "widthDescription": "Cuánto pueden ampliarse los mensajes y el cuadro de mensaje en un panel ancho.",
         "resetAppearance": "Restablecer apariencia del chat",
         "resetDescription": "Restaurar los valores predeterminados anteriores.",
+        "compact": "Compacto",
         "comfortable": "Cómodo",
         "wide": "Amplio",
         "full": "Completo",
@@ -24226,5 +24227,56 @@
       "dismiss": "Descartar",
       "cancelDownload": "Cancelar descarga"
     }
+  },
+  "agents": {
+    "compatibility": {
+      "title": "Capacidades de agentes",
+      "hint": "No todos los agentes soportan las mismas funciones. Claude y Pi tienen el conjunto de funciones más completo. Verifica las capacidades antes de configurar flujos de trabajo."
+    },
+    "capability": {
+      "permissions": "Control de permisos",
+      "orchestration": "Orquestación Flow",
+      "computerUse": "Uso de computadora"
+    },
+    "health": {
+      "title": "Estado de agentes",
+      "refresh": "Actualizar",
+      "healthy": "saludable",
+      "warnings": "advertencias",
+      "errors": "errores",
+      "ready": "Listo para usar",
+      "notConfigured": "Usando comando predeterminado",
+      "piModelNotSupported": "Pi no soporta selección de modelo"
+    }
+  },
+  "flow": {
+    "noActiveFlow": "No hay Flow activo",
+    "startFlowHint": "Inicia un Flow desde el chat para orquestar workers",
+    "dashboard": "Panel de Flow",
+    "duration": "Duración",
+    "workers": "Workers",
+    "completedAt": "Completado",
+    "status": {
+      "planning": "Planificando",
+      "executing": "Ejecutando",
+      "validating": "Validando",
+      "completed": "Completado",
+      "failed": "Fallido",
+      "idle": "Inactivo"
+    },
+    "stage": {
+      "planning": "Planificación",
+      "executing": "Ejecución",
+      "validating": "Validación"
+    },
+    "noWorkers": "Aún no hay workers iniciados",
+    "worker": {
+      "pending": "Pendiente",
+      "running": "Ejecutando",
+      "completed": "Completado",
+      "failed": "Fallido"
+    },
+    "retryWorker": "Reintentar",
+    "retryWorkerHint": "Reiniciar este worker"
   }
 }

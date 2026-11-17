@@ -1,5 +1,5 @@
-import React from 'react'
-import { ChevronDown, MessageSquare, Minus, Plus, Trash, Undo2 } from 'lucide-react'
+import React, { useState } from 'react'
+import { ChevronDown, ChevronRight, MessageSquare, Minus, Plus, Trash, Undo2 } from 'lucide-react'
 import { FileTypeIcon } from '@/components/FileTypeIcon'
 import { basename, dirname, joinPath } from '@/lib/path'
 import { cn } from '@/lib/utils'
@@ -8,6 +8,7 @@ import { writeWorkspaceFileDragSourceForWorkspace } from '@/lib/files/drop/works
 import { useTranslate } from '@/i18n/use-translate'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 import type { GitStatusEntry } from '../../../../../../shared/git/status/git-status-types'
+import type { DiffComment } from '../../../../../../shared/diff-comment-types'
 import { ActionButton } from './action-button'
 import { ConflictBadge } from './conflict-badge'
 import {
@@ -79,6 +80,7 @@ export const UncommittedEntryRow = React.memo(function UncommittedEntryRow({
   showPathHint?: boolean
   // When set, the row is a dirty submodule: clicking toggles lazy expansion instead of opening an uninformative gitlink diff.
   submoduleExpansion?: { isExpanded: boolean; onToggle: () => void }
+  comments?: DiffComment[]
 }): React.JSX.Element {
   const t = useTranslate()
   useUiLanguageRevision()
@@ -96,6 +98,8 @@ export const UncommittedEntryRow = React.memo(function UncommittedEntryRow({
   // Parent Git cannot unstage submodule-internal files; match bulk gating.
   const canUnstage = canUnstageStatusEntry(entry)
   const conflictResolutions = getConflictResolutions(entry)
+  const [commentsExpanded, setCommentsExpanded] = useState(false)
+  const hasComments = Boolean(comments && comments.length > 0)
 
   return (
     <SourceControlEntryContextMenu
@@ -201,13 +205,19 @@ export const UncommittedEntryRow = React.memo(function UncommittedEntryRow({
           )}
         </div>
         {commentCount > 0 && (
-          <span
-            className="flex shrink-0 items-center gap-0.5 text-[10px] text-muted-foreground"
+          <button
+            type="button"
+            className="flex shrink-0 items-center gap-0.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
             title={reviewNoteCountTitle(commentCount, t)}
+            onClick={(e) => {
+              e.stopPropagation()
+              setCommentsExpanded((prev) => !prev)
+            }}
           >
+            {commentsExpanded ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
             <MessageSquare className="size-3" />
             <span className="tabular-nums">{commentCount}</span>
-          </span>
+          </button>
         )}
         {entry.conflictStatus ? (
           <ConflictBadge entry={entry} />
@@ -275,6 +285,24 @@ export const UncommittedEntryRow = React.memo(function UncommittedEntryRow({
           )}
         </div>
       </div>
+      {hasComments && commentsExpanded && (
+        <div className="border-l-2 border-accent ml-6 mr-3 mb-1 pl-2 py-1 space-y-1">
+          {comments!.map((c) => (
+            <div key={c.id} className="text-[11px] leading-tight">
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <span className="font-medium">{c.author ?? 'Unknown'}</span>
+                <span className="text-[10px]">•</span>
+                <span className="text-[10px]">
+                  {c.lineNumber === 0 ? 'file' : `L${c.lineNumber}`}
+                </span>
+              </div>
+              <div className="text-foreground/90 whitespace-pre-wrap break-words mt-0.5">
+                {c.body}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </SourceControlEntryContextMenu>
   )
 })

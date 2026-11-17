@@ -88,6 +88,7 @@ export function SourceControlUncommittedSections(props: {
   handleUnstage: (path: string, oldPath?: string) => Promise<void>
   requestDiscardEntry: (entry: GitStatusEntry) => void
   diffCommentCountByPath: Map<string, number>
+  diffCommentsByPath: Map<string, DiffComment[]>
 }): React.JSX.Element {
   const t = useTranslate()
   return (
@@ -204,6 +205,7 @@ export function SourceControlUncommittedSections(props: {
                 handleUnstage={props.handleUnstage}
                 requestDiscardEntry={props.requestDiscardEntry}
                 diffCommentCountByPath={props.diffCommentCountByPath}
+                diffCommentsByPath={props.diffCommentsByPath}
               />
             )}
           </div>

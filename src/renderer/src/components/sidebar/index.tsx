@@ -43,8 +43,8 @@ const ForgetSshWorkspaceDialog = lazyWithRetry(
 )
 const AgentDashboardSidebarHost = lazyWithRetry(() => import('./AgentDashboardSidebarHost'))
 
-const MIN_WIDTH = 220
-const MAX_WIDTH = 500
+const MIN_WIDTH = 200
+const MAX_WIDTH = 400
 // Why: start on the divider pixel so pointing at the visible seam resizes instead of scrolling the list.
 export const WORKTREE_SIDEBAR_RESIZE_HANDLE_CLASS_NAME =
   'peer absolute -right-[9px] top-0 z-20 h-full w-[9px] cursor-col-resize'

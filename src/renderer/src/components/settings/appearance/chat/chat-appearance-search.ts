@@ -131,6 +131,10 @@ export function getChatAppearanceSearchEntries(t: Translate = translate): Settin
 export function getChatWidthOptions(t: Translate = translate) {
   return [
     {
+      value: 'compact',
+      label: t('settings.appearance.chat.compact', 'Compact')
+    },
+    {
       value: 'comfortable',
       label: t('settings.appearance.chat.comfortable', 'Comfortable')
     },

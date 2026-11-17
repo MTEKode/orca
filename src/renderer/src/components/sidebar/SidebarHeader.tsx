@@ -42,10 +42,6 @@ const SidebarHeader = React.memo(function SidebarHeader({
   const acknowledgeIntro = React.useCallback(() => {
     void updateSettings?.({ agentsSidebarIntroShown: true })
   }, [updateSettings])
-  const sidebarTitle =
-    groupBy === 'repo'
-      ? t('dashboard.sidebar.projects', 'Projects')
-      : t('dashboard.sidebar.workspaces', 'Workspaces')
   const activityLabel = t(
     agentsViewActive ? 'dashboard.sidebar.closeActivity' : 'dashboard.sidebar.openActivity',
     agentsViewActive ? 'Turn off activity view' : 'View activity'
@@ -62,7 +58,7 @@ const SidebarHeader = React.memo(function SidebarHeader({
           className="min-w-0 truncate select-none pl-2 pr-0.5 text-[13px] font-semibold text-muted-foreground/80"
           data-sidebar-section-title={groupBy === 'repo' ? 'projects' : 'workspaces'}
         >
-          {sidebarTitle}
+          {groupBy === 'repo' ? 'Projects' : 'Workspaces'}
         </span>
         {/* WorktreeList portals the collapse-all toggle here; it owns the rendered project rows. */}
         <div ref={projectsCollapseTarget} className="flex shrink-0 items-center empty:hidden" />

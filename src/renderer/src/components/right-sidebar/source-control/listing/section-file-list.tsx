@@ -3,6 +3,7 @@ import type { GitStatusEntry } from '../../../../../../shared/git/status/git-sta
 import type { ConflictResolution } from '../../../../../../shared/source-control/listing/source-control-entry-actions'
 import type { SourceControlViewMode } from '../../../../../../shared/ui-chrome-types'
 import type { DiscardAllArea } from '../../../../../../shared/source-control/listing/source-control-discard-all-sequence'
+import type { DiffComment } from '../../../../../../shared/diff-comment-types'
 import {
   getSubmoduleExpansionKey,
   isExpandableSubmoduleEntry,
@@ -43,7 +44,8 @@ export function SourceControlSectionFileList({
   handleResolveConflict,
   handleUnstage,
   requestDiscardEntry,
-  diffCommentCountByPath
+  diffCommentCountByPath,
+  diffCommentsByPath
 }: {
   sourceControlViewMode: SourceControlViewMode
   treeRows: RenderableSourceControlNode[]
@@ -72,6 +74,7 @@ export function SourceControlSectionFileList({
   handleUnstage: (path: string, oldPath?: string) => Promise<void>
   requestDiscardEntry: (entry: GitStatusEntry) => void
   diffCommentCountByPath: Map<string, number>
+  diffCommentsByPath: Map<string, DiffComment[]>
 }): React.JSX.Element {
   return sourceControlViewMode === 'tree' ? (
     <VirtualizedList
@@ -133,6 +136,7 @@ export function SourceControlSectionFileList({
             commentCount={diffCommentCountByPath.get(node.entry.path) ?? 0}
             showPathHint={false}
             submoduleExpansion={submoduleExpansion}
+            comments={diffCommentsByPath.get(node.entry.path)}
           />
         )
       }}
@@ -184,6 +188,7 @@ export function SourceControlSectionFileList({
             onDiscard={requestDiscardEntry}
             commentCount={diffCommentCountByPath.get(entry.path) ?? 0}
             submoduleExpansion={submoduleExpansion}
+            comments={diffCommentsByPath.get(entry.path)}
           />
         )
       }}

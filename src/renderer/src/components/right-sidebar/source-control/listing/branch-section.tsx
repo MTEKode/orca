@@ -13,6 +13,7 @@ import { SectionHeader } from './section-header'
 import { formatSourceControlRefLabel } from '../panel/branch-context-stats'
 import { SourceControlBranchTreeDirectoryRow } from './tree-directory-rows'
 import { VirtualizedList } from '../../../virtualized-list'
+import type { DiffComment } from '../../../../../../shared/diff-comment-types'
 
 export function SourceControlBranchSection({
   activeOpenRowKeys,
@@ -56,6 +57,7 @@ export function SourceControlBranchSection({
     summary: GitBranchCompareSummary
   ) => void
   diffCommentCountByPath: Map<string, number>
+  diffCommentsByPath: Map<string, DiffComment[]>
 }): React.JSX.Element {
   const t = useTranslate()
   const baseRef = branchSummary.baseRef?.trim()
@@ -129,6 +131,7 @@ export function SourceControlBranchSection({
                   onOpen={(event) => openCommittedDiff(node.entry, event)}
                   commentCount={diffCommentCountByPath.get(node.entry.path) ?? 0}
                   showPathHint={false}
+                  comments={diffCommentsByPath.get(node.entry.path)}
                 />
               )
             }}
@@ -149,6 +152,7 @@ export function SourceControlBranchSection({
                 connectionId={activeConnectionId}
                 onOpen={(event) => openCommittedDiff(entry, event)}
                 commentCount={diffCommentCountByPath.get(entry.path) ?? 0}
+                comments={diffCommentsByPath.get(entry.path)}
               />
             )}
           />

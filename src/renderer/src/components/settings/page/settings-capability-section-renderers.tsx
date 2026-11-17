@@ -1,6 +1,8 @@
 import { AccountsPane } from '../accounts/AccountsPane'
 import { getProviderAccountsOwnerKey } from '@/runtime/provider-accounts/observations/runtime-provider-accounts-client'
 import { AgentsPane } from '../agents/AgentsPane'
+import { AgentCompatibilityPanel } from '../agents/AgentCompatibilityPanel'
+import { AgentHealthDashboard } from '../agents/AgentHealthDashboard'
 import { AgentDefaultSurfaceSection } from '../agents/surfaces/AgentDefaultSurfaceSection'
 import { ComputerUsePane } from '../computer-use/ComputerUsePane'
 import { LinearAgentSkillPane } from '../skills/linear/LinearAgentSkillPane'
@@ -32,6 +34,8 @@ export function renderAgentsSettingsSection(
     >
       {view.isSectionMounted('agents') ? (
         <div className="space-y-8">
+          <AgentHealthDashboard />
+          <AgentCompatibilityPanel />
           {model.settingsHostScope.target.kind === 'local' ? (
             <AgentDefaultSurfaceSection settings={model.settings} />
           ) : null}

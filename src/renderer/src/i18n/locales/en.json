@@ -713,6 +713,7 @@
         "widthDescription": "How wide messages and the message box can grow in a wide pane.",
         "resetAppearance": "Reset chat appearance",
         "resetDescription": "Restore the defaults above.",
+        "compact": "Compact",
         "comfortable": "Comfortable",
         "wide": "Wide",
         "full": "Full",
@@ -25028,5 +25029,56 @@
       "dismiss": "Dismiss",
       "cancelDownload": "Cancel download"
     }
+  },
+  "agents": {
+    "compatibility": {
+      "title": "Agent capabilities",
+      "hint": "Not all agents support the same features. Claude and Pi have the most complete feature set. Check capabilities before configuring workflows."
+    },
+    "capability": {
+      "permissions": "Permission control",
+      "orchestration": "Flow orchestration",
+      "computerUse": "Computer use"
+    },
+    "health": {
+      "title": "Agent health",
+      "refresh": "Refresh",
+      "healthy": "healthy",
+      "warnings": "warnings",
+      "errors": "errors",
+      "ready": "Ready to use",
+      "notConfigured": "Using default command",
+      "piModelNotSupported": "Pi does not support model selection"
+    }
+  },
+  "flow": {
+    "noActiveFlow": "No active Flow",
+    "startFlowHint": "Start a Flow from the chat to orchestrate workers",
+    "dashboard": "Flow Dashboard",
+    "duration": "Duration",
+    "workers": "Workers",
+    "completedAt": "Completed",
+    "status": {
+      "planning": "Planning",
+      "executing": "Executing",
+      "validating": "Validating",
+      "completed": "Completed",
+      "failed": "Failed",
+      "idle": "Idle"
+    },
+    "stage": {
+      "planning": "Planning",
+      "executing": "Executing",
+      "validating": "Validation"
+    },
+    "noWorkers": "No workers started yet",
+    "worker": {
+      "pending": "Pending",
+      "running": "Running",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "retryWorker": "Retry",
+    "retryWorkerHint": "Restart this worker"
   }
 }

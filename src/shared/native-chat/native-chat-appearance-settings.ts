@@ -7,8 +7,8 @@ export type NativeChatAppearanceSettings = {
   fontSize?: number
   /** Code text size in px, 10–18; absent = 12. */
   codeFontSize?: number
-  /** Transcript and composer width; absent = comfortable (46rem). */
-  width?: 'comfortable' | 'wide' | 'full'
+  /** Transcript and composer width; absent = compact (32rem). */
+  width?: 'compact' | 'comfortable' | 'wide' | 'full'
   /** Chat contrast, 50–150; absent = 100. */
   contrast?: number
   /** Follow the terminal interface font and theme; absent = false. */
@@ -66,6 +66,7 @@ export function nativeChatShowsCiResultLines(
   return settings?.nativeChatCiResultLines !== false
 }
 
+export const DEFAULT_NATIVE_CHAT_FONT_FAMILY = 'Monaspace Radon Var'
 export const DEFAULT_NATIVE_CHAT_FONT_SIZE = 14
 export const DEFAULT_NATIVE_CHAT_CODE_FONT_SIZE = 12
 export const DEFAULT_NATIVE_CHAT_CONTRAST = 100
@@ -95,7 +96,9 @@ export function normalizeNativeChatAppearanceSettings(
   const matchTerminalInterface =
     'matchTerminalInterface' in value && value.matchTerminalInterface === true
   const width =
-    'width' in value && (value.width === 'wide' || value.width === 'full') ? value.width : undefined
+    'width' in value && (value.width === 'compact' || value.width === 'wide' || value.width === 'full')
+      ? value.width
+      : undefined
   const normalized: NativeChatAppearanceSettings = {
     ...Object.fromEntries(
       Object.entries(value).filter(
@@ -125,10 +128,10 @@ export function resolveNativeChatAppearanceSettings(
 ): Required<NativeChatAppearanceSettings> {
   const normalized = normalizeNativeChatAppearanceSettings(value)
   return {
-    fontFamily: normalized?.fontFamily ?? '',
+    fontFamily: normalized?.fontFamily ?? DEFAULT_NATIVE_CHAT_FONT_FAMILY,
     fontSize: normalized?.fontSize ?? DEFAULT_NATIVE_CHAT_FONT_SIZE,
     codeFontSize: normalized?.codeFontSize ?? DEFAULT_NATIVE_CHAT_CODE_FONT_SIZE,
-    width: normalized?.width ?? 'comfortable',
+    width: normalized?.width ?? 'compact',
     contrast: normalized?.contrast ?? DEFAULT_NATIVE_CHAT_CONTRAST,
     matchTerminalInterface: normalized?.matchTerminalInterface ?? false
   }

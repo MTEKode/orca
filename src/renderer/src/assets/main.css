@@ -263,7 +263,7 @@
   --chat-composer-base: hsl(30 10% 98% / 0.5);
   --chat-composer-border-mix: 11%;
   --chat-selection-mix: 30%;
-  --chat-content-max-width: 46rem;
+  --chat-content-max-width: 32rem;
   --card: hsl(30 0% 100%);
   --card-foreground: hsl(24 9% 12%);
   --popover: hsl(30 0% 100%);
@@ -489,7 +489,7 @@
   --chat-composer-base: hsl(24 9% 12%);
   --chat-composer-border-mix: 9%;
   --chat-selection-mix: 40%;
-  --chat-content-max-width: 46rem;
+  --chat-content-max-width: 32rem;
   --card: hsl(25 8% 16%);
   --card-foreground: hsl(30 9% 95%);
   --popover: hsl(25 8% 16%);
@@ -4141,4 +4141,27 @@ body:has([data-contextual-tour-target='tab-create-menu'][data-state='open'])
   .browser-agent-cursor-layer[data-agent-active]::before {
     animation: none;
   }
+}
+
+/* Worktree card improvements */
+[data-worktree-card] .badge-outline {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+[data-worktree-card] .text-\[14px\] {
+  font-weight: 600;
+}
+
+[data-compact-agent-list='true'] .compact-agent-row {
+  padding: 4px 8px;
+  margin: 1px 0;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+[data-compact-agent-list='true'] .compact-agent-row:hover {
+  background: hsl(0 0% 100% / 0.04);
 }

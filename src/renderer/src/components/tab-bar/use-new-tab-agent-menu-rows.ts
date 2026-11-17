@@ -167,11 +167,15 @@ export function useAgentMenuObservation(
     ...new Set([
       'claude',
       'codex',
-      ...(localCatalog ?? []),
-      ...(hostCatalog ?? []),
+      'opencode',
+      'pi',
+      'antigravity',
+      ...(localCatalog ?? []).filter((a) => ['claude', 'codex', 'opencode', 'pi', 'antigravity'].includes(a)),
+      ...(hostCatalog ?? []).filter((a) => ['claude', 'codex', 'opencode', 'pi', 'antigravity'].includes(a)),
       ...Object.keys(settings?.nativeChatProviders ?? {})
         .filter(isTuiAgent)
         .filter((agent) => nativeChatPreferenceFor(settings, agent))
+        .filter((a) => ['claude', 'codex', 'opencode', 'pi', 'antigravity'].includes(a))
     ])
   ].filter(isTuiAgent)
   const inventoryFailed =

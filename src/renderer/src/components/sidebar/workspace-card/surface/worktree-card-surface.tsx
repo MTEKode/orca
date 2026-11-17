@@ -80,9 +80,10 @@ export function WorktreeCardSurface({ card }: { card: WorktreeCardController }):
         ],
         titleRenaming && '!border-transparent !bg-transparent !shadow-none !ring-0',
         isDeleting && 'opacity-50 grayscale cursor-not-allowed',
-        // Dim disconnected runtimes only; ancestor opacity would make the SSH control’s error tint/spinner illegible.
+        // Dim disconnected runtimes only; ancestor opacity would make the SSH control's error tint/spinner illegible.
         isRuntimeDisconnected && !isDeleting && 'opacity-60'
       )}
+      data-worktree-card="true"
       data-worktree-card-surface="true"
       data-worktree-card-active={
         isActiveSurface && !isLineageDropTarget ? activeSurfaceVariant : undefined

@@ -159,19 +159,21 @@ export function nativeChatAppearanceStyle(
   const codeFontSize = matching ? terminalFontSize : appearance.codeFontSize
   // Message text follows the terminal (10-24); labels, controls and spacing stay in the chat's 12-20.
   const uiFontSize = Math.max(12, Math.min(20, fontSize))
-  const maxWidthPx = width === 'wide' ? 960 : width === 'full' ? Number.POSITIVE_INFINITY : 736
+  const maxWidthPx = width === 'wide' ? 960 : width === 'full' ? Number.POSITIVE_INFINITY : width === 'compact' ? 512 : 736
   const measuredWidth = nativeChatColumnWidthBucket(measuredColumnWidthPx)
   const columnWidthPx = Math.min(
-    measuredWidth ? measuredWidth : width === 'wide' ? 960 : 736,
+    measuredWidth ? measuredWidth : width === 'wide' ? 960 : width === 'compact' ? 512 : 736,
     maxWidthPx
   )
   const font = buildFontFamily(settings?.terminalFontFamily ?? '')
   const codeFont = matching ? font : resolveEditorFontStack(settings)
+  // Use monospace font for chat by default
+  const chatFont = appearance.fontFamily ? buildAppFontFamily(appearance.fontFamily) : font
   const style: NativeChatAppearanceStyle = {
     '--chat-font-size': `${fontSize}px`,
     '--chat-ui-font-size': `${uiFontSize}px`,
     '--chat-code-font-size': `${codeFontSize}px`,
-    '--chat-content-max-width': width === 'full' ? 'none' : width === 'wide' ? '60rem' : '46rem',
+    '--chat-content-max-width': width === 'full' ? 'none' : width === 'wide' ? '60rem' : width === 'compact' ? '32rem' : '46rem',
     '--chat-inline-code-ratio': `${codeFontSize / fontSize}em`,
     '--chat-estimated-line-height': (22 * fontSize) / 14,
     '--chat-estimated-chars-per-line': Math.max(
@@ -179,10 +181,8 @@ export function nativeChatAppearanceStyle(
       Math.floor((((96 * columnWidthPx) / 736) * 14) / fontSize)
     ),
     '--chat-estimated-spacing-scale': uiFontSize / 14,
-    '--chat-code-font-family': codeFont,
-    ...(appearance.fontFamily
-      ? { '--chat-font-family': buildAppFontFamily(appearance.fontFamily) }
-      : {})
+    '--chat-font-family': chatFont,
+    '--chat-code-font-family': codeFont
   }
   let light = settings?.theme === 'light' || (settings?.theme === 'system' && !systemPrefersDark)
   const appMatchesTerminal =

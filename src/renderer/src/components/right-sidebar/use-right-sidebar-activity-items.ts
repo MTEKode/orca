@@ -20,7 +20,6 @@ import {
 import { useShortcutLabel } from '@/hooks/useShortcutLabel'
 import { useTranslate } from '@/i18n/use-translate'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
-import { AgentSessionHistoryIcon } from './agent-session-history-icon'
 import type { ActivityBarItem } from './activity-bar-buttons'
 import { selectUncommittedChangeCount } from './source-control/uncommitted-change-count'
 
@@ -79,28 +78,8 @@ export function useRightSidebarActivityItems({
       {
         id: 'explorer',
         icon: Files,
-        title: t('auto.components.right.sidebar.index.8bc2bbc3a0', 'Explorer'),
+        title: t('auto.components.right.sidebar.index.8bc2bbc3a0', 'Files'),
         shortcut: explorerShortcut === 'Unassigned' ? '' : explorerShortcut
-      },
-      {
-        id: 'vault',
-        icon: AgentSessionHistoryIcon,
-        title: t('auto.components.right.sidebar.index.aiVaultSessionHistory', 'Agents'),
-        shortcut: ''
-      },
-      {
-        id: 'workspaces',
-        icon: Workflow,
-        title: t('auto.components.right.sidebar.index.folderWorkspaces', 'Attached worktrees'),
-        shortcut: '',
-        folderOnly: true
-      },
-      {
-        id: 'pr-checks',
-        icon: ListChecks,
-        title: t('auto.components.right.sidebar.index.parentPrChecks', 'PR Checks'),
-        shortcut: '',
-        folderOnly: true
       },
       {
         id: 'source-control',
@@ -123,6 +102,27 @@ export function useRightSidebarActivityItems({
         title: t('auto.components.right.sidebar.GraphPanel.tabTitle', 'Graph'),
         shortcut: '',
         gitOnly: true
+      },
+      {
+        id: 'flow',
+        icon: Workflow,
+        title: t('flow.dashboard', 'Flow'),
+        shortcut: ''
+      },
+      // Agents (vault) tab removed from activity bar
+      {
+        id: 'workspaces',
+        icon: Workflow,
+        title: t('auto.components.right.sidebar.index.folderWorkspaces', 'Attached worktrees'),
+        shortcut: '',
+        folderOnly: true
+      },
+      {
+        id: 'pr-checks',
+        icon: ListChecks,
+        title: t('auto.components.right.sidebar.index.parentPrChecks', 'PR Checks'),
+        shortcut: '',
+        folderOnly: true
       },
       {
         id: 'ports',

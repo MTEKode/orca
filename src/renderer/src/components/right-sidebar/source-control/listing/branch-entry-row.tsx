@@ -1,11 +1,12 @@
-import React from 'react'
-import { MessageSquare } from 'lucide-react'
+import React, { useState } from 'react'
+import { ChevronDown, ChevronRight, MessageSquare } from 'lucide-react'
 import { FileTypeIcon } from '@/components/FileTypeIcon'
 import { basename, dirname, joinPath } from '@/lib/path'
 import { cn } from '@/lib/utils'
 import { WORKSPACE_FILE_PATH_MIME } from '@/lib/files/drop/workspace-file-drag'
 import { writeWorkspaceFileDragSourceForWorkspace } from '@/lib/files/drop/workspace-file-drag-source'
 import type { GitBranchChangeEntry } from '../../../../../../shared/git/diff/git-diff-compare-types'
+import type { DiffComment } from '../../../../../../shared/diff-comment-types'
 import { DiffLineCounts } from './diff-line-counts'
 import { reviewNoteCountTitle } from './review-note-count-title'
 import { SourceControlEntryContextMenu } from './entry-context-menu'
@@ -41,11 +42,14 @@ export function BranchEntryRow({
   onOpen: (event?: SourceControlRowOpenEvent) => void
   commentCount: number
   showPathHint?: boolean
+  comments?: DiffComment[]
 }): React.JSX.Element {
   const t = useTranslate()
   const fileName = basename(entry.path)
   const parentDir = dirname(entry.path)
   const dirPath = parentDir === '.' ? '' : parentDir
+  const [commentsExpanded, setCommentsExpanded] = useState(false)
+  const hasComments = Boolean(comments && comments.length > 0)
 
   return (
     <SourceControlEntryContextMenu
@@ -90,13 +94,19 @@ export function BranchEntryRow({
           )}
         </span>
         {commentCount > 0 && (
-          <span
-            className="flex shrink-0 items-center gap-0.5 text-[10px] text-muted-foreground"
+          <button
+            type="button"
+            className="flex shrink-0 items-center gap-0.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
             title={reviewNoteCountTitle(commentCount, t)}
+            onClick={(e) => {
+              e.stopPropagation()
+              setCommentsExpanded((prev) => !prev)
+            }}
           >
+            {commentsExpanded ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
             <MessageSquare className="size-3" />
             <span className="tabular-nums">{commentCount}</span>
-          </span>
+          </button>
         )}
         <DiffLineCounts added={entry.added} removed={entry.removed} />
         <span
@@ -106,6 +116,24 @@ export function BranchEntryRow({
           {STATUS_LABELS[entry.status]}
         </span>
       </div>
+      {hasComments && commentsExpanded && (
+        <div className="border-l-2 border-accent ml-6 mr-3 mb-1 pl-2 py-1 space-y-1">
+          {comments!.map((c) => (
+            <div key={c.id} className="text-[11px] leading-tight">
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <span className="font-medium">{c.author ?? 'Unknown'}</span>
+                <span className="text-[10px]">•</span>
+                <span className="text-[10px]">
+                  {c.lineNumber === 0 ? 'file' : `L${c.lineNumber}`}
+                </span>
+              </div>
+              <div className="text-foreground/90 whitespace-pre-wrap break-words mt-0.5">
+                {c.body}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </SourceControlEntryContextMenu>
   )
 }

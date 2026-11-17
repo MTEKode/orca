@@ -41,6 +41,7 @@ export function SourceControlPanelReady(props: SourceControlPanelReadyProps) {
     openHostedReviewInChecks,
     prGenerating,
     refreshBranchCompare,
+    runRemoteAction,
     selectedKeys,
     setBaseRefDialogOpen,
     setDiffCommentsExpanded,
@@ -99,6 +100,13 @@ export function SourceControlPanelReady(props: SourceControlPanelReadyProps) {
           compareBaseRef={compareBaseRef}
           headDisplay={gitIdentityDisplay}
           manualReviewUrl={manualReviewUrl}
+          showOnlyLastCommit={model.showOnlyLastCommit}
+          onShowOnlyLastCommitChange={model.setShowOnlyLastCommit}
+          onUpdateFromBase={() => {
+            if (compareBaseRef) {
+              void runRemoteAction('rebase')
+            }
+          }}
         />
 
         {activeWorktreeId && worktreePath && diffCommentCount > 0 && (

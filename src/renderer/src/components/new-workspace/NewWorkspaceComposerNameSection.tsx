@@ -101,7 +101,20 @@ export function NewWorkspaceComposerNameSection({
       smartNameSelectionKind: smartNameSelection?.kind ?? null
     })
   return (
-    <div className="min-w-0 space-y-1" data-contextual-tour-target="workspace-creation-name">
+    <div className="min-w-0 space-y-2" data-contextual-tour-target="workspace-creation-name">
+      {/* Base branch picker at the top (Conductor style) */}
+      {showBaseRefPicker && onBaseBranchChange ? (
+        <div className="flex items-center gap-2 border-b border-border pb-2">
+          <span className="text-xs font-medium text-muted-foreground">Base branch:</span>
+          <ComposerBaseRefPicker
+            repoId={repoId}
+            baseBranch={baseBranch}
+            onBaseBranchChange={onBaseBranchChange}
+            resetHint={startFromResetHint}
+            readOnly={selectedRepoRequiresConnection}
+          />
+        </div>
+      ) : null}
       <div className="flex items-center justify-between gap-2">
         <label className="min-w-0 truncate text-xs font-medium text-muted-foreground">
           {selectedRepoIsGit
@@ -111,15 +124,6 @@ export function NewWorkspaceComposerNameSection({
             {t('auto.components.NewWorkspaceComposerCard.0c5d6a479c', '[Optional]')}
           </span>
         </label>
-        {showBaseRefPicker && onBaseBranchChange ? (
-          <ComposerBaseRefPicker
-            repoId={repoId}
-            baseBranch={baseBranch}
-            onBaseBranchChange={onBaseBranchChange}
-            resetHint={startFromResetHint}
-            readOnly={selectedRepoRequiresConnection}
-          />
-        ) : null}
       </div>
       <SmartWorkspaceNameField
         inputRef={nameInputRef}

@@ -46,6 +46,9 @@ type SourceControlHeaderToolbarProps = {
   headDisplay?: WorktreeGitIdentityDisplay | null
   manualReviewUrl?: string | null
   branchLineTotal?: GitBranchLineTotal | null
+  showOnlyLastCommit?: boolean
+  onShowOnlyLastCommitChange?: (value: boolean) => void
+  onUpdateFromBase?: () => void
 }
 
 function renderOverflowMenu(
@@ -90,7 +93,10 @@ export function SourceControlHeaderToolbar({
   headDisplay = null,
   headControl,
   manualReviewUrl,
-  branchLineTotal
+  branchLineTotal,
+  showOnlyLastCommit = false,
+  onShowOnlyLastCommitChange,
+  onUpdateFromBase
 }: SourceControlHeaderToolbarProps): React.JSX.Element {
   const t = useTranslate()
   const filterInputRef = useRef<HTMLInputElement>(null)
@@ -245,9 +251,40 @@ export function SourceControlHeaderToolbar({
             branchLineTotal={branchLineTotal}
             onChangeBaseRef={onChangeBaseRef}
             onRetry={onRefreshBranchCompare}
+            onUpdateFromBase={onUpdateFromBase}
           />
         </div>
       ) : null}
+
+      {/* History filter: show all changes vs only last commit changes */}
+      {onShowOnlyLastCommitChange && (
+        <div className="mt-1 flex items-center gap-2 border-t border-border pt-1">
+          <button
+            type="button"
+            className={cn(
+              'flex-1 rounded px-2 py-1 text-xs font-medium transition-colors',
+              !showOnlyLastCommit
+                ? 'bg-accent text-accent-foreground'
+                : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+            )}
+            onClick={() => onShowOnlyLastCommitChange(false)}
+          >
+            {t('auto.components.right.sidebar.SourceControl.allChanges', 'All changes')}
+          </button>
+          <button
+            type="button"
+            className={cn(
+              'flex-1 rounded px-2 py-1 text-xs font-medium transition-colors',
+              showOnlyLastCommit
+                ? 'bg-accent text-accent-foreground'
+                : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+            )}
+            onClick={() => onShowOnlyLastCommitChange(true)}
+          >
+            {t('auto.components.right.sidebar.SourceControl.lastCommit', 'Last commit')}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
