@@ -7,7 +7,7 @@ import { mayHoldAgentReferences } from '../../../../../../shared/orchestration/m
 import { getAgentLabel } from '@/lib/agent-catalog/agent-catalog'
 import { formatAgentTypeLabel } from '../../../../../../shared/agent-status/presentation/agent-type-label'
 import { isTuiAgent } from '../../../../../../shared/agent-launch/catalog/tui-agent-config'
-import { MAX_SKILL_REFS } from '../../../../../../shared/rpc-contract/structured-agent-session-message-params'
+import { MAX_SKILL_REFS } from '../../../../../../shared/rpc-contract/structured-agent-session/structured-agent-session-message-params'
 import { SkillRefLimitError } from '../../../../../../shared/agent-session/requests/structured-agent-session-send-mutation'
 import {
   promptHasInteractionModeSkill,
@@ -98,12 +98,13 @@ export function useNativeChatStructuredComposerSend({
           text,
           structuredTransport.threadGoal !== undefined,
           agent,
-          structuredTransport.optionSnapshot
+          structuredTransport.optionSnapshot,
+          structuredTransport.mcpPanel !== undefined
         )
       // Blocked hosts cannot take turns/conversation commands; option commands only configure later turns.
       if (
         structuredTransport.sendBlockedReason !== undefined &&
-        (!hostCommand || structuredAgentSessionCommandChangesConversation(text))
+        (!hostCommand || structuredAgentSessionCommandChangesConversation(text, agent))
       ) {
         return false
       }
@@ -123,7 +124,7 @@ export function useNativeChatStructuredComposerSend({
         return false
       }
       // A conversation command reveals at the press, not after its round trip; options move nothing.
-      if (hostCommand && structuredAgentSessionCommandChangesConversation(text)) {
+      if (hostCommand && structuredAgentSessionCommandChangesConversation(text, agent)) {
         structuredTransport.onSubmitted?.()
       }
       // Queued diff comments ride along with plain messages only; commands go out untouched.

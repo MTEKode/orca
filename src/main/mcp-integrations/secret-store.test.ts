@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { _resetSecretStoreForTests, setSecretStore } from '../../shared/secret-store'
+import { _resetSecretStoreForTests, setSecretStore } from '../../shared/secure-storage/secret-store'
 import { createMcpIntegrationSecretStore } from './secret-store'
 
 const dir = mkdtempSync(join(tmpdir(), 'orca-mcp-secret-'))

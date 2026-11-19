@@ -1,4 +1,4 @@
-import type { Repo } from '../../shared/repo-types'
+import type { Repo } from '../../shared/repository/repo-types'
 import { resolve } from 'node:path'
 import type { RegisteredWorktreeRootStore as Store } from './worktrees/removal/registered-worktree-root-store'
 import {

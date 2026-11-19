@@ -1,6 +1,6 @@
 import { spawnProcess } from '@orca/process-host'
 import { mkdirSync } from 'node:fs'
-import { getAppEnvironment } from '../../shared/app-environment'
+import { getAppEnvironment } from '../../shared/app-lifecycle/app-environment'
 import { ensureGraphify } from './install'
 import { readGoogleAiKey } from './google-ai-secret'
 import { graphDirForRepo, graphOutDir } from './storage'

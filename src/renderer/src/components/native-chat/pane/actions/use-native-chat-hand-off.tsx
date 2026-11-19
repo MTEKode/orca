@@ -1,29 +1,28 @@
 import { toast } from 'sonner'
 import { translate } from '@/i18n/i18n'
-import { withTimeout } from '../../../../../../shared/promise-timeout-fallback'
-import { useCallback, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
-import { useAppStore } from '@/store'
-import { structuredChatTabById } from '@/lib/structured-chat-tab-index'
+import { withTimeout } from '../../../../../../shared/concurrency/promise-timeout-fallback'
+import { useCallback, useLayoutEffect, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
+import { useAppStore } from '@/store/index'
+import { structuredChatTabById } from '@/lib/agent-session/tab-identity/structured-chat-tab-index'
 import { useStructuredChatTabConversationName } from '@/runtime/native-chat/naming/structured-conversation-name'
 import { AgentSessionContinuationDialog } from '@/components/agent-session-continuation/AgentSessionContinuationDialog'
-import {
-  buildAgentSessionContinuationPrompt,
-  type AgentSessionContinuationRequest
-} from '@/lib/agent-session/context/agent-session-continuation'
+import { buildAgentSessionContinuationPrompt } from '@/lib/agent-session/context/agent-session-continuation'
+import type { AgentSessionContinuationRequest } from '@/lib/agent-session/context/agent-session-continuation'
 import { isTuiAgent } from '../../../../../../shared/agent-launch/catalog/tui-agent-config'
 import { callStructuredAgentSession } from '@/runtime/native-chat/requests/structured-agent-session-call'
 import { supportsStructuredAgentSessionContinuationContext } from '@/runtime/native-chat/host-capabilities/structured-agent-session-host-support'
-import type { AgentSessionContinuationContext } from '../../../../../../shared/agent-session/agent-session-wire'
 import { executionHostIdForStructuredTarget } from '@/runtime/native-chat/session-ownership/structured-agent-session-owner'
+import { buildAgentSessionHandoffContext } from '../../../../../../shared/native-chat/transcript/agent-session-handoff-context'
+import type { AgentSessionContinuationContext } from '../../../../../../shared/agent-session/agent-session-wire'
 import type { NativeChatMessage } from '../../../../../../shared/native-chat/native-chat-types'
 import type { NativeChatStructuredViewProps } from '../../native-chat-view-types'
 import type { NativeChatFileLinkContext } from '../../links/actions/native-chat-file-link-context'
-import { buildAgentSessionHandoffContext } from '../../../../../../shared/agent-session-handoff-context'
 
 import type { TuiAgent } from '../../../../../../shared/agent-launch/catalog/tui-agent'
 import { launchAgentSessionContinuation } from '@/lib/agent-session/launch/continuation/launch-agent-session-continuation'
 import { launchAgentInNewTab } from '@/lib/agent-session/launch/new-tab/launch-agent-in-new-tab'
-import { newAgentLaunchRequestId } from '@/lib/agent-session/launch/routing/agent-launch-request-id'
+import { createNonSecureContextUuid as newAgentLaunchRequestId } from '../../../../../../shared/identifiers/non-secure-context-uuid'
 
 export type NativeChatHandOff = {
   /** This chat can seed another agent from its owning workspace. */
@@ -276,7 +275,6 @@ export function useNativeChatHandOff({
         key={currentAttempt.operation}
         open
         request={request}
-        sourceWorkingDirectory={directory?.worktreePath}
         onOpenChange={(isOpen) => {
           if (!isOpen && active.current === currentAttempt) {
             retire()

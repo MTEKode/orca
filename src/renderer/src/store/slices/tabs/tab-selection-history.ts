@@ -1,4 +1,4 @@
-import type { Tab } from '../../../../../shared/tab-types'
+import type { Tab } from '../../../../../shared/workspace-layout/tab-groups/tab-types'
 import { isHiddenWorkerTab } from '@/lib/agent-session/revealed-worker-tabs'
 
 /** Pick the nearest neighbor in visual order (right first, then left). */

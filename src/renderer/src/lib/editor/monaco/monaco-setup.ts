@@ -29,7 +29,7 @@ import { installMonacoDelayerCancellationGuard } from './monaco-delayer-cancella
 import { installMonacoDiffEditorDisposalGuard } from './monaco-diff-editor-disposal'
 import { installMonacoDiffViewportTokenization } from './monaco-diff-viewport-tokenization'
 import { installMonacoPeekReferencesPreviewOptions } from './monaco-peek-preview-options'
-import { installMonacoContextMenuPaste } from '@/components/editor/install-monaco-context-menu-paste'
+import { installMonacoContextMenuPaste } from '@/components/editor/monaco/install-monaco-context-menu-paste'
 import { installLspBridge } from '@/lib/lsp/install-lsp-bridge'
 import { defineOrcaMonacoThemes } from '@/lib/monaco-orca-themes'
 import { runMonacoSetupSteps } from './monaco-setup-steps'

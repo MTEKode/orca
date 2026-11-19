@@ -13,11 +13,11 @@ const mockEntries = vi.hoisted(() => ({
   current: [] as Record<string, unknown>[]
 }))
 
-vi.mock('@/hooks/useAgentDetectionTarget', () => ({
+vi.mock('@/lib/agent-session/launch/inventory/useAgentDetectionTarget', () => ({
   useAgentDetectionTargetForWorktree: vi.fn(() => null)
 }))
 
-vi.mock('@/components/tab-bar/use-new-tab-agent-menu-rows', () => ({
+vi.mock('@/components/agent/launch-menu/use-new-tab-agent-menu-rows', () => ({
   useNewTabAgentMenuRows: vi.fn(() => ({ state: 'settled', rows: [] }))
 }))
 

@@ -1,7 +1,7 @@
 import { resolve as resolvePath } from 'node:path'
-import type { CommandHandler } from '../dispatch'
-import type { RuntimeClient } from '../runtime-client'
-import { errorMessage } from '../../shared/error-message'
+import type { CommandHandler } from '../dispatch/dispatch'
+import type { RuntimeClient } from '../runtime/client'
+import { errorMessage } from '../../shared/errors/error-message'
 import {
   formatDeployCheckConfigText,
   type MteDeployCheckConfig,

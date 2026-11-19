@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { ProjectHostSetupDeleteResult } from '../../../shared/project-types'
+import type { ProjectHostSetupDeleteResult } from '../../../shared/project/project-types'
 
 const mocks = vi.hoisted(() => ({
   handlers: new Map<string, (event: unknown, args: unknown) => unknown>(),

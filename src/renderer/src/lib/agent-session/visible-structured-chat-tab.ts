@@ -1,4 +1,4 @@
-import type { Tab, TabGroup } from '../../../../shared/tab-types'
+import type { Tab, TabGroup } from '../../../../shared/workspace-layout/tab-groups/tab-types'
 
 type VisibleChatState = {
   unifiedTabsByWorktree: Readonly<Record<string, readonly Tab[]>>

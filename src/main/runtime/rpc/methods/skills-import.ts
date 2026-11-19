@@ -2,7 +2,7 @@ import { defineMethod } from '../core'
 import {
   SkillsImportApplyParams,
   SkillsImportableListParams
-} from '../../../../shared/rpc-contract/skills-params'
+} from '../../../../shared/rpc-contract/skills/skills-params'
 import {
   applyImportSelection,
   HarnessSkillImportDisabledError,

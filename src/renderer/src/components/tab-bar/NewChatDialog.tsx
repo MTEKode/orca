@@ -10,12 +10,12 @@ import {
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
-import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
+import { useAgentDetectionTargetForWorktree } from '@/lib/agent-session/launch/inventory/useAgentDetectionTarget'
 import {
   useAgentLaunchPickerInventorySource,
   useAgentPickerInventoryEntries
 } from '@/components/agent/use-agent-launch-picker-inventory'
-import { useNewTabAgentMenuRows } from './use-new-tab-agent-menu-rows'
+import { useNewTabAgentMenuRows } from '../agent/launch-menu/use-new-tab-agent-menu-rows'
 import { MteOrchestrationPicker } from '@/components/mte-orchestration-picker/MteOrchestrationPicker'
 import { useMteOrchestrationPicker } from '@/components/mte-orchestration-picker/use-mte-orchestration-picker'
 import type { AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'

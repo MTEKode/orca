@@ -1,5 +1,5 @@
 import { StructuredAgentSessionRequestFailures } from './structured-agent-session-request-failures'
-import { structuredAgentSessionFailureWordsContext } from '../operations/structured-agent-session-send-preparation'
+import { readStructuredAgentSessionFailureWordsContext } from '../operations/structured-agent-session-send-preparation'
 import type {
   StructuredAgentSessionHostDeps,
   StructuredAgentSessionHostSession
@@ -11,11 +11,13 @@ export function createStructuredAgentSessionHostRequestFailures(
 ): StructuredAgentSessionRequestFailures {
   return new StructuredAgentSessionRequestFailures({
     sessions,
+    onError: (error) =>
+      deps().logger.warn('observing ended requests failed', { scope: 'request-outcomes', error }),
     onFailure: (failure) => deps().onRequestFailure?.(failure),
+    onIdleDeath: (death) => deps().onIdleProviderDeath?.(death),
     capturePendingOutput: (input) => deps().adapter.capturePendingOutput?.(input),
-    observeCommittedRows: (sessionId, rows) => deps().observeJournalRows?.(sessionId, rows),
     wordsContext: (sessionId) =>
-      structuredAgentSessionFailureWordsContext(
+      readStructuredAgentSessionFailureWordsContext(
         deps().store.getRecord(sessionId),
         sessions.get(sessionId)?.journal
       )

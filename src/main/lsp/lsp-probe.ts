@@ -8,11 +8,14 @@ import {
   type LanguageServerProbe,
   type LspProbeResult
 } from '../../shared/language-server-types'
-import { getRepoExecutionHostId, LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host'
-import type { Repo } from '../../shared/repo-types'
+import {
+  getRepoExecutionHostId,
+  LOCAL_EXECUTION_HOST_ID
+} from '../../shared/execution-host/execution-host'
+import type { Repo } from '../../shared/repository/repo-types'
 import { runProcess } from '@orca/process-host'
 import type { ProcessResult, ProcessSpec } from '@orca/process-host/process-spec'
-import { resolveLoginShellEnvironment } from '../startup/login-shell-environment'
+import { resolveLoginShellEnvironment } from '../startup/shell-environment/login-shell-environment'
 import {
   resolveCommandOnLocalPath,
   type ResolveCommandOptions

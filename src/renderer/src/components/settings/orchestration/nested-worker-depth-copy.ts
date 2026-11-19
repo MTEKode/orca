@@ -3,10 +3,7 @@ import type { Translate } from '@/i18n/use-translate'
 import { searchKeywords } from '../search/settings-search-keywords'
 
 export function getNestedWorkerDepthTitle(t: Translate = translate): string {
-  return t(
-    'auto.components.settings.MteFlowPane.nestedWorkerDepthTitle',
-    'Nested worker depth'
-  )
+  return t('auto.components.settings.MteFlowPane.nestedWorkerDepthTitle', 'Nested worker depth')
 }
 
 export function getNestedWorkerDepthDescription(t: Translate = translate): string {

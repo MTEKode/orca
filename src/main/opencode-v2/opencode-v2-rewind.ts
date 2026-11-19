@@ -1,4 +1,4 @@
-import type { AgentSessionRewindReason } from '../../shared/agent-session/lifecycle/agent-session-rewind'
+import type { AgentSessionRewindReason } from '../../shared/agent-session/lifecycle/rewind/agent-session-rewind'
 import type { StructuredAgentSessionAdapter } from '../native-chat/agent-session-wire/providers/structured-agent-session-adapter'
 import { clientStatus, isTaggedError } from './opencode-v2-connection'
 import { listOpenCodeV2History } from './opencode-v2-session-store'

@@ -4,8 +4,8 @@ import {
   type MteDeployCheckConfig,
   type MteDeployCheckReport
 } from '../../shared/mte/deploy-check'
-import type { Repo } from '../../shared/repo-types'
-import { errorMessage } from '../../shared/error-message'
+import type { Repo } from '../../shared/repository/repo-types'
+import { errorMessage } from '../../shared/errors/error-message'
 
 export type DeployCheckWorktree = {
   repoId: string

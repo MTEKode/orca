@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, unlinkSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
-import { getSecretStore } from '../../shared/secret-store'
+import { getSecretStore } from '../../shared/secure-storage/secret-store'
 import { writeCredentialFileAtomic } from '../credentials/integration-credential-file'
 import type { McpIntegrationId } from '../../shared/mcp-integrations/catalog'
 

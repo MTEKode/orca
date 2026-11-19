@@ -14,7 +14,7 @@ vi.mock('electron', () => ({
   }
 }))
 
-import { _internals } from './hook-service'
+import { _internals } from './status-hooks/hook-service'
 
 describe.each(['opencode'] as const)('%s plugin on OpenCode 2', (agent) => {
   type PostBody = { payload?: unknown }

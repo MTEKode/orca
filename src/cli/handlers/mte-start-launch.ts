@@ -1,15 +1,15 @@
 import type { MteWorkerPin } from '../../shared/mte/worker-pin'
-import type { RuntimeClient } from '../runtime-client'
-import { RuntimeClientError } from '../runtime/types'
+import type { RuntimeClient } from '../runtime/client'
+import { RuntimeClientError } from '../runtime/connection/types'
 import {
   callAgentLaunch,
   formatAgentLaunch,
   getAgentLaunchCapabilities,
   parseCliAgent,
   readCliAgentLaunch
-} from '../agent-launch-request'
-import { getRequiredWorktreeSelector } from '../selectors'
-import { resolveRepoPathArgument } from '../repo-path-arguments'
+} from '../agents/agent-launch-request'
+import { getRequiredWorktreeSelector } from '../workspace-selection/workspace-selector'
+import { resolveRepoPathArgument } from '../projects/repo-path-arguments'
 
 export type MteStartLaunchArgs = {
   client: RuntimeClient

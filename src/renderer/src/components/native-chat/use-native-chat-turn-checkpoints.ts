@@ -5,8 +5,8 @@ import type {
 } from '../../../../shared/agent-session/journal/agent-session-journal-types'
 import type { AgentSessionLatestTurn } from '../../../../shared/agent-session/agent-session-wire'
 import type { AgentSessionTurnCheckpointEntry } from '../../../../shared/agent-session-turn-checkpoints'
-import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
-import { structuredAgentTurnAnchors } from '../../../../shared/native-chat/transcript/native-chat-turn-membership'
+import type { RuntimeClientTarget } from '../../../../shared/remote-runtime/host-catalog/runtime-client-target'
+import { structuredAgentTurnAnchors } from '../../../../shared/native-chat/transcript/turns/native-chat-turn-membership'
 import { listStructuredAgentSessionTurnCheckpoints } from '@/runtime/structured-agent-session-turn-checkpoint-client'
 
 export type NativeChatTurnCheckpoints = {

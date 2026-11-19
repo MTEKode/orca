@@ -1,4 +1,4 @@
-import { MAIN_RELEASE_REPO } from '../shared/release-channel'
+import { MAIN_RELEASE_REPO } from '../shared/updater/release-channel'
 
 export const RELEASES_PAGE_BASE = `https://github.com/${MAIN_RELEASE_REPO}/releases`
 export const ATOM_FEED_URL = `${RELEASES_PAGE_BASE}.atom`

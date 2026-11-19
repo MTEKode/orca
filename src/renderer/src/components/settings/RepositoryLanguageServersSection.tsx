@@ -8,14 +8,17 @@ import { SettingsBadge, SettingsRow, SettingsSwitchRow } from './form-controls/S
 import { SearchableSetting } from './section-layout/SearchableSetting'
 import { matchesSettingsSearch, type SettingsSearchEntry } from './search/settings-search'
 import { LanguageServerInstallPanel } from './LanguageServerInstallPanel'
-import { getRepoExecutionHostId, LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
+import {
+  getRepoExecutionHostId,
+  LOCAL_EXECUTION_HOST_ID
+} from '../../../../shared/execution-host/execution-host'
 import { LANGUAGE_SERVER_CATALOG } from '../../../../shared/language-server-catalog'
 import type {
   LanguageServerId,
   LanguageServerProbe,
   LspProbeResult
 } from '../../../../shared/language-server-types'
-import type { Repo } from '../../../../shared/repo-types'
+import type { Repo } from '../../../../shared/repository/repo-types'
 
 type RubyChoice = 'off' | 'ruby-lsp' | 'solargraph'
 type Props = {

@@ -1,0 +1,20 @@
+import { z } from 'zod'
+import { SkillDiscoveryTargetSchema } from '../../skills/discovery/skills'
+
+export const SkillsGetInstallProgressParams = z
+  .object({ operationId: z.string().min(1).max(128) })
+  .strict()
+
+export const SkillsCancelInstallParams = z
+  .object({ operationId: z.string().min(1).max(128) })
+  .strict()
+
+export const SkillsDiscoverParams = SkillDiscoveryTargetSchema.default({})
+
+export const SkillsUnifiedCatalogParams = z.object({ repoPath: z.string().min(1) }).strict()
+
+export const SkillsImportableListParams = z.object({}).strict()
+
+export const SkillsImportApplyParams = z
+  .object({ selected: z.array(z.string().min(1).max(256)).max(2000) })
+  .strict()

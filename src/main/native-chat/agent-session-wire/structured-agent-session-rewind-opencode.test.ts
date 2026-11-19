@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AGENT_JOURNAL_THREAD_SCOPE } from '../../../shared/agent-session/journal/agent-session-journal-types'
 import type { AgentJournalItemIdentity } from '../../../shared/agent-session/journal/agent-session-journal-identity'
 import { agentJournalItemKey } from '../../../shared/agent-session/journal/agent-session-journal-item-key'
-import { computeAgentSessionPayloadFingerprint } from '../../../shared/agent-session/lifecycle/agent-session-mutation-envelope'
+import { computeAgentSessionPayloadFingerprint } from '../../../shared/agent-session/lifecycle/operations/agent-session-mutation-envelope'
 import type { AgentSessionRecordStore } from '../../runtime/agent-session/records/agent-session-record-store'
 import { openTestAgentSessionRecordStore } from '../../runtime/agent-session/records/agent-session-record-store-test-harness'
 import { OPENCODE_V2_STRUCTURED_AGENT } from '../../opencode-v2/opencode-v2-agent-definition'
@@ -23,13 +23,13 @@ import {
   hostTestMessage,
   hostTestOperationId,
   resetHostTestOperationIds
-} from './host/testing/structured-agent-session-host-test-data'
+} from './host/testing/structured-agent-session-host-test-data.test-fixture'
 import {
   closeTestJournalHostDatabases,
   openTestJournalHostDatabase
 } from '../agent-session-journal/store-lifecycle/journal-host-database-test-support'
 import { createStructuredAgentSessionLogger } from './host/structured-agent-session-logger'
-import { startsWhenPublished } from './host/testing/structured-agent-session-instant-start.test-support'
+import { startsWhenPublished } from './host/testing/structured-agent-session-instant-start.test-fixture'
 
 const caller = { callerKey: 'desktop' }
 const PROVIDER_SESSION = 'ses_x'

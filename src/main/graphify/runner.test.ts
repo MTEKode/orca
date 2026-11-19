@@ -3,7 +3,7 @@ import { mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { setAppEnvironment, type AppEnvironment } from '../../shared/app-environment'
+import { setAppEnvironment, type AppEnvironment } from '../../shared/app-lifecycle/app-environment'
 import { build, buildGraphifyEnv, getGraphifyLog, update } from './runner'
 
 function fakeSpawn() {

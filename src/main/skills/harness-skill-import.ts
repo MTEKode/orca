@@ -1,7 +1,7 @@
 import { lstat, mkdir, readlink, realpath, symlink, unlink } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { basename, dirname, isAbsolute, join, resolve, sep } from 'node:path'
-import type { DiscoveredSkill } from '../../shared/skills'
+import type { DiscoveredSkill } from '../../shared/skills/discovery/skills'
 import {
   IMPORT_ORIGIN_ORDER,
   type ImportableSkill,

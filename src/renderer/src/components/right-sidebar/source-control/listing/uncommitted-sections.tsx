@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button'
 import { useTranslate } from '@/i18n/use-translate'
 import type { GitStatusEntry } from '../../../../../../shared/git/status/git-status-types'
 import type { ConflictResolution } from '../../../../../../shared/source-control/listing/source-control-entry-actions'
-import type { SourceControlViewMode } from '../../../../../../shared/ui-chrome-types'
-import type { DiffComment } from '../../../../../../shared/diff-comment-types'
+import type { SourceControlViewMode } from '../../../../../../shared/ui-chrome/ui-chrome-types'
+import type { DiffComment } from '../../../../../../shared/file-review/diff-comment-types'
 import {
   getDiscardAllPaths,
   getUnstageAllPaths,
@@ -15,6 +15,7 @@ import {
 import { ActionButton } from './action-button'
 import { SectionHeader } from './section-header'
 import { SourceControlSectionFileList } from './section-file-list'
+import { useSourceControlScope } from '../panel/worktree-scope'
 import {
   getSourceControlSectionViewAction,
   type SourceControlDisplaySection,
@@ -91,6 +92,7 @@ export function SourceControlUncommittedSections(props: {
   diffCommentCountByPath: Map<string, number>
   diffCommentsByPath: Map<string, DiffComment[]>
 }): React.JSX.Element {
+  const embedded = useSourceControlScope() !== null
   const t = useTranslate()
   return (
     <>
@@ -178,36 +180,38 @@ export function SourceControlUncommittedSections(props: {
               }
             />
             {!isCollapsed && (
-              <SourceControlSectionFileList
-                treeRows={props.visibleTreeRowsBySection[id] ?? []}
-                listRows={props.visibleListRowsBySection[id] ?? []}
-                sourceControlViewMode={props.sourceControlViewMode}
-                fileListScrollElement={props.fileListScrollElement}
-                normalizedFilter={props.normalizedFilter}
-                isExecutingBulk={props.isExecutingBulk}
-                collapsedTreeDirs={props.collapsedTreeDirs}
-                toggleTreeDir={props.toggleTreeDir}
-                requestDiscardPaths={props.requestDiscardPaths}
-                handleStageAllPaths={props.handleStageAllPaths}
-                handleUnstagePaths={props.handleUnstagePaths}
-                expandedSubmoduleKeys={props.expandedSubmoduleKeys}
-                toggleSubmodule={props.toggleSubmodule}
-                currentWorktreeId={props.currentWorktreeId}
-                worktreePath={props.worktreePath}
-                selectedKeySet={props.selectedKeySet}
-                activeOpenRowKeys={props.activeOpenRowKeys}
-                handleSelect={props.handleSelect}
-                handleContextMenu={props.handleContextMenu}
-                revealInExplorer={props.revealInExplorer}
-                activeConnectionId={props.activeConnectionId}
-                handleOpenDiff={props.handleOpenDiff}
-                handleStage={props.handleStage}
-                handleResolveConflict={props.handleResolveConflict}
-                handleUnstage={props.handleUnstage}
-                requestDiscardEntry={props.requestDiscardEntry}
-                diffCommentCountByPath={props.diffCommentCountByPath}
-                diffCommentsByPath={props.diffCommentsByPath}
-              />
+              <div className={embedded ? 'py-px' : undefined}>
+                <SourceControlSectionFileList
+                  treeRows={props.visibleTreeRowsBySection[id] ?? []}
+                  listRows={props.visibleListRowsBySection[id] ?? []}
+                  sourceControlViewMode={props.sourceControlViewMode}
+                  fileListScrollElement={props.fileListScrollElement}
+                  normalizedFilter={props.normalizedFilter}
+                  isExecutingBulk={props.isExecutingBulk}
+                  collapsedTreeDirs={props.collapsedTreeDirs}
+                  toggleTreeDir={props.toggleTreeDir}
+                  requestDiscardPaths={props.requestDiscardPaths}
+                  handleStageAllPaths={props.handleStageAllPaths}
+                  handleUnstagePaths={props.handleUnstagePaths}
+                  expandedSubmoduleKeys={props.expandedSubmoduleKeys}
+                  toggleSubmodule={props.toggleSubmodule}
+                  currentWorktreeId={props.currentWorktreeId}
+                  worktreePath={props.worktreePath}
+                  selectedKeySet={props.selectedKeySet}
+                  activeOpenRowKeys={props.activeOpenRowKeys}
+                  handleSelect={props.handleSelect}
+                  handleContextMenu={props.handleContextMenu}
+                  revealInExplorer={props.revealInExplorer}
+                  activeConnectionId={props.activeConnectionId}
+                  handleOpenDiff={props.handleOpenDiff}
+                  handleStage={props.handleStage}
+                  handleResolveConflict={props.handleResolveConflict}
+                  handleUnstage={props.handleUnstage}
+                  requestDiscardEntry={props.requestDiscardEntry}
+                  diffCommentCountByPath={props.diffCommentCountByPath}
+                  diffCommentsByPath={props.diffCommentsByPath}
+                />
+              </div>
             )}
           </div>
         )

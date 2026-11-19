@@ -1,0 +1,172 @@
+import { translate } from '@/i18n/i18n'
+import type { Translate } from '@/i18n/use-translate'
+import { normalizeMatchQuery, scoreQueryTokens } from '../create-entry/query-token-match'
+import type { BuiltInWindowsTerminalShell } from '../../../../../shared/shell/launch/windows-terminal-shell'
+import { isClipboardTextByteLengthOverLimit } from '../../../../../shared/clipboard/clipboard-text'
+
+export type TabCreateMenuOptionKind =
+  | 'go-to-simulator'
+  | 'new-browser'
+  | 'new-chat'
+  | 'new-markdown'
+  | 'new-simulator'
+  | 'new-terminal'
+
+export type TabCreateMenuOption = {
+  id: string
+  kind: TabCreateMenuOptionKind
+  keywords: readonly string[]
+  label: string
+}
+
+export type TabCreateMenuOptionsContext = {
+  hasNewBrowser: boolean
+  hasNewChat: boolean
+  hasNewMarkdown: boolean
+  hasSimulator: boolean
+  simulatorIsGoTo: boolean
+  terminalOnly: boolean
+}
+
+export const TAB_CREATE_MENU_QUERY_MAX_BYTES = 2 * 1024
+
+export function isTabCreateMenuQueryTooLarge(
+  query: string,
+  maxBytes = TAB_CREATE_MENU_QUERY_MAX_BYTES
+): boolean {
+  return isClipboardTextByteLengthOverLimit(query, maxBytes)
+}
+function scoreMenuOption(query: string, option: TabCreateMenuOption): number {
+  const normalizedQuery = normalizeMatchQuery(query)
+  if (!normalizedQuery) {
+    return 0
+  }
+  const values = [option.label, ...option.keywords]
+  const normalizedLabel = normalizeMatchQuery(option.label)
+  if (normalizedQuery === normalizedLabel) {
+    return 100
+  }
+  const tokenMatch = scoreQueryTokens(normalizedQuery, values)
+  if (!tokenMatch.allTokensMatched) {
+    return 0
+  }
+  if (normalizedLabel.includes(normalizedQuery) || normalizedQuery.includes(normalizedLabel)) {
+    return 80 + tokenMatch.score
+  }
+  return tokenMatch.score
+}
+
+export function buildTabCreateMenuOptions(
+  context: TabCreateMenuOptionsContext,
+  t: Translate = translate
+): TabCreateMenuOption[] {
+  if (context.terminalOnly) {
+    return []
+  }
+
+  const options: TabCreateMenuOption[] = []
+
+  if (context.hasNewChat) {
+    const label = t('newChat.menuItem', 'New Chat')
+    options.push({
+      id: 'new-chat',
+      kind: 'new-chat',
+      label,
+      keywords: [
+        t('newChat.menuKeywordChat', 'chat'),
+        t('newChat.menuKeywordAgent', 'agent'),
+        t('newChat.menuKeywordNewChat', 'new chat')
+      ]
+    })
+  }
+
+  const terminalLabel = t('auto.components.tab.bar.TabBar.d364f3c8d4', 'New Terminal')
+  options.push({
+    id: 'new-terminal',
+    kind: 'new-terminal',
+    label: terminalLabel,
+    keywords: [
+      t('auto.components.tab.bar.tab.create.menu.options.5501c2fb7a', 'terminal'),
+      t('auto.components.tab.bar.tab.create.menu.options.9630dd5494', 'shell'),
+      t('auto.components.tab.bar.tab.create.menu.options.a094576900', 'new terminal'),
+      t('auto.components.tab.bar.tab.create.menu.options.4f23f4d01d', 'new shell')
+    ]
+  })
+
+  if (context.hasNewBrowser) {
+    const label = t('auto.components.tab.bar.TabBar.4833fb2cbe', 'New Browser Tab')
+    options.push({
+      id: 'new-browser',
+      kind: 'new-browser',
+      label,
+      keywords: [
+        t('auto.components.tab.bar.tab.create.menu.options.4f2a91e15b', 'browser'),
+        t('auto.components.tab.bar.tab.create.menu.options.6d0e6a4b7a', 'new browser'),
+        t('auto.components.tab.bar.tab.create.menu.options.c87ad57785', 'browser tab'),
+        t('auto.components.tab.bar.tab.create.menu.options.cce7ef1d2c', 'web')
+      ]
+    })
+  }
+
+  if (context.hasNewMarkdown) {
+    const label = t('auto.components.tab.bar.TabBar.3d5d6c960d', 'New Markdown')
+    options.push({
+      id: 'new-markdown',
+      kind: 'new-markdown',
+      label,
+      keywords: [
+        t('auto.components.tab.bar.tab.create.menu.options.5f17fb9d0c', 'markdown'),
+        t('auto.components.tab.bar.tab.create.menu.options.44caaf7b36', 'md'),
+        t('auto.components.tab.bar.tab.create.menu.options.fb50e3d874', 'new markdown'),
+        t('auto.components.tab.bar.tab.create.menu.options.6d8b6b4117', 'new file'),
+        t('auto.components.tab.bar.tab.create.menu.options.b330f72434', 'mark')
+      ]
+    })
+  }
+
+  if (context.hasSimulator) {
+    const label = context.simulatorIsGoTo
+      ? t('auto.components.tab.bar.TabBar.b426bb2615', 'Go to Mobile Emulator')
+      : t('auto.components.tab.bar.TabBar.fd2b42aaa3', 'New Mobile Emulator')
+    options.push({
+      id: context.simulatorIsGoTo ? 'go-to-simulator' : 'new-simulator',
+      kind: context.simulatorIsGoTo ? 'go-to-simulator' : 'new-simulator',
+      label,
+      keywords: [
+        t('auto.components.tab.bar.tab.create.menu.options.bbaf4f85a4', 'mobile emulator'),
+        t('auto.components.tab.bar.tab.create.menu.options.3784b83bd4', 'emulator'),
+        t('auto.components.tab.bar.tab.create.menu.options.a63847a742', 'simulator'),
+        t('auto.components.tab.bar.tab.create.menu.options.1baeb07c17', 'ios simulator'),
+        t('auto.components.tab.bar.tab.create.menu.options.8a580f88cf', 'iphone'),
+        t('auto.components.tab.bar.tab.create.menu.options.7ecdc5ef08', 'ipad'),
+        t('auto.components.tab.bar.tab.create.menu.options.14965cc123', 'mobile')
+      ]
+    })
+  }
+
+  return options
+}
+
+export function findMatchingTabCreateMenuOptions(
+  query: string,
+  options: readonly TabCreateMenuOption[]
+): TabCreateMenuOption[] {
+  if (isTabCreateMenuQueryTooLarge(query)) {
+    return []
+  }
+  const normalizedQuery = normalizeMatchQuery(query)
+  if (!normalizedQuery) {
+    return []
+  }
+
+  return options
+    .map((option, index) => ({ index, option, score: scoreMenuOption(normalizedQuery, option) }))
+    .filter((entry) => entry.score > 0)
+    .sort((left, right) => {
+      if (left.score !== right.score) {
+        return right.score - left.score
+      }
+      return left.index - right.index
+    })
+    .map((entry) => entry.option)
+}

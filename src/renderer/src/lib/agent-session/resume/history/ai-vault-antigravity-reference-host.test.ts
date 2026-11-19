@@ -5,11 +5,13 @@ import { resolveAiVaultSessionLaunchTarget } from '@/components/right-sidebar/ai
 import type { buildAiVaultResumeStartupForWorktree } from './ai-vault-resume-command'
 import { getAiVaultResumeWorkspaceWslDistro } from './ai-vault-resume-shell'
 
-import type { ExecutionHostId } from '../../../../../../shared/execution-host'
-import { createGlobalSettingsFixture } from '../../../../../../shared/global-settings-test-fixture'
+import type { ExecutionHostId } from '../../../../../../shared/execution-host/execution-host'
+import { createGlobalSettingsFixture } from '../../../../../../shared/settings/global-settings-test-fixture'
 
 vi.mock('@/lib/workspace/creation/new-workspace', () => ({ CLIENT_PLATFORM: 'win32' }))
-vi.mock('@/lib/renderer-app-platform', () => ({ getRendererAppPlatform: () => 'win32' }))
+vi.mock('@/app-shell/platform/renderer-app-platform', () => ({
+  getRendererAppPlatform: () => 'win32'
+}))
 
 type State = Parameters<typeof buildAiVaultResumeStartupForWorktree>[0]['state']
 const windowsFile = 'C:/Users/example/.gemini/antigravity-ide/brain/copied-id/transcript_full.jsonl'

@@ -1,5 +1,5 @@
 import type { AgentSessionOptionChoice } from '../../shared/agent-session/agent-session-wire'
-import type { AgentSessionOptionsResult } from '../../shared/agent-session/options/agent-session-options-result'
+import type { AgentSessionOptionsResult } from '../../shared/agent-session/options/protocol/agent-session-options-result'
 import type { OpenCodeV2Client } from './opencode-v2-client'
 
 /** The listing fields this transport reads; the client's AgentInfo carries more. */

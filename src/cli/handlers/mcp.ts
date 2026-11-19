@@ -1,9 +1,9 @@
 import { resolve as resolvePath } from 'node:path'
-import type { CommandHandler } from '../dispatch'
+import type { CommandHandler } from '../dispatch/dispatch'
 import { readOrcaCliVersion } from '../cli-version'
 import type { CallToolResult, ListToolsResult } from '@modelcontextprotocol/sdk/types.js'
 import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js'
-import { errorMessage } from '../../shared/error-message'
+import { errorMessage } from '../../shared/errors/error-message'
 
 export const APP_NOT_RUNNING_TEXT = 'Orca app is not running; start Orca to use integration tools'
 const STATUS_POLL_MS = 30_000

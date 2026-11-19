@@ -3,7 +3,11 @@ import { Loader2, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/store/index'
 import { useTranslate } from '@/i18n/use-translate'
-import { getUpdateCheckClickOptions, getUpdateCheckHint } from '@/lib/update-check-click-options'
+import {
+  getUpdateCheckClickOptions,
+  getUpdateCheckHint
+} from '@/app-shell/updates/update-check-click-options'
+import { getRemoteServerNewerThanClientVersion } from '@/runtime/hosts/updates/remote-server-version-skew'
 import { SearchableSetting } from '../section-layout/SearchableSetting'
 
 export function GeneralRemoteServerUpdates(): React.JSX.Element | null {
@@ -25,9 +29,10 @@ export function GeneralRemoteServerUpdates(): React.JSX.Element | null {
   ).length
   const manual = entries.filter((entry) => entry.phase === 'manual').length
   const offline = entries.filter((entry) => entry.phase === 'offline').length
-  const current = entries.filter(
-    (entry) => entry.phase === 'current' || entry.phase === 'updated'
-  ).length
+  const settled = entries.filter((entry) => entry.phase === 'current' || entry.phase === 'updated')
+  // A newer server needs nothing from its own updater; this app is the one behind.
+  const newer = settled.filter((entry) => getRemoteServerNewerThanClientVersion(entry)).length
+  const current = settled.length - newer
   const summary = [
     entries.length === 1
       ? t('auto.components.settings.GeneralRemoteServerUpdates.serverCountOne', '1 paired server')
@@ -48,6 +53,13 @@ export function GeneralRemoteServerUpdates(): React.JSX.Element | null {
           'auto.components.settings.GeneralRemoteServerUpdates.currentCount',
           '{{value0}} up to date',
           { value0: current }
+        )
+      : null,
+    newer > 0
+      ? t(
+          'auto.components.settings.GeneralRemoteServerUpdates.newerCount',
+          '{{value0}} newer than this app',
+          { value0: newer }
         )
       : null,
     manual > 0

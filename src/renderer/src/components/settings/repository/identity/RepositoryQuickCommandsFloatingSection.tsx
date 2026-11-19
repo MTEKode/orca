@@ -1,4 +1,4 @@
-import type { Repo } from '../../../../../../shared/repo-types'
+import type { Repo } from '../../../../../../shared/repository/repo-types'
 import { translate } from '@/i18n/i18n'
 import { SearchableSetting } from '../../section-layout/SearchableSetting'
 import { SettingsSwitchRow } from '../../form-controls/SettingsFormControls'

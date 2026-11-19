@@ -6,7 +6,7 @@ import { newChatDraftForPick, resolveNewChatPick } from '@/components/tab-bar/ne
 import { useAppStore } from '@/store'
 import { findFirstIndexedWorktree } from '@/lib/workspace/ownership/worktree-runtime-owner-index'
 import { selectWorktreesByRepo } from '@/store/workspaces/catalog/workspace-record-fields'
-import type { NewTabAgentMenuModel } from '@/components/tab-bar/new-tab-agent-menu-model'
+import type { NewTabAgentMenuModel } from '@/components/agent/launch-menu/new-tab-agent-menu-model'
 import { agentPickerLaunchInputs } from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { NewChatPick } from '../../../../shared/new-chat-defaults'

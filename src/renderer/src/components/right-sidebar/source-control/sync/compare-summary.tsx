@@ -165,10 +165,14 @@ export function CompareSummary({
         <span className="flex min-w-0 items-center gap-1" title={commitsBehindTitle}>
           <ArrowDown className="size-3" />
           <span>
-            {t('auto.components.right.sidebar.SourceControl.commitsBehindShort', '{{count}} behind', {
-              count: commitsBehind,
-              defaultValue_one: '{{count}} behind'
-            })}
+            {t(
+              'auto.components.right.sidebar.SourceControl.commitsBehindShort',
+              '{{count}} behind',
+              {
+                count: commitsBehind,
+                defaultValue_one: '{{count}} behind'
+              }
+            )}
           </span>
         </span>
       )}

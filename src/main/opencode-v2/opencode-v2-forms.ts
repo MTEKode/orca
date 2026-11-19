@@ -1,5 +1,5 @@
-import type { AgentSessionPromptResponse } from '../../shared/agent-session/agent-session-question-answer'
-import { isValidAgentSessionQuestionAnswers } from '../../shared/agent-session/agent-session-question-answer'
+import type { AgentSessionPromptResponse } from '../../shared/agent-session/requests/prompts/agent-session-question-answer'
+import { isValidAgentSessionQuestionAnswers } from '../../shared/agent-session/requests/prompts/agent-session-question-answer'
 import type { AgentJournalQuestion } from '../../shared/agent-session/journal/agent-session-journal-types'
 import {
   AgentSessionPromptAnswerRejectedError,

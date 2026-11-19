@@ -1,4 +1,4 @@
-import type { DiffComment } from '../../../../shared/diff-comment-types'
+import type { DiffComment } from '../../../../shared/file-review/diff-comment-types'
 
 export type DecoratedDiffComment = Omit<DiffComment, 'author'> & {
   /** Display name of a remote (GitHub) reviewer; stored notes carry DiffComment.author instead. */

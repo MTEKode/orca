@@ -4,17 +4,17 @@ import {
   navigationTargetsClients,
   navigationTargetsHost,
   resolveRuntimeNavigationTarget
-} from '../../../../shared/runtime-navigation'
+} from '../../../../shared/remote-runtime/session-graph/runtime-navigation'
 import {
   getRepoExecutionHostId,
   getRepoRoutingConnectionId
-} from '../../../../shared/execution-host'
+} from '../../../../shared/execution-host/execution-host'
 import { maybeAutoUpdate } from '../../../graphify'
-import { phoneWakeReport } from '../../../../shared/workspace-sleep'
-import type { Repo } from '../../../../shared/repo-types'
+import { phoneWakeReport } from '../../../../shared/workspace/lifecycle/workspace-sleep'
+import type { Repo } from '../../../../shared/repository/repo-types'
 import type { TerminalWorkspaceLaunchScope } from '../../orchestration/terminal-authority/structured-sessions/runtime-legacy-worker-terminal-recovery-types'
 import type { TuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent'
-import type { RuntimeTerminalWait } from '../../../../shared/runtime-terminal-contracts'
+import type { RuntimeTerminalWait } from '../../../../shared/terminal/runtime/runtime-terminal-contracts'
 import {
   type WorktreeStartupDraftPaste,
   type WorktreeStartupFollowup,
@@ -22,13 +22,12 @@ import {
   buildWorktreeStartupForDraft,
   resolveWorktreeStartupDraftAgent
 } from './runtime-worktree-agent-startup'
-import type { AgentLaunchPreferences } from '../../../../shared/agent-session/agent-session-host-authority'
+import type { AgentLaunchPreferences } from '../../../../shared/agent-session/lifecycle/operations/agent-session-host-authority'
 import type { Worktree } from '../../../../shared/worktree/types'
 import type { WorktreeLineageResolution } from '../lineage/runtime-worktree-lineage-resolution'
 import { recordCreatedWorktreeLineage as recordCreatedWorktreeLineageState } from '../lineage/runtime-worktree-lineage-recording'
 import {
   deliverStartupFollowupPrompt,
-  pasteWorktreeStartupDraftWhenReady,
   type StartupFollowupPromptOptions,
   type WorktreeStartupReadinessHost
 } from './runtime-worktree-startup-readiness'
@@ -38,6 +37,7 @@ import {
   type WorktreeTerminalProvisioningHost
 } from './runtime-worktree-terminal-provisioning'
 import { waitForTerminalComposer } from '../../terminal/wait/terminal-composer-lifetime'
+import { pasteStartupDraftInCustody } from './startup-draft-custody'
 import { worktreeRowTarget } from '../../../persistence/host-qualified-worktree-meta'
 import {
   readPtyFreshComposerHold,
@@ -225,7 +225,17 @@ export abstract class OrcaRuntimeWithActivateManagedWorktree extends OrcaRuntime
   }
 
   protected pasteStartupDraftWhenReady(handle: string, draft: WorktreeStartupDraftPaste): void {
-    pasteWorktreeStartupDraftWhenReady(this.getWorktreeStartupReadinessHost(), handle, draft)
+    pasteStartupDraftInCustody(
+      {
+        readiness: this.getWorktreeStartupReadinessHost(),
+        waiters: this.terminalWaiters,
+        readPty: (ptyId) => this.ptysById.get(ptyId),
+        lifecycleSignal: (ptyId) => this.getPtyLifecycleSignal(ptyId),
+        isStopRequested: (ptyId) => this.isPtyStopRequested(ptyId)
+      },
+      handle,
+      draft
+    )
   }
 
   /** Before first input only: await composer readiness without startup dialogs or Codex provisional headers. stopOnDialog returns early for the caller's idle report. */
@@ -299,7 +309,7 @@ export abstract class OrcaRuntimeWithActivateManagedWorktree extends OrcaRuntime
       wslUserAct?: true
     },
     createdWorktree?: Worktree
-  ): Promise<{ setupSpawned: boolean; setupTerminalHandle: string | null }> {
+  ): Promise<{ setupSpawned: boolean; setupTerminalHandle: string | null; failed?: true }> {
     return provisionWorktreeTerminals(
       this.getWorktreeTerminalProvisioningHost(createdWorktree),
       args

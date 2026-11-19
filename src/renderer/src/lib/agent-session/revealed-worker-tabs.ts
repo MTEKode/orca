@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import type { Tab } from '../../../../shared/tab-types'
+import type { Tab } from '../../../../shared/workspace-layout/tab-groups/tab-types'
 
 // Worker chats stay hidden from the tab bar until the user explicitly opens one; closing hides it again.
 // ponytail: session-scoped (not persisted) — a reload hides every worker again.

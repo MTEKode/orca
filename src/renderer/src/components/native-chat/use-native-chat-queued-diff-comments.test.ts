@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { renderHook } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import type { DiffComment } from '../../../../shared/diff-comment-types'
+import type { DiffComment } from '../../../../shared/file-review/diff-comment-types'
 import {
   readQueuedDiffCommentsSafely,
   useNativeChatHasQueuedDiffComments,

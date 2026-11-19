@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import type { AgentSessionAttentionEdge } from './agent-session/agent-session-attention'
+import type { AgentSessionAttentionEdge } from './agent-session/view/agent-session-attention'
 import type {
   AgentStatusOrchestrationContext,
   AgentStatusState
 } from './agent-status/contracts/agent-status-types'
-import { isCoordinatorOnlyChatNews, isCoordinatorOnlyNews } from './orchestration/workers/dispatched-worker-attention'
+import {
+  isCoordinatorOnlyChatNews,
+  isCoordinatorOnlyNews
+} from './orchestration/workers/dispatched-worker-attention'
 
 const SCOPE = {
   executionHostId: 'local',

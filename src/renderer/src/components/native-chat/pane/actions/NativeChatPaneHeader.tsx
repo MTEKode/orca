@@ -1,15 +1,16 @@
 import { Fragment } from 'react'
+import { ShortcutKeyCombo } from '@/components/ui/ShortcutKeyCombo'
 import { MessageSquarePlus, SquareSplitVertical, SquareTerminal } from 'lucide-react'
-import { ShortcutKeyCombo } from '@/components/ShortcutKeyCombo'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useTranslate } from '@/i18n/use-translate'
-import { useShortcutKeyComboDetails } from '@/hooks/useShortcutLabel'
+import { useShortcutKeyComboDetails } from '@/lib/keyboard/useShortcutLabel'
 import { agentForksConversations } from '../../../../../../shared/agent-launch/startup/agent-resume-argv'
-import type { NativeChatTabSession } from '../../../tab-bar/tab-session-history-switch'
-import { useDocumentDarkTheme } from '@/hooks/use-document-dark-theme'
+import type { NativeChatTabSession } from '../../../tab-bar/session-actions/tab-session-history-switch'
+import { useDocumentDarkTheme } from '@/hooks/theme/use-document-dark-theme'
 import { useStructuredChatPaneActions } from './use-structured-chat-pane-actions'
 import { NativeChatResumeInCliButton } from './NativeChatResumeInCliButton'
+import { useBotForWorkspace } from '../../../bots/bot-workspace'
 import { NativeChatSettingsButton } from '../../appearance/NativeChatSettingsButton'
 import type { NativeChatStructuredViewProps } from '../../native-chat-view-types'
 import type { NativeChatHandOff } from './use-native-chat-hand-off'
@@ -39,6 +40,8 @@ export function NativeChatPaneHeader({
 }): React.JSX.Element {
   const t = useTranslate()
   const actions = useStructuredChatPaneActions(tabId, worktreeId, groupId)
+  // A bot's chats stay native chats.
+  const onBotPage = useBotForWorkspace(worktreeId) !== null
   const documentDark = useDocumentDarkTheme()
   const light = colorScheme ? colorScheme === 'light' : !documentDark
   const split = t('components.native-chat.splitRight', 'Split Right')
@@ -79,7 +82,7 @@ export function NativeChatPaneHeader({
             </TooltipContent>
           </Tooltip>
         ) : null}
-        {nativeChat.agent && agentForksConversations(nativeChat.agent) ? (
+        {!onBotPage && nativeChat.agent && agentForksConversations(nativeChat.agent) ? (
           <NativeChatResumeInCliButton
             tabId={tabId}
             worktreeId={worktreeId}

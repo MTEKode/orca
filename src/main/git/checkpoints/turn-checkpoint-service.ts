@@ -2,7 +2,7 @@
 // worktree, and keep failures out of the chat pipeline. Capture is fire-and-forget by design.
 
 import type { AgentSessionRecord } from '../../../shared/agent-session/lifecycle/agent-session-record'
-import { LOCAL_EXECUTION_HOST_ID } from '../../../shared/execution-host'
+import { LOCAL_EXECUTION_HOST_ID } from '../../../shared/execution-host/execution-host'
 import { splitWorktreeId } from '../../../shared/worktree/id'
 import type {
   AgentSessionTurnCheckpointDiffResult,

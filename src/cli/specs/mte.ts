@@ -1,4 +1,4 @@
-import { LOCAL_COMMAND_FLAGS, type CommandSpec } from '../args'
+import { LOCAL_COMMAND_FLAGS, type CommandSpec } from '../arguments/args'
 
 export const MTE_COMMAND_SPECS: CommandSpec[] = [
   {

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createOpenCodeV2Service } from './opencode-v2-service'
 
-vi.mock('../../shared/windows-batch-spawn', () => ({
+vi.mock('../../shared/shell/launch/windows-batch-spawn', () => ({
   getSpawnArgsForWindows: (command: string, args: string[]) => ({
     spawnCmd: 'cmd.exe',
     spawnArgs: ['/d', '/c', '@', command, ...args]

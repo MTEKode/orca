@@ -7,7 +7,7 @@ import type {
   LanguageServerId,
   RepoLanguageServerSettings
 } from '../../shared/language-server-types'
-import { resolveLoginShellEnvironment } from '../startup/login-shell-environment'
+import { resolveLoginShellEnvironment } from '../startup/shell-environment/login-shell-environment'
 import {
   resolveCommandOnLocalPath,
   type ResolveCommandOptions

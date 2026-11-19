@@ -1,4 +1,4 @@
-import type { Repo } from '../../../../../../shared/repo-types'
+import type { Repo } from '../../../../../../shared/repository/repo-types'
 import { RepositoryMteFlowPromptSection } from './RepositoryMteFlowPromptSection'
 import { RepositoryQuickCommandsFloatingSection } from './RepositoryQuickCommandsFloatingSection'
 import { RepositoryDeployCheckSection } from '../RepositoryDeployCheckSection'

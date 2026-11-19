@@ -3,11 +3,14 @@
 // working-tree builder (temp index, .gitignore-aware) instead of a second diff engine.
 
 import { StringDecoder } from 'node:string_decoder'
-import { getBaseRefDefault } from '../git/repo'
-import { isMaxBufferOverflowError } from '../git/max-buffer-overflow'
-import { gitExecFileAsync } from '../git/runner'
-import { gitOptionsForWorktree, type GitRuntimeOptions } from '../git/git-runtime-options'
-import { resolveMergeBase, resolveRefOid } from '../git/source-control/compare-ref-oids'
+import { getBaseRefDefault } from '../git/remotes/repo-remote-queries'
+import { isMaxBufferOverflowError } from '../git/command-runner/process-capture/max-buffer-overflow'
+import { gitExecFileAsync } from '../git/command-runner/git-exec-file'
+import {
+  gitOptionsForWorktree,
+  type GitRuntimeOptions
+} from '../git/command-runner/git-runtime-options'
+import { resolveMergeBase, resolveRefOid } from '../git/source-control/comparisons/compare-ref-oids'
 import { literalPathspec } from '../git/source-control/git-pathspec'
 import { MAX_GIT_SHOW_BYTES } from '../git/source-control/git-show-max-bytes'
 import {

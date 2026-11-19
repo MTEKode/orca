@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { GitBranch } from 'lucide-react'
 import { describe, expect, it } from 'vitest'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { ActivityBarButton, type ActivityBarItem } from './activity-bar-buttons'
+import { ActivityBarButton, type ActivityBarItem } from './activity-bar/activity-bar-buttons'
 import { selectUncommittedChangeCount } from './source-control/uncommitted-change-count'
 
 function makeItem(overrides: Partial<ActivityBarItem> = {}): ActivityBarItem {

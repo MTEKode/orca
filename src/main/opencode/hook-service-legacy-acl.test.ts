@@ -15,12 +15,12 @@ import { tmpdir } from 'node:os'
 import { basename, dirname, join } from 'node:path'
 import type * as NodeFs from 'node:fs'
 import type * as Win32Utils from '../windows/windows-directory-acl'
-import { setAppEnvironment } from '../../shared/app-environment'
+import { setAppEnvironment } from '../../shared/app-lifecycle/app-environment'
 import {
   openCodeTuiPluginDirName,
   writeOpenCodeTuiPlugin
-} from '../../shared/opencode-tui-plugin-install'
-import { OpenCodeHookService, getOpenCodePluginSource } from './hook-service'
+} from '../../shared/agent-launch/plugins/opencode/opencode-tui-plugin-install'
+import { OpenCodeHookService, getOpenCodePluginSource } from './status-hooks/hook-service'
 
 const fsMock = vi.hoisted(() => ({
   writeFileSync: vi.fn<typeof NodeFs.writeFileSync>(),

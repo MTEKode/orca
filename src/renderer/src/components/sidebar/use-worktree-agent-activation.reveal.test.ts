@@ -2,7 +2,7 @@
 import { act } from 'react'
 import { renderHook } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Tab } from '../../../../shared/tab-types'
+import type { Tab } from '../../../../shared/workspace-layout/tab-groups/tab-types'
 
 const mocks = vi.hoisted(() => ({
   activateTab: vi.fn(),

@@ -1,4 +1,4 @@
-import { createNonSecureContextUuid as createBrowserUuid } from '../../../../shared/non-secure-context-uuid'
+import { createNonSecureContextUuid as createBrowserUuid } from '../../../../shared/identifiers/non-secure-context-uuid'
 import { LSP_PORT_WINDOW_MESSAGE } from '../../../../shared/language-server-types'
 import { LspPortClient } from './lsp-port-client'
 

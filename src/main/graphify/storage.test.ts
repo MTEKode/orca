@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { setAppEnvironment, type AppEnvironment } from '../../shared/app-environment'
+import { setAppEnvironment, type AppEnvironment } from '../../shared/app-lifecycle/app-environment'
 import { graphDirForRepo, graphOutDir, readGraphStatus } from './storage'
 
 let dir: string

@@ -6,7 +6,7 @@ import type {
 import {
   agentSessionPromptQuestions,
   type AgentSessionPromptResponse
-} from '../../../shared/agent-session/agent-session-question-answer'
+} from '../../../shared/agent-session/requests/prompts/agent-session-question-answer'
 import { OrchestrationError } from './orchestration-error'
 
 const norm = (text: string): string => text.toLowerCase().replace(/[^a-z0-9]/g, '')

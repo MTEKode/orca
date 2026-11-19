@@ -5,7 +5,7 @@ import {
   AGENT_DONE_QUIET_MS,
   type AgentTransition
 } from '../../shared/agent-status/lifecycle/agent-transitions'
-import type { NotificationSettings } from '../../shared/notification-settings-types'
+import type { NotificationSettings } from '../../shared/notifications/notification-settings-types'
 import type {
   MobileNotificationDispatchEvent,
   MobileNotificationEvent

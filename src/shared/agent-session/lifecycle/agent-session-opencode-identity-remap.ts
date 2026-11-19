@@ -1,4 +1,4 @@
-import type { AgentSessionProviderHandleLink } from './agent-session-provider-handle'
+import type { AgentSessionProviderHandleLink } from './provider-handles/agent-session-provider-handle'
 
 /** Retired chat ids: `opencode2` (ACP alias) and `opencode-v2` (opt-in HTTP agent) now both mean `opencode`. */
 export function isRetiredOpenCodeAgentId(agent: string): boolean {

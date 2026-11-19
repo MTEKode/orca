@@ -5,7 +5,7 @@ import { runtimeTargetForOwnerEnvironment } from '@/runtime/rpc/targets/runtime-
 import { runtimeEnvironmentIdOrLocalUnlessTwin } from '@/lib/workspace/ownership/worktree-runtime-owner'
 import { useAppStore } from '@/store'
 import { launchAgentInNewTab } from '@/lib/agent-session/launch/new-tab/launch-agent-in-new-tab'
-import { newAgentLaunchRequestId } from '@/lib/agent-session/launch/routing/agent-launch-request-id'
+import { createNonSecureContextUuid as newAgentLaunchRequestId } from '../../../shared/identifiers/non-secure-context-uuid'
 import {
   launchSettledNewChat,
   markMtePlannerSession,

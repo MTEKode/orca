@@ -22,10 +22,12 @@ vi.mock('@/components/ui/popover', () => ({
   PopoverTrigger: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   PopoverContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
 }))
-vi.mock('@/hooks/useAgentDetectionTarget', () => ({
+vi.mock('@/lib/agent-session/launch/inventory/useAgentDetectionTarget', () => ({
   useAgentDetectionTargetForWorktree: () => null
 }))
-vi.mock('../tab-bar/use-new-tab-agent-menu-rows', () => ({ useNewTabAgentMenuRows: () => ({}) }))
+vi.mock('../agent/launch-menu/use-new-tab-agent-menu-rows', () => ({
+  useNewTabAgentMenuRows: () => ({})
+}))
 
 const inventorySourceSpy = vi.fn()
 const mockEntries: AgentPickerEntry[] = [

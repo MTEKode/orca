@@ -1,6 +1,7 @@
 import { homedir } from 'node:os'
-import type { GlobalSettings, OrcaWorkspaceLayout } from '../../../shared/global-settings-types'
-import { normalizeRuntimePathForComparison } from '../../../shared/cross-platform-path'
+import type { GlobalSettings } from '../../../shared/settings/global-settings-types'
+import type { OrcaWorkspaceLayout } from '../../../shared/worktree/paths/orca-workspace-layout'
+import { normalizeRuntimePathForComparison } from '../../../shared/file-access/cross-platform-path'
 import {
   legacyTerminalScrollbackBytesToRows,
   normalizeDesktopTerminalScrollbackRows
@@ -12,7 +13,7 @@ import {
   normalizeTuiAgentEnvRecord
 } from '../../../shared/agent-launch/choices/tui-agent-launch-defaults'
 import { expandLeadingHomePath } from '../../filesystem/home-path-expansion'
-import { normalizeWorkspaceDirInput } from '../../../shared/worktree/workspace-dir-input'
+import { normalizeWorkspaceDirInput } from '../../../shared/worktree/paths/workspace-dir-input'
 
 /** A raw ~ or padded absolute path resolves inside each repo (#34944, STA-14308); normalize at the store boundary. */
 export function normalizeWorkspaceDirSetting(
@@ -112,6 +113,8 @@ type RetiredGlobalSettings = {
   experimentalOpenCodeV2Chat?: unknown
   // The crew panel was removed; MTE is the only orchestration surface.
   experimentalOrchestrationPanel?: unknown
+  // Extensions left Experimental and default on; browserExtensionsEnabled replaces this.
+  experimentalBrowserExtensions?: unknown
 }
 
 export function stripRetiredGlobalSettings(
@@ -133,6 +136,7 @@ export function stripRetiredGlobalSettings(
     pluginFullAccessEnabled: _retiredPluginFullAccessSwitch,
     experimentalOpenCodeV2Chat: _retiredOpenCodeV2Chat,
     experimentalOrchestrationPanel: _retiredOrchestrationPanel,
+    experimentalBrowserExtensions: _retiredBrowserExtensionsExperiment,
     ...rest
   } = (settings ?? {}) as Partial<GlobalSettings> & RetiredGlobalSettings
   void _retiredChatPermissionCopies
@@ -150,6 +154,7 @@ export function stripRetiredGlobalSettings(
   void _retiredPluginFullAccessSwitch
   void _retiredOpenCodeV2Chat
   void _retiredOrchestrationPanel
+  void _retiredBrowserExtensionsExperiment
   return rest
 }
 

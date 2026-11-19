@@ -1,5 +1,5 @@
 import type { OrcaRuntimeService } from '../../../../orca-runtime'
-import type { OrchestrationSessionCaller } from '../../../../orchestration/addressing/orchestration-caller-identity'
+import type { OrchestrationEntryCaller } from '../../../../orchestration/addressing/orchestration-caller-identity'
 import type { PeerMailMessageRow } from '../../../../orchestration/db/federation/peer-mail-store'
 import type { MessageRow } from '../../../../orchestration/db/orchestration-records'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
@@ -7,11 +7,14 @@ import {
   deliverPeerMail,
   peerMailMessageId,
   peerMailPairing,
+  peerMailSender,
   peerMailSenderLabel,
+  queuePeerMailReply,
   requirePeerMailServer
 } from '../../../../orchestration/federation/peer-mail/peer-mail-delivery'
 import { notifyPeerMailQueued } from '../../../../orchestration/federation/peer-mail/peer-mail-waiters'
 import { recordReceiptBeforeNudge } from './mutation-replay-nudge'
+import { botAnswerOf } from './bot-request-outcome'
 
 const NOTHING_SENT = { effectsApplied: false } as const
 
@@ -21,7 +24,7 @@ export async function replyOverPeerMail(args: {
   original: MessageRow
   route: PeerMailMessageRow
   params: { body: string; from?: string; on?: string }
-  orchestrationCaller: OrchestrationSessionCaller | undefined
+  orchestrationCaller: OrchestrationEntryCaller | undefined
   orchestrationMutation: { callerFingerprint: string; requestId: string } | undefined
   recordMutationReceipt: ((receipt: unknown) => void) | undefined
 }): Promise<unknown> {
@@ -50,24 +53,21 @@ export async function replyOverPeerMail(args: {
   }
 
   if (conversation.role === 'peer') {
-    db.enqueueFederationRelay({
-      dispatchId: conversation.conversation_id,
-      direction: 'to_home',
-      kind: 'peer_mail',
-      messageId: id,
-      payload: JSON.stringify({
-        senderLabel,
-        fromAddress: replier,
-        subject,
-        body: params.body,
-        threadId
-      })
+    queuePeerMailReply(db, conversation.conversation_id, id, {
+      senderLabel,
+      fromAddress: replier,
+      subject,
+      body: params.body,
+      threadId,
+      sender: peerMailSender(runtime, replier),
+      // Refuses a second answer to a bot request, before the original is marked read.
+      ...botAnswerOf(db, original)
     })
     db.markAsRead([original.id])
     return recordReceiptBeforeNudge(
       args.recordMutationReceipt,
       { message: { id, subject }, to: original.from_handle },
-      () => notifyPeerMailQueued(db),
+      () => notifyPeerMailQueued(db.db),
       { kind: 'messages', targets: [] }
     )
   }
@@ -94,13 +94,14 @@ export async function replyOverPeerMail(args: {
     senderLabel,
     subject,
     body: params.body,
-    threadId
+    threadId,
+    sender: peerMailSender(runtime, replier)
   })
   db.markAsRead([original.id])
   return recordReceiptBeforeNudge(
     args.recordMutationReceipt,
     { message: { id, subject }, to: original.from_handle, server: server.name },
-    () => runtime.ensureOrchestrationFederationRelay(),
-    { kind: 'federation' }
+    () => runtime.ensureOrchestrationPeerMailRelay(server.environmentId),
+    { kind: 'federation', environmentId: server.environmentId }
   )
 }

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { COMMAND_SPECS } from './index'
-import { findCommandSpec, isCommandGroup, specPaths } from '../args'
-import { formatCommandHelp, formatGroupHelp } from '../help'
-import { ignoresRemoteSelection } from '../remote-selection-scope'
+import { findCommandSpec, isCommandGroup, specPaths } from '../arguments/args'
+import { formatCommandHelp, formatGroupHelp } from '../discovery/help'
+import { ignoresRemoteSelection } from '../dispatch/remote-selection-scope'
 
 describe('orca mte command specs', () => {
   it('registers mte memory, mte start and mte check paths', () => {

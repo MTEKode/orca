@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import type * as ClaudeAgentSdk from '@anthropic-ai/claude-agent-sdk'
-import type { DiffComment } from '../../shared/diff-comment-types'
-import type { Repo } from '../../shared/repo-types'
+import type { DiffComment } from '../../shared/file-review/diff-comment-types'
+import type { Repo } from '../../shared/repository/repo-types'
 import type { WorktreeMeta } from '../../shared/worktree/meta-types'
-import { agentSessionRecordFixture } from '../native-chat/agent-session-record-test-fixture'
-import { LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host'
+import { agentSessionRecordFixture } from '../native-chat/testing/agent-session-record-test-fixture'
+import { LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host/execution-host'
 import type { ReviewCommentsStore } from '../review-tools/review-comments-store'
 import {
   createClaudeReviewMcpRuntime,

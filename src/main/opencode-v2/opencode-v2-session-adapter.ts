@@ -3,8 +3,8 @@ import type {
   AgentSessionExecutionLocation,
   AgentSessionRecord
 } from '../../shared/agent-session/lifecycle/agent-session-record'
-import type { AgentSessionPromptResponse } from '../../shared/agent-session/agent-session-question-answer'
-import { LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host'
+import type { AgentSessionPromptResponse } from '../../shared/agent-session/requests/prompts/agent-session-question-answer'
+import { LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host/execution-host'
 import { AgentSessionPreSpawnError } from '../native-chat/agent-session-wire/providers/structured-agent-session-adapter-errors'
 import type {
   AgentSessionAcquisition,

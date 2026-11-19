@@ -5,7 +5,7 @@ import type {
   AgentJournalQuestionItem,
   AgentJournalRenderItem
 } from '../../../shared/agent-session/journal/agent-session-journal-types'
-import { computeAgentSessionPayloadFingerprint } from '../../../shared/agent-session/lifecycle/agent-session-mutation-envelope'
+import { computeAgentSessionPayloadFingerprint } from '../../../shared/agent-session/lifecycle/operations/agent-session-mutation-envelope'
 import { getStructuredAgentSessionHost } from '../../native-chat/agent-session-wire/host/structured-agent-session-registry'
 import type { WorkerTurnStopReportDeps } from './workers/turn-stops/worker-turn-stop-report'
 import { chatWorkerDispatches } from './workers/turn-stops/chat-worker-error-escalation'
