@@ -320,17 +320,23 @@ wc -l src/shared/mte/planner-prompt.ts
 - **T6**: (nuevo, de los reports de T1/T2) 1) `src/cli/handlers/mte.test.ts` tiene ~2 asserts de pi (acepta pi / lista con pi) que quedan rojos tras T7 — actualizarlos; 2) la sección condensada del planner en `skill-guides/mte.md` queda stale en inglés — reescribirla con el flujo nuevo en castellano; 3) regenerar `src/cli/skills/bundled-skill-guides.ts` con `pnpm generate:bundled-skill-guides`.
 - **T7**: no tocar `workspace-mcp-config.ts`.
 
-## Olas de dispatch (worktree compartido → same-file secuencial)
+## Olas de dispatch (revisado 2026-11-19 para máxima paralelización)
 
-| Wave         | Tareas                      | Condición                              |
-| ------------ | --------------------------- | -------------------------------------- |
-| 1 (paralelo) | T1 · T2 · T7                | archivos disjoint                      |
-| 2            | T3 (tras T1) · T4 (tras T2) | planner-prompt.ts / worker-personas.ts |
-| 3            | T5 (tras T4)                | worker-personas.ts                     |
-| 4            | T6 (tras todas)             | integración + validación completa      |
+| Wave | Tareas                                                                                                                                                                       | Estado                      |
+| ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| 1    | T1 · T2 · T7 (main worktree, disjoint)                                                                                                                                       | ✅ settlearon y commiteadas |
+| 2    | T3 (main, plannerTitle + follow-up mte.test.ts) · T4 (hijo t4-poller, SOLO constante) · T5 (hijo t5-review, SOLO constante) · T9 (hijo t9-guide, sección planner de la guía) | 🔄 en vuelo                 |
+| 3    | T8 task_dae14f1dd8a8 (main, asserts pi mte.test.ts — tras el follow-up de T3)                                                                                                | ⏳                          |
+| 4    | Merge de las 3 ramas hijas (bundle: regenerar, nunca mergear) → T6 (task_0a7f46bfdbf7, integración + gates completos)                                                        | ⏳                          |
+
+**Receta dispatch en worktree hijo** (desde sesión CLI): el primer intento con `--worktree new-child` + `--model` falla `capability_unsupported` (el modelo opencode necesita worktree existente); sin `--model` falla `providerRejected` en dispatch_input PERO deja el worktree creado. Liberar con `worker-release`, luego `worker-start --task <id> --retry-of <dispatch fallido> --worktree <path del hijo> --agent opencode --model glm-5.3-flash`.
 
 ## Estado
 
 **Fase:** Lock confirmado por el usuario (2026-11-19, "okai si") — ejecución iniciada
 
 **Próximo paso:** `run-use` run_bb704f2e21c3, rama `mte/flow-overhaul`, dispatch Wave 1 (T1+T2+T7)
+
+**Coordinación CLI:** el run está bindeado a `term_cdfc4565-4b6b-4a27-891e-4bb5360bce7b` (terminal "mte-coordinator", comando sleep). Exporta `ORCA_TERMINAL_HANDLE=term_cdfc4565-4b6b-4a27-891e-4bb5360bce7b` antes de cualquier mutación de orquestación (send/worker-start/run-use) desde sesión CLI.
+
+**Avance:** T1 ✅ ab8633ea627 · T7 ✅ e85146cbec5 · T2 ✅ 572ec2fe49f · T3 ✅ 0f6f8dda399 (193/200) · T4+T5+T9 ✅ ramas hijas auto-mergeadas sin conflictos + bundle regen 1246b7193b7 · T8 ✅ 3660a96d08c (worker commit propio) · T10 ✅ 29ec4b3a2ef (25/25) · T6 🔄 en vuelo (ctx_2850824f437e, gates completos + coherencia). Tras T6: dogfooding (QA + PR draft). Incidentes de comunicación documentados en informe_log.md (raíz del worktree).
