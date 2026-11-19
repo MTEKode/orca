@@ -10,7 +10,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import TabBarCreateEntry from '../create-entry/TabBarCreateEntry'
-import { ProjectedAgentMenuItems } from '../../agent/launch-menu/AgentMenuItems'
 import { OpenAgentSettingsMenuItem } from '../../agent/launch-menu/OpenAgentSettingsMenuItem'
 import { TabStripScrollIndicator } from './TabStripScrollIndicator'
 import { TabStripTooltipProvider } from './TabStripTooltipProvider'
@@ -80,12 +79,11 @@ export function renderTabBarSurface(
     managedBrowserCreationEnabled,
     mobileEmulatorCreationEnabled,
     workspaceHasSimulatorTab,
-    showMobileEmulatorIntroCallout,
-    windowsTerminalCapabilities,
-    defaultWindowsPowerShellImplementation
+    showMobileEmulatorIntroCallout
   } = runtime
   const {
     openNewChat,
+    agentMenu,
     newTabMenuOpen,
     setNewTabMenuOpen,
     setCreateMenuQuery,
@@ -263,9 +261,6 @@ export function renderTabBarSurface(
                 }
                 menuOpen={newTabMenuOpen}
                 menuOptions={createMenuOptions}
-                // A bot's or group's home offers its agents only through its chats, above.
-                hideAgents={bot !== null || botGroup !== null}
-                onLaunchAgentOption={launchAgentFromNewTabEntry}
                 onOpenDefaultTerminal={() => {
                   queueNewActiveTerminalFocusAfterNewTabMenuClose()
                   onNewTerminalTab()
@@ -288,6 +283,7 @@ export function renderTabBarSurface(
           ) : null}
           {showStaticCreateMenuItems ? (
             <TabBarStaticCreateMenu
+              groupId={resolvedGroupId}
               props={props}
               terminalOnly={terminalOnly}
               mobileEmulatorEnabled={mobileEmulatorEnabled}
@@ -295,29 +291,16 @@ export function renderTabBarSurface(
               mobileEmulatorCreationEnabled={mobileEmulatorCreationEnabled}
               workspaceHasSimulatorTab={workspaceHasSimulatorTab}
               showMobileEmulatorIntroCallout={showMobileEmulatorIntroCallout}
-              windowsShellEntries={windowsShellEntries}
-              defaultWindowsPowerShellImplementation={defaultWindowsPowerShellImplementation}
-              pwshAvailable={windowsTerminalCapabilities.pwshAvailable}
               openNewChat={openNewChat}
               queueNewActiveTerminalFocusAfterNewTabMenuClose={
                 queueNewActiveTerminalFocusAfterNewTabMenuClose
               }
             />
           ) : null}
-          {showStaticCreateMenuItems && showAgentLaunchItems && !botGroup ? (
+          {showStaticCreateMenuItems && bot ? (
             <>
               <DropdownMenuSeparator />
-              {bot ? (
-                <OpenAgentSettingsMenuItem variant="create" />
-              ) : (
-                <ProjectedAgentMenuItems
-                  model={agentMenu}
-                  pickerInventory={agentPickerInventory}
-                  onSelectPickerAgent={selectPickerAgent}
-                  hidePickerSearch={!terminalOnly && Boolean(onOpenEntry)}
-                  runLaunch={launchAgentRow}
-                />
-              )}
+              <OpenAgentSettingsMenuItem variant="create" />
             </>
           ) : null}
         </NewTabMenuContent>

@@ -10,7 +10,7 @@ import {
 } from '@/components/mte-orchestration-picker/use-mte-orchestration-picker'
 import { isRemoteExecutionHostId } from '../../../../shared/execution-host/execution-host'
 import type { MteOrchestrationDraft } from '@/components/mte-orchestration-picker/use-mte-orchestration-picker'
-import type { NewTabAgentMenuModel } from '@/components/agent/launch-menu/use-new-tab-agent-menu-rows'
+import type { NewTabAgentMenuModel } from '@/components/agent/launch-menu/new-tab-agent-menu-model'
 import type { AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { ExecutionHostId } from '../../../../shared/execution-host/execution-host'
 

@@ -5,7 +5,6 @@ import type { TabBarProps } from './tab-bar-props'
 import type { TabBarItem } from './model/tab-bar-item-model'
 import { useTabBarRuntimeModel } from './model/use-tab-bar-runtime-model'
 import { useTabBarCreateMenuController } from './create-menu/use-tab-bar-create-menu-controller'
-import { usePluginNewFileMenuOptions } from './create-menu/use-plugin-new-file-menu-options'
 import { useTabBarItemProjection } from './model/use-tab-bar-item-projection'
 import { renderTabBarSurface } from './strip/tab-bar-surface'
 import { useTabBarItemActions } from './model/use-tab-bar-item-actions'
@@ -29,7 +28,7 @@ function TabBarInner(props: TabBarProps): React.JSX.Element {
   const runtime = useTabBarRuntimeModel({ worktreeId, groupId })
   const bot = useBotForWorkspace(worktreeId)
   const botGroup = useBotGroupForWorkspace(worktreeId)
-  const baseCreateMenu = useTabBarCreateMenuController({
+  const createMenu = useTabBarCreateMenuController({
     worktreeId,
     resolvedGroupId: runtime.resolvedGroupId,
     terminalOnly,
@@ -40,7 +39,8 @@ function TabBarInner(props: TabBarProps): React.JSX.Element {
     onNewTerminalTab,
     onNewBrowserTab,
     onNewSimulatorTab,
-    onNewFileTab
+    onNewFileTab,
+    botAgentRows: bot !== null
   })
   const itemProjection = useTabBarItemProjection({
     props,

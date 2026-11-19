@@ -151,7 +151,7 @@ export async function cancelOpenCodeV2Turn(
     sessionId: string
     turnId?: string
     fence: number
-    resolveLiveTurnId?: () => string | null
+    resolveLiveTurnId?: () => Promise<string | null>
   }
 ): Promise<AgentSessionCancelOutcome> {
   const connection = session.connection
@@ -159,7 +159,7 @@ export async function cancelOpenCodeV2Turn(
     return { cancelled: false }
   }
   const turnId = input.resolveLiveTurnId
-    ? input.resolveLiveTurnId()
+    ? await input.resolveLiveTurnId()
     : (session.lane?.openTurnId ?? null)
   if (input.turnId !== undefined && input.turnId !== turnId) {
     return { cancelled: false }

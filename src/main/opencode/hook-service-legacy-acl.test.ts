@@ -20,7 +20,8 @@ import {
   openCodeTuiPluginDirName,
   writeOpenCodeTuiPlugin
 } from '../../shared/agent-launch/plugins/opencode/opencode-tui-plugin-install'
-import { OpenCodeHookService, getOpenCodePluginSource } from './status-hooks/hook-service'
+import { OpenCodeHookService } from './status-hooks/hook-service'
+import { getOpenCodePluginSource } from './status-hooks/plugin-source/status-plugin-module-source'
 
 const fsMock = vi.hoisted(() => ({
   writeFileSync: vi.fn<typeof NodeFs.writeFileSync>(),
@@ -51,9 +52,11 @@ const variants = [
 ]
 
 let root: string
+// Loaded once at module scope so no test pays a cold import inside its timeout.
+const actualFs = await vi.importActual<typeof NodeFs>('node:fs')
 
 beforeEach(async () => {
-  const actual = await vi.importActual<typeof NodeFs>('node:fs')
+  const actual = actualFs
   fsMock.writeFileSync.mockReset().mockImplementation(actual.writeFileSync)
   fsMock.mkdirSync.mockReset().mockImplementation(actual.mkdirSync)
   fsMock.grantDirAcl.mockReset()
@@ -104,7 +107,7 @@ function tempWritesFor(target: string): string[] {
 describe.each(variants)('$hooks legacy plugin ACL recovery', (variant) => {
   it.each(['EPERM', 'EACCES'])('retries one denied server generation after %s', async (code) => {
     const { server, tui, source, tuiSource } = installedPlugin(variant)
-    const actual = await vi.importActual<typeof NodeFs>('node:fs')
+    const actual = actualFs
     const denial = Object.assign(new Error('protected directory DACL'), { code })
     let attempts = 0
     fsMock.writeFileSync.mockImplementation((...args) => {
@@ -135,7 +138,7 @@ describe.each(variants)('$hooks legacy plugin ACL recovery', (variant) => {
 
   it('recovers a denied mkdir in the shared atomic server writer', async () => {
     const { server, source } = installedPlugin(variant)
-    const actual = await vi.importActual<typeof NodeFs>('node:fs')
+    const actual = actualFs
     fsMock.mkdirSync
       .mockImplementationOnce(() => {
         throw Object.assign(new Error('mkdir denied'), { code: 'EPERM' })
@@ -152,7 +155,7 @@ describe.each(variants)('$hooks legacy plugin ACL recovery', (variant) => {
   it('grants the existing parent when creation of the TUI directory is denied', async () => {
     const { server, tui, source, tuiSource } = installedPlugin(variant)
     rmSync(dirname(tui), { recursive: true })
-    const actual = await vi.importActual<typeof NodeFs>('node:fs')
+    const actual = actualFs
     fsMock.mkdirSync
       .mockImplementationOnce(() => {
         throw Object.assign(new Error('TUI mkdir denied'), { code: 'EACCES' })
@@ -176,7 +179,7 @@ describe.each(variants)('$hooks legacy plugin ACL recovery', (variant) => {
     const { server, tui, source, tuiSource } = installedPlugin(variant)
     writeFileSync(tui, '// stale TUI')
     fsMock.writeFileSync.mockClear()
-    const actual = await vi.importActual<typeof NodeFs>('node:fs')
+    const actual = actualFs
     let denied = false
     fsMock.writeFileSync.mockImplementation((...args) => {
       if (dirname(String(args[0])) === dirname(tui) && !denied) {
@@ -280,7 +283,7 @@ describe.each(variants)('$hooks legacy plugin ACL recovery', (variant) => {
       rmSync(server)
       symlinkSync(target, server)
       fsMock.writeFileSync.mockClear()
-      const actual = await vi.importActual<typeof NodeFs>('node:fs')
+      const actual = actualFs
       fsMock.writeFileSync
         .mockImplementationOnce(() => {
           throw Object.assign(new Error('target denied'), { code: 'EPERM' })

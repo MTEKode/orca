@@ -114,7 +114,7 @@ export function selectActiveFlowState(state: AppState): FlowState | null {
 }
 
 export function deriveActiveFlowState(
-  agentStatusByPaneKey: Record<string, AgentStatusEntry>,
+  agentStatusByPaneKey: Pick<ReadonlyMap<string, AgentStatusEntry>, 'get'>,
   orchestrationContexts: Record<string, AgentStatusOrchestrationContext>
 ): FlowState | null {
   const flowsByRunId = new Map<
@@ -141,7 +141,7 @@ export function deriveActiveFlowState(
     const flow = flowsByRunId.get(runId)!
     flow.contexts.push({ paneKey, context })
 
-    const agentStatus = agentStatusByPaneKey[paneKey]
+    const agentStatus = agentStatusByPaneKey.get(paneKey)
     const startedAt = agentStatus?.firstStateStartedAt ?? agentStatus?.stateStartedAt
     if (startedAt && startedAt < flow.earliestStart) {
       flow.earliestStart = startedAt
@@ -155,7 +155,7 @@ export function deriveActiveFlowState(
   const activeFlows = Array.from(flowsByRunId.entries())
     .map(([runId, flow]) => ({ runId, ...flow }))
     // Exited agents lose their status row, so a live row is what makes a flow active.
-    .filter((flow) => flow.contexts.some(({ paneKey }) => agentStatusByPaneKey[paneKey]))
+    .filter((flow) => flow.contexts.some(({ paneKey }) => agentStatusByPaneKey.get(paneKey)))
     .sort((a, b) => b.earliestStart - a.earliestStart)
 
   if (activeFlows.length === 0) {
@@ -168,7 +168,7 @@ export function deriveActiveFlowState(
   let goal: string | undefined
 
   for (const { paneKey, context } of activeFlow.contexts) {
-    const agentStatus = agentStatusByPaneKey[paneKey]
+    const agentStatus = agentStatusByPaneKey.get(paneKey)
 
     if (!context.parentPaneKey) {
       plannerPaneKey = paneKey

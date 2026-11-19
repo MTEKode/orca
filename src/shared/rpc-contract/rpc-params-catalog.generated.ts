@@ -515,6 +515,11 @@ import {
   GmailModifyParams,
   GmailSendParams
 } from './google-write-params'
+import {
+  GraphifyBuildParams,
+  GraphifyRepoParams,
+  GraphifySetGoogleAiKeyParams
+} from './graphify-params'
 import { AgentCliUpdateRunParams } from './host-management/agent-cli-update-params'
 import { EnvironmentDoctorParams } from './host-management/environment-doctor-params'
 import {
@@ -598,6 +603,20 @@ import {
 } from './linear/linear-params'
 import { CreateProject } from './linear/linear-project-create-params'
 import { LinkPreviewGetParams } from './link-preview/link-preview-params'
+import {
+  McpIntegrationCallToolParams,
+  McpIntegrationIdParams,
+  McpIntegrationListToolsParams,
+  McpIntegrationSetApiKeyParams,
+  McpIntegrationSetConfigParams
+} from './mcp-integrations-params'
+import {
+  MteDeployCheckConfigParams,
+  MteDeployCheckReportParams,
+  MteGetPlannerPinParams,
+  MteMarkPlannerParams,
+  MtePrepareWorkspaceParams
+} from './mte-params'
 import { NativeChatSession, NativeChatUnsubscribe } from './native-chat/native-chat-params'
 import {
   NotificationGetMissedSinceParams,
@@ -614,6 +633,7 @@ import {
   OrcaAccountSignInWaitParams,
   OrcaAccountUnsubscribeParams
 } from './orca-account-params'
+import { DispatchLinkParams } from './orchestration-link-params'
 import { ApprovalAnswerParams } from './orchestration/orchestration-approval-answer-params'
 import {
   FederationDispatchParams,
@@ -762,7 +782,10 @@ import { SessionReadTerminalScrollbackParams } from './session-tabs/session-term
 import {
   SkillsCancelInstallParams,
   SkillsDiscoverParams,
-  SkillsGetInstallProgressParams
+  SkillsGetInstallProgressParams,
+  SkillsImportApplyParams,
+  SkillsImportableListParams,
+  SkillsUnifiedCatalogParams
 } from './skills/skills-params'
 import {
   GitBlame,
@@ -841,6 +864,11 @@ import {
   SshTargetAdd,
   SshTargetUpdate
 } from './ssh/ssh-params'
+import {
+  DiffTurnCheckpointParams,
+  ListTurnCheckpointsParams,
+  RestoreTurnCheckpointParams
+} from './structured-agent-session-turn-checkpoint-params'
 import {
   AttachmentReadParams,
   AttachmentTextReadParams,
@@ -1103,6 +1131,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'agentSession.history': HistoryParams,
   'agentSession.hold': HoldParams,
   'agentSession.item': ItemParams,
+  'agentSession.listTurnCheckpoints': ListTurnCheckpointsParams,
   'agentSession.mcp': AgentSessionMcpParams,
   'agentSession.modelCatalog': ModelCatalogParams,
   'agentSession.options': OptionsParams,
@@ -1667,6 +1696,14 @@ export const RPC_PARAMS_BY_METHOD = {
   'google.signIn.start': GoogleSignInStartParams,
   'google.signIn.wait': GoogleSignInWaitParams,
   'google.status': GoogleStatusParams,
+  'graphify.build': GraphifyBuildParams,
+  'graphify.cancel': GraphifyRepoParams,
+  'graphify.clearGoogleAiKey': null,
+  'graphify.log': GraphifyRepoParams,
+  'graphify.openViewer': GraphifyRepoParams,
+  'graphify.setGoogleAiKey': GraphifySetGoogleAiKeyParams,
+  'graphify.status': GraphifyRepoParams,
+  'graphify.update': GraphifyRepoParams,
   'host.declareAccount': DeclareOrcaAccountParamsSchema,
   'host.declareClient': OrcadDeclareClientParamsSchema,
   'host.gitBash.isAvailable': null,

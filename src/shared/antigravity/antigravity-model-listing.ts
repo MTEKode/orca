@@ -1,7 +1,5 @@
-import type {
-  AgentSessionModelOption,
-  AgentSessionOptionChoice
-} from '../agent-session/agent-session-wire'
+import type { AgentSessionOptionChoice } from '../agent-session/agent-session-wire'
+import type { AgentSessionModelOption } from '../agent-session/options/model-catalog/agent-session-model-option'
 
 export type AntigravityListedModel = { id: string; label: string }
 

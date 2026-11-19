@@ -1,24 +1,14 @@
 import type { TabBarCreateMenuController } from './tab-bar-create-menu-contract'
 
-import { useAgentLaunchPickerInventorySource } from '../../agent/use-agent-launch-picker-inventory'
-import type { AgentPickerEntry } from '../../../../../shared/agent-launch/picker/agent-launch-picker'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { focusTerminalTabSurface } from '@/components/terminal-pane/input/focus/focus-terminal-tab-surface'
-import type { WindowsTerminalCapabilities } from '@/runtime/hosts/capabilities/windows-terminal-capabilities'
 import { useAppStore } from '../../../store/index'
 import { useTabAgentMenuLaunch } from '../../agent/launch-menu/AgentMenuItems'
 import { requestNativeChatComposerFocus } from '@/components/native-chat/composer/focus/native-chat-composer-focus-intent'
-import { useNewTabAgentMenuRows } from '../../agent/launch-menu/use-new-tab-agent-menu-rows'
-import type { AgentDetectionTarget } from '@/lib/agent-session/launch/inventory/useDetectedAgents'
-import type { TabAgentLaunchOption } from '../create-entry/tab-agent-launch-options'
 import { openNewChatForWorktree } from '../use-new-chat-launch'
+import { useNewTabAgentMenuRows } from '../../agent/launch-menu/use-new-tab-agent-menu-rows'
+import { useAgentDetectionTargetForWorktree } from '@/lib/agent-session/launch/inventory/useAgentDetectionTarget'
 import { buildTabCreateMenuOptions, type TabCreateMenuOption } from './tab-create-menu-options'
-import { resolveWindowsShellLaunchTarget } from './windows-shell-launch'
-import { buildWindowsShellMenuEntries } from './tab-bar-windows-shell-options'
-import type {
-  getProjectRuntimeShellMenuMode,
-  resolveWindowsPowerShellImplementationSetting
-} from '../model/use-tab-bar-runtime-model'
 const NEW_TAB_MENU_TERMINAL_FOCUS_RETRY_MS = 50
 const NEW_TAB_MENU_TERMINAL_FOCUS_TIMEOUT_MS = 5000
 export function useTabBarCreateMenuController({
@@ -32,7 +22,8 @@ export function useTabBarCreateMenuController({
   onNewTerminalTab,
   onNewBrowserTab,
   onNewSimulatorTab,
-  onNewFileTab
+  onNewFileTab,
+  botAgentRows
 }: {
   worktreeId: string
   resolvedGroupId: string
@@ -45,10 +36,19 @@ export function useTabBarCreateMenuController({
   onNewBrowserTab: () => void
   onNewSimulatorTab?: () => void
   onNewFileTab?: () => void
+  /** Set in a bot's home, whose menu lists the bot's agents for a new chat. */
+  botAgentRows: boolean
 }): TabBarCreateMenuController {
   // Why: <webview> clicks are out-of-process, so Radix's document-pointerdown outside-click check misses them; use window blur.
   const [newTabMenuOpen, setNewTabMenuOpen] = useState(false)
   const [createMenuQuery, setCreateMenuQuery] = useState('')
+  const agentDetectionTarget = useAgentDetectionTargetForWorktree(worktreeId)
+  const agentMenu = useNewTabAgentMenuRows(
+    worktreeId,
+    newTabMenuOpen && botAgentRows,
+    agentDetectionTarget,
+    { wakeOnOpen: true }
+  )
   const pendingNewTabMenuFocusRef = useRef<{ focus: () => void; synchronous?: true } | null>(null)
   const pendingNewTabMenuFocusAnimationRef = useRef<number | null>(null)
   const pendingNewTabMenuFocusRetryRef = useRef<number | null>(null)
@@ -204,6 +204,7 @@ export function useTabBarCreateMenuController({
   }
   return {
     openNewChat,
+    agentMenu,
     newTabMenuOpen,
     setNewTabMenuOpen,
     setCreateMenuQuery,

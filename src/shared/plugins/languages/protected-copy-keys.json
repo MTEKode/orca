@@ -1112,6 +1112,14 @@
     "components.native-chat.prompt.collapse",
     "components.native-chat.prompt.expand",
     "components.native-chat.question.openTerminal",
+    "components.native-chat.turnRevert.cancel",
+    "components.native-chat.turnRevert.confirm",
+    "components.native-chat.turnRevert.dialogDescription",
+    "components.native-chat.turnRevert.dialogTitle",
+    "components.native-chat.turnRevert.filesChanged",
+    "components.native-chat.turnRevert.loadFailed",
+    "components.native-chat.turnRevert.loading",
+    "components.native-chat.turnRevert.noChanges",
     "components.native-chat.urlRequest.decline",
     "components.native-chat.urlRequest.finished",
     "components.native-chat.urlRequest.finishedWith",
@@ -1644,15 +1652,7 @@
     "worktree.setupTrust.branchDiffersBody",
     "worktree.setupTrust.branchDiffersTitle",
     "worktree.setupTrust.branchSetupScript",
-    "worktree.setupTrust.runOnce",
-    "components.native-chat.turnRevert.cancel",
-    "components.native-chat.turnRevert.confirm",
-    "components.native-chat.turnRevert.dialogDescription",
-    "components.native-chat.turnRevert.dialogTitle",
-    "components.native-chat.turnRevert.filesChanged",
-    "components.native-chat.turnRevert.loadFailed",
-    "components.native-chat.turnRevert.loading",
-    "components.native-chat.turnRevert.noChanges"
+    "worktree.setupTrust.runOnce"
   ],
   "prefixes": [
     "bots.access."

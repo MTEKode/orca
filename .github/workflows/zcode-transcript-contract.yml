@@ -5,7 +5,7 @@ on:
     paths:
       - 'src/main/ai-vault/scanners/zcode/session-scanner-zcode*'
       - 'src/main/ai-vault/scanners/opencode/**'
-      - 'src/main/ai-vault/scanners/opencode2/**'
+      - 'src/main/ai-vault/scanners/opencode-next/**'
       - 'src/main/ai-vault/scanners/opencode/reader-transport/opencode-wsl-runtime*'
       - 'src/main/native-chat/transcript-history/opencode/**'
       - 'src/shared/native-chat/native-chat-types.ts'

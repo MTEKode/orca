@@ -210,7 +210,7 @@ class AgentPickerAcquisition {
     })
   }
 
-  private admit(kind: ReadKind) {
+  admit(kind: ReadKind) {
     while (this.observers.size && this.outstanding[kind] < 2 && this.queued[kind].size) {
       const usable = [...this.queued[kind]]
       const priorities = [...this.observers].map((o) => o.selected())
@@ -282,11 +282,6 @@ class AgentPickerAcquisition {
     }
   }
 
-  prioritize(): void {
-    this.admit('catalog')
-    this.admit('support')
-  }
-
   diagnostics() {
     return {
       observers: this.observers.size,
@@ -296,9 +291,8 @@ class AgentPickerAcquisition {
   }
 }
 
-export function prioritizeAgentPickerAcquisition(key: string): void {
-  pending.get(key)?.prioritize()
-}
+/** The live acquisition for a picker key, if one is open. */
+export const agentPickerAcquisitionFor = (key: string) => pending.get(key)
 
 export function observeAgentPickerAcquisition(
   key: string,

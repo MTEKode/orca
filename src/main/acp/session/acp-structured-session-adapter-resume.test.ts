@@ -229,7 +229,7 @@ describe('reopening an OpenCode chat whose conversation the agent moved to anoth
   it('reopens it in the folder OpenCode lists after a temporary listing failure, starting no new session', async () => {
     let listingFailed = false
     const rig = await openAcpAdapterRig({
-      spec: acpLaunchSpecFor('opencode2')!,
+      spec: acpLaunchSpecFor('opencode')!,
       launch: {
         resume: {
           sessionId: 'ses_moved',

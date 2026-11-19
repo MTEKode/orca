@@ -53,7 +53,7 @@ it('publishes inventory before a slow optional effort reply and retains its vali
     () => connection,
     (connection, ready) =>
       readSessionModels(
-        acpLaunchSpecFor('opencode2')!,
+        acpLaunchSpecFor('opencode')!,
         { kind: 'session', listingNamesConfiguredModel: false },
         connection,
         '/workspace',
@@ -63,7 +63,7 @@ it('publishes inventory before a slow optional effort reply and retains its vali
         ready,
         (result) => observations.push(result)
       ),
-    { label: 'opencode2', timeoutMs: null }
+    { label: 'opencode', timeoutMs: null }
   )
   await vi.advanceTimersByTimeAsync(45_000)
   expect(observations[0]?.models.find((row) => row.id === 'opencode/big-pickle')).toMatchObject({
@@ -93,7 +93,7 @@ it('publishes inventory before a slow optional effort reply and retains its vali
 })
 
 function accumulatedCatalogHarness(count: number) {
-  const baseSpec = acpLaunchSpecFor('opencode2')!
+  const baseSpec = acpLaunchSpecFor('opencode')!
   const spec = {
     ...baseSpec,
     managedRuntime: undefined,
@@ -161,7 +161,7 @@ function accumulatedCatalogHarness(count: number) {
     getConversation: () => undefined,
     drivesRecord: () => true,
     resolveAccountHome: async () => ({ variable: 'HOME', path: '/account' }),
-    probes: { opencode2: probe }
+    probes: { opencode: probe }
   })
   const externalRead = createStructuredAgentSessionCatalogReads(() => ({
     // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: sessionless catalog reads only access modelCatalog; no chat or journal is mocked.
@@ -171,7 +171,7 @@ function accumulatedCatalogHarness(count: number) {
   }))
   const read = async (waitForListing = true, selectedModel?: string) => {
     const result = await externalRead({
-      agent: 'opencode2',
+      agent: 'opencode',
       workspacePath: '/workspace',
       waitForListing,
       selectedModel

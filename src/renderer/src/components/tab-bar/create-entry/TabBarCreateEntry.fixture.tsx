@@ -54,7 +54,6 @@ function Strip({ tabs }: { tabs: TerminalTab[] }): React.JSX.Element {
           groupId={GROUP_ID}
           groupActiveTabId="utab-0"
           expandedPaneByTabId={{}}
-          showAgentLaunchItems
           onActivate={noop}
           onClose={noop}
           onCloseOthers={noop}

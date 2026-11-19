@@ -21,7 +21,7 @@ const FROM = formatOrcaSessionAddress(CHAT_SESSION)
 
 const state = vi.hoisted(() => ({
   host: null as {
-    journalSnapshot: (sessionId: string) => Promise<{ items: unknown[] }>
+    historyItem: (sessionId: string, itemId: string) => Promise<unknown>
     deps: {
       store: {
         getRecord: (sessionId: string) => { lease: { runtimeFence: number } } | undefined
@@ -131,7 +131,8 @@ beforeEach(() => {
   respondToPrompt.mockReset()
   respondToPrompt.mockResolvedValue(okResult)
   state.host = {
-    journalSnapshot: async () => ({ items }),
+    historyItem: async (_sessionId, itemId) =>
+      (items as { itemId?: string }[]).find((item) => item.itemId === itemId) ?? null,
     deps: {
       store: {
         getRecord: () => ({ lease: { runtimeFence: 3 } }),
@@ -228,7 +229,10 @@ describe('routeWorkerPromptToCoordinator', () => {
     items = [journalItem(approval())]
     await routeWorkerPromptToCoordinator(ctx.deps, promptEvent())
     const report = chatWorkerTurnStopReporter(ctx.deps, (run) => run())
-    report(promptEvent(), () => ({ status: 'attention' as const, lastAssistantMessage: 'May I?' }))
+    report.onTurnAttention(promptEvent(), () => ({
+      status: 'attention' as const,
+      lastAssistantMessage: 'May I?'
+    }))
     expect(ctx.mail(['escalation', 'question']).map((m) => m.type)).toEqual([
       'question',
       'escalation'

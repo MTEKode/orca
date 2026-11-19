@@ -58,7 +58,7 @@ describe('OpenCode captured worker composer', () => {
   const RUNS: [string, TuiAgent][] = [
     ['opencode-1-18-32-timed-boot-slow', 'opencode'],
     ['opencode-cmd-2-0-21-timed-warm-server', 'opencode'],
-    ['opencode-2-0-21-timed-natural-load-enter-dropped', 'opencode2']
+    ['opencode-2-0-21-timed-natural-load-enter-dropped', 'opencode']
   ]
   const AGENT_ROW = /\u00b7 \S/
   const BOX_BOTTOM_LEFT = '\u2579'

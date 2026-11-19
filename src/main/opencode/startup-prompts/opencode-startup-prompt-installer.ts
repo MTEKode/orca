@@ -1,8 +1,4 @@
-import {
-  OpenCodeHookService,
-  openCodeHookService,
-  openCode2HookService
-} from '../status-hooks/hook-service'
+import { OpenCodeHookService, openCodeHookService } from '../status-hooks/hook-service'
 import { OPENCODE_STARTUP_PROMPT_PLUGIN_DIRECTORY } from '../../../shared/agent-launch/plugins/opencode/opencode-startup-prompt-install'
 import { join } from 'node:path'
 import { resolveOpenCodeConfigDirectory } from '../../../shared/agent-launch/plugins/opencode/opencode-config-directory'

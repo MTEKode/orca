@@ -1,4 +1,5 @@
-import { LOCAL_COMMAND_FLAGS, type CommandSpec } from '../arguments/args'
+import { LOCAL_COMMAND_FLAGS } from '../arguments/args'
+import type { CommandSpec } from '../discovery/command-spec'
 
 const NOTES = [
   'The graph is per repo (shared by its worktrees) and stored in Orca user data, never in the checkout.',

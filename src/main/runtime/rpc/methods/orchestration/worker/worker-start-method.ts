@@ -1,5 +1,6 @@
 import { adoptMteWorkerPin, withMteWorkerPin } from './worker-start-mte-pin'
 import { assertMtePlannerCaller } from '../runs/mte-planner-gate'
+import { sessionCallerOf } from '../../../../orchestration/addressing/orchestration-caller-identity'
 import { stopHelperAfterStart } from './worker-stop'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import type { z } from 'zod'
@@ -153,9 +154,8 @@ export async function prepareWorkerStart(
   }
   // Follow-ups to a finished worker are worker verbs, never gated.
   if (!followUp) {
-    assertMtePlannerCaller(runtime, orchestrationCaller)
+    assertMtePlannerCaller(runtime, sessionCallerOf(orchestrationCaller))
   }
-  const readinessTimeoutMs = resolveWorkerStartReadinessTimeoutMs(params.timeoutMs)
   if (params.adoptTaskId !== undefined && orchestrationCaller?.kind !== 'peer') {
     throw new OrchestrationError(
       'invalid_argument',
@@ -284,8 +284,8 @@ export async function prepareWorkerStart(
     followUp = { ...followUp, reopen: placement.reopen, earlierWork: placement.earlierWork }
     await assertWorkerStartTaskSpecWithinPromptBudget(spec)
   }
-  await adoptMteWorkerPin(params, orchestrationCaller)
-  params = withMteWorkerPin(params, orchestrationCaller)
+  await adoptMteWorkerPin(params, sessionCallerOf(orchestrationCaller))
+  params = withMteWorkerPin(params, sessionCallerOf(orchestrationCaller))
   return {
     params,
     followUp,

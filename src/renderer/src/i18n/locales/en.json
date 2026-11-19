@@ -5502,12 +5502,7 @@
             "d364f3c8d4": "New Terminal",
             "7a9b4af2af": "Scroll tabs left",
             "232e075b07": "Scroll tabs right",
-            "7c1313d237": "New Terminal:",
-            "4f327c8b3d": "Open Markdown...",
-            "2148f65e04": "PowerShell",
-            "1a8af49530": "CMD Prompt",
-            "efb33546ff": "Git Bash",
-            "d1afac112b": "WSL"
+            "4f327c8b3d": "Open Markdown..."
           },
           "TabBarCreateEntry": {
             "d62d63b807": "Create file",

@@ -3,10 +3,9 @@ import type { StructuredAgentSessionProviderOpenResult } from '../native-chat/ag
 import { agentSessionProviderHandleKey } from '../../shared/agent-session/lifecycle/provider-handles/agent-session-provider-handle-encoding'
 import type { AgentSessionProviderHandleLink } from '../../shared/agent-session/lifecycle/provider-handles/agent-session-provider-handle'
 import type { AgentChatPermissionChoice } from '../../shared/agent-launch/permissions/agent-chat-permission-mode'
-import { parseAgentJournalItemKey } from '../../shared/agent-session/journal/agent-session-journal-item-key'
+import type { StructuredAgentSessionHistoryJournal } from '../native-chat/agent-session-wire/journal-ingress/structured-agent-session-journal-views'
 import { JsonlRpcTimelineLane } from '../jsonl-rpc/timeline-lane'
 import type { ProviderTimelineSink } from '../native-chat/agent-session-timeline/provider-timeline-plan'
-import { spellProviderTimelineKey } from '../native-chat/agent-session-timeline/provider-timeline-identity'
 import { TOOLS_MCP_SERVER_ID } from '../../shared/mte/mcp/mcp-server-specs'
 import type { ToolsMcpServer } from '../mcp-integrations/tools-server'
 import type { StructuredAgentSessionLogger } from '../native-chat/agent-session-wire/host/structured-agent-session-logger'
@@ -14,6 +13,7 @@ import { OPENCODE_V2_AGENT_ID, OPENCODE_V2_HANDLE_TRANSPORT } from './opencode-v
 import type { OpenCodeV2Client } from './opencode-v2-client'
 import type { OpenCodeV2Connection } from './opencode-v2-connection'
 import { openCodeV2HistoryEvents } from './opencode-v2-history-translation'
+import { journaledTurnKeys } from './opencode-v2-journaled-turns'
 import {
   EMPTY_OPENCODE_V2_AGENT_LISTING,
   readOpenCodeV2Agents,
@@ -132,7 +132,8 @@ export function buildOpenCodeV2Link(params: {
 /** Turns the journal already covers keep their live rows; only new runs are written. */
 export async function catchUpOpenCodeV2History(input: {
   client: OpenCodeV2Client
-  sink: ProviderTimelineSink
+  history: StructuredAgentSessionHistoryJournal | null
+  sessionId: string
   lane: JsonlRpcTimelineLane
   providerSessionId: string
   signal: AbortSignal
@@ -145,25 +146,8 @@ export async function catchUpOpenCodeV2History(input: {
   if (messages.length === 0) {
     return
   }
-  const turnRows = new Set<string>()
-  const journal = input.sink.journalItems?.()
-  journal?.visitItems((key) => {
-    const item = journal.item(key)
-    if (item?.body.kind !== 'turn') {
-      return
-    }
-    const parsed = parseAgentJournalItemKey(item.itemId)
-    if (parsed?.provider === 'legacy') {
-      turnRows.add(parsed.recordId)
-    }
-  })
-  const hasTurn = (turnKey: string): boolean =>
-    turnRows.has(
-      `turn-lifecycle:${spellProviderTimelineKey(input.providerSessionId, {
-        source: 'provider',
-        value: turnKey
-      })}`
-    )
+  const journaled = await journaledTurnKeys(input, messages)
+  const hasTurn = (turnKey: string): boolean => journaled.has(turnKey)
   input.lane.apply(
     openCodeV2HistoryEvents({
       messages,

@@ -1,6 +1,4 @@
-import { tabAgentLaunchOptionDisabled } from './tab-agent-launch-options'
-import { terminalPendingLabel } from '../../agent/launch-menu/new-tab-agent-menu-model'
-import React, { useEffect, useRef, useState } from 'react'
+import React from 'react'
 import {
   FilePlus,
   FileText,
@@ -13,7 +11,6 @@ import {
   TerminalSquare
 } from 'lucide-react'
 import { AgentIcon } from '@/components/agent/icons/AgentIcon'
-import { PluginContributionIcon } from '../../plugins/PluginContributionIcon'
 import { cn } from '@/lib/class-names'
 import {
   FilePathCursorTooltip,
@@ -25,8 +22,6 @@ import { SEARCH_ENGINE_LABELS } from '../../../../../shared/browser/navigation/b
 import { formatBrowserHistoryUrl } from '@/lib/browser/history/browser-history-match'
 import type { ActiveOption } from './tab-create-entry-active-option'
 import { BrowserFavicon } from '@/components/browser-pane/describe-page/browser-favicon'
-import { AgentLaunchSetupButton } from '../../agent/AgentLaunchSetupButton'
-import type { AgentPickerDraft } from '../../../../../shared/agent-launch/picker/agent-launch-picker'
 
 export const RESULT_LISTBOX_ID = 'tab-create-entry-results'
 

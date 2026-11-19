@@ -17,7 +17,7 @@ const { getPathMock } = vi.hoisted(() => ({
   getPathMock: vi.fn<(name: string) => string>()
 }))
 
-import { OpenCodeHookService, openCode2HookService } from './hook-service'
+import { OpenCodeHookService, openCodeHookService } from './hook-service'
 import { resolveOpenCodeConfigDirectory } from '../../../shared/agent-launch/plugins/opencode/opencode-config-directory'
 
 beforeEach(() => {
@@ -69,13 +69,13 @@ describe('OpenCodeHookService buildPtyEnv / clearPty round-trip', () => {
   // A service reloading between writes must already find the TUI copy and stand down.
   it('writes the TUI copy before the server plugin file', () => {
     const pluginsDir = join(resolveOpenCodeConfigDirectory(), 'plugins')
-    const serverPath = join(pluginsDir, 'orca-opencode2-status.js')
-    const tuiDir = join(pluginsDir, 'orca-opencode2-status-tui')
+    const serverPath = join(pluginsDir, 'orca-opencode-status.js')
+    const tuiDir = join(pluginsDir, 'orca-opencode-status-tui')
     rmSync(serverPath, { recursive: true, force: true })
     rmSync(tuiDir, { recursive: true, force: true })
     mkdirSync(serverPath, { recursive: true })
     try {
-      openCode2HookService.buildPtyEnv(daemonSessionId)
+      openCodeHookService.buildPtyEnv(daemonSessionId)
       expect(existsSync(join(tuiDir, 'tui.js'))).toBe(true)
     } finally {
       rmSync(serverPath, { recursive: true, force: true })

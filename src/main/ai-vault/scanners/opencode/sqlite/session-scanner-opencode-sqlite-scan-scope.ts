@@ -72,6 +72,6 @@ export function runOpenCodeSqliteScanRequest<T>(
   agent?: SqliteReaderAgent | 'native-chat'
 ): Promise<T> {
   // Only OpenCode's stores share the scan budget; ZCode and Hermes keep their own databases.
-  const scope = agent === 'opencode2' || agent === undefined ? scanScope.getStore() : undefined
+  const scope = agent === 'opencode-next' || agent === undefined ? scanScope.getStore() : undefined
   return scope ? scope.run(signal, fn) : fn(signal)
 }

@@ -75,7 +75,7 @@ async function readPrompt(sessionId: string, promptId: string): Promise<ReadProm
   if (!host) {
     return null
   }
-  const item = (await host.journalSnapshot(sessionId)).items.find((i) => i.itemId === promptId)
+  const item = await host.historyItem(sessionId, promptId)
   const body = item?.body
   return item && (body?.kind === 'approval' || body?.kind === 'question')
     ? { host, item, body }

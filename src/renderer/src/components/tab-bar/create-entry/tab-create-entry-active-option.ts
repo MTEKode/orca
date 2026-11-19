@@ -1,7 +1,6 @@
 import type { BrowserHistoryEntry } from '../../../../../shared/browser/workspaces/browser-workspace-types'
 import type { TabEntryActionClassification, TabEntryOption } from './tab-create-entry-classifier'
 import type { OpenTabSearchResult } from './open-tab-search'
-import type { TabAgentLaunchOption } from './tab-agent-launch-options'
 import type { TabCreateMenuOption } from '../create-menu/tab-create-menu-options'
 
 export type ActiveEntryOption = TabEntryOption & {

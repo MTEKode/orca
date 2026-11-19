@@ -123,7 +123,7 @@ export function useRightSidebarActivityItems({
         icon: Files,
         title: isBot
           ? t('bots.files.tab', 'Files')
-          : t('auto.components.right.sidebar.index.8bc2bbc3a0', 'Explorer'),
+          : t('auto.components.right.sidebar.index.8bc2bbc3a0', 'Files'),
         shortcut: explorerShortcut === 'Unassigned' ? '' : explorerShortcut,
         onBotPage: true,
         labeledTab: isBot

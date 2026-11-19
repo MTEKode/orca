@@ -1,8 +1,6 @@
 import { clearSuccessor } from './agent-session-sender-identity-revision'
 import type * as usageLimitContinue from '../../../../shared/agent-session/lifecycle/stopping/agent-session-usage-limit-continue'
 import type { createAgentSessionOwnerProof } from '../ownership/agent-session-owner-proof'
-import { isDeepStrictEqual } from 'node:util'
-import type { MteWorkerPin } from '../../../../shared/mte/worker-pin'
 import { backfillAgentSessionPermissionModes } from '../ownership/agent-session-permission-backfill'
 import { createAgentSessionConversationReceipts } from './agent-session-conversation-receipts'
 import {
@@ -214,17 +212,8 @@ export class AgentSessionRecordStore extends AgentSessionRecordTabs {
     this.updateRecord(id, { kind: 'name-if-current', name, expected, contextId, now: Date.now() })
 
   /** MTE planner marker: metadata, written unfenced right after the launch creates the session. */
-  markMtePlanner = (sessionId: string, worker?: MteWorkerPin): Promise<AgentSessionRecord> =>
-    this.mutate(sessionId, (record) =>
-      record.mteRole === 'planner' && (!worker || isDeepStrictEqual(record.mteWorker, worker))
-        ? record
-        : {
-            ...record,
-            mteRole: 'planner',
-            ...(worker ? { mteWorker: worker } : {}),
-            updatedAt: Date.now()
-          }
-    )
+  markMtePlanner = (sessionId: string, worker?: AgentSessionRecord['mteWorker']) =>
+    this.updateRecord(sessionId, { kind: 'mte-planner', worker, now: Date.now() })
 
   pinLaunchDirectory = (sessionId: string, launchDirectory: string): Promise<AgentSessionRecord> =>
     this.updateRecord(sessionId, { kind: 'launch-directory', launchDirectory, now: Date.now() })

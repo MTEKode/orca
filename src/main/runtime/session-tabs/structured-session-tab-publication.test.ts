@@ -8,15 +8,16 @@ import {
   structuredWorkerProcessIncarnation
 } from '../orchestration/terminal-authority/structured-sessions/structured-worker-identity'
 import { projectStructuredSessionTab } from './chat/structured-session-tab-publication'
+import { MobileSessionSnapshotsByWorktree } from './publication/mobile-session-snapshots-by-worktree'
 
 const WORKSPACE = 'wt-publication'
 
 function publicationRuntime(): {
-  byWorktree: Map<string, RuntimeMobileSessionTabsSnapshot>
+  byWorktree: MobileSessionSnapshotsByWorktree
   emitted: RuntimeMobileSessionTabsSnapshot[]
   runtime: Parameters<typeof projectStructuredSessionTab>[0]
 } {
-  const byWorktree = new Map<string, RuntimeMobileSessionTabsSnapshot>()
+  const byWorktree = new MobileSessionSnapshotsByWorktree()
   const emitted: RuntimeMobileSessionTabsSnapshot[] = []
   return {
     byWorktree,

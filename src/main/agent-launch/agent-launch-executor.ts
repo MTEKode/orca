@@ -281,8 +281,8 @@ async function createSurface(
       ...(intent.sessionOptions ? { options: intent.sessionOptions } : {}),
       ...(intent.chatOptions ? { chatOptions: intent.chatOptions } : {}),
       ...(intent.sessionId ? { sessionId: intent.sessionId } : {}),
-      ...(intent.mteRole ? { mteRole: intent.mteRole } : {}),
-      ...(intent.mteWorker ? { mteWorker: intent.mteWorker } : {}),
+      // The worker pin rides only on the MTE planner chat it was recorded for.
+      ...(intent.mteRole ? { mteRole: intent.mteRole, mteWorker: intent.mteWorker } : {}),
       ...(reservedTabId ? { tabId: reservedTabId } : {}),
       ...launchPromptCreateInputs(intent, execution.signal),
       ...(intent.prompt ? {} : { withoutPrompt: true as const })

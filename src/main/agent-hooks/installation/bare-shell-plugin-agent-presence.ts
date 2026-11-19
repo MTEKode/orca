@@ -5,7 +5,7 @@ import { withTimeout } from '../../../shared/concurrency/promise-timeout-fallbac
 import { detectLocalTuiAgentCliPresence } from './local-agent-cli-presence'
 
 /** Agents whose plugins a plain shell may install, for a CLI the user types later. */
-const BARE_SHELL_PLUGIN_AGENTS = ['opencode', 'opencode2', 'pi', 'omp'] as const
+const BARE_SHELL_PLUGIN_AGENTS = ['opencode', 'pi', 'omp'] as const
 
 const PRESENCE_TTL_MS = 30_000
 const FIRST_PROBE_WAIT_MS = 200

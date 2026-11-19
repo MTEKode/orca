@@ -34,7 +34,7 @@ describe('projectHostSetups:delete stops language servers', () => {
     mocks.handlers.clear()
     mocks.disposeForRepo.mockClear()
     // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the delete handler only calls deleteProjectHostSetup on this store.
-    registerProjectHostSetupHandlers({} as never, store as never)
+    registerProjectHostSetupHandlers({} as never, store as never, {} as never)
   })
 
   it('disposes the sessions of a removed local repo', () => {

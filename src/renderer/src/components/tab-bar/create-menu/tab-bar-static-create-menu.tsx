@@ -3,17 +3,11 @@ import { FilePlus, FileText, Globe, MessageSquare, Smartphone, TerminalSquare } 
 import { useTranslate } from '@/i18n/use-translate'
 import { MobileEmulatorTabIntroCallout } from '../../emulator-pane/tab-intro/MobileEmulatorTabIntroCallout'
 import { NewTabMenuTipSlot } from '../menu-fit/NewTabMenuTipSlot'
-import { ShellIcon } from '../../terminal/shells/ShellIcon'
 import { useAppStore } from '@/store/index'
 import { usePluginNewFiles } from '@/store/plugins/file-creation/plugin-new-files'
 import { PluginContributionIcon } from '../../plugins/PluginContributionIcon'
-import type { WindowsShellMenuEntry } from './tab-bar-windows-shell-options'
-import {
-  isMacOs,
-  type resolveWindowsPowerShellImplementationSetting
-} from '../model/use-tab-bar-runtime-model'
+import { isMacOs } from '../model/use-tab-bar-runtime-model'
 import type { TabBarProps } from '../tab-bar-props'
-import { resolveWindowsShellLaunchTarget } from './windows-shell-launch'
 import { TabBarCreateRow } from './TabBarCreateRow'
 import { NEW_TAB_MENU_LAYOUT_SETTING } from '../../../../../shared/new-tab-menu/new-tab-menu-layout'
 import {
@@ -33,9 +27,6 @@ export function TabBarStaticCreateMenu({
   workspaceHasSimulatorTab,
   showMobileEmulatorIntroCallout,
   props,
-  windowsShellEntries,
-  defaultWindowsPowerShellImplementation,
-  pwshAvailable,
   openNewChat,
   queueNewActiveTerminalFocusAfterNewTabMenuClose
 }: {
@@ -47,11 +38,6 @@ export function TabBarStaticCreateMenu({
   mobileEmulatorCreationEnabled: boolean
   workspaceHasSimulatorTab: boolean
   showMobileEmulatorIntroCallout: boolean
-  windowsShellEntries: WindowsShellMenuEntry[] | undefined
-  defaultWindowsPowerShellImplementation: ReturnType<
-    typeof resolveWindowsPowerShellImplementationSetting
-  >
-  pwshAvailable: boolean
   openNewChat: () => void
   queueNewActiveTerminalFocusAfterNewTabMenuClose: () => void
 }): React.ReactNode {
@@ -59,7 +45,6 @@ export function TabBarStaticCreateMenu({
   const {
     newTabMenuSurface = 'tab-bar',
     onNewTerminalTab,
-    onNewTerminalWithShell,
     onNewBrowserTab,
     onNewSimulatorTab,
     onNewFileTab,
@@ -68,40 +53,19 @@ export function TabBarStaticCreateMenu({
   const pluginNewFiles = usePluginNewFiles()
   const simulatorAvailable = !terminalOnly && mobileEmulatorEnabled && mobileEmulatorCreationEnabled
 
-  const terminalItems: TabBarCreateRowItem[] =
-    windowsShellEntries && onNewTerminalWithShell
-      ? windowsShellEntries.map((entry, index) => ({
-          // Why: the first entry is the default shell, which New Terminal's shortcut opens.
-          id: index === 0 ? CREATE_ROW_TERMINAL_ID : `${CREATE_ROW_TERMINAL_ID}:${entry.shell}`,
-          locked: index === 0,
-          label: `${t('auto.components.tab.bar.TabBar.7c1313d237', 'New Terminal:')} ${entry.label}`,
-          icon: <ShellIcon shell={entry.shell} size={16} />,
-          actionId: index === 0 ? 'tab.newTerminal' : undefined,
-          run: () => {
-            // Why: menu models shell categories not executables; preserve the user's chosen PowerShell 7+ over inbox powershell.exe.
-            queueNewActiveTerminalFocusAfterNewTabMenuClose()
-            onNewTerminalWithShell(
-              resolveWindowsShellLaunchTarget(
-                entry.shell,
-                defaultWindowsPowerShellImplementation,
-                pwshAvailable
-              )
-            )
-          }
-        }))
-      : [
-          {
-            id: CREATE_ROW_TERMINAL_ID,
-            locked: true,
-            label: t('auto.components.tab.bar.TabBar.d364f3c8d4', 'New Terminal'),
-            icon: <TerminalSquare className={ICON_CLASS} />,
-            actionId: 'tab.newTerminal',
-            run: () => {
-              queueNewActiveTerminalFocusAfterNewTabMenuClose()
-              onNewTerminalTab()
-            }
-          }
-        ]
+  const terminalItems: TabBarCreateRowItem[] = [
+    {
+      id: CREATE_ROW_TERMINAL_ID,
+      locked: true,
+      label: t('auto.components.tab.bar.TabBar.d364f3c8d4', 'New Terminal'),
+      icon: <TerminalSquare className={ICON_CLASS} />,
+      actionId: 'tab.newTerminal',
+      run: () => {
+        queueNewActiveTerminalFocusAfterNewTabMenuClose()
+        onNewTerminalTab()
+      }
+    }
+  ]
   const browserItems: TabBarCreateRowItem[] =
     !terminalOnly && managedBrowserCreationEnabled
       ? [

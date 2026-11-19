@@ -29,8 +29,9 @@ describe('persona task-spec contract', () => {
       'Entry pointers',
       'Acceptance check',
       'Validation commands'
-    ])
+    ]) {
       expect(MTE_CODER_PERSONA).toContain(t)
+    }
     expect(MTE_CODER_PERSONA).not.toContain('exactly the files')
   })
 

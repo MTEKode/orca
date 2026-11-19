@@ -16,11 +16,11 @@ import AgentSettingsDialog, {
 } from '@/components/agent/AgentSettingsDialog'
 import type { AddRepoDialogHostedController } from '@/components/sidebar/project-admission/host-selection/use-add-repo-hosted-controller'
 import { useComposerState } from '@/hooks/useComposerState'
+import { composerLaunchWorkspace } from '@/lib/workspace/creation/quick-workspace-agent-selection'
 import {
-  composerLaunchWorkspace,
   pickQuickWorkspaceAgent,
   resolveQuickWorkspaceAgentSelection
-} from '@/lib/workspace/creation/quick-workspace-agent-selection'
+} from '../../../../shared/agent-launch/catalog/quick-workspace-agent-selection'
 import type { LinkedWorkItemSummary } from '@/lib/workspace/creation/new-workspace'
 import { useAgentsOfferedForLaunch } from '@/lib/agent-session/launch/inventory/host-chat-program-acquisition'
 import { shouldAllowComposerEnterSubmitTarget } from '@/lib/workspace/creation/new-workspace-enter-guard'

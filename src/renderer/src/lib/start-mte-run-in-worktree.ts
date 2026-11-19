@@ -4,7 +4,7 @@ import { translate } from '@/i18n/i18n'
 import { runtimeTargetForOwnerEnvironment } from '@/runtime/rpc/targets/runtime-client-target'
 import { runtimeEnvironmentIdOrLocalUnlessTwin } from '@/lib/workspace/ownership/worktree-runtime-owner'
 import { useAppStore } from '@/store'
-import { launchAgentInNewTab } from '@/lib/agent-session/launch/new-tab/launch-agent-in-new-tab'
+import { launchAgentInNewTabWithOutcome } from '@/lib/agent-session/launch/new-tab/launch-agent-in-new-tab'
 import { createNonSecureContextUuid as newAgentLaunchRequestId } from '../../../shared/identifiers/non-secure-context-uuid'
 import {
   launchSettledNewChat,
@@ -22,7 +22,7 @@ function launchNewChatPickInWorktree(
   worktreeId: string,
   [row, draft, entry, override]: RunLaunchArgs
 ): boolean {
-  const result = launchAgentInNewTab({
+  const result = launchAgentInNewTabWithOutcome({
     requestId: newAgentLaunchRequestId(),
     agent: row.agent,
     worktreeId,

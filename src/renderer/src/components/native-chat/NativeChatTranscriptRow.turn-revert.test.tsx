@@ -65,7 +65,7 @@ function contextWith(
     taskListPredecessors: new Map(),
     expandedTurnIds: new Set(),
     onToggleExpandedTurn: () => {},
-    subagentDisclosure: { setSectionOpen: () => {}, setRosterOpen: () => {} },
+    readerAtEnd: () => true,
     onScrollMessageToTop: () => {},
     onRevealDiff: () => {},
     ...(turnRevert ? { turnRevert } : {})

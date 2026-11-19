@@ -67,7 +67,7 @@ function resolver(
 ) {
   return createAcpStructuredLaunchResolver(options.spec ?? OPENCODE, {
     store: { getRecord: () => record, pinLaunchDirectory: vi.fn() },
-    readJournal: () => null,
+    savedSession: { hasProviderTurn: async () => false },
     resolveWorkspacePath: async () => '/repo/worktree',
     resolveEnvironment: async () => ({ PATH: '/usr/bin', HOME: '/home/user', ...options.base }),
     resolveLaunchEnv: () => options.launchEnv ?? {},
@@ -239,7 +239,7 @@ describe('OpenCode ACP launch resolution', () => {
     })({ identity })
     await expect(launch).rejects.toBeInstanceOf(AgentCliInstallationError)
     await expect(launch).rejects.toThrow(
-      'OpenCode 1.0.0 is too old for chats. Update to 1.18.31 or newer.'
+      'Your OpenCode CLI on this computer is 1.0.0. Chats need 1.18.31 or newer.'
     )
   })
 

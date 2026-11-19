@@ -3,7 +3,7 @@
 // working-tree builder (temp index, .gitignore-aware) instead of a second diff engine.
 
 import { StringDecoder } from 'node:string_decoder'
-import { getBaseRefDefault } from '../git/remotes/repo-remote-queries'
+import { getDefaultBaseRefAsync } from '../git/refs/resolution/repo-default-base-ref'
 import { isMaxBufferOverflowError } from '../git/command-runner/process-capture/max-buffer-overflow'
 import { gitExecFileAsync } from '../git/command-runner/git-exec-file'
 import {
@@ -59,7 +59,7 @@ export async function readReviewWorkspaceDiff(
       }
     }
     const baseRef =
-      options.pinnedBaseRef?.trim() || (await getBaseRefDefault(worktreePath, runtime)) || null
+      options.pinnedBaseRef?.trim() || (await getDefaultBaseRefAsync(worktreePath, runtime)) || null
     if (!baseRef) {
       return {
         error:

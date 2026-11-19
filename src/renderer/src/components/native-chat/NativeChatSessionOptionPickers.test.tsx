@@ -206,7 +206,7 @@ describe('NativeChatSessionOptionPickers', () => {
     await waitFor(() =>
       expect(screen.getByRole('radio', { name: 'Low' }).getAttribute('aria-checked')).toBe('true')
     )
-    expect(pill('Model Opus 4.8, Effort Low')).not.toBeNull()
+    expect(pill('Model Opus 4.8 · Low, Effort Low')).not.toBeNull()
     expect(held()).toEqual(['false', 'true'])
     screen.getByRole('option', { name: 'Sonnet 5' }).click()
     expect(setOption.mock.calls).toEqual([
@@ -264,7 +264,8 @@ describe('NativeChatSessionOptionPickers', () => {
           {
             id: 'sonnet-next',
             label: 'Sonnet Next',
-            isDefault: true
+            isDefault: true,
+            efforts: []
           }
         ]
       },
@@ -320,7 +321,8 @@ describe('NativeChatSessionOptionPickers', () => {
           {
             id: 'sonnet-next',
             label: 'Sonnet Next',
-            isDefault: true
+            isDefault: true,
+            efforts: []
           }
         ]
       },

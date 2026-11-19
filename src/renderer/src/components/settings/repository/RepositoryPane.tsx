@@ -185,6 +185,13 @@ export function RepositoryPane({
     }, 1500)
   }
 
+  // Sections that need only the repo, its writer and the search force-open flag.
+  const repoSectionProps = {
+    repo,
+    updateRepo: updateSelectedRepo,
+    forceVisible: forceFullPaneForRepoMatch
+  }
+
   const {
     identity: identityEntries,
     sparsePresets: sparsePresetEntries,
@@ -296,17 +303,9 @@ export function RepositoryPane({
           forceVisible={forceFullPaneForRepoMatch}
         />
 
-        <RepositoryAgentTrustSection
-          repo={repo}
-          updateRepo={updateSelectedRepo}
-          forceVisible={forceFullPaneForRepoMatch}
-        />
+        <RepositoryAgentTrustSection {...repoSectionProps} />
 
-        <RepositoryBrowserProfileSection
-          repo={repo}
-          updateRepo={updateSelectedRepo}
-          forceVisible={forceFullPaneForRepoMatch}
-        />
+        <RepositoryBrowserProfileSection {...repoSectionProps} />
 
         {!isFolder ? (
           <>
@@ -336,23 +335,11 @@ export function RepositoryPane({
               searchEntries={projectRuntimeEntries}
             />
 
-            <RepositoryForkSyncSection
-              repo={repo}
-              updateRepo={updateSelectedRepo}
-              forceVisible={forceFullPaneForRepoMatch}
-            />
+            <RepositoryForkSyncSection {...repoSectionProps} />
 
-            <RepositoryMteSections
-              repo={repo}
-              updateRepo={updateSelectedRepo}
-              forceVisible={forceFullPaneForRepoMatch}
-            />
+            <RepositoryMteSections {...repoSectionProps} />
 
-            <RepositoryGitHubAccountSection
-              repo={repo}
-              updateRepo={updateSelectedRepo}
-              forceVisible={forceFullPaneForRepoMatch}
-            />
+            <RepositoryGitHubAccountSection {...repoSectionProps} />
 
             <RepositoryWorktreeDefaultsSection
               repo={repo}

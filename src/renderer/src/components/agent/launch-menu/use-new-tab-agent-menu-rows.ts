@@ -16,10 +16,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { STRUCTURED_AGENT_SESSION_AVAILABILITY_RUNTIME_CAPABILITY as AVAILABILITY } from '../../../../../shared/agent-session/capabilities/structured-agent-session-surface-capabilities'
 import * as ExecutionHost from '../../../../../shared/execution-host/execution-host'
 import { isTuiAgent } from '../../../../../shared/agent-launch/catalog/tui-agent-config'
-import {
-  PRIMARY_AGENTS,
-  isPrimaryAgent
-} from '../../../../../shared/agent-launch/catalog/primary-agents'
+import * as primary from '../../../../../shared/agent-launch/catalog/primary-agents'
 import { useAgentPickerRefusedWake } from './use-agent-picker-refused-wake'
 import { buildAgentLaunchRouteInput } from '@/lib/agent-session/launch/routing/agent-launch-route-input'
 import { workspaceKindForWorktreeId } from '../../../../../shared/agent-launch/contracts/workspace-launch-kind'
@@ -172,15 +169,14 @@ export function useAgentMenuObservation(
     )
   const chatAgents = [
     ...new Set([
-      ...PRIMARY_AGENTS,
-      ...(localCatalog ?? []).filter(isPrimaryAgent),
-      ...(hostCatalog ?? []).filter(isPrimaryAgent),
+      ...primary.PRIMARY_AGENTS,
+      ...(localCatalog ?? []),
+      ...(hostCatalog ?? []),
       ...Object.keys(settings?.nativeChatProviders ?? {})
         .filter(isTuiAgent)
         .filter((agent) => nativeChatPreferenceFor(settings, agent))
-        .filter(isPrimaryAgent)
     ])
-  ].filter(isTuiAgent)
+  ].filter((agent): agent is TuiAgent => isTuiAgent(agent) && primary.isPrimaryAgent(agent))
   const inventoryFailed =
     detection.detectedIds === null && (detection.detectionFailed || detection.needsServerUpdate)
   const localAcquiring = ['unlearned', 'pending'].includes(localCapabilities.state)

@@ -2,30 +2,16 @@ import { useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../../store/index'
 import { buildStatusMap } from '../../../../../shared/git/status/git-path-decoration'
-import { useAgentDetectionTargetForWorktree } from '@/lib/agent-session/launch/inventory/useAgentDetectionTarget'
 import '@/lib/workspace/ownership/connection-context'
 import { getConnectionIdFromState } from '@/lib/workspace/ownership/connection-owner-resolution'
-import { getLocalProjectExecutionRuntimeContext } from '@/runtime/hosts/preflight/local-preflight-context'
 import { isNativeChatTranscriptLocalReadable } from '../../../../../shared/native-chat/transcript/messages/native-chat-transcript-readability'
-import { runtimeEnvironmentIdOrLocalUnlessTwin } from '@/lib/workspace/ownership/worktree-runtime-owner'
-import { runtimeTargetForOwnerEnvironment } from '@/runtime/rpc/targets/runtime-client-target'
-import {
-  getWindowsTerminalCapabilityOwnerKey,
-  useWindowsTerminalCapabilities
-} from '@/runtime/hosts/capabilities/windows-terminal-capabilities'
-import type { WindowsTerminalCapabilities } from '@/runtime/hosts/capabilities/windows-terminal-capabilities'
 import { shouldShowMobileEmulatorTabIntro } from '../../emulator-pane/tab-intro/mobile-emulator-tab-intro-visibility'
 import { selectTabBarAgentProjections } from './tab-agent-types-by-tab-id'
 import type { TabBarAgentProjections } from './tab-agent-types-by-tab-id'
-import { shouldShowWindowsShellMenu } from '../create-menu/windows-shell-menu-visibility'
 import { createUnifiedTabLookup } from './tab-bar-item-model'
 import { getClientCreationActionPolicy } from '@/lib/workspace/creation/surface-policy/client-creation-action-policy'
-import { selectWorktreesByRepo } from '@/store/workspaces/catalog/workspace-record-fields'
 import type { GitFileStatus } from '../../../../../shared/git/status/git-status-types'
-import type { GlobalSettings } from '../../../../../shared/settings/global-settings-types'
 import type { Tab } from '../../../../../shared/workspace-layout/tab-groups/tab-types'
-import type { ProjectExecutionRuntimeResolution } from '../../../../../shared/execution-host/project-execution-runtime'
-import type { AgentDetectionTarget } from '@/lib/agent-session/launch/inventory/useDetectedAgents'
 
 export const isMacOs = navigator.userAgent.includes('Mac')
 type AppStoreState = ReturnType<typeof useAppStore.getState>

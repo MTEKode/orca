@@ -18,8 +18,7 @@ import { safeRemoveOverlay } from '../../../main/pty/scrollback/overlay-mirror'
 import type { PiAgentKind } from '../../../shared/agent-launch/catalog/pi-agent-kind'
 import {
   installOpenCodePluginInCanonicalConfig,
-  isRelayOpenCodeOverlayPath,
-  type OpenCodeAgent
+  isRelayOpenCodeOverlayPath
 } from '../opencode/opencode-canonical-config'
 import { writeRelayOmpStatusExtension } from './omp-status-extension'
 import {

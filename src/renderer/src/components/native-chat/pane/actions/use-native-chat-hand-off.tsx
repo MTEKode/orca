@@ -21,7 +21,7 @@ import type { NativeChatFileLinkContext } from '../../links/actions/native-chat-
 
 import type { TuiAgent } from '../../../../../../shared/agent-launch/catalog/tui-agent'
 import { launchAgentSessionContinuation } from '@/lib/agent-session/launch/continuation/launch-agent-session-continuation'
-import { launchAgentInNewTab } from '@/lib/agent-session/launch/new-tab/launch-agent-in-new-tab'
+import { launchAgentInNewTabWithOutcome } from '@/lib/agent-session/launch/new-tab/launch-agent-in-new-tab'
 import { createNonSecureContextUuid as newAgentLaunchRequestId } from '../../../../../../shared/identifiers/non-secure-context-uuid'
 
 export type NativeChatHandOff = {
@@ -240,7 +240,7 @@ export function useNativeChatHandOff({
           launchSource: 'native_chat'
         })
       } else {
-        launchAgentInNewTab({
+        launchAgentInNewTabWithOutcome({
           requestId: newAgentLaunchRequestId(),
           agent: pick.agent,
           worktreeId: directory.worktreeId,

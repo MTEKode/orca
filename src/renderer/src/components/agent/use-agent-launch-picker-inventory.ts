@@ -38,11 +38,8 @@ import {
 } from './agent-launch-picker-host-reads'
 import { AGENT_SESSION_COHERENT_MODEL_CATALOG_CAPABILITY } from '../../../../shared/agent-session/capabilities/structured-agent-session-surface-capabilities'
 import { formatAgentTypeLabel } from '../../../../shared/agent-status/presentation/agent-type-label'
-import {
-  currentAgentPickerAcquisition,
-  observeAgentPickerAcquisition,
-  prioritizeAgentPickerAcquisition
-} from './agent-launch-picker-acquisition'
+import * as acquisition from './agent-launch-picker-acquisition'
+import { usePrioritizedAgentPickerAcquisition } from './agent-launch-picker-priority'
 import {
   agentPickerChoiceSeeds,
   type AgentPickerDefaultSettings
@@ -255,7 +252,7 @@ export function useAgentLaunchPickerInventorySource(
   const source = useMemo(
     () =>
       createAgentPickerInventorySource(
-        (open ? currentAgentPickerAcquisition(key) : undefined) ?? fallback
+        (open ? acquisition.currentAgentPickerAcquisition(key) : undefined) ?? fallback
       ),
     [key, open, fallback]
   )
@@ -264,7 +261,7 @@ export function useAgentLaunchPickerInventorySource(
       return
     }
     const controller = new AbortController()
-    return observeAgentPickerAcquisition(
+    return acquisition.observeAgentPickerAcquisition(
       key,
       fallback,
       {
@@ -303,10 +300,5 @@ export function useAgentLaunchPickerInventorySource(
     )
     // oxlint-disable-next-line react-hooks/exhaustive-deps -- Only semantic inputs and visibility own observation; selected priority publishes independently after commit.
   }, [key, open, source, viewActive])
-  useEffect(() => {
-    if (open) {
-      prioritizeAgentPickerAcquisition(key)
-    }
-  }, [key, open, selected])
-  return source
+  return usePrioritizedAgentPickerAcquisition(source, key, open, selected)
 }

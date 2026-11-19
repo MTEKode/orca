@@ -25,6 +25,7 @@ import {
   type AcpAgentConnectionOptions
 } from '../process/acp-agent-connection'
 import { acpClientInfo } from '../launch/acp-client-info'
+import { listAcpCommandModels } from './acp-command-model-listing'
 import { acpRunFolder } from '../launch/acp-private-temp'
 import {
   acpListingDependsOnRelease,
@@ -150,30 +151,12 @@ export function createAcpModelCatalogProbe(
         let models: AgentSessionModelOption[]
         let attemptedModels: string[] | undefined
         if (listing.kind === 'command') {
-          const listingLaunch = {
-            command: listing.binary ?? command,
-            args: [...(listing.binary ? [] : prefixArgs), ...listing.args],
-            cwd: workspace ?? cwd,
-            env,
-            envToDelete
-          }
-          try {
-            const stdout = await (deps.runListing ?? runAgentModelCatalogListing)(listingLaunch, {
-              site: `${spec.agent}-model-catalog-probe`,
-              signal: options?.signal,
-              timeoutMs: listing.timeoutMs ?? null
-            })
-            models = listing.parse(stdout)
-            if (models.length === 0 && listing.fallback) {
-              models = listing.fallback()
-            }
-          } catch (error) {
-            // Cancellation is not a listing failure.
-            if (!listing.fallback || options?.signal?.aborted) {
-              throw error
-            }
-            models = listing.fallback()
-          }
+          const listingLaunch = { command, prefixArgs, cwd: workspace ?? cwd, env, envToDelete }
+          models = await listAcpCommandModels(listing, listingLaunch, {
+            site: `${spec.agent}-model-catalog-probe`,
+            signal: options?.signal,
+            run: deps.runListing ?? runAgentModelCatalogListing
+          })
         } else if (listing.kind === 'session') {
           if (!workspace && !listing.inPrivateFolder) {
             throw folderlessListing(spec)

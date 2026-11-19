@@ -1,5 +1,6 @@
 import type { DiscoveredSkill, SkillSourceKind } from '../../../skills/discovery/skills'
 import * as reportedSkills from './native-chat-reported-skill'
+import { getNameRank } from './native-chat-picker-name-rank'
 import type * as Commands from '../commands/native-chat-slash-commands'
 import { stripUnsafeDisplayCharacters } from '../../../text/display-text-safety'
 import {
@@ -220,7 +221,7 @@ function mergeNativeChatSkills(
       : [...discovered.keys()]
   // The unified entry wins the label over a same-named scanned or reported row; a pick still sends `/name`.
   const unified = unifiedSkills.flatMap((skill) => {
-    const name = getSafeSkillName(skill)
+    const name = reportedSkills.getSafeSkillName(skill)
     return name ? [pickerSkill(name, [{ ...skill, name }], skillSigil)] : []
   })
   return [
@@ -312,32 +313,6 @@ function getMatchRank(
     return 4
   }
   return null
-}
-
-function getNameRank(name: string, query: string): number | null {
-  if (name === query) {
-    return 0
-  }
-  if (name.startsWith(query)) {
-    return 1
-  }
-  if (name.includes(query)) {
-    return 2
-  }
-  return isSubsequence(query, name) ? 3 : null
-}
-
-function isSubsequence(query: string, value: string): boolean {
-  let queryIndex = 0
-  for (const character of value) {
-    if (character === query[queryIndex]) {
-      queryIndex += 1
-    }
-    if (queryIndex === query.length) {
-      return true
-    }
-  }
-  return false
 }
 
 function sanitizePickerText(value: string, maxLength: number): string {

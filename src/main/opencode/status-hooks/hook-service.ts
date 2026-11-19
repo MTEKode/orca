@@ -10,10 +10,7 @@ import {
   statSync
 } from 'node:fs'
 import { isSafeDescendCandidate, mirrorEntry } from '../../pty/scrollback/overlay-mirror'
-import {
-  getOpenCode2PluginSource,
-  getOpenCodePluginSource
-} from './plugin-source/status-plugin-module-source'
+import { getOpenCodePluginSource } from './plugin-source/status-plugin-module-source'
 import {
   readOpenCodeOverlayManifest,
   clearOpenCodeOverlayManifestEntries,
@@ -315,10 +312,3 @@ export class OpenCodeHookService {
 }
 
 export const openCodeHookService = new OpenCodeHookService()
-export const openCode2HookService = new OpenCodeHookService({
-  pluginFileName: 'orca-opencode2-status.js',
-  legacyHooksDir: OPENCODE2_LEGACY_HOOKS_DIR,
-  overlayDir: 'opencode2-config-overlays',
-  pluginSource: getOpenCode2PluginSource,
-  installsTuiPlugin: true
-})

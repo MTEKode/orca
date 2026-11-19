@@ -1,4 +1,6 @@
+import { isDeepStrictEqual } from 'node:util'
 import type { AgentSessionRecord } from '../../../../shared/agent-session/lifecycle/agent-session-record'
+import type { MteWorkerPin } from '../../../../shared/mte/worker-pin'
 import type { AgentSessionOptionsReplacement } from '../../../../shared/agent-session/options/protocol/agent-session-options-replacement'
 import { withAcquiredAgentSessionAccount } from '../../../../shared/agent-session/lifecycle/accounts/agent-session-acquired-account'
 import {
@@ -52,6 +54,7 @@ export type AgentSessionRecordCommand =
       now: number
     }
   | { kind: 'launch-directory'; launchDirectory: string; now: number }
+  | { kind: 'mte-planner'; worker?: MteWorkerPin; now: number }
   | { kind: 'options'; args: AgentSessionOptionsReplacement }
   | { kind: 'pick-option'; args: AgentSessionOptionPick }
   | { kind: 'ran-options'; args: AgentSessionRanOptions }
@@ -125,6 +128,18 @@ export function applyAgentSessionRecordCommand(
       break
     case 'launch-directory':
       next = pinAgentSessionRecordLaunchDirectory(record, command.launchDirectory, command.now)
+      break
+    case 'mte-planner':
+      next =
+        record.mteRole === 'planner' &&
+        (!command.worker || isDeepStrictEqual(record.mteWorker, command.worker))
+          ? record
+          : {
+              ...record,
+              mteRole: 'planner',
+              ...(command.worker ? { mteWorker: command.worker } : {}),
+              updatedAt: command.now
+            }
       break
     case 'options':
       next = replaceAgentSessionRecordOptions(record, command.args)

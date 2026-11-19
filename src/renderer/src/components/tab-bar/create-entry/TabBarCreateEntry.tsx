@@ -5,11 +5,6 @@ import { useRuntimeFileListForWorktree } from '../../file-actions/quick-open/qui
 import { createTabEntryAllowAbsolutePathsSelector } from './tab-create-entry-local-path'
 import { getTabEntryOptions } from './tab-create-entry-classifier'
 import { isTabEntryAbsolutePathLike } from './tab-create-entry-path-validation'
-import {
-  agentResultSetupOption,
-  matchingAgentLaunchOptions,
-  tabAgentLaunchOptionDisabled
-} from './tab-agent-launch-options'
 import { findMatchingTabCreateMenuOptions } from '../create-menu/tab-create-menu-options'
 import { getActiveOptionId, type ActiveOption } from './tab-create-entry-active-option'
 import {
@@ -49,8 +44,6 @@ export default function TabBarCreateEntry(props: TabBarCreateEntryProps): React.
 }
 
 function TabBarCreateEntrySession({
-  agentOptions = EMPTY_AGENT_OPTIONS,
-  agentPickerEntries,
   excludedTabId,
   groupId,
   menuOpen,

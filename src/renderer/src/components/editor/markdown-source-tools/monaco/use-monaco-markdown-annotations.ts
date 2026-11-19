@@ -13,7 +13,6 @@ import {
   type SetStateAction
 } from 'react'
 import type { editor } from 'monaco-editor'
-import type { DiffComment } from '../../../../../../shared/file-review/diff-comment-types'
 import type { DecoratedDiffComment } from '../../../diff-comments/decorated-diff-comment'
 import type { WorkspaceResource } from '@/lib/workspace/ownership/workspace-copy-owner'
 import { toast } from 'sonner'

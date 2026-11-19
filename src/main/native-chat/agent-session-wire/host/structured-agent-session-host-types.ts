@@ -37,6 +37,7 @@ import type {
 } from '../../../../shared/agent-session/agent-session-wire'
 import type { JournalWriterCommit } from '../../agent-session-journal/journal-writer-changes'
 import type { AgentSessionWireRefusal } from '../../../../shared/agent-session/failures/agent-session-wire-refusals'
+import type { JournalRow } from '../../agent-session-journal/durable-rows/journal-row-schema'
 import type { AgentSessionRecordStore } from '../../../runtime/agent-session/records/agent-session-record-store'
 import type { AgentSessionUserNameWrite } from '../../../runtime/agent-session/records/agent-session-record-conversation-name'
 import type { AgentSessionRecoveryCapsule } from '../../../runtime/agent-session/records/agent-session-recovery-capsule'

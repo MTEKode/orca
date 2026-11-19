@@ -22,13 +22,9 @@ import { getAccountsClaudeSearchEntries } from './accounts-claude-search'
 import {
   getAccountsCodexSearchEntries,
   getAccountsGeminiSearchEntries,
-  getAccountsCursorSearchEntries,
-  getAccountsGrokSearchEntries,
   getAccountsAntigravitySearchEntries,
   getAccountsLocationSearchEntries,
-  getAccountsMiniMaxSearchEntries,
-  getAccountsOpencodeSearchEntries,
-  getAccountsZcodePlanSearchEntries
+  getAccountsOpencodeSearchEntries
 } from './accounts-search'
 import { getRemoteAccountsPaneScope } from '../../provider-accounts/provider-account-scope'
 import { ProviderHostScopeControl } from '../../provider-accounts/ProviderHostScopeControl'
@@ -41,12 +37,9 @@ import {
   providerAccountIsActiveInView,
   providerAccountMatchesView
 } from '../../provider-accounts/provider-account-visibility'
-import { GrokAccountsSection } from './providers/GrokAccountsSection'
 import { AntigravityAccountsSection } from './providers/AntigravityAccountsSection'
 import type { RuntimeClientTarget } from '../../../../../shared/remote-runtime/host-catalog/runtime-client-target'
 import { runtimeTargetEnvironmentId } from '@/runtime/rpc/targets/runtime-client-target'
-import { CursorAccountsSection } from './providers/CursorAccountsSection'
-import { ZcodePlanAccountsSection } from './usage/ZcodePlanAccountsSection'
 import type {
   AccountsPaneProps,
   AccountsPaneSectionModel,
@@ -64,9 +57,9 @@ import { renderClaudeAccountsSection } from './claude/accounts-pane-claude-secti
 import { renderCodexAccountsSection } from './codex/accounts-pane-codex-section'
 import { renderGeminiAccountsSection } from './providers/accounts-pane-gemini-section'
 import { renderOpenCodeAccountsSection } from './providers/accounts-pane-opencode-section'
-import { MiniMaxAccountsSection } from './usage/MiniMaxAccountsSection'
 import { useUsageHostSettings } from './usage/use-usage-host-settings'
 import { ManagedDataAccountsSection } from './providers/ManagedDataAccountsSection'
+import { AccountsOtherProviders } from './AccountsOtherProviders'
 import { renderAccountsRemovalDialogs } from './accounts-pane-removal-dialogs'
 
 export function AccountsPane({
@@ -358,44 +351,8 @@ export function AccountsPane({
   }
   // A desktop reads Grok/Cursor from its own files; the web client gets its server's meter.
   const readsOwnerGrokCursor = !isRemoteAccountScope || isWebClientLocation()
-  const managedDataSearchMatch = (name: RegExp): boolean => !searchQuery || name.test(searchQuery)
-  // ponytail: providers outside the fork's agent catalog stay functional but folded; delete them once their usage panes go.
-  const otherSections = [
-    managedDataSearchMatch(/devin|account/i) ? (
-      <ManagedDataAccountsSection
-        key={`devin:${accountOwnerKey}`}
-        provider="devin"
-        target={accountOwner}
-      />
-    ) : null,
-    matchesSettingsSearch(searchQuery, getAccountsGeminiSearchEntries())
-      ? renderGeminiAccountsSection(model, t)
-      : null,
-    matchesSettingsSearch(searchQuery, getAccountsMiniMaxSearchEntries()) ? (
-      <MiniMaxAccountsSection
-        key={`minimax:${accountOwnerKey}`}
-        host={usageCredentialHost}
-        usageSettings={usageHostSettings}
-        miniMaxRateLimits={isRemoteAccountScope ? null : miniMaxRateLimits}
-        recordFeatureInteraction={recordFeatureInteraction}
-      />
-    ) : null,
-    readsOwnerGrokCursor && matchesSettingsSearch(searchQuery, getAccountsGrokSearchEntries()) ? (
-      <GrokAccountsSection key="grok" />
-    ) : null,
-    readsOwnerGrokCursor && matchesSettingsSearch(searchQuery, getAccountsCursorSearchEntries()) ? (
-      <CursorAccountsSection key="cursor" />
-    ) : null,
-    matchesSettingsSearch(searchQuery, getAccountsZcodePlanSearchEntries()) ? (
-      <ZcodePlanAccountsSection
-        key={`zcode:${accountOwnerKey}`}
-        host={usageCredentialHost}
-        usageSettings={usageHostSettings}
-      />
-    ) : null
-  ]
   const visibleSections = [
-    managedDataSearchMatch(/opencode|account/i) ? (
+    !searchQuery || /opencode|account/i.test(searchQuery) ? (
       <ManagedDataAccountsSection
         key={`opencode:${accountOwnerKey}`}
         provider="opencode"
@@ -410,9 +367,6 @@ export function AccountsPane({
       : null,
     claudeSectionShown ? renderClaudeAccountsSection(model, t, intlLocale) : null,
     codexSectionShown ? renderCodexAccountsSection(model, t, intlLocale) : null,
-    matchesSettingsSearch(searchQuery, getAccountsGeminiSearchEntries())
-      ? renderGeminiAccountsSection(model, t)
-      : null,
     matchesSettingsSearch(searchQuery, getAccountsAntigravitySearchEntries()) ? (
       <AntigravityAccountsSection
         key={`antigravity:${accountOwnerKey}:${accountRuntime.runtime}:${accountRuntime.wslDistro ?? ''}`}
@@ -425,17 +379,22 @@ export function AccountsPane({
     matchesSettingsSearch(searchQuery, getAccountsOpencodeSearchEntries())
       ? renderOpenCodeAccountsSection(model, t)
       : null,
-    otherSections.some((section) => section !== null) ? (
-      // Search forces it open so matches are never hidden; deep links open it in scrollSubsectionIntoView.
-      <details key="other-providers" open={searchQuery ? true : undefined}>
-        <summary className="cursor-pointer text-sm font-medium text-muted-foreground hover:text-foreground">
-          {t('accounts.otherProviders', 'Other providers')}
-        </summary>
-        <div className="mt-6">
-          <SettingsSectionStack sections={otherSections} />
-        </div>
-      </details>
-    ) : null
+    <AccountsOtherProviders
+      key="other-providers"
+      searchQuery={searchQuery}
+      ownerKey={accountOwnerKey}
+      owner={accountOwner}
+      usageHost={usageCredentialHost}
+      usageSettings={usageHostSettings}
+      miniMaxRateLimits={isRemoteAccountScope ? null : miniMaxRateLimits}
+      recordFeatureInteraction={recordFeatureInteraction}
+      readsOwnerGrokCursor={readsOwnerGrokCursor}
+      gemini={
+        matchesSettingsSearch(searchQuery, getAccountsGeminiSearchEntries())
+          ? renderGeminiAccountsSection(model, t)
+          : null
+      }
+    />
   ]
 
   return (

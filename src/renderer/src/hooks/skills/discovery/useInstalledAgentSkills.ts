@@ -9,7 +9,6 @@ import type {
   SkillDiscoveryTarget,
   SkillSourceKind
 } from '../../../../../shared/skills/discovery/skills'
-import { ORCHESTRATION_SKILL_NAME } from '@/lib/skills/installation/agent-feature-skill-names'
 import { markOrchestrationSetupComplete } from '@/components/orchestration/setup/orchestration-setup-state'
 import { MTE_SKILL_NAME } from '@/lib/skills/installation/agent-feature-skill-names'
 import {

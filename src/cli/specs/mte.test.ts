@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { COMMAND_SPECS } from './index'
-import { findCommandSpec, isCommandGroup, specPaths } from '../arguments/args'
+import { findCommandSpec, isCommandGroup } from '../arguments/args'
+import { specPaths } from '../discovery/command-spec'
 import { formatCommandHelp, formatGroupHelp } from '../discovery/help'
 import { ignoresRemoteSelection } from '../dispatch/remote-selection-scope'
 

@@ -32,9 +32,9 @@ function openCodeCommandAgent(launchCommand: string | undefined): 'opencode' | n
 export function selectOpenCodeHookAgent(
   launchAgent: TuiAgent | undefined,
   launchCommand: string | undefined,
-  isEnabled: (agent: 'opencode' | 'opencode2') => boolean,
-  isOnPath: (agent: 'opencode' | 'opencode2') => boolean
-): 'opencode' | 'opencode2' | null {
+  isEnabled: (agent: 'opencode') => boolean,
+  isOnPath: (agent: 'opencode') => boolean
+): 'opencode' | null {
   const explicit =
     launchAgent === 'opencode'
       ? launchAgent
@@ -45,8 +45,5 @@ export function selectOpenCodeHookAgent(
     return isEnabled(explicit) ? explicit : null
   }
   // A plain shell gets a plugin only for a CLI the user could type there (#43445).
-  return (
-    (['opencode', 'opencode2'] as const).find((agent) => isEnabled(agent) && isOnPath(agent)) ??
-    null
-  )
+  return isEnabled('opencode') && isOnPath('opencode') ? 'opencode' : null
 }

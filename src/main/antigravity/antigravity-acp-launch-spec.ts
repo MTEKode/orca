@@ -33,7 +33,6 @@ import { ANTIGRAVITY_CHAT_HOME_FOLDER } from './antigravity-chat-home'
 import { assertAntigravityChatAuthPublished } from './antigravity-chat-auth-publication'
 import { readAntigravitySignInLine } from './antigravity-sign-in-url'
 import { antigravityChatRulesMeta } from './antigravity-chat-rules'
-import { discardAntigravityListingSession } from './antigravity-listing-session'
 import { parseAgyModelListing } from './antigravity-model-listing'
 import {
   antigravityFallbackModelOptions,

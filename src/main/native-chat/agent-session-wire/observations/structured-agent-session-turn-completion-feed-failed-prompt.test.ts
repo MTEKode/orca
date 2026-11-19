@@ -71,7 +71,7 @@ function harness(): {
     fence?: number
   ) => void
   setCursor: (next: { epoch: string; sequence: number }) => void
-  observe: () => void
+  observe: () => Promise<void>
   events: AgentSessionTurnCompletionEvent[]
   outcomes: () => [string, string][]
   awaitingUser: () => boolean[]
@@ -87,7 +87,8 @@ function harness(): {
   const feed = new StructuredAgentSessionTurnCompletionFeed({
     sessions,
     now: () => 1_700,
-    readStatusState: () => projectStructuredAgentSessionStatusState(items, submissions, fence),
+    readStatusState: async () =>
+      projectStructuredAgentSessionStatusState(items, submissions, fence),
     readChildWork: () => []
   })
   const events: AgentSessionTurnCompletionEvent[] = []
@@ -150,18 +151,18 @@ describe('a failed turn that leaves a prompt pending', () => {
     }
   }
 
-  it('still raises a prompt left pending by a failed turn, after the failure completion', () => {
+  it('still raises a prompt left pending by a failed turn, after the failure completion', async () => {
     const h = harness()
     h.listen({ includePrompts: true })
     const user = userEntry('m1', 1)
     const accepted = [sent('m1', { dispatchState: 'accepted' })]
     h.setJournal([user, turnItem(turn('t1', 'running'), 2)], accepted)
-    h.observe()
+    await h.observe()
     h.setJournal(
       [user, turnItem(turn('t1', 'completed', 'failure'), 2), approval('a1', 3, 'pending')],
       accepted
     )
-    h.observe()
+    await h.observe()
     expect(h.outcomes()).toEqual([['t1', 'failure']])
     expect(h.prompts()).toEqual(['a1'])
   })
