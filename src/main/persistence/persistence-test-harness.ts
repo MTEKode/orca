@@ -89,7 +89,10 @@ export function createStore(
 ): Store {
   installFakeAppEnvironment({ getPath: () => testState.dir })
   initDataPath()
-  return createSqliteTestStore(Store, { ...options, dataFile: dataFile() })
+  const store = createSqliteTestStore(Store, { ...options, dataFile: dataFile() })
+  // The MTE planner gate is product policy; test rigs exercise generic orchestration mechanics.
+  store.updateSettings({ mteGateOrchestration: false })
+  return store
 }
 
 /** Seed legacy relay leases before load; the store no longer creates them. */

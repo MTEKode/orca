@@ -18,20 +18,25 @@ function nativeChatDefaults(headless: boolean, settings: Partial<GlobalSettings>
   return controller.get().nativeChatDefaults
 }
 
-it('reports no choice for a headless host nobody set Chat or CLI on', () => {
-  expect(nativeChatDefaults(true)).toBeNull()
+// The fork defaults agentDefaultSurface to 'chat', so untouched hosts report Chat on both
+// headless and desktop; upstream's 'terminal' default is what made these null/'terminal'.
+it('reports the untouched Chat default for a headless host', () => {
+  expect(nativeChatDefaults(true)).toEqual({
+    agentDefaultSurface: 'chat',
+    nativeChatProviders: {}
+  })
 })
 
 it("reports a headless host's saved per-agent choice", () => {
   expect(nativeChatDefaults(true, { nativeChatProviders: { pi: false } })).toEqual({
-    agentDefaultSurface: 'terminal',
+    agentDefaultSurface: 'chat',
     nativeChatProviders: { pi: false }
   })
 })
 
-it("reports a desktop's untouched CLI default as its choice", () => {
+it("reports a desktop's untouched Chat default as its choice", () => {
   expect(nativeChatDefaults(false)).toEqual({
-    agentDefaultSurface: 'terminal',
+    agentDefaultSurface: 'chat',
     nativeChatProviders: {}
   })
 })

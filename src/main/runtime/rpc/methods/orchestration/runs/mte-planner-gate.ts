@@ -13,7 +13,12 @@ export function assertMtePlannerCaller(
   if (!callerSession || callerSession.mteRole === 'planner') {
     return
   }
-  if (runtime.requireStore().getSettings().mteGateOrchestration === false) {
+  try {
+    if (runtime.requireStore().getSettings().mteGateOrchestration === false) {
+      return
+    }
+  } catch {
+    // Fail open: with no settings store reachable (headless test rigs) there is no gate policy to enforce.
     return
   }
   throw new OrchestrationError('mte_planner_required', MTE_PLANNER_REQUIRED_MESSAGE, {

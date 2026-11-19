@@ -257,7 +257,8 @@ describe('which helpers a worker may continue, through CLI argv, RPC and SQLite'
       })
       expect(effects()).toEqual(before)
       // Even around a cycle, the walk to the first request reads each Dispatch a bounded number of times.
-      expect(probes.counts().perDispatch).toBeLessThanOrEqual(6)
+      // The fork's worker-send ACL adds one bounded read of the addressed Dispatch on top of the walk.
+      expect(probes.counts().perDispatch).toBeLessThanOrEqual(7)
       probes.restore()
     }
   )

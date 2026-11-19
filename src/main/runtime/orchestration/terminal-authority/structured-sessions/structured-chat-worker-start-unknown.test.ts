@@ -31,7 +31,9 @@ it('keeps a minted worker start unknown after one preamble handover without an e
       nativeChatProviders: EVERY_AGENT_CHAT,
       agentCmdOverrides: {},
       agentDefaultArgs: {},
-      agentDefaultEnv: {}
+      agentDefaultEnv: {},
+      // The fork's planner gate reads the same store; this rig's coordinator chat is not the planner.
+      mteGateOrchestration: false
     })
   } as never)
   vi.spyOn(sessionCreate, 'createStructuredAgentSessionForWorktree').mockImplementation(
