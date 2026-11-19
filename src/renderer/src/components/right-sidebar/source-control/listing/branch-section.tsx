@@ -5,15 +5,15 @@ import type {
   GitBranchChangeEntry,
   GitBranchCompareSummary
 } from '../../../../../../shared/git/diff/git-diff-compare-types'
-import type { SourceControlViewMode } from '../../../../../../shared/ui-chrome-types'
+import type { SourceControlViewMode } from '../../../../../../shared/ui-chrome/ui-chrome-types'
 import type { SourceControlTreeNode } from '../../../../../../shared/source-control/listing/source-control-tree'
 import type { SourceControlRowOpenEvent } from './split-open'
 import { BranchEntryRow } from './branch-entry-row'
 import { SectionHeader } from './section-header'
 import { formatSourceControlRefLabel } from '../panel/branch-context-stats'
 import { SourceControlBranchTreeDirectoryRow } from './tree-directory-rows'
-import { VirtualizedList } from '../../../virtualized-list'
-import type { DiffComment } from '../../../../../../shared/diff-comment-types'
+import { VirtualizedList } from '../../../ui/virtualized-list'
+import type { DiffComment } from '../../../../../../shared/file-review/diff-comment-types'
 
 export function SourceControlBranchSection({
   activeOpenRowKeys,

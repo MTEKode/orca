@@ -2,7 +2,7 @@
 import { act } from 'react'
 import { renderHook } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Tab } from '../../../../shared/tab-types'
+import type { Tab } from '../../../../shared/workspace-layout/tab-groups/tab-types'
 
 const mocks = vi.hoisted(() => ({
   activateTab: vi.fn(),
@@ -14,7 +14,15 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@/store/index', () => ({ useAppStore: { getState: () => mocks.state } }))
 vi.mock('@/lib/workspace/activation/worktree-activation', () => ({
-  activateAndRevealWorktree: mocks.activateAndRevealWorktree
+  activateAndRevealWorkspace: mocks.activateAndRevealWorktree
+}))
+vi.mock('@/components/native-chat/session/status/structured-agent-session-tabs', () => ({
+  getStructuredAgentSessionTabsByPaneKey: () => new Map([[PANE_KEY, workerTab]])
+}))
+vi.mock('@/runtime/native-chat/session-ownership/structured-agent-session-owner', () => ({
+  structuredAgentSessionTargetForTab: () => ({ kind: 'local' }),
+  structuredAgentSessionOwnerForTab: () => 'local',
+  executionHostIdForStructuredTarget: () => 'local'
 }))
 vi.mock('@/lib/workspace/tabs/activate-tab-and-focus-pane', () => ({
   activateTabAndFocusPane: vi.fn()
@@ -25,7 +33,7 @@ vi.mock('@/lib/workspace/tabs/terminal-tab-owner-activation', () => ({
 vi.mock('@/components/terminal-pane/agent-status/stale-agent-row', () => ({
   dismissStaleAgentRowByKey: vi.fn()
 }))
-vi.mock('@/components/native-chat/composer/focus/use-native-chat-composer-reveal-focus', () => ({
+vi.mock('@/components/native-chat/composer/focus/native-chat-composer-focus-intent', () => ({
   requestNativeChatComposerFocus: vi.fn()
 }))
 vi.mock('@/lib/workspace/ownership/worktree-runtime-owner', () => ({
@@ -74,7 +82,7 @@ describe('sidebar worker row activation', () => {
     act(() => result.current(workerTab.id, PANE_KEY))
 
     expect(isHiddenWorkerTab(workerTab)).toBe(false)
-    expect(mocks.activateAndRevealWorktree).toHaveBeenCalledWith('wt')
+    expect(mocks.activateAndRevealWorktree).toHaveBeenCalledWith('wt', expect.anything())
     expect(mocks.activateTab).toHaveBeenCalledWith(workerTab.id, { worktreeId: 'wt' })
     expect(mocks.setActiveTabType).toHaveBeenCalledWith('agent-session', 'wt')
   })

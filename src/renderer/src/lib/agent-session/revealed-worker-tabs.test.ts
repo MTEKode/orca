@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderHook } from '@testing-library/react'
-import type { Tab } from '../../../../shared/tab-types'
+import type { Tab } from '../../../../shared/workspace-layout/tab-groups/tab-types'
 
 const mocks = vi.hoisted(() => ({
   activateTab: vi.fn(),
@@ -24,8 +24,8 @@ import { hideWorkerSession, isHiddenWorkerTab, revealWorkerSession } from './rev
 import { activateStructuredAgentSessionTab } from './structured-agent-session-tab-activation'
 import { pickNextActiveTab } from '../../store/slices/tabs/tab-selection-history'
 import { hideRevealedWorkerTab } from '../../store/slices/tabs/worker-tab-hide'
-import { useTabGroupItemProjections } from '../../components/tab-group/useTabGroupItemProjections'
-import { getActiveTabNavOrder } from '../../components/tab-bar/group-tab-order'
+import { useTabGroupItemProjections } from '../../components/tab-group/workspace-model/useTabGroupItemProjections'
+import { getActiveTabNavOrder } from '../workspace/tabs/order/group-tab-order'
 
 const mk = (id: string, worker = false): Tab => ({
   id,

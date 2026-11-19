@@ -1,6 +1,6 @@
 import { join } from 'node:path'
-import type { DiscoveredSkill, SkillDiscoveryResult } from '../skills'
-import { nativeSkillPathSemantics, skillPathsEqual } from '../skill-path-containment'
+import type { DiscoveredSkill, SkillDiscoveryResult } from './discovery/skills'
+import { nativeSkillPathSemantics, skillPathsEqual } from './paths/skill-path-containment'
 
 export type UnifiedSkillSource = 'project' | 'bundled' | 'installed'
 

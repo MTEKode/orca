@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mkdtempSync, mkdirSync, realpathSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import type { RuntimeClient } from '../runtime-client'
+import type { RuntimeClient } from '../runtime/client'
 import {
   resolveDeployCheckReportInvocation,
   runDeployCheckConfig,

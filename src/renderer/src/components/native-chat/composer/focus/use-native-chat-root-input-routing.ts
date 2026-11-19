@@ -6,16 +6,14 @@ import {
   type PointerEvent as ReactPointerEvent,
   type RefObject
 } from 'react'
-import { hasVisibleOverlay } from '@/lib/visible-overlay'
-import { DICTATION_FOCUS_INPUT_EVENT } from '../../../dictation/dictation-control-events'
+import { hasVisibleOverlay } from '@/lib/overlay-interaction/visible-overlay'
+import { registerDictationInputOwner } from '../../../dictation/dictation-insertion-target'
 import { routeNativeChatRootKeyToInput } from './native-chat-root-key-routing'
 import { shouldFocusNativeChatPaneFromPointerTarget } from './native-chat-typing-redirect'
 import {
   useNativeChatComposerRevealFocus,
   type NativeChatComposerRevealFocusArgs
 } from './use-native-chat-composer-reveal-focus'
-import type { useNativeChatFind } from '../../viewport/find/use-native-chat-find'
-import type { useStructuredNativeChatPaneCommands } from '../../pane/actions/use-structured-native-chat-pane-commands'
 
 // Floating panels can reveal a chat beside the workspace’s chat.
 const revealedChatRoots = new Set<HTMLElement>()
@@ -52,19 +50,17 @@ export function useNativeChatRootInputRouting(
         )
       }
     }
-    const onDictationFocusInput = (): void => {
-      const active = root.ownerDocument.activeElement
-      if (root.contains(active) || ownsUnfocusedInput(active)) {
-        nativeChatComposerDestination(rootRef.current, composerRef.current)?.focus()
-      }
-    }
     revealedChatRoots.add(root)
     root.ownerDocument.addEventListener('keydown', onKeyDown)
-    root.ownerDocument.addEventListener(DICTATION_FOCUS_INPUT_EVENT, onDictationFocusInput)
+    const releaseDictation = registerDictationInputOwner(root, {
+      focusInput: () =>
+        void nativeChatComposerDestination(rootRef.current, composerRef.current)?.focus(),
+      ownsOutsideFocus: ownsUnfocusedInput
+    })
     return () => {
       revealedChatRoots.delete(root)
       root.ownerDocument.removeEventListener('keydown', onKeyDown)
-      root.ownerDocument.removeEventListener(DICTATION_FOCUS_INPUT_EVENT, onDictationFocusInput)
+      releaseDictation()
     }
   }, [composerRef, questionAnswerInputRef, revealed, rootRef])
 
@@ -94,31 +90,4 @@ export function useNativeChatRootInputRouting(
     [composerRef, questionAnswerInputRef, rootRef]
   )
   return { onPointerDownCapture, onKeyDownCapture }
-}
-
-/** Compose the pane root's capture routers, preserving their order: commands, find, root input. */
-export function nativeChatPaneCaptures(
-  paneCommands: Pick<
-    ReturnType<typeof useStructuredNativeChatPaneCommands>,
-    'onPointerDownCapture' | 'onKeyDownCapture' | 'onContextMenuCapture'
-  >,
-  find: Pick<ReturnType<typeof useNativeChatFind>, 'onKeyDownCapture'>,
-  rootInput: ReturnType<typeof useNativeChatRootInputRouting>
-): {
-  onPointerDownCapture: (event: ReactPointerEvent<HTMLDivElement>) => void
-  onKeyDownCapture: (event: ReactKeyboardEvent<HTMLDivElement>) => void
-  onContextMenuCapture: typeof paneCommands.onContextMenuCapture
-} {
-  return {
-    onPointerDownCapture: (event) => {
-      paneCommands.onPointerDownCapture(event)
-      rootInput.onPointerDownCapture(event)
-    },
-    onKeyDownCapture: (event) => {
-      find.onKeyDownCapture(event)
-      paneCommands.onKeyDownCapture(event)
-      rootInput.onKeyDownCapture(event)
-    },
-    onContextMenuCapture: paneCommands.onContextMenuCapture
-  }
 }

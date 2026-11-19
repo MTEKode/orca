@@ -2,8 +2,12 @@
 
 import { z } from 'zod'
 import { AGENT_SESSION_TURN_CHECKPOINT_KINDS } from '../agent-session-turn-checkpoints'
-import { MutationEnvelope } from './structured-agent-session-mutation-envelope'
-import { Identifier, MAX_ID_LENGTH, SessionId } from './structured-agent-session-identifiers'
+import { MutationEnvelope } from './structured-agent-session/structured-agent-session-mutation-envelope'
+import {
+  Identifier,
+  SessionId
+} from './structured-agent-session/structured-agent-session-identifiers'
+import { AGENT_SESSION_ID_MAX_LENGTH as MAX_ID_LENGTH } from '../agent-session/agent-session-wire'
 
 /** A provider turn id is opaque here; the host escapes it into a ref-safe segment (turn-checkpoint-ids). */
 export const TurnCheckpointTurnId = Identifier('Invalid turn id', MAX_ID_LENGTH)

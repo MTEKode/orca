@@ -7,15 +7,15 @@ import {
   getRepoExecutionHostId,
   LOCAL_EXECUTION_HOST_ID,
   type ExecutionHostId
-} from '../../../../shared/execution-host'
+} from '../../../../shared/execution-host/execution-host'
 
-import type { Repo } from '../../../../shared/repo-types'
+import type { Repo } from '../../../../shared/repository/repo-types'
 import { hasWorktreeRemovalRepoOwnerOnOtherHost } from '../../../workspaces/removal/worktree-removal-repo-owner'
 import { getRepoIdFromWorktreeId } from '../../../../shared/worktree/id'
 import { getLspSessionManager } from '../../../lsp/lsp-session-registry'
 import { agentHookServer } from '../../../agent-hooks/server/agent-hook-server'
 import { removeWorktreeMetaRow } from '../../../persistence/host-qualified-worktree-meta'
-import { pruneWorktreePRRefreshAliases } from '../../../github/pr-refresh-coordinator'
+import { pruneWorktreePRRefreshAliases } from '../../../github/pull-requests/refresh/pr-refresh-coordinator'
 import {
   dropRemovedWorktreeProcessState,
   pruneRemovedWorktreeSnapshots

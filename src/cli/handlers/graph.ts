@@ -1,7 +1,10 @@
-import type { CommandHandler, HandlerContext } from '../dispatch'
-import { printResult } from '../format'
-import { buildCurrentWorktreeSelector, getRequiredWorktreeSelector } from '../selectors'
-import type { RuntimeWorktreeRecord } from '../../shared/runtime-types'
+import type { CommandHandler, HandlerContext } from '../dispatch/dispatch'
+import { printResult } from '../output/command-result-output'
+import {
+  buildCurrentWorktreeSelector,
+  getRequiredWorktreeSelector
+} from '../workspace-selection/workspace-selector'
+import type { RuntimeWorktreeRecord } from '../../shared/worktree/catalog/runtime-worktree-contracts'
 
 type GraphStatus = {
   state: 'missing' | 'built'

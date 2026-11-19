@@ -4,7 +4,7 @@
 // its executable-search env mutation.
 
 import { z } from 'zod'
-import { getAppEnvironment, hasAppEnvironment } from '../../shared/app-environment'
+import { getAppEnvironment, hasAppEnvironment } from '../../shared/app-lifecycle/app-environment'
 import type { McpServerConfig } from '@anthropic-ai/claude-agent-sdk'
 import type { AgentSessionRecord } from '../../shared/agent-session/lifecycle/agent-session-record'
 import { loadClaudeAgentSdk } from './claude-stream-json-connection'

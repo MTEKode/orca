@@ -16,10 +16,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { translate } from '@/i18n/i18n'
 import { useTranslate, type Translate } from '@/i18n/use-translate'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
-import { sortNativeChatSessionOptions } from '../../../../../../../shared/native-chat/input/native-chat-session-option-snapshot'
+import { sortNativeChatSessionOptions } from '../../../../../../../shared/native-chat/input/session-options/native-chat-session-option-snapshot'
 import {
   sessionOptionDispatchUnconfirmed,
   type SessionOptionDescriptor,
+  type SessionOptionsCliUpdate,
   type SessionOptionsSurface,
   type SessionOptionValue
 } from '../../../../../../../shared/native-chat/input/native-chat-session-options'
@@ -28,8 +29,10 @@ import {
   nativeChatOptionValuesLabel,
   nativeChatOptionsPillTitle,
   nativeChatSessionOptionActionLabel,
+  nativeChatSessionChoiceLabel,
+  selectedNativeChatChoice,
   nativeChatSessionOptionDisabledReason
-} from '../../../../../../../shared/native-chat/input/native-chat-session-option-labels'
+} from '../../../../../../../shared/native-chat/input/session-options/native-chat-session-option-labels'
 import { sayNativeChatSessionOptionTranslated as say } from './native-chat-session-option-labels-text'
 import type { NativeChatOptionPickerRequest } from './native-chat-option-picker-request'
 import { runSessionOptionSurfaceCall } from './native-chat-session-option-surface-call'
@@ -40,8 +43,8 @@ import { NativeChatSessionOptionWriteGroup } from './NativeChatSessionOptionWrit
 import type { MteWorkerPin } from '../../../../../../../shared/mte/worker-pin'
 import type { TuiAgent } from '../../../../../../../shared/agent-launch/catalog/tui-agent'
 import type { AgentPickerEntry } from '../../../../../../../shared/agent-launch/picker/agent-launch-picker'
-import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
-import { useNewTabAgentMenuRows } from '@/components/tab-bar/use-new-tab-agent-menu-rows'
+import { useAgentDetectionTargetForWorktree } from '@/lib/agent-session/launch/inventory/useAgentDetectionTarget'
+import { useNewTabAgentMenuRows } from '@/components/agent/launch-menu/use-new-tab-agent-menu-rows'
 import {
   useAgentLaunchPickerInventorySource,
   useAgentPickerInventoryEntries
@@ -140,6 +143,7 @@ function PickerTrigger(props: {
   agentLabel: string | null
   wide: boolean
   accessibleName: string
+  tooltipLabel: string
   disabled: boolean
   disabledReason: string | null
   dispatched: boolean
@@ -148,23 +152,34 @@ function PickerTrigger(props: {
   onKeyDown: React.KeyboardEventHandler<HTMLButtonElement>
 }): React.JSX.Element {
   const t = useTranslate()
-  const [tooltipOpen, setTooltipOpen] = useState(false)
-  // Keep the tooltip mounted but closed unless informative; changing wrapper identity would detach the open picker.
-  const informative = props.disabledReason !== null || props.dispatched
   return (
-    <Tooltip open={informative && tooltipOpen} onOpenChange={setTooltipOpen}>
+    <Tooltip>
       <TooltipTrigger asChild>
-        <PopoverTrigger asChild disabled={props.disabled}>
+        <PopoverTrigger asChild>
           <Button
             ref={props.triggerRef}
             type="button"
             variant="ghost"
             size="xs"
             aria-label={props.accessibleName}
-            disabled={props.disabled}
+            aria-disabled={props.disabled || undefined}
             className={props.wide ? 'max-w-md' : 'max-w-64'}
-            onClick={props.onClick}
-            onKeyDown={props.onKeyDown}
+            onClick={(event) => {
+              if (props.disabled) {
+                event.preventDefault()
+                return
+              }
+              props.onClick?.()
+            }}
+            onKeyDown={(event) => {
+              if (props.disabled) {
+                if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown') {
+                  event.preventDefault()
+                }
+                return
+              }
+              props.onKeyDown(event)
+            }}
           >
             <span data-composer-label className="flex min-w-0 items-center gap-1">
               {props.agentLabel ? (
@@ -185,6 +200,7 @@ function PickerTrigger(props: {
       </TooltipTrigger>
       <TooltipContent side="top" sideOffset={4}>
         <div className="space-y-0.5">
+          <div className="line-clamp-2 max-w-64 break-words">{props.tooltipLabel}</div>
           {props.disabledReason ? <div>{props.disabledReason}</div> : null}
           {props.dispatched ? (
             <div>
@@ -312,6 +328,7 @@ function HarnessModelSubmenu({
 
 function SessionOptionPopover(props: {
   demandModelCatalog?: () => void
+  cliUpdate?: SessionOptionsCliUpdate
   model: SessionOptionDescriptor
   options: readonly SessionOptionDescriptor[]
   isWorking: boolean
@@ -356,7 +373,19 @@ function SessionOptionPopover(props: {
   const focusReturn = useNativeChatPickerFocusReturn(props.focusComposer)
   const modelTitle = t('components.native-chat.composer.model', 'Model')
   const modelLabel = nativeChatModelPillLabel(model, say)
-  const modelName = pillAccessibleName(modelTitle, modelLabel, t)
+  const effort = options.find((option) => option.id === 'effort')
+  const effortChoice =
+    effort && effort.valueSource !== 'unknown' ? selectedNativeChatChoice(effort) : null
+  const knownModel = model.valueSource !== 'unknown' && selectedNativeChatChoice(model)
+  const tooltipLabel = knownModel
+    ? effortChoice
+      ? t('components.native-chat.composer.modelAndEffortValue', '{{model}} · {{effort}}', {
+          model: modelLabel,
+          effort: nativeChatSessionChoiceLabel(effortChoice, say, 'effort')
+        })
+      : modelLabel
+    : t('components.native-chat.composer.modelAndEffort', 'Model and effort')
+  const modelName = knownModel ? pillAccessibleName(modelTitle, tooltipLabel, t) : tooltipLabel
   const optionsTitle = nativeChatOptionsPillTitle(options, say)
   const optionsLabel = nativeChatOptionValuesLabel(options, say)
   // The live pick, so the label follows model and effort changes; an unreported model is left out.
@@ -418,6 +447,7 @@ function SessionOptionPopover(props: {
         optionsLabel={optionsLabel}
         agentLabel={agentLabel}
         wide={props.mteWorker !== undefined}
+        tooltipLabel={tooltipLabel}
         accessibleName={
           agentLabel
             ? pillAccessibleName(modelTitle, agentLabel, t)
@@ -496,6 +526,7 @@ function SessionOptionPopover(props: {
             readOnlyReason={modelReason}
             busy={pendingIds.has(model.id)}
             onSelect={(value) => set(model, value)}
+            cliUpdate={props.cliUpdate}
           />
         ) : (
           <NativeChatSessionOptionWriteGroup
@@ -577,6 +608,7 @@ function NativeChatSessionOptionPickersInner({
     >
       <SessionOptionPopover
         demandModelCatalog={surface.demandModelCatalog}
+        cliUpdate={surface.cliUpdate}
         model={model}
         options={options}
         isWorking={isWorking}

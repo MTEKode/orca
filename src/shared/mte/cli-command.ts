@@ -1,5 +1,5 @@
 // Vendored from src/main/runtime/orchestration/cli-command.ts @ 4d8e8b889f (only runtimeOrchestrationCliCommand; the packaged CLI cannot import src/main).
-import { getAppEnvironment, hasAppEnvironment } from '../app-environment'
+import { getAppEnvironment, hasAppEnvironment } from '../app-lifecycle/app-environment'
 
 export type OrchestrationCliCommand = 'orca' | 'orca-dev' | 'orca-ide'
 

@@ -153,7 +153,8 @@ export class OpenCodeV2Session {
     if (opened.kind === 'resumed') {
       await catchUpOpenCodeV2History({
         client,
-        sink: this.sink,
+        history: this.input.events?.journalHistory?.() ?? null,
+        sessionId: this.sessionId,
         lane: runtime.lane,
         providerSessionId,
         signal

@@ -1,6 +1,6 @@
-import { resolveExecutableCommand } from '../../shared/node-cli-command-resolution'
+import { resolveExecutableCommand } from '../../shared/shell/command-resolution/node-cli-command-resolution'
 import { hydrateShellPathForAgentDetection } from '../ipc/command-path/agent-detection-shell-path'
-import type { StructuredAgentCommandSettings } from '../native-chat/structured-agent-command-resolution'
+import type { StructuredAgentCommandSettings } from '../native-chat/agent-launch/structured-agent-command-resolution'
 import type { OpenCodeV2ServiceLaunch } from './opencode-v2-service'
 
 /** A GUI launch's PATH misses nvm/Homebrew; hydrate it, then find the real binary (null when absent). */

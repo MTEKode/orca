@@ -8,15 +8,20 @@ import { Button } from '../../ui/button'
 import { SearchableSetting } from '../section-layout/SearchableSetting'
 import { SettingsGroup } from '../section-layout/SettingsGroup'
 import { useIntlLocale, useTranslate } from '@/i18n/use-translate'
-import { updaterMessageText } from '@/lib/updater-message-copy'
-import { getUpdateCheckClickOptions, getUpdateCheckHint } from '@/lib/update-check-click-options'
+import { updaterMessageText } from '@/app-shell/updates/updater-message-copy'
+import {
+  getUpdateCheckClickOptions,
+  getUpdateCheckHint
+} from '@/app-shell/updates/update-check-click-options'
 import { GeneralRemoteServerUpdates } from './GeneralRemoteServerUpdates'
 import { ReleaseChannelSection } from './ReleaseChannelSection'
 import { UpdateDelaySetting } from './UpdateDelaySetting'
+import { AutomaticUpdatesSetting } from './AutomaticUpdatesSetting'
+import { isWebClientLocation } from '@/app-shell/platform/web-client-location'
 import { formatUpdateDelayDate } from './update-delay-copy'
-import { useNow } from '@/hooks/use-now'
-import { isDelayedUpdatePending } from '../../../../../shared/update-delay'
-import { getReleaseNotesUrlForVersion } from '../../../../../shared/release-channel'
+import { useNow } from '@/lib/window-activity/use-now'
+import { isDelayedUpdatePending } from '../../../../../shared/updater/update-delay'
+import { getReleaseNotesUrlForVersion } from '../../../../../shared/updater/release-channel'
 import { openAppHttpLinkFromAnchor } from '@/lib/browser/navigation/app-http-link-open'
 
 export function GeneralUpdateSettingsSection({
@@ -98,7 +103,13 @@ export function GeneralUpdateSettingsSection({
             // Modifier clicks are one-off update actions, not saved toggles.
             onClick={(event) => window.api.updater.check(getUpdateCheckClickOptions(event))}
             title={updateCheckHint}
-            disabled={updateStatus.state === 'checking' || updateStatus.state === 'downloading'}
+            disabled={
+              updateStatus.state === 'checking' ||
+              updateStatus.state === 'downloading' ||
+              (updateStatus.state === 'error' &&
+                updateStatus.messageCode === 'macStagingTimeout') ||
+              (updateStatus.state === 'downloaded' && updateStatus.installing)
+            }
             className="gap-2"
           >
             {updateStatus.state === 'checking' ? (
@@ -145,7 +156,8 @@ export function GeneralUpdateSettingsSection({
               <RefreshCw className="size-3.5" />
               {t('auto.components.UpdateCard.b3b02a9d84', 'Try again')}
             </Button>
-          ) : updateStatus.state === 'downloaded' ? (
+          ) : updateStatus.state === 'downloaded' &&
+            !(updateStatus.automaticDownload && updateStatus.installing) ? (
             <Button
               variant="default"
               size="sm"
@@ -245,10 +257,12 @@ export function GeneralUpdateSettingsSection({
             <>
               {t('auto.components.settings.GeneralUpdateSettingsSection.a6b37929dc', 'Version')}{' '}
               {updateStatus.version}{' '}
-              {t(
-                'auto.components.settings.GeneralUpdateSettingsSection.d89806cc89',
-                'is ready to install.'
-              )}{' '}
+              {updateStatus.installing
+                ? t('settings.automaticUpdates.installingStatus', 'is being installed.')
+                : t(
+                    'auto.components.settings.GeneralUpdateSettingsSection.d89806cc89',
+                    'is ready to install.'
+                  )}{' '}
               {updateStatus.source !== 'local' && (
                 <a
                   href={
@@ -285,6 +299,7 @@ export function GeneralUpdateSettingsSection({
                     ))}
         </p>
       </SearchableSetting>
+      {isWebClientLocation() ? null : <AutomaticUpdatesSetting />}
       <UpdateDelaySetting />
       {channelSwitcherRevealed ? <ReleaseChannelSection /> : null}
       <GeneralRemoteServerUpdates />

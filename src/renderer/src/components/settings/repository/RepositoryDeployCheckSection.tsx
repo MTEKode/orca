@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { Repo } from '../../../../../shared/repo-types'
+import type { Repo } from '../../../../../shared/repository/repo-types'
 import { MTE_DEPLOY_CHECK_DEFAULT_DONE_STATE } from '../../../../../shared/mte/deploy-check'
 import { translate } from '@/i18n/i18n'
 import { Button } from '../../ui/button'

@@ -1,4 +1,4 @@
-import type { HandlerGroup } from './handler-group-manifest'
+import type { HandlerGroup } from './dispatch/handler-group-manifest'
 import { GRAPH_HANDLER_GROUP } from './graph-handler-group'
 
 export const MCP_HANDLER_GROUP: HandlerGroup = {

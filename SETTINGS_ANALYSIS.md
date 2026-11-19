@@ -1,8 +1,9 @@
 # Análisis de Settings de Orca
 
 ## Fuentes configuradas
+
 - **IDE/App**: Monaspace Krypton Var
-- **Terminal**: Monaspace Radon Var  
+- **Terminal**: Monaspace Radon Var
 - **Chat**: Monaspace Radon Var (por defecto)
 - **Ancho del chat**: Compact (32rem/512px)
 
@@ -10,7 +11,8 @@
 
 ## SECCIONES DE SETTINGS ACTUALES
 
-### 1. **General** 
+### 1. **General**
+
 - Language
 - Theme (system/light/dark)
 - App icon
@@ -20,6 +22,7 @@
 - Show menu bar icon
 
 ### 2. **Appearance**
+
 - Theme
 - Zoom
 - App appearance
@@ -35,6 +38,7 @@
   - Reset
 
 ### 3. **Terminal**
+
 - Shells
 - Renderer
 - Sessions
@@ -43,35 +47,42 @@
 - Floating workspace
 
 ### 4. **Browser**
+
 - Home page
 - Link routing
 - Session cookies
 
 ### 5. **Mobile emulator** ⚠️
+
 - Configure mobile emulator support
 
 ### 6. **Agents**
+
 - Manage AI agents
 - Set default
 - Customize commands
 - Agent default surface (chat/terminal)
 
 ### 7. **AI provider accounts** ⚠️
+
 - Optional account management
 - Provider logins
 
 ### 8. **MTE flow** ⚠️
+
 - Orchestration runs
 - Planner settings
 - Workers
 - Validation
 
 ### 9. **Linear** ⚠️
+
 - Linear integration
 - Setup checklist
 - Agent skill
 
 ### 10. **Chat UI**
+
 - Agent launch settings
 - Appearance (ver Appearance)
 - Turn activity
@@ -80,68 +91,87 @@
 - Naming
 
 ### 11. **Input & editing**
+
 - Selection behavior
 - Editing behavior
 
 ### 12. **Notifications** ⚠️
+
 - Desktop notifications
 - Agent activity
 - Terminal events
 
 ### 13. **Shortcuts**
+
 - Keyboard shortcuts
 
 ### 14. **Stats & usage** ⚠️
+
 - Token analytics
 - Usage stats
 
 ### 15. **Artifacts** ⚠️
+
 - Artifact sharing
 
 ### 16. **Automations** ⚠️
+
 - Automation settings
 
 ### 17. **Setup guide** ⚠️
+
 - Onboarding
 
 ### 18. **Share skills** ⚠️
+
 - Skill sharing
 
 ### 19. **Integrations** ⚠️
+
 - MCP integrations
 - Graphify
 
 ### 20. **Mobile** ⚠️
+
 - Mobile settings
 
 ### 21. **Orca account** ⚠️
+
 - Account settings
 
 ### 22. **Session history** ⚠️
+
 - History settings
 
 ### 23. **Git**
+
 - Git settings
 
 ### 24. **Tasks**
+
 - Task providers (GitHub, Linear)
 
 ### 25. **Privacy** ⚠️
+
 - Privacy settings
 
 ### 26. **Servers** ⚠️
+
 - Server settings
 
 ### 27. **SSH** ⚠️
+
 - SSH settings
 
 ### 28. **Advanced** ⚠️
+
 - Advanced settings
 - Dev tools
 - Experimental
 - Plugins
 
 ### 29. **Repository settings** (per-repo)
+
 - Identity
 - Runtime
 - MCP

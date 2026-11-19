@@ -1,4 +1,4 @@
-import type { BundledSkillPlan } from '../../../../../shared/bundled-skill-plan'
+import type { BundledSkillPlan } from '../../../../../shared/skills/bundled/bundled-skill-plan'
 import { useCallback, useState } from 'react'
 import { OrchestrationSkillPromptDialog } from './OrchestrationSkillPromptDialog'
 import { buildSkillCommandForRuntime } from '../../../lib/skills/runtime/skill-runtime-command'
@@ -20,15 +20,16 @@ import { AgentSkillSetupPanel } from '../../skills/setup/AgentSkillSetupPanel'
 import { OrchestrationSkillAgentCoverage } from './OrchestrationSkillAgentCoverage'
 import { SkillUsageExamplesSection } from '../../skills/examples/SkillUsageExamplesSection'
 import { useTranslate } from '@/i18n/use-translate'
-import type { GlobalSettings } from '../../../../../shared/global-settings-types'
+import type { GlobalSettings } from '../../../../../shared/settings/global-settings-types'
 import { resolveNestedWorkerMaxDepth } from '../../../../../shared/orchestration/workers/nested-worker-depth'
-import { isPairedWebClientWindow } from '@/lib/desktop-window-chrome'
+import { isPairedWebClientWindow } from '@/app-shell/chrome/desktop-window-chrome'
 import { NumberField } from '../form-controls/SettingsFormControls'
 import {
   getNestedWorkerDepthDescription,
   getNestedWorkerDepthTitle
 } from './nested-worker-depth-copy'
 import { OrchestrationWorkerAutoReleaseSetting } from './OrchestrationWorkerAutoReleaseSetting'
+import { OrchestrationCoordinatorApprovalsSetting } from './OrchestrationCoordinatorApprovalsSetting'
 import { SettingsGroup } from '../section-layout/SettingsGroup'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -181,6 +182,12 @@ export function MteFlowPane({ settings, updateSettings }: MteFlowPaneProps): Rea
         ) : null}
         {showLocalRuntimeSettings ? (
           <OrchestrationWorkerAutoReleaseSetting
+            settings={settings}
+            updateSettings={updateSettings}
+          />
+        ) : null}
+        {showLocalRuntimeSettings ? (
+          <OrchestrationCoordinatorApprovalsSetting
             settings={settings}
             updateSettings={updateSettings}
           />

@@ -149,6 +149,9 @@ describe('turn checkpoint RPC surface', () => {
 
   it('restores an idle session through the service', async () => {
     hostCalls.readStatusSummary = vi.fn(() => ({ status: 'idle' }))
+    hostCalls.journalReads = vi.fn(async () => ({
+      cursor: async () => ({ epoch: 'epoch-a', sequence: 0 })
+    }))
     getRecord.mockReturnValue({ sessionId: SESSION })
     getConversation.mockReturnValue({ currentFence: 1 })
     const service = fakeService()

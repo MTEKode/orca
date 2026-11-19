@@ -2,12 +2,12 @@ import React from 'react'
 import { ArrowDown, ExternalLink, Loader2, RefreshCw } from 'lucide-react'
 import type { GitBranchCompareSummary } from '../../../../../../shared/git/diff/git-diff-compare-types'
 import type { GitBranchLineTotal } from '../../../../../../shared/git/status/git-status-types'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/class-names'
 import { useTranslate } from '@/i18n/use-translate'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { HeadIdentity } from './head-identity'
 import { StackedCompareFlow } from './branch-compare-flow'
-import type { WorktreeGitIdentityDisplay } from '../../../../../../shared/worktree/git-identity-display'
+import type { WorktreeGitIdentityDisplay } from '../../../../../../shared/worktree/row-display/git-identity-display'
 import { SourceControlHeaderIconButton } from './header-icon-button'
 import { SourceControlBranchLineTotalChip } from './branch-line-total-chip'
 import {
@@ -103,6 +103,7 @@ export function SourceControlBranchContextRow({
   headControl,
   manualReviewUrl,
   branchLineTotal,
+  reviewControl,
   onChangeBaseRef,
   onRetry,
   onUpdateFromBase
@@ -113,6 +114,7 @@ export function SourceControlBranchContextRow({
   headControl?: React.ReactNode
   manualReviewUrl?: string | null
   branchLineTotal?: GitBranchLineTotal | null
+  reviewControl?: React.ReactNode
   onChangeBaseRef: () => void
   onRetry: () => void
   onUpdateFromBase?: () => void
@@ -126,8 +128,11 @@ export function SourceControlBranchContextRow({
       return null
     }
     return (
-      <div className="min-w-0 text-[11px] text-muted-foreground">
-        {headControl ?? <HeadIdentity display={headDisplay} />}
+      <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-muted-foreground">
+        <span className="min-w-0 flex-1">
+          {headControl ?? <HeadIdentity display={headDisplay} />}
+        </span>
+        {reviewControl}
       </div>
     )
   }
@@ -161,7 +166,12 @@ export function SourceControlBranchContextRow({
           onChangeBaseRef={onChangeBaseRef}
           changeBaseTitle={changeBaseTitle}
           leading={<Loader2 className="size-3 shrink-0 animate-spin" aria-hidden="true" />}
-          trailing={<ManualReviewLinkButton url={manualReviewUrl} />}
+          trailing={
+            <>
+              <ManualReviewLinkButton url={manualReviewUrl} />
+              {reviewControl}
+            </>
+          }
         />
         <span className="sr-only">
           {t('auto.components.right.sidebar.SourceControl.11b5dd8e41', 'Comparing against')}
@@ -191,6 +201,7 @@ export function SourceControlBranchContextRow({
                 label={t('auto.components.right.sidebar.SourceControl.286dbda4d6', 'Retry')}
                 onClick={onRetry}
               />
+              {reviewControl}
             </>
           }
         />
@@ -214,7 +225,8 @@ export function SourceControlBranchContextRow({
   )
 
   const commitsBehind = summary.commitsBehind
-  const showUpdateButton = typeof commitsBehind === 'number' && commitsBehind > 0 && onUpdateFromBase
+  const showUpdateButton =
+    typeof commitsBehind === 'number' && commitsBehind > 0 && onUpdateFromBase
 
   return (
     <CompareFlowGroup flowLabel={flowLabel} className="min-w-0 text-[11px] text-muted-foreground">
@@ -254,6 +266,7 @@ export function SourceControlBranchContextRow({
               </Tooltip>
             )}
             <ManualReviewLinkButton url={manualReviewUrl} />
+            {reviewControl}
           </>
         }
         headTrailing={<SourceControlBranchLineTotalChip branchLineTotal={branchLineTotal} />}

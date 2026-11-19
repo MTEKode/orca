@@ -2,13 +2,13 @@ import { describe, expect, it } from 'vitest'
 import {
   canSetStructuredAgentSessionOption,
   structuredAgentSessionOptionSnapshot
-} from './structured-agent-session-option-snapshot'
+} from './view/structured-agent-session-option-snapshot'
 import {
   applyStructuredAgentSessionOptions,
   commitStructuredAgentSessionOption,
   createStructuredAgentSessionOptionState
 } from './structured-agent-session-options'
-import { OPENCODE_LAUNCH_OPTION_CATALOG } from './agent-session-option-catalog-opencode'
+import { OPENCODE_LAUNCH_OPTION_CATALOG } from './catalog-providers/agent-session-option-catalog-opencode'
 
 const AGENTS = [
   { id: 'build', label: 'build', default: true },

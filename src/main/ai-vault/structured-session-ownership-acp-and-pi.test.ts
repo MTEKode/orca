@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
 import { readAcpFixture } from '../acp/timeline/testing/acp-timeline-fixture.test-support'
-import type { AgentSessionProviderHandle } from '../../shared/agent-session/lifecycle/agent-session-provider-handle'
+import type { AgentSessionProviderHandle } from '../../shared/agent-session/lifecycle/provider-handles/agent-session-provider-handle'
 import type { AiVaultAgent } from '../../shared/ai-vault/contracts/ai-vault-types'
 import { setStructuredAgentSessionHost } from '../native-chat/agent-session-wire/host/structured-agent-session-registry'
 import {
@@ -9,8 +9,11 @@ import {
   assertLegacyAiVaultResumeCommandAllowed,
   OPENS_EVERY_STRUCTURED_CHAT,
   projectStructuredAiVaultSessions
-} from './structured-session-ownership'
-import { installOwnership, listResult } from './structured-session-ownership.test-support'
+} from './structured-sessions/structured-session-ownership'
+import {
+  installOwnership,
+  listResult
+} from './structured-sessions/structured-session-ownership.test-support'
 import { STRUCTURED_AGENT_RUNTIME_REGISTRATIONS } from '../runtime/agent-session/installation/structured-agent-runtime-registrations'
 
 const OPENCODE_ID = 'ses_2f9aB3cD4eF5gH6iJ7kL8mN9oP'

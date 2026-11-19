@@ -1,5 +1,5 @@
-import { getAppEnvironment } from '../../shared/app-environment'
-import type { McpIntegrationsSettings } from '../../shared/global-settings-base'
+import { getAppEnvironment } from '../../shared/app-lifecycle/app-environment'
+import type { McpIntegrationsSettings } from '../../shared/settings/global-settings-base'
 import { createGraphifyAccess } from './graphify-source'
 import { createMcpIntegrationHub, type McpIntegrationHub } from './hub'
 import { createMemoryConfig, type McpConfigAccess } from './stdio-transport'

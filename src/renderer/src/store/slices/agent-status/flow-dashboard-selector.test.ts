@@ -28,7 +28,10 @@ const context = (
 describe('deriveActiveFlowState', () => {
   it('reports the worker agent, not the planner handle, and fails on a failed dispatch', () => {
     const flow = deriveActiveFlowState(
-      { planner: status('planner'), worker: status('worker', { agentType: 'codex' }) },
+      new Map([
+        ['planner', status('planner')],
+        ['worker', status('worker', { agentType: 'codex' })]
+      ]),
       {
         planner: context('d0', { taskTitle: 'Ship it' }),
         worker: context('d1', {
@@ -45,6 +48,6 @@ describe('deriveActiveFlowState', () => {
   })
 
   it('returns null when no pane of the run has a live status row', () => {
-    expect(deriveActiveFlowState({}, { planner: context('d0') })).toBeNull()
+    expect(deriveActiveFlowState(new Map(), { planner: context('d0') })).toBeNull()
   })
 })

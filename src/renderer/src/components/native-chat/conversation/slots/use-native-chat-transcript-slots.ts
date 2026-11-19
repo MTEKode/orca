@@ -1,21 +1,27 @@
-import { useMemo } from 'react'
+import { NativeChatVisualOwnerContext } from '../../media/visuals/native-chat-visual-owner'
+import {
+  nativeChatMarkdownImageSources,
+  nativeChatVisualMarkdownImageSources
+} from '../../markdown/native-chat-markdown-image-sources'
+import { useContext, useMemo } from 'react'
 import {
   nativeChatLiveLine,
   type NativeChatLiveLine
-} from '../../../../../../shared/native-chat/transcript/native-chat-live-line'
-import { isNativeChatRowInLiveWorkingTurn } from '../../../../../../shared/native-chat/transcript/native-chat-live-turn-membership'
+} from '../../../../../../shared/native-chat/transcript/row-content/native-chat-live-line'
+import { isNativeChatRowInLiveWorkingTurn } from '../../../../../../shared/native-chat/transcript/turns/native-chat-live-turn-membership'
 import {
   buildNativeChatTranscript,
   type NativeChatTranscriptSlot
 } from './native-chat-transcript-slots'
 import type { NativeChatSideChatForkPoint } from '../../messages/actions/native-chat-side-chat-fork-point'
 import type { NativeChatTranscriptSlotsInput } from './native-chat-transcript-input'
+import { useNativeChatWorkers } from '../../native-chat-workers-context'
 
 /** Choose slots/activity together so reasoning shown by the activity line never also gets a transcript row. */
 export function useNativeChatTranscriptSlots({
   line,
   ...input
-}: Omit<NativeChatTranscriptSlotsInput, 'liveReasoningId' | 'tailRowBelow'> & {
+}: Omit<NativeChatTranscriptSlotsInput, 'liveReasoningId' | 'workers'> & {
   line: {
     /** The row drawn under the transcript, if any. */
     tailRow: 'awaiting-input' | 'activity' | null
@@ -28,6 +34,11 @@ export function useNativeChatTranscriptSlots({
   forkPoint: NativeChatSideChatForkPoint | null
   liveLine: NativeChatLiveLine | null
 } {
+  const visualOwner = useContext(NativeChatVisualOwnerContext)
+  const workers = useNativeChatWorkers()
+  const imageSources = visualOwner
+    ? nativeChatVisualMarkdownImageSources
+    : nativeChatMarkdownImageSources
   const {
     messages,
     unresolvedRowIds,
@@ -41,8 +52,7 @@ export function useNativeChatTranscriptSlots({
     expandedTurnKeys,
     isWorking,
     lifecycleWorking,
-    subagentSections,
-    subagentChoices,
+    subagentHeads,
     forkOffer
   } = input
   const { tailRow, thinking, stopping = false, activityText } = line
@@ -77,11 +87,10 @@ export function useNativeChatTranscriptSlots({
     ]
   )
   const liveReasoningId = liveLine?.reasoning?.message.id ?? null
-  // A boolean, so the line's changing words never rebuild the slots.
-  const tailRowBelow = liveLine !== null || tailRow === 'awaiting-input'
   const { slots, forkPoint } = useMemo(
     () =>
       buildNativeChatTranscript({
+        imageSources,
         messages,
         unresolvedRowIds,
         typography,
@@ -94,14 +103,15 @@ export function useNativeChatTranscriptSlots({
         expandedTurnKeys,
         isWorking,
         lifecycleWorking,
-        subagentSections,
-        subagentChoices,
+        subagentHeads,
         liveReasoningId,
-        tailRowBelow,
-        forkOffer
+        forkOffer,
+        workers
       }),
     [
+      workers,
       expandedTurnKeys,
+      imageSources,
       forkOffer,
       isWorking,
       lifecycleWorking,
@@ -110,9 +120,7 @@ export function useNativeChatTranscriptSlots({
       messages,
       openedPullRequests,
       receipts,
-      subagentChoices,
-      subagentSections,
-      tailRowBelow,
+      subagentHeads,
       turnDiffs,
       turnKeys,
       turnStatuses,

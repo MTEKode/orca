@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { ExecutionHostId } from '../../../../shared/execution-host'
+import type { ExecutionHostId } from '../../../../shared/execution-host/execution-host'
 import type { Store } from '../../../persistence/loading-store/store'
 import { removeWorktreeMetadataAndTransientState } from './worktree-removal-ownership'
 
@@ -31,7 +31,7 @@ vi.mock('../../../ports/workspace-labels/localhost-worktree-label-proxy', () => 
 vi.mock('../../../pty/history/terminal-history-deletion', () => ({
   deleteWorktreeHistoryDir: vi.fn()
 }))
-vi.mock('../../../github/pr-refresh-coordinator', () => ({
+vi.mock('../../../github/pull-requests/refresh/pr-refresh-coordinator', () => ({
   pruneWorktreePRRefreshAliases: vi.fn()
 }))
 vi.mock('../../../workspaces/cleanup/workspace-cleanup-removal-snapshot-prune', () => ({

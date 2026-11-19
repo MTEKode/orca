@@ -9,7 +9,7 @@ import {
 } from '@/components/mte-orchestration-picker/use-mte-orchestration-picker'
 import { newChatOrchestrationAvailable } from '@/components/tab-bar/use-new-chat-launch'
 import type { MteOrchestrationDraft } from '@/components/mte-orchestration-picker/use-mte-orchestration-picker'
-import type { NewTabAgentMenuModel } from '@/components/tab-bar/new-tab-agent-menu-model'
+import type { NewTabAgentMenuModel } from '@/components/agent/launch-menu/new-tab-agent-menu-model'
 import type { AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { AgentSessionContinuationRequest } from '@/lib/agent-session/context/agent-session-continuation'
 import type { Worktree } from '../../../../shared/worktree/types'

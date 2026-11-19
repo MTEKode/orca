@@ -3,10 +3,10 @@
 
 import { realpath, stat } from 'node:fs/promises'
 import { join } from 'node:path'
-import { toWindowsWslPath } from '../../../shared/wsl-paths'
-import type { GitRuntimeOptions } from '../git-runtime-options'
-import { gitOptionsForWorktree } from '../git-runtime-options'
-import { gitExecFileAsync } from '../runner'
+import { toWindowsWslPath } from '../../../shared/file-access/wsl-paths'
+import type { GitRuntimeOptions } from '../command-runner/git-runtime-options'
+import { gitOptionsForWorktree } from '../command-runner/git-runtime-options'
+import { gitExecFileAsync } from '../command-runner/git-exec-file'
 
 export type TurnCheckpointRuntime = GitRuntimeOptions
 

@@ -14,7 +14,7 @@ import { dirname, join } from 'node:path'
 import {
   copyFileWithWindowsRetry,
   renameFileWithWindowsRetry
-} from '../../../windows-retry-file-operations'
+} from '../../../file-write/windows-retry-file-operations'
 
 // fs errors carry the errno code on the Error object; ENOENT means the path does not exist yet.
 function isEnoentError(error: unknown): boolean {

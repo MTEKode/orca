@@ -11,7 +11,7 @@ const { callMock, runtimeClientConstructorMock, serveOrcaAppMock, getDefaultUser
     getDefaultUserDataPathMock: vi.fn(() => '/tmp/orca-user-data')
   }))
 
-vi.mock('../runtime-client', async () => {
+vi.mock('../runtime/client', async () => {
   const { createRuntimeClientModuleMock } = await import('../index-test-harness.js')
   return createRuntimeClientModuleMock({
     callMock,
@@ -21,9 +21,9 @@ vi.mock('../runtime-client', async () => {
   })
 })
 
-import { RuntimeClient } from '../runtime-client'
-import { REPEATED_FLAG_SEPARATOR } from '../args'
-import { setAppEnvironment } from '../../shared/app-environment'
+import { RuntimeClient } from '../runtime/client'
+import { REPEATED_FLAG_SEPARATOR } from '../arguments/args'
+import { setAppEnvironment } from '../../shared/app-lifecycle/app-environment'
 import {
   MTE_START_DEFAULT_GOAL,
   resolveMteStartCliCommand,
@@ -31,7 +31,7 @@ import {
   resolveMemoryCliInvocation,
   runMteStart
 } from './mte'
-import { RuntimeClientError } from '../runtime/types'
+import { RuntimeClientError } from '../runtime/connection/types'
 import type { MteStartLaunchArgs } from './mte-start-launch'
 import { resolveMteCheckInvocation, runMteCheck } from './mte-check'
 import { detectChecks } from '../../shared/mte/checks/detect-checks'

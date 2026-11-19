@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { DiscoveredSkill, SkillDiscoveryResult } from '../skills'
+import type { DiscoveredSkill, SkillDiscoveryResult } from './discovery/skills'
 import { buildUnifiedSkillCatalog, unifiedSkillSource } from './unified-skill-catalog'
 
 function skill(

@@ -7,7 +7,7 @@ import { buildSkillCommandForRuntime } from '../../../lib/skills/runtime/skill-r
 import { WslAgentSkillSetupPanel } from './WslAgentSkillSetupPanel'
 import { useCallback } from 'react'
 import { Download, Loader2, RefreshCw } from 'lucide-react'
-import { IntegrationStatusPill } from '../../integration-status-pill'
+import { IntegrationStatusPill } from '../../integrations/presentation/integration-status-pill'
 import {
   SkillPlanStatusPill,
   SkillUnsupportedStatusPill
@@ -24,7 +24,7 @@ import {
   syncSurfacesAfterAgentSkillRecheck
 } from './agent-skill-recheck-surface-sync'
 import { useBundledSkillInstallAction } from '@/hooks/skills/installation/use-bundled-skill-install-action'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/class-names'
 import { useTranslate } from '@/i18n/use-translate'
 
 function BundledAgentSkillSetupPanel({

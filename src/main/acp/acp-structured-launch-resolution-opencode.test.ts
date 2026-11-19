@@ -1,16 +1,16 @@
 import { createAcpStructuredLaunchResolver } from '../runtime/agent-session/launch/structured-agent-launch-composition.test-support'
 import { describe, expect, it, vi } from 'vitest'
 import type { AgentSessionRecord } from '../../shared/agent-session/lifecycle/agent-session-record'
-import { agentSessionRecordFixture } from '../../shared/agent-session/lifecycle/agent-session-record.test-fixture'
-import type { ManagedDataAccountsState } from '../../shared/managed-account-types'
-import { restoreManagedDataAccountEnvironment } from '../../shared/managed-data-account-environment'
+import { agentSessionRecordFixture } from '../../shared/agent-session/lifecycle/records/agent-session-record.test-fixture'
+import type { ManagedDataAccountsState } from '../../shared/agent-accounts/managed-account-types'
+import { restoreManagedDataAccountEnvironment } from '../../shared/agent-launch/environment/managed-data-account-environment'
 import { createProviderSpawnSpec } from '../provider-process/provider-process-supervisor'
-import { openCodeAcpAccountBinding } from '../opencode/opencode-structured-account-home'
-import { scrubOpenCodeAcpEnvironment } from '../opencode/opencode-acp-environment'
+import { openCodeAcpAccountBinding } from '../opencode/accounts/opencode-structured-account-home'
+import { scrubOpenCodeAcpEnvironment } from '../opencode/acp/opencode-acp-environment'
 import { acpLaunchSpecFor } from './launch/acp-launch-registry'
 import type { AcpLaunchSpec } from './launch/acp-launch-contract'
 import { STRUCTURED_CHILD_ENV_TO_DELETE } from '../runtime/agent-session/environment/structured-session-child-env'
-import { AgentCliInstallationError } from '../native-chat/agent-cli-installation-error'
+import { AgentCliInstallationError } from '../native-chat/agent-launch/agent-cli-installation-error'
 
 const PROFILE = '123e4567-e89b-42d3-a456-426614174000'
 
@@ -67,7 +67,7 @@ function resolver(
 ) {
   return createAcpStructuredLaunchResolver(options.spec ?? OPENCODE, {
     store: { getRecord: () => record, pinLaunchDirectory: vi.fn() },
-    readJournal: () => null,
+    savedSession: { hasProviderTurn: async () => false },
     resolveWorkspacePath: async () => '/repo/worktree',
     resolveEnvironment: async () => ({ PATH: '/usr/bin', HOME: '/home/user', ...options.base }),
     resolveLaunchEnv: () => options.launchEnv ?? {},
@@ -239,7 +239,7 @@ describe('OpenCode ACP launch resolution', () => {
     })({ identity })
     await expect(launch).rejects.toBeInstanceOf(AgentCliInstallationError)
     await expect(launch).rejects.toThrow(
-      'OpenCode 1.0.0 is too old for chats. Update to 1.18.31 or newer.'
+      'Your OpenCode CLI on this computer is 1.0.0. Chats need 1.18.31 or newer.'
     )
   })
 

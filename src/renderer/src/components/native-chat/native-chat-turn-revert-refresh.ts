@@ -1,6 +1,9 @@
 import { useAppStore } from '@/store'
 import { selectKnownWorktreeById } from '@/store/workspaces/selection/known-worktree-selection'
-import { resolveWorktreeGitCopyNow, worktreeCopyPushTarget } from '@/lib/worktree-git-copy'
+import {
+  resolveWorktreeGitCopyNow,
+  worktreeCopyPushTarget
+} from '@/lib/workspace/ownership/worktree-git-copy'
 import { refreshGitStatusForWorktree } from '../right-sidebar/source-control/sync/git-status-refresh'
 
 /**

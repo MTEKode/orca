@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, unlinkSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
-import { getSecretStore } from '../../shared/secret-store'
+import { getSecretStore } from '../../shared/secure-storage/secret-store'
 import { writeCredentialFileAtomic } from '../credentials/integration-credential-file'
 
 // Same file-backed pattern as the MCP secrets: OS-keyring sealed blob, plaintext only if sealing is unavailable.

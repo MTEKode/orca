@@ -9,7 +9,7 @@ import {
 import {
   ClaudeDispatchContentError,
   readClaudeImage
-} from '../claude/structured/claude-structured-dispatch-content'
+} from '../claude/structured/dispatch/claude-structured-dispatch-content'
 import type { OpenCodeV2PromptFile } from './opencode-v2-connection'
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024

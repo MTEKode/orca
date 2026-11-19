@@ -1,4 +1,4 @@
-import type { GlobalSettings } from '../../../shared/global-settings-types'
+import type { GlobalSettings } from '../../../shared/settings/global-settings-types'
 
 const RETIRED = new Set(['opencode2', 'opencode-v2'])
 const KEYED_BY_AGENT = [

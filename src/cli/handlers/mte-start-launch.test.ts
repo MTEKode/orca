@@ -1,14 +1,16 @@
 import { describe, expect, it, vi } from 'vitest'
 
 const callAgentLaunch = vi.fn(async (..._args: unknown[]) => ({ result: {} }))
-vi.mock('../agent-launch-request', () => ({
+vi.mock('../agents/agent-launch-request', () => ({
   callAgentLaunch,
   formatAgentLaunch: () => 'ok',
   getAgentLaunchCapabilities: async () => ['cap'],
   parseCliAgent: (agent: string) => agent,
   readCliAgentLaunch: () => ({ agent: 'claude', surface: 'chat' })
 }))
-vi.mock('../selectors', () => ({ getRequiredWorktreeSelector: async () => 'id:wt' }))
+vi.mock('../workspace-selection/workspace-selector', () => ({
+  getRequiredWorktreeSelector: async () => 'id:wt'
+}))
 
 describe('launchPlannerChat', () => {
   it('marks the launched chat as an MTE planner', async () => {

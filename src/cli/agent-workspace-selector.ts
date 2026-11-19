@@ -1,4 +1,4 @@
-import type { RuntimeClient } from './runtime-client'
+import type { RuntimeClient } from './runtime/client'
 
 export async function resolveCurrentAgentWorkspaceSelector(
   cwd: string,

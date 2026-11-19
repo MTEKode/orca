@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { DiffComment } from '../../../shared/diff-comment-types'
+import type { DiffComment } from '../../../shared/file-review/diff-comment-types'
 import { composePromptWithDiffComments } from './native-chat-comment-delivery'
 
 function comment(id: string, overrides: Partial<DiffComment> = {}): DiffComment {

@@ -3,11 +3,14 @@
 // working-tree builder (temp index, .gitignore-aware) instead of a second diff engine.
 
 import { StringDecoder } from 'node:string_decoder'
-import { getBaseRefDefault } from '../git/repo'
-import { isMaxBufferOverflowError } from '../git/max-buffer-overflow'
-import { gitExecFileAsync } from '../git/runner'
-import { gitOptionsForWorktree, type GitRuntimeOptions } from '../git/git-runtime-options'
-import { resolveMergeBase, resolveRefOid } from '../git/source-control/compare-ref-oids'
+import { getDefaultBaseRefAsync } from '../git/refs/resolution/repo-default-base-ref'
+import { isMaxBufferOverflowError } from '../git/command-runner/process-capture/max-buffer-overflow'
+import { gitExecFileAsync } from '../git/command-runner/git-exec-file'
+import {
+  gitOptionsForWorktree,
+  type GitRuntimeOptions
+} from '../git/command-runner/git-runtime-options'
+import { resolveMergeBase, resolveRefOid } from '../git/source-control/comparisons/compare-ref-oids'
 import { literalPathspec } from '../git/source-control/git-pathspec'
 import { MAX_GIT_SHOW_BYTES } from '../git/source-control/git-show-max-bytes'
 import {
@@ -56,7 +59,7 @@ export async function readReviewWorkspaceDiff(
       }
     }
     const baseRef =
-      options.pinnedBaseRef?.trim() || (await getBaseRefDefault(worktreePath, runtime)) || null
+      options.pinnedBaseRef?.trim() || (await getDefaultBaseRefAsync(worktreePath, runtime)) || null
     if (!baseRef) {
       return {
         error:

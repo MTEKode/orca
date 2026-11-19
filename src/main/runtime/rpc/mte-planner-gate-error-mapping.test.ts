@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mapRuntimeError } from './errors'
+import { mapRuntimeError } from './responses/rpc-response'
 import { assertMtePlannerCaller } from './methods/orchestration/runs/mte-planner-gate'
 
 describe('MTE planner gate', () => {

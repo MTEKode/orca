@@ -26,7 +26,7 @@ vi.mock('../../../../shared/terminal/links/wrapped-terminal-link-ranges', () => 
   })
 }))
 
-import type { Repo } from '../../../../shared/repo-types'
+import type { Repo } from '../../../../shared/repository/repo-types'
 import {
   createTerminalSymbolLinkProvider,
   extractSymbolTokens,

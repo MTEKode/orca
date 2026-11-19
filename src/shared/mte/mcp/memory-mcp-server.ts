@@ -1,5 +1,5 @@
 import type { Readable, Writable } from 'node:stream'
-import { errorMessage } from '../../error-message'
+import { errorMessage } from '../../errors/error-message'
 import { memoryDbPath, openMemoryStore } from '../memory-database'
 import type { MemoryStore } from '../memory-store'
 import { createMemoryToolHandlers } from '../memory-tools'

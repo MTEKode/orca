@@ -1,5 +1,5 @@
 import { resolve as resolvePath } from 'node:path'
-import { REPEATED_FLAG_SEPARATOR } from '../args'
+import { REPEATED_FLAG_SEPARATOR } from '../arguments/args'
 import { detectChecks, type DetectedChecks } from '../../shared/mte/checks/detect-checks'
 import {
   failedGroupCount,

@@ -2,8 +2,9 @@ import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'nod
 import os from 'node:os'
 import path from 'node:path'
 import { runProcess } from '@orca/process-host'
-import { test as base, expect } from './helpers/orca-app'
-import { waitForActiveWorktree, waitForSessionReady } from './helpers/store'
+import { expect } from '@stablyai/playwright-test'
+import { test as base } from './desktop/electron-fixtures/orca-app'
+import { waitForActiveWorktree, waitForSessionReady } from './desktop/renderer-probes/store'
 
 const SCREENS_DIR = process.env.ORCA_E2E_LSP_SCREENS_DIR
 const HOVER_DOC = 'Greets people from the LSP navigation fixture.'

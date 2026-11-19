@@ -2,7 +2,7 @@ import { lstat, mkdir, mkdtemp, readlink, rm, symlink, writeFile } from 'node:fs
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { SKILL_INSTALL_PROVIDERS } from '../../shared/skill-install-providers'
+import { SKILL_INSTALL_PROVIDERS } from '../../shared/skills/installation/skill-install-providers'
 import { buildUnifiedSkillCatalog } from '../../shared/skills/unified-skill-catalog'
 import { clearSkillRootScanCache, discoverSkills } from './discovery/skill-native-discovery'
 import { applyImportSelection, listImportableSkills } from './harness-skill-import'

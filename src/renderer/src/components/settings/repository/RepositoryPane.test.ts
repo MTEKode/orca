@@ -2,11 +2,10 @@
 
 import React, { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { getDefaultSettings } from '../../../../../shared/constants'
-import type { Project } from '../../../../../shared/project-types'
-import type { Repo } from '../../../../../shared/repo-types'
+import { getDefaultSettings } from '../../../../../shared/orca-profiles/constants'
+import type { Project } from '../../../../../shared/project/project-types'
+import type { Repo } from '../../../../../shared/repository/repo-types'
 import type { TerminalTab } from '../../../../../shared/workspace-layout/terminal-tab-types'
 import type { AgentStatusEntry } from '../../../../../shared/agent-status/contracts/agent-status-types'
 import { useAppStore } from '@/store/index'
@@ -15,6 +14,7 @@ import { RepositoryPane } from './RepositoryPane'
 import { matchesRepositoryIdentitySearch } from './identity/repository-identity-search'
 import { matchesSettingsSearch } from '../search/settings-search'
 import { TooltipProvider } from '../../ui/tooltip'
+import { acceptedAgentStatuses } from '@/store/slices/agent-status/status-ownership/accepted-agent-statuses'
 
 let container: HTMLDivElement
 let root: Root
@@ -143,21 +143,24 @@ describe('RepositoryPane search entries', () => {
     })
 
     try {
-      const html = renderToStaticMarkup(
-        React.createElement(
-          TooltipProvider,
-          null,
-          React.createElement(RepositoryPane, {
-            repo,
-            yamlHooks: null,
-            hasHooksFile: false,
-            hooksInspectionReady: true,
-            mayNeedUpdate: false,
-            updateRepo: vi.fn(),
-            removeProject: vi.fn()
-          })
+      act(() => {
+        root.render(
+          React.createElement(
+            TooltipProvider,
+            null,
+            React.createElement(RepositoryPane, {
+              repo,
+              yamlHooks: null,
+              hasHooksFile: false,
+              hooksInspectionReady: true,
+              mayNeedUpdate: false,
+              updateRepo: vi.fn(),
+              removeProject: vi.fn()
+            })
+          )
         )
-      )
+      })
+      const html = container.innerHTML
 
       expect(html).toContain('Worktree hooks')
       expect(html).toContain('Setup script')
@@ -211,9 +214,7 @@ describe('RepositoryPane search entries', () => {
         'tab-1': ['pty-1'],
         'tab-2': ['pty-2']
       },
-      agentStatusByPaneKey: {
-        'tab-2:0': activeAgent('tab-2:0', worktreeId)
-      }
+      agentStatusByPaneKey: acceptedAgentStatuses([['tab-2:0', activeAgent('tab-2:0', worktreeId)]])
     })
 
     act(() => {

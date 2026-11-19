@@ -6,7 +6,7 @@ import { useAppStore } from '../../../../store/index'
 import {
   findActivityTerminalPortal,
   type ActivityTerminalPortalTarget
-} from '../../../activity/activity-terminal-portal'
+} from '../../../activity/terminal-portal/activity-terminal-portal'
 import { getTerminalTabColdParkRecheckDelayMs } from '../retention/terminal-cold-park-recheck-deadlines'
 import {
   clearTerminalTabColdParkRecheckTimers,
@@ -28,7 +28,8 @@ import { getTerminalParkingPolicyOverrides } from '../instrumentation/terminal-p
 import { selectEvictionExemptTerminalTabIds } from '../retention/terminal-eviction-exempt-tabs'
 import { selectSleepingRecordParkExemptTabIds } from '../retention/sleeping-record-park-exemption'
 import { usePendingStartupParkPresence } from '../retention/terminal-pending-startup-park-presence'
-import { canWatcherCoverParkedTerminalTab } from '../output-watchers/terminal-parked-tab-watchers'
+import '../output-watchers/terminal-parked-tab-watchers'
+import { canWatcherCoverParkedTerminalTab } from '../output-watchers/parked-terminal-tab-coverage'
 import { captureNewlyParkedTerminalTabs } from '../capture/parked-terminal-tab-capture-episodes'
 import { createTerminalTabActivationOrder } from '../retention/terminal-tab-activation-order'
 import { buildTerminalTabColdParkCandidates } from '../retention/terminal-tab-park-candidates'

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import { useAppStore } from '@/store'
 import { useDiffCommentView } from '@/components/diff-comments/use-diff-comment-owner'
-import type { DiffComment } from '../../../../shared/diff-comment-types'
+import type { DiffComment } from '../../../../shared/file-review/diff-comment-types'
 import { useNativeChatQueuedDiffComments } from './use-native-chat-queued-diff-comments'
 
 function basename(path: string): string {

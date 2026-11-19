@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Repo } from '../../shared/repo-types'
+import type { Repo } from '../../shared/repository/repo-types'
 import { OrcaRuntimeService } from './orca-runtime'
 
 const mocks = vi.hoisted(() => ({ disposeForRepo: vi.fn() }))

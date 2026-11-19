@@ -1,5 +1,5 @@
 import { net } from 'electron'
-import { MAIN_RELEASE_REPO } from '../../../shared/release-channel'
+import { MAIN_RELEASE_REPO } from '../../../shared/updater/release-channel'
 import { ATOM_FEED_URL, RELEASES_PAGE_BASE } from '../../updater-release-urls'
 import { compareVersions, isPrereleaseVersion, isValidVersion } from './updater-fallback'
 import {

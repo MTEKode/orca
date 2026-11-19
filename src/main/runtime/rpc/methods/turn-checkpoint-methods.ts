@@ -87,8 +87,8 @@ export const TURN_CHECKPOINT_METHODS = [
       }
       try {
         const value = await requireService().restore(sessionId, params.turnId, params.kind)
-        const snapshot = await host.journalSnapshot(sessionId)
-        return { ok: true, replayed: false, fence, cursor: snapshot.cursor, value }
+        const cursor = await (await host.journalReads(sessionId)).cursor()
+        return { ok: true, replayed: false, fence, cursor, value }
       } catch (error) {
         return refusalResult(error instanceof Error ? error.message : 'Reverting this turn failed.')
       }

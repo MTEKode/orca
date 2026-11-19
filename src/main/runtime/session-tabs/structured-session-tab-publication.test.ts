@@ -1,22 +1,23 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { OrchestrationDb } from '../orchestration/db/orchestration-db'
-import type { RuntimeMobileSessionTabsSnapshot } from '../../../shared/runtime-types'
+import type { RuntimeMobileSessionTabsSnapshot } from '../../../shared/remote-runtime/session-graph/runtime-session-contracts'
 import {
   mintStructuredWorkerHandle,
   mintStructuredWorkerPaneKey,
   structuredWorkerIdentities,
   structuredWorkerProcessIncarnation
 } from '../orchestration/terminal-authority/structured-sessions/structured-worker-identity'
-import { projectStructuredSessionTab } from './structured-session-tab-publication'
+import { projectStructuredSessionTab } from './chat/structured-session-tab-publication'
+import { MobileSessionSnapshotsByWorktree } from './publication/mobile-session-snapshots-by-worktree'
 
 const WORKSPACE = 'wt-publication'
 
 function publicationRuntime(): {
-  byWorktree: Map<string, RuntimeMobileSessionTabsSnapshot>
+  byWorktree: MobileSessionSnapshotsByWorktree
   emitted: RuntimeMobileSessionTabsSnapshot[]
   runtime: Parameters<typeof projectStructuredSessionTab>[0]
 } {
-  const byWorktree = new Map<string, RuntimeMobileSessionTabsSnapshot>()
+  const byWorktree = new MobileSessionSnapshotsByWorktree()
   const emitted: RuntimeMobileSessionTabsSnapshot[] = []
   return {
     byWorktree,

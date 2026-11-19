@@ -1,21 +1,21 @@
 import { describe, expect, it } from 'vitest'
-import { agentSessionConversationView } from '../../shared/agent-session/lifecycle/agent-session-conversation-view'
+import { agentSessionConversationView } from '../../shared/agent-session/lifecycle/leases/agent-session-conversation-view'
 import {
   agentSessionLeaseFixture,
   agentSessionRecordFixture
-} from '../../shared/agent-session/lifecycle/agent-session-record.test-fixture'
+} from '../../shared/agent-session/lifecycle/records/agent-session-record.test-fixture'
 import {
   findCommittedStructuredAgentSessionAdoptionReplay,
   findConflictingStructuredAdoption,
   resolveStructuredAgentSessionAdoption,
   structuredAdoptionConflictError,
   type StructuredAgentSessionAdoptionOwnership
-} from './structured-agent-session-history-adoption'
-import { PI_SESSION_HISTORY } from '../pi/pi-session-history'
+} from './conversation-adoption/structured-agent-session-history-adoption'
+import { PI_SESSION_HISTORY } from '../pi/transcripts/pi-session-history'
 import {
   claudeProviderHandle,
   codexProviderHandle
-} from '../../shared/agent-session/lifecycle/agent-session-provider-handle-encoding'
+} from '../../shared/agent-session/lifecycle/provider-handles/agent-session-provider-handle-encoding'
 
 const OPERATION = '1800000000000-00000000000000000000000000000001'
 

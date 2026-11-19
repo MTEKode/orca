@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { isOrcaSessionId } from '../../../../../../shared/orca-session-address'
+import { isOrcaSessionId } from '../../../../../../shared/agent-session/identity/orca-session-address'
 import { adoptMteWorkerPin, withMteWorkerPin } from './worker-start-mte-pin'
 
 const markMtePlanner = vi.fn()

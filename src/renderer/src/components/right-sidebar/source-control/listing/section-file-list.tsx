@@ -1,9 +1,9 @@
 import React from 'react'
 import type { GitStatusEntry } from '../../../../../../shared/git/status/git-status-types'
 import type { ConflictResolution } from '../../../../../../shared/source-control/listing/source-control-entry-actions'
-import type { SourceControlViewMode } from '../../../../../../shared/ui-chrome-types'
+import type { SourceControlViewMode } from '../../../../../../shared/ui-chrome/ui-chrome-types'
 import type { DiscardAllArea } from '../../../../../../shared/source-control/listing/source-control-discard-all-sequence'
-import type { DiffComment } from '../../../../../../shared/diff-comment-types'
+import type { DiffComment } from '../../../../../../shared/file-review/diff-comment-types'
 import {
   getSubmoduleExpansionKey,
   isExpandableSubmoduleEntry,
@@ -15,7 +15,7 @@ import { getSourceControlDirectoryActionPaths } from './directory-action-paths'
 import { SourceControlTreeDirectoryRow } from './tree-directory-rows'
 import { SubmodulePlaceholderRow } from './submodule-placeholder-row'
 import { UncommittedEntryRow } from './uncommitted-entry-row'
-import { VirtualizedList } from '../../../virtualized-list'
+import { VirtualizedList } from '../../../ui/virtualized-list'
 
 export function SourceControlSectionFileList({
   sourceControlViewMode,

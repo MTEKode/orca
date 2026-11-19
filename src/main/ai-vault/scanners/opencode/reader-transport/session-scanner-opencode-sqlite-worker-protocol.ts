@@ -1,19 +1,24 @@
 import type {
   OpenCodeTranscriptPage,
   OpenCodeTranscriptSignal
-} from '../../../../native-chat/transcript-opencode-sqlite-query'
+} from '../../../../native-chat/transcript-history/opencode/transcript-opencode-sqlite-query'
 import type {
   AiVaultScanIssue,
   AiVaultSession
 } from '../../../../../shared/ai-vault/contracts/ai-vault-types'
+import type { NativeChatMessage } from '../../../../../shared/native-chat/native-chat-types'
+import type { SqliteSessionAgent } from '../../../../../shared/agent-session/lifecycle/provider-handles/opencode-sqlite-session-path'
 import type { SessionFileCandidate } from '../../../session-scanner-types'
 import type { TranscriptMessage } from '../../../transcripts/session-transcript-consumers'
 
-/** Which SQLite schema a worker request reads; sessions from either label as `opencode` in history. */
-export type OpenCodeSqliteWorkerAgent = 'opencode-next' | 'zcode'
+/** Session stores the reader serves besides OpenCode 1; absent means OpenCode 1. */
+// Fork: the retired opencode2 agent id reads the v2 store as `opencode-next`; history labels it `opencode`.
+export type SqliteReaderAgent =
+  | Exclude<SqliteSessionAgent, 'opencode' | 'opencode2'>
+  | 'opencode-next'
 
-export function aiVaultAgentForWorker(agent?: OpenCodeSqliteWorkerAgent): 'opencode' | 'zcode' {
-  return agent === 'zcode' ? 'zcode' : 'opencode'
+export function aiVaultAgentForWorker(agent?: SqliteReaderAgent): 'opencode' | 'zcode' | 'hermes' {
+  return !agent || agent === 'opencode-next' ? 'opencode' : agent
 }
 
 export type OpenCodeSqliteListRequest = {
@@ -21,8 +26,8 @@ export type OpenCodeSqliteListRequest = {
   kind: 'list'
   dbPaths: readonly string[]
   limit: number | null
-  agent?: OpenCodeSqliteWorkerAgent
-  /** Lists only sessions whose directory is in scope; an older reader ignores it and lists unfiltered. */
+  agent?: SqliteReaderAgent
+  /** Lists only sessions whose directory is in scope (Hermes: the newest plus those in scope); an older reader ignores it and lists unfiltered. */
   scopePaths?: readonly string[]
 }
 
@@ -33,7 +38,7 @@ export type OpenCodeSqliteParseRequest = {
   dbPath: string
   sessionId: string
   platform: NodeJS.Platform
-  agent?: OpenCodeSqliteWorkerAgent
+  agent?: SqliteReaderAgent
 }
 
 // Separate capture requests keep full-transcript response types distinct from preview-only parses.
@@ -43,12 +48,14 @@ export type OpenCodeSqliteCaptureRequest = {
   dbPath: string
   sessionId: string
   platform: NodeJS.Platform
-  agent?: OpenCodeSqliteWorkerAgent
+  agent?: SqliteReaderAgent
 }
 
 export type OpenCodeNativeChatReadRequest = {
   id: number
-  kind: 'native-page' | 'native-signal'
+  /** `hermes-history`: a Hermes conversation as chat messages, for a chat that takes it over;
+   *  `hermes-exists`: whether the store holds the session. */
+  kind: 'native-page' | 'native-signal' | 'hermes-history' | 'hermes-exists'
   dbPath: string
   sessionId: string
   limit?: number
@@ -65,7 +72,12 @@ export type OpenCodeForkCoverageRequest = {
   sessionId: string
 }
 
-export type OpenCodeNativeChatReadValue = OpenCodeTranscriptPage | OpenCodeTranscriptSignal | null
+export type OpenCodeNativeChatReadValue =
+  | OpenCodeTranscriptPage
+  | OpenCodeTranscriptSignal
+  | NativeChatMessage[]
+  | { exists: boolean }
+  | null
 
 export type OpenCodeSqliteWorkerRequest = (
   | OpenCodeSqliteListRequest

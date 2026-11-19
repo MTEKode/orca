@@ -3,7 +3,7 @@ import {
   providerDiagnostic
 } from '../../shared/agent-session/failures/agent-session-failure'
 import { agentSessionFailureWords } from '../../shared/agent-session/failures/agent-session-failure-words'
-import type { AgentSessionTokenUsage } from '../../shared/agent-session/agent-session-context-usage'
+import type { AgentSessionTokenUsage } from '../../shared/agent-session/conversation-context/agent-session-context-usage'
 import type {
   ProviderTimelineEvent,
   ProviderTimelineJoin

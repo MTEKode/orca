@@ -7,7 +7,7 @@ import type {
   AgentSessionTurnCheckpointKind,
   AgentSessionTurnCheckpointListResult
 } from '../../../shared/agent-session-turn-checkpoints'
-import type { RuntimeClientTarget } from '../../../shared/runtime-client-target'
+import type { RuntimeClientTarget } from '../../../shared/remote-runtime/host-catalog/runtime-client-target'
 import { callRuntimeRpc } from './rpc/calls/runtime-rpc-call'
 
 /** The session's turn checkpoints; an older host without the method rejects, so callers catch. */

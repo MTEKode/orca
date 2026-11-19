@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
-import { getSecretStore } from '../../shared/secret-store'
+import { getSecretStore } from '../../shared/secure-storage/secret-store'
 
 // Why: the password never touches settings files; it lives sealed in a per-repo file keyed by
 // `deploy-check:<repoId>`. There is no plaintext fallback: without encryption the save is refused.

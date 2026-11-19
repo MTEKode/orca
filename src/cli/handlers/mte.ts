@@ -1,8 +1,8 @@
 import { resolve as resolvePath } from 'node:path'
 import { readOrcaCliVersion } from '../cli-version'
-import type { CommandHandler } from '../dispatch'
-import type { RuntimeClient } from '../runtime-client'
-import { errorMessage } from '../../shared/error-message'
+import type { CommandHandler } from '../dispatch/dispatch'
+import type { RuntimeClient } from '../runtime/client'
+import { errorMessage } from '../../shared/errors/error-message'
 import type { MteWorkerPin } from '../../shared/mte/worker-pin'
 import { MTE_START_DEFAULT_GOAL, plannerKickoffPrompt } from '../../shared/mte/planner-prompt'
 import {

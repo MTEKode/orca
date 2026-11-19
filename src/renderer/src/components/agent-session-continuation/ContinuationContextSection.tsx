@@ -1,4 +1,4 @@
-import { translate } from '@/i18n/i18n'
+import { useId } from 'react'
 import {
   Select,
   SelectContent,
@@ -6,32 +6,32 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { hasFullAgentSessionContext } from '@/lib/agent-session/context/agent-session-continuation'
-import type {
-  AgentSessionContinuationContextMode,
-  AgentSessionContinuationRequest
+import { useTranslate } from '@/i18n/use-translate'
+import {
+  hasFullAgentSessionContext,
+  type AgentSessionContinuationContextMode,
+  type AgentSessionContinuationRequest
 } from '@/lib/agent-session/context/agent-session-continuation'
 
-/** The hand-off context pick (focused vs full transcript) shared by the agent and orchestration modes. */
+/** The hand-off context pick: latest status, or the full transcript when one was saved. */
 export function ContinuationContextSection({
   request,
-  preparing,
   contextMode,
   disabled,
   onModeChange
 }: {
   request: AgentSessionContinuationRequest | null
-  preparing: boolean
   contextMode: AgentSessionContinuationContextMode
   disabled: boolean
   onModeChange: (mode: AgentSessionContinuationContextMode) => void
 }): React.JSX.Element {
-  const source = request?.source
-  const hasFullContext = source ? hasFullAgentSessionContext(source) : false
+  const t = useTranslate()
+  const contextLabelId = useId()
+  const hasFullContext = request ? hasFullAgentSessionContext(request.source) : false
   return (
-    <div className="min-w-0 space-y-1.5">
-      <label className="text-xs font-medium">
-        {translate('components.agentSessionContinuation.context', 'Context')}
+    <div className="grid min-w-0 gap-1.5">
+      <label id={contextLabelId} className="text-[13px] font-medium">
+        {t('components.agentSessionContinuation.context', 'Context')}
       </label>
       <Select
         disabled={disabled}
@@ -42,44 +42,30 @@ export function ContinuationContextSection({
           }
         }}
       >
-        <SelectTrigger className="min-w-0 w-full" size="sm">
+        <SelectTrigger aria-labelledby={contextLabelId} className="min-w-0 w-full" size="sm">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="focused">
-            {translate(
-              'components.agentSessionContinuation.modeFocused',
-              'Focused handoff (Recommended)'
+            {t(
+              'components.agentSessionContinuation.modeLatestStatus',
+              'Latest status (recommended)'
             )}
           </SelectItem>
           <SelectItem value="full" disabled={!hasFullContext}>
-            {translate('components.agentSessionContinuation.modeFull', 'Full session transcript')}
+            {t('components.agentSessionContinuation.modeFullTranscript', 'Full transcript')}
           </SelectItem>
         </SelectContent>
       </Select>
-      <p className="min-h-12 text-[11px] leading-4 text-muted-foreground">
-        {preparing
-          ? null
-          : !hasFullContext
-            ? source?.sourceKind === 'chat'
-              ? translate(
-                  'components.agentSessionContinuation.modeLoadedDescription',
-                  'Uses recent messages currently loaded in this chat and the current workspace.'
-                )
-              : translate(
-                  'components.agentSessionContinuation.modeCapturedDescription',
-                  'Uses captured text and the current workspace.'
-                )
-            : contextMode === 'focused'
-              ? translate(
-                  'components.agentSessionContinuation.modeFocusedDescription',
-                  'Uses the latest status and current workspace, reading older transcript details only when needed.'
-                )
-              : translate(
-                  'components.agentSessionContinuation.modeFullDescription',
-                  'Asks the new Agent to read the complete saved session before continuing. This can take longer and use significant context, plan usage, or API credits.'
-                )}
-      </p>
+      {contextMode === 'full' ? (
+        // Why only here: the cost warning is the one thing this choice needs to say.
+        <p className="text-xs text-muted-foreground">
+          {t(
+            'components.agentSessionContinuation.modeFullCost',
+            'Slower, and uses more of your plan or API credits.'
+          )}
+        </p>
+      ) : null}
     </div>
   )
 }

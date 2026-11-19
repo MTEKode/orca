@@ -10,7 +10,7 @@ vi.mock('node:os', async (orig) => ({
   homedir: () => home
 }))
 
-import { _resetSecretStoreForTests, setSecretStore } from '../../shared/secret-store'
+import { _resetSecretStoreForTests, setSecretStore } from '../../shared/secure-storage/secret-store'
 import {
   DeployCheckEncryptionUnavailableError,
   hasDeployCheckPassword,

@@ -1,7 +1,10 @@
 import { readdir, readFile, realpath } from 'node:fs/promises'
 import { isAbsolute, join, posix, resolve, win32 } from 'node:path'
-import type { McpIntegrationsSettings } from '../../shared/global-settings-base'
-import { nativeSkillPathSemantics, skillPathInside } from '../../shared/skill-path-containment'
+import type { McpIntegrationsSettings } from '../../shared/settings/global-settings-base'
+import {
+  nativeSkillPathSemantics,
+  skillPathInside
+} from '../../shared/skills/paths/skill-path-containment'
 import type { UnifiedCatalogSkill } from '../../shared/skills/unified-skill-catalog'
 import { resolveMteStartCliCommand } from '../../shared/mte/cli-command'
 import { TOOLS_MCP_SERVER_ARGS } from '../../shared/mte/mcp/workspace-mcp-config'

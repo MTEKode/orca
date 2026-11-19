@@ -10,7 +10,7 @@ import { getAgentCatalog } from '@/lib/agent-catalog/agent-catalog'
 import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
 import { translate } from '@/i18n/i18n'
 import { workspaceKindForWorktreeId } from '../../../../shared/agent-launch/contracts/workspace-launch-kind'
-import { isFolderRepo } from '../../../../shared/repo-kind'
+import { isFolderRepo } from '../../../../shared/repository/repo-kind'
 import { mteAdapterForAgent } from '../../../../shared/mte/adapter-for-agent'
 import { plannerKickoffPrompt } from '../../../../shared/mte/planner-prompt'
 import { mteStartGoal } from '../../../../shared/mte/start-goal'
@@ -23,7 +23,7 @@ import type {
   AgentPickerEntry
 } from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { StructuredAgentLaunchSettlement } from '@/lib/agent-session/launch/continuation/structured-agent-launch-settlement'
-import type { Repo } from '../../../../shared/repo-types'
+import type { Repo } from '../../../../shared/repository/repo-types'
 import {
   useNewChatDialogStore,
   type NewChatChoice,

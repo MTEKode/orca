@@ -7,8 +7,8 @@ import {
   useAgentLaunchPickerInventorySource,
   useAgentPickerInventoryEntries
 } from '@/components/agent/use-agent-launch-picker-inventory'
-import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
-import { useNewTabAgentMenuRows } from '../tab-bar/use-new-tab-agent-menu-rows'
+import { useAgentDetectionTargetForWorktree } from '@/lib/agent-session/launch/inventory/useAgentDetectionTarget'
+import { useNewTabAgentMenuRows } from '../agent/launch-menu/use-new-tab-agent-menu-rows'
 import { NewChatPickFields } from '../tab-bar/NewChatPickFields'
 import { newChatEntries, resolveNewChatPick } from '../tab-bar/new-chat-pick'
 import { composerSidePillLabel } from './native-chat-composer-agent-label-text'

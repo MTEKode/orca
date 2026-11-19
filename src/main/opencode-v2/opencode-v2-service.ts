@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
-import { getSpawnArgsForWindows } from '../../shared/windows-batch-spawn'
-import type { StructuredAgentCommandSettings } from '../native-chat/structured-agent-command-resolution'
+import { getSpawnArgsForWindows } from '../../shared/shell/launch/windows-batch-spawn'
+import type { StructuredAgentCommandSettings } from '../native-chat/agent-launch/structured-agent-command-resolution'
 import { resolveOpenCodeV2ServiceLaunch } from './opencode-v2-service-launch'
 import { OrchestrationError } from '../runtime/orchestration/orchestration-error'
 

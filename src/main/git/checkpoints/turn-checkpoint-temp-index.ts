@@ -3,7 +3,7 @@
 
 import { mkdtemp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { basename, join } from 'node:path'
-import { addWslEnvKeys } from '../../../shared/wsl-env'
+import { addWslEnvKeys } from '../../../shared/shell/wsl/wsl-env'
 import {
   checkpointHostFsPath,
   runCheckpointGit,

@@ -1,11 +1,11 @@
-import type { OpenCodeAgentSessionAccountHome } from '../../shared/agent-session/lifecycle/agent-session-account-home'
+import type { OpenCodeAgentSessionAccountHome } from '../../shared/agent-session/lifecycle/accounts/agent-session-account-home'
 import {
   resolveStructuredAgentCommand,
   type StructuredAgentCommandSettings
-} from '../native-chat/structured-agent-command-resolution'
-import type { StructuredAgentSessionHistory } from '../native-chat/structured-agent-cli-conversations'
+} from '../native-chat/agent-launch/structured-agent-command-resolution'
+import type { StructuredAgentSessionHistory } from '../native-chat/conversation-adoption/structured-agent-cli-conversations'
 import type { StructuredAgentRuntimeMetadata } from '../runtime/agent-session/installation/structured-agent-runtime-registration-types'
-import { OPENCODE_SESSION_HISTORY } from '../opencode/opencode-session-history'
+import { OPENCODE_SESSION_HISTORY } from '../opencode/transcripts/opencode-session-history'
 import { OPENCODE_V2_STRUCTURED_AGENT } from './opencode-v2-agent-definition'
 import { createOpenCodeV2ModelCatalogProbe } from './opencode-v2-model-catalog'
 import { supportsOpenCodeV2Location } from './opencode-v2-session-adapter'
