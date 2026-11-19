@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build the macOS arm64 release on this machine and upload it to the MTEkode draft release.
 # Why: GitHub's hosted macOS arm64 runners can sit unacquired for hours; Windows still builds in CI
-# (run the "MTEkode unsigned release" workflow with platforms=windows).
+# (run the "MTEkode release windows" workflow).
 # Usage: config/scripts/mtekode-release-local-mac.sh v1.4.219   (an existing draft release tag)
 set -euo pipefail
 cd "$(dirname "$0")/../.."

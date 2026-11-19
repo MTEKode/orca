@@ -1,0 +1,28 @@
+name: MTEkode release publish
+description: Publish the draft as latest once both platform installers are attached; whichever
+  platform finishes second does the publishing.
+
+inputs:
+  tag:
+    description: Release tag to publish.
+    required: true
+  token:
+    description: Token for release reads and publishing.
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        TAG: ${{ inputs.tag }}
+      run: |
+        set -euo pipefail
+        assets="$(gh release view "$TAG" --json assets --jq '.assets[].name')"
+        if grep -q '\.dmg$' <<<"$assets" && grep -q '\.exe$' <<<"$assets"; then
+          gh release edit "$TAG" --draft=false --latest
+          echo "Published $TAG with both platform installers."
+        else
+          echo "$TAG stays draft: waiting for the other platform's installer."
+        fi

@@ -1,0 +1,54 @@
+name: MTEkode release prepare
+description: Compute the next release version and ensure its draft exists, reusing the draft the
+  sibling platform workflow may already have created so both attach to one release.
+
+inputs:
+  ref:
+    description: Commit SHA or branch to release from.
+    default: main
+  token:
+    description: Token for release reads and creation.
+    default: ${{ github.token }}
+
+outputs:
+  tag:
+    description: Release tag (vX.Y.Z).
+    value: ${{ steps.next.outputs.tag }}
+  version:
+    description: Release version (X.Y.Z).
+    value: ${{ steps.next.outputs.version }}
+  sha:
+    description: Commit the draft release targets.
+    value: ${{ steps.next.outputs.sha }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v6
+      with:
+        ref: ${{ inputs.ref }}
+    - id: next
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+      run: |
+        set -euo pipefail
+        pkg="$(node -p "require('./package.json').version")"
+        latest="$(gh release list --limit 100 --json tagName --jq '.[].tagName' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sed 's/^v//' | sort -V | tail -1 || true)"
+        if [[ -n "$latest" && "$(printf '%s\n%s\n' "$pkg" "$latest" | sort -V | tail -1)" == "$latest" ]]; then
+          IFS=. read -r a b c <<<"$latest"
+          version="$a.$b.$((c + 1))"
+        else
+          version="$pkg"
+        fi
+        tag="v$version"
+        if gh release view "$tag" >/dev/null 2>&1; then
+          sha="$(gh release view "$tag" --json targetCommitish --jq .targetCommitish)"
+          echo "Reusing existing release $tag at $sha" >&2
+        else
+          sha="$(git rev-parse HEAD)"
+          gh release create "$tag" --draft --target "$sha" --title "$tag" --generate-notes
+        fi
+        echo "version=$version" >> "$GITHUB_OUTPUT"
+        echo "tag=$tag" >> "$GITHUB_OUTPUT"
+        echo "sha=$sha" >> "$GITHUB_OUTPUT"
