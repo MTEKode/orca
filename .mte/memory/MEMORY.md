@@ -29,3 +29,7 @@
 - [native-chat-draft-insert-scope](native-chat-draft-insert-scope.md) - To insert text into the visible structured chat composer from outside native-chat: use insertNativeC
 
 - [repo-setting-plumbing-files](repo-setting-plumbing-files.md) - Adding a per-repo (project) setting in orca touches: src/shared/repo-types.ts, src/renderer/src/stor
+
+- [mte-flow-overhaul-lock-d17-d22](mte-flow-overhaul-lock-d17-d22.md) - Lock confirmed 2026-11-19 (run_bb704f2e21c3): reuse run+7 tasks; branch mte/flow-overhaul from f444e
+
+- [t2-guide-is-source-not-generated](t2-guide-is-source-not-generated.md) - T2 ask resolution (2026-11-19): skill-guides/mte.md is a SOURCE file, NOT generated — generate-bundl
