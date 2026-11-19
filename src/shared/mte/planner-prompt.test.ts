@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { MTE_PLANNER_PROMPT, mtePlannerPrompt, plannerKickoffPrompt } from './planner-prompt'
+import {
+  MTE_PLANNER_PROMPT,
+  mtePlannerPrompt,
+  plannerKickoffPrompt,
+  plannerTitle
+} from './planner-prompt'
 
 describe('MTE_PLANNER_PROMPT', () => {
   it('states the architect role, the dynamic title placeholder and the .mte-only edit boundary', () => {
@@ -113,12 +118,14 @@ describe('deploy check section', () => {
 })
 
 describe('plannerKickoffPrompt', () => {
-  it('embeds the persona and the goal', () => {
-    const kickoff = plannerKickoffPrompt('Ship the import refactor end to end')
-    expect(kickoff).toContain(MTE_PLANNER_PROMPT)
-    expect(kickoff).toContain('Ship the import refactor end to end')
-    expect(kickoff.indexOf(MTE_PLANNER_PROMPT)).toBeLessThan(
-      kickoff.indexOf('Ship the import refactor end to end')
+  it('embeds the persona and the goal, with the real title as H1', () => {
+    const goal = 'Ship the import refactor end to end'
+    const kickoff = plannerKickoffPrompt(goal)
+    expect(kickoff).toContain(plannerTitle(goal))
+    expect(kickoff).toContain(MTE_PLANNER_PROMPT.slice(MTE_PLANNER_PROMPT.indexOf('\n') + 1))
+    expect(kickoff).toContain(goal)
+    expect(kickoff.indexOf('## Objetivo')).toBeGreaterThan(
+      kickoff.indexOf('Eres el Arquitecto jefe')
     )
   })
 
@@ -196,5 +203,47 @@ describe.each([
 
   it('does not ask the worker for exact files', () => {
     expect(prompt).not.toContain('archivos exactos')
+  })
+})
+
+describe('plannerTitle', () => {
+  it('titles short goals verbatim under the architect header', () => {
+    expect(plannerTitle('Arreglar bug de login')).toBe('# Arquitecto — Arreglar bug de login')
+  })
+
+  it('reduces long goals to their first eight content words in original order', () => {
+    const goal =
+      'Añadir soporte de dark mode en el settings panel y actualizar los tests relacionados'
+    expect(plannerTitle(goal)).toBe(
+      '# Arquitecto — Añadir soporte dark mode settings panel actualizar tests'
+    )
+  })
+
+  it('derives the title from the objective only when linked work items are appended', () => {
+    const goal = [
+      'Arreglar bug de login',
+      '',
+      '### Linked work items',
+      '',
+      '- Linear ISSUE ENG-9 — Broken session token (https://linear.app/eng/issue/ENG-9)'
+    ].join('\n')
+    expect(plannerTitle(goal)).toBe('# Arquitecto — Arreglar bug de login')
+  })
+
+  it('falls back to the placeholder for empty goals and never mutates its input', () => {
+    const goal = 'Migrar el store a SQLite.'
+    expect(plannerTitle('')).toBe('# Arquitecto — <tema>')
+    expect(plannerTitle('   ')).toBe('# Arquitecto — <tema>')
+    expect(plannerTitle(goal)).toBe('# Arquitecto — Migrar el store a SQLite')
+    expect(goal).toBe('Migrar el store a SQLite.')
+  })
+
+  it('opens the kickoff with the real title while the base prompt keeps the placeholder', () => {
+    expect(
+      plannerKickoffPrompt('Arreglar bug de login').startsWith(
+        '# Arquitecto — Arreglar bug de login\n'
+      )
+    ).toBe(true)
+    expect(MTE_PLANNER_PROMPT).toContain('# Arquitecto — <tema>')
   })
 })

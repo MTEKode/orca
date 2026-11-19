@@ -4,6 +4,36 @@ import type { MteWorkerPin } from './worker-pin'
 export const MTE_START_DEFAULT_GOAL =
   'Pregunta al usuario el objetivo de esta ejecución MTE y haz sobre él la entrevista de requisitos (grill).'
 
+/** Topic cap for the planner title; longer goals are reduced to keywords. */
+const PLANNER_TITLE_MAX_WORDS = 8
+
+/** Filler words dropped during keyword extraction (Spanish + English). */
+const PLANNER_TITLE_STOPWORDS = new Set(
+  'de del la el los las un una unos unas y u e o a al en que para por con sin sobre como es son se su sus le les lo me mi este esta estos estas ese esa eso muy ya no si entre hasta según también the an and or of to in on for with at by from is are be as that this it its into about'.split(
+    ' '
+  )
+)
+
+/** Header line for the planner prompt: `# Arquitecto — <topic>` derived from the goal. */
+export function plannerTitle(goal: string): string {
+  const objective = goal.split(/^### Linked work items.*$/m)[0] ?? goal
+  const words = objective.trim().split(/\s+/).filter(Boolean)
+  const topic = plannerTitleTopic(words)
+  return topic ? `# Arquitecto — ${topic}` : '# Arquitecto — <tema>'
+}
+
+/** Short goals pass through as-is; long ones keep their first ≤8 content words. */
+function plannerTitleTopic(words: string[]): string {
+  const kept = words.length <= PLANNER_TITLE_MAX_WORDS ? words : plannerTitleKeywords(words)
+  return kept.join(' ').replace(/[.,;:!?]+$/, '')
+}
+
+/** Original-order keyword extraction: drop stopwords, cap at the topic limit. */
+function plannerTitleKeywords(words: string[]): string[] {
+  const content = words.filter((word) => !PLANNER_TITLE_STOPWORDS.has(word.toLowerCase()))
+  return (content.length > 0 ? content : words).slice(0, PLANNER_TITLE_MAX_WORDS)
+}
+
 /** Stable planner persona + operating manual (Spanish). */
 function workerLabel(w: MteWorkerPin): string {
   return [w.agent, w.model, w.effort].filter(Boolean).join('/')
@@ -150,7 +180,7 @@ export const MTE_PLANNER_PROMPT = mtePlannerPrompt()
 /** First-message kickoff: persona + goal. */
 export function plannerKickoffPrompt(goal: string, worker?: MteWorkerPin): string {
   return [
-    mtePlannerPrompt(worker),
+    mtePlannerPrompt(worker).replace('# Arquitecto — <tema>', () => plannerTitle(goal)),
     '',
     '## Objetivo',
     '',

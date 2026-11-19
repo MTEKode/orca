@@ -36,7 +36,7 @@ import type { MteStartLaunchArgs } from './mte-start-launch'
 import { resolveMteCheckInvocation, runMteCheck } from './mte-check'
 import { detectChecks } from '../../shared/mte/checks/detect-checks'
 import type { CheckGroup, CheckGroupResult } from '../../shared/mte/checks/run-checks'
-import { MTE_PLANNER_PROMPT } from '../../shared/mte/planner-prompt'
+import { MTE_PLANNER_PROMPT, plannerTitle } from '../../shared/mte/planner-prompt'
 import type { WorkspaceMcpPlan } from '../../shared/mte/mcp/workspace-mcp-config'
 
 function flags(entries: [string, string | boolean][]): Map<string, string | boolean> {
@@ -354,7 +354,10 @@ describe('runMteStart', () => {
 
     expect(order).toEqual([`apply:${join(root, '.mcp.json')}`, 'launch:claude'])
     const launched: MteStartLaunchArgs = deps.launch.mock.calls[0]?.[0]
-    expect(launched.prompt).toContain(MTE_PLANNER_PROMPT)
+    expect(launched.prompt).toContain(plannerTitle('Ship the import refactor'))
+    expect(launched.prompt).toContain(
+      MTE_PLANNER_PROMPT.slice(MTE_PLANNER_PROMPT.indexOf('\n') + 1)
+    )
     expect(launched.prompt).toContain('Ship the import refactor')
     expect(launched.worktreePath).toBe(root)
     expect(launched.agent).toBe('claude')
