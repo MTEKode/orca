@@ -193,7 +193,7 @@ describe('resolveMteStartInvocation', () => {
       )
     ).toMatchObject({
       ok: false,
-      message: expect.stringContaining('claude, codex, opencode, antigravity, pi')
+      message: expect.stringContaining('claude, codex, opencode, antigravity')
     })
   })
 
@@ -268,17 +268,19 @@ describe('resolveMteStartInvocation', () => {
     })
   })
 
-  it('accepts pi as agent, adapter and worker pin', () => {
+  it('rejects pi as a worker agent', () => {
     expect(
       resolveMteStartInvocation(
         flags([
-          ['agent', 'pi'],
-          ['adapter', 'pi'],
+          ['agent', 'claude'],
           ['worker-agent', 'pi']
         ]),
         root
       )
-    ).toMatchObject({ ok: true, adapter: 'pi', worker: { agent: 'pi' } })
+    ).toMatchObject({
+      ok: false,
+      message: '--worker-agent must be one of: claude, codex, opencode, antigravity'
+    })
   })
 })
 
