@@ -5999,7 +5999,6 @@
           "e029a2d775": "Estado",
           "c2c7a45cda": "Ninguno",
           "hosts": "Hosts",
-          "showSection": "Mostrar",
           "allHostsDetail": "Mostrar todos los hosts",
           "configuredSshHost": "SSH configurado",
           "projectSshHost": "SSH del proyecto",
@@ -6012,7 +6011,6 @@
           "219ebf1961": "Nombre de rama",
           "folderPathIdentity": "Rama / ruta de carpeta",
           "cli": "Orca CLI",
-          "workspaceOptions": "Opciones de espacio de trabajo",
           "optionsActiveFilters_one": "Opciones de espacio de trabajo ({{count}} filtro activo)",
           "optionsActiveFilters_other": "Opciones de espacio de trabajo ({{count}} filtros activos)",
           "optionsActiveFilters_many": "Opciones de espacio de trabajo ({{count}} filtros activos)",
@@ -23172,7 +23170,7 @@
   },
   "keybindings": {
     "title": {
-      "worktreePalette": "Cambiar de worktree",
+      "worktreePalette": "Buscar en todo",
       "worktreeNavigateUp": "Worktree anterior",
       "worktreeNavigateDown": "Worktree siguiente",
       "workspaceCreate": "Crear worktree",
@@ -23284,6 +23282,9 @@
       "45347db2a3": "Navegación entre pestañas",
       "aab2837fa5": "Comandos rápidos",
       "3492a954c8": "Paneles del terminal"
+    },
+    "searchKeyword": {
+      "worktreePaletteFormerTitle": "Cambiar de worktree"
     }
   },
   "gpuFallback": {
@@ -24374,8 +24375,7 @@
     },
     "upcoming": {
       "tidyNightAfter": "Cada noche a partir de las {{from}}, o en cuanto este ordenador esté activo",
-      "tidyWeekAfter": "Una vez por semana a partir de las {{from}}, o en cuanto este ordenador esté activo",
-      "lookDueNow": "Pendiente ahora · {{every}}"
+      "tidyWeekAfter": "Una vez por semana a partir de las {{from}}, o en cuanto este ordenador esté activo"
     },
     "palette": {
       "placeholder": "Busca bots, chats, terminales, espacios de trabajo, tareas, ajustes y acciones...",

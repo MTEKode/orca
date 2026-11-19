@@ -6369,7 +6369,6 @@
           "e029a2d775": "状态",
           "c2c7a45cda": "没有任何",
           "hosts": "主机",
-          "showSection": "显示",
           "allHostsDetail": "显示所有主机",
           "configuredSshHost": "已配置 SSH",
           "projectSshHost": "项目 SSH",
@@ -6382,7 +6381,6 @@
           "automation": "自动化",
           "folderPathIdentity": "分支 / 文件夹路径",
           "cli": "Orca CLI",
-          "workspaceOptions": "工作区选项",
           "optionsActiveFilters_other": "工作区选项（{{count}} 个筛选条件已启用）",
           "optionsFilterCount_other": "工作区选项（{{count}} 个筛选条件）"
         },
@@ -24422,7 +24420,7 @@
   },
   "keybindings": {
     "title": {
-      "worktreePalette": "切换工作树",
+      "worktreePalette": "全局搜索",
       "worktreeNavigateUp": "上一个工作树",
       "worktreeNavigateDown": "下一个工作树",
       "workspaceCreate": "创建工作树",
@@ -24536,6 +24534,9 @@
       "45347db2a3": "标签页导航",
       "aab2837fa5": "快捷命令",
       "3492a954c8": "终端窗格"
+    },
+    "searchKeyword": {
+      "worktreePaletteFormerTitle": "切换工作树"
     }
   },
   "gpuFallback": {
@@ -25568,8 +25569,7 @@
     },
     "upcoming": {
       "tidyNightAfter": "每晚 {{from}} 之后，或这台电脑唤醒后",
-      "tidyWeekAfter": "每周一次，{{from}} 之后，或这台电脑唤醒后",
-      "lookDueNow": "现在到期 · {{every}}"
+      "tidyWeekAfter": "每周一次，{{from}} 之后，或这台电脑唤醒后"
     },
     "palette": {
       "placeholder": "搜索机器人、聊天、终端、工作区、任务、设置和操作...",

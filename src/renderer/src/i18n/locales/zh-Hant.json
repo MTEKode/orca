@@ -6247,7 +6247,6 @@
         },
         "SidebarWorkspaceOptionsMenu": {
           "hosts": "主機",
-          "showSection": "顯示",
           "allHostsDetail": "顯示所有主機",
           "configuredSshHost": "已設定 SSH",
           "projectSshHost": "專案 SSH",
@@ -6297,7 +6296,6 @@
           "219ebf1961": "分支名稱",
           "folderPathIdentity": "分支 / 資料夾路徑",
           "cli": "Orca CLI",
-          "workspaceOptions": "工作區選項",
           "optionsActiveFilters_other": "工作區選項（{{count}} 個篩選條件已啟用）",
           "optionsFilterCount_other": "工作區選項（{{count}} 個篩選條件）"
         },
@@ -22342,7 +22340,7 @@
   },
   "keybindings": {
     "title": {
-      "worktreePalette": "切換工作樹",
+      "worktreePalette": "全域搜尋",
       "worktreeNavigateUp": "上一個工作樹",
       "worktreeNavigateDown": "下一個工作樹",
       "workspaceCreate": "建立工作樹",
@@ -22454,6 +22452,9 @@
       "45347db2a3": "分頁導覽",
       "aab2837fa5": "快速指令",
       "3492a954c8": "終端機窗格"
+    },
+    "searchKeyword": {
+      "worktreePaletteFormerTitle": "切換工作樹"
     }
   },
   "gpuFallback": {
@@ -23329,8 +23330,7 @@
     },
     "upcoming": {
       "tidyNightAfter": "每晚 {{from}} 之後，或這台電腦喚醒後",
-      "tidyWeekAfter": "每週一次，{{from}} 之後，或這台電腦喚醒後",
-      "lookDueNow": "現在到期 · {{every}}"
+      "tidyWeekAfter": "每週一次，{{from}} 之後，或這台電腦喚醒後"
     },
     "palette": {
       "placeholder": "搜尋機器人、聊天、終端機、工作區、任務、設定和操作...",
