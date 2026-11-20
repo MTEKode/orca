@@ -20,14 +20,18 @@ async function importFreshDaemonBashRcfile(): Promise<typeof DaemonBashRcfileMod
 const describePosix = process.platform === 'win32' ? describe.skip : describe
 const hasBash = process.platform !== 'win32' && spawnSync('bash', ['--version']).status === 0
 const itWithBash = hasBash ? it : it.skip
-// GitHub's ubuntu runners ship a systemd bashrc.d hook that chains its own OSC emitter into every
-// interactive PROMPT_COMMAND, which reshapes the exact compositions these tests assert.
+// GitHub's ubuntu runners ship a systemd hook that chains its own OSC emitter into every
+// interactive bash a login shell spawns, which reshapes the exact compositions these tests
+// assert. Probe it the way these tests launch bash: through a login shell.
 const systemdOscHook = hasBash
-  ? spawnSync('bash', ['-i', '-c', 'printf %s "${PROMPT_COMMAND:-}"'], {
-      input: '',
-      encoding: 'utf8',
-      timeout: 5000
-    }).stdout.includes('__systemd_osc_context_precmdline')
+  ? spawnSync(
+      'bash',
+      [
+        '-lc',
+        '"$BASH" --noprofile --rcfile /dev/null -i -c "declare -F __systemd_osc_context_precmdline >/dev/null && printf present"'
+      ],
+      { input: '', encoding: 'utf8', timeout: 5000, env: { ...process.env, TERM: 'xterm' } }
+    ).stdout.includes('present')
   : false
 const itWithoutSystemdOscHook = systemdOscHook ? it.skip : itWithBash
 
