@@ -206,7 +206,9 @@ describe('TerminalQuickCommandDialog animation structure', () => {
     )
     const trigger = getByRole(document.body, 'button', { name: 'Select agent' })
     await act(async () => fireEvent.keyDown(trigger, { key: 'Enter' }))
-    const unsupported = getByRole(document.body, 'menuitem', { name: /^Aider/ })
+    // The fork prunes the community catalog tail, so Ante (primary, stdin-after-start) is the
+    // unsupported entry upstream's Aider used to cover.
+    const unsupported = getByRole(document.body, 'menuitem', { name: /^Ante/ })
     expect(unsupported.getAttribute('aria-disabled')).toBe('true')
     await act(async () => fireEvent.click(unsupported))
     expect(onSave).not.toHaveBeenCalled()

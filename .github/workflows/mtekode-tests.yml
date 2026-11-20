@@ -35,6 +35,10 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     timeout-minutes: 150
+    env:
+      # Upstream's unit-shard mode: excludes the special-lane suites (live-shell, node-pty,
+      # electron probes, cross-version-wire) that need runners this workflow does not have.
+      ORCA_BALANCE_UNIT_SHARDS: '1'
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/setup@v2

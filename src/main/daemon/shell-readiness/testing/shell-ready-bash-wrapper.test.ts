@@ -20,6 +20,16 @@ async function importFreshDaemonBashRcfile(): Promise<typeof DaemonBashRcfileMod
 const describePosix = process.platform === 'win32' ? describe.skip : describe
 const hasBash = process.platform !== 'win32' && spawnSync('bash', ['--version']).status === 0
 const itWithBash = hasBash ? it : it.skip
+// GitHub's ubuntu runners ship a systemd bashrc.d hook that chains its own OSC emitter into every
+// interactive PROMPT_COMMAND, which reshapes the exact compositions these tests assert.
+const systemdOscHook = hasBash
+  ? spawnSync('bash', ['-i', '-c', 'printf %s "${PROMPT_COMMAND:-}"'], {
+      input: '',
+      encoding: 'utf8',
+      timeout: 5000
+    }).stdout.includes('__systemd_osc_context_precmdline')
+  : false
+const itWithoutSystemdOscHook = systemdOscHook ? it.skip : itWithBash
 
 describePosix('daemon shell-ready bash wrapper', () => {
   let userDataPath: string
@@ -128,7 +138,7 @@ describePosix('daemon shell-ready bash wrapper', () => {
     }
   )
 
-  itWithBash(
+  itWithoutSystemdOscHook(
     'dispatches a non-empty preexec_functions against the real command, not Orca hooks',
     async () => {
       const { getDaemonBashShellReadyRcfileContent } = await importFreshDaemonBashRcfile()

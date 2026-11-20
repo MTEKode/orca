@@ -233,10 +233,13 @@ describe('routeWorkerPromptToCoordinator', () => {
       status: 'attention' as const,
       lastAssistantMessage: 'May I?'
     }))
-    expect(ctx.mail(['escalation', 'question']).map((m) => m.type)).toEqual([
-      'question',
-      'escalation'
-    ])
+    // The prompt branch reads the journal before delivering, so the escalation lands a microtask later.
+    await vi.waitFor(() =>
+      expect(ctx.mail(['escalation', 'question']).map((m) => m.type)).toEqual([
+        'question',
+        'escalation'
+      ])
+    )
   })
 })
 

@@ -56,6 +56,8 @@ export class LspSession {
   private isReady = false
   private exited = false
   private disposing = false
+  /** onExit fires exactly once per session: either the spontaneous exit or the disposal wrap-up. */
+  private exitNotified = false
   private disposalPromise: Promise<void> | null = null
   private forceTerminationPromise: Promise<boolean> | null = null
   private failed = false
@@ -162,7 +164,10 @@ export class LspSession {
         this.killLeftoverGroup()
       }
     }
-    this.config.onExit(this.failed)
+    if (!this.exitNotified) {
+      this.exitNotified = true
+      this.config.onExit(this.failed)
+    }
   }
 
   private forceTerminate(): Promise<boolean> {
@@ -275,6 +280,7 @@ export class LspSession {
       this.disposing = true
       this.clearIdleTimer()
       this.closePorts()
+      this.exitNotified = true
       this.config.onExit(true)
     }
   }

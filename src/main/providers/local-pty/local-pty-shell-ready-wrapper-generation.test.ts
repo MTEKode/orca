@@ -14,6 +14,16 @@ restoreUserDataPathAfterEach()
 
 const hasBash = process.platform !== 'win32' && spawnSync('bash', ['--version']).status === 0
 const itWithBash = hasBash ? it : it.skip
+// GitHub's ubuntu runners ship a systemd bashrc.d hook that chains its own OSC emitter into every
+// interactive PROMPT_COMMAND, which reshapes the exact compositions these tests assert.
+const systemdOscHook = hasBash
+  ? spawnSync('bash', ['-i', '-c', 'printf %s "${PROMPT_COMMAND:-}"'], {
+      input: '',
+      encoding: 'utf8',
+      timeout: 5000
+    }).stdout.includes('__systemd_osc_context_precmdline')
+  : false
+const itWithoutSystemdOscHook = systemdOscHook ? it.skip : itWithBash
 
 function runInteractiveBashRcfile(
   rcfileContent: string,
@@ -120,7 +130,7 @@ describePosix('local PTY shell-ready launch config', () => {
     }
   )
 
-  itWithBash('forwards a DEBUG trap replaced with local functrace', () => {
+  itWithoutSystemdOscHook('forwards a DEBUG trap replaced with local functrace', () => {
     writeFileSync(
       join(userDataPath, '.bash_profile'),
       [

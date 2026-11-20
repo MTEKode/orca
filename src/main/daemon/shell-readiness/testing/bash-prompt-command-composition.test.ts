@@ -7,6 +7,16 @@ import { getDaemonBashShellReadyRcfileContent } from '../daemon-bash-shell-ready
 
 const hasBash = process.platform !== 'win32' && spawnSync('bash', ['--version']).status === 0
 const itWithBash = hasBash ? it : it.skip
+// GitHub's ubuntu runners ship a systemd bashrc.d hook that chains its own OSC emitter into every
+// interactive PROMPT_COMMAND, which reshapes the exact compositions these tests assert.
+const systemdOscHook = hasBash
+  ? spawnSync('bash', ['-i', '-c', 'printf %s "${PROMPT_COMMAND:-}"'], {
+      input: '',
+      encoding: 'utf8',
+      timeout: 5000
+    }).stdout.includes('__systemd_osc_context_precmdline')
+  : false
+const itWithoutSystemdOscHook = systemdOscHook ? it.skip : itWithBash
 const bashMajor = hasBash
   ? Number(spawnSync('bash', ['-lc', 'printf %s "${BASH_VERSINFO[0]}"']).stdout)
   : 0
@@ -206,7 +216,7 @@ PROMPT_COMMAND='printf "PROMPT_REMATCH:<%s>\\n" "\${BASH_REMATCH[1]-unset}"'
     expectLifecycle(output, 0)
   })
 
-  itWithBash('does not resurrect a removed DEBUG trap with functrace enabled', () => {
+  itWithoutSystemdOscHook('does not resurrect a removed DEBUG trap with functrace enabled', () => {
     const profile = [
       'set -T',
       'trap \'printf "OLD_FT:<%s>\\n" "$BASH_COMMAND"\' DEBUG',
@@ -243,7 +253,7 @@ PROMPT_COMMAND='printf "PROMPT_REMATCH:<%s>\\n" "\${BASH_REMATCH[1]-unset}"'
     expectLifecycle(output)
   })
 
-  itWithBash('hides legacy dispatcher commands from a chained DEBUG trap', () => {
+  itWithoutSystemdOscHook('hides legacy dispatcher commands from a chained DEBUG trap', () => {
     const profile = [
       '__bp_preexec() { [[ -n "${__bp_armed:-}" ]] || return; __bp_armed=""; printf \'PROMPT_PREEXEC:<%s>\\n\' "$BASH_COMMAND"; }',
       "trap '__bp_preexec' DEBUG",
