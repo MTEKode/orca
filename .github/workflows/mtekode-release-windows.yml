@@ -76,6 +76,8 @@ jobs:
     needs: [prepare, build]
     runs-on: ubuntu-latest
     steps:
+      # Local actions need a checkout of the repo that hosts them.
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/mtekode-release-publish
         with:
           tag: ${{ needs.prepare.outputs.tag }}
