@@ -32,6 +32,18 @@
         "-e",
         "import { existsSync } from 'node:fs'; import { dirname, join } from 'node:path'; import { pathToFileURL } from 'node:url'; let dir = process.cwd(); for (;;) { const file = join(dir, 'config/scripts/component-fixtures/fixtures-mcp-server.mjs'); if (existsSync(file)) { await import(pathToFileURL(file).href); break; } const parent = dirname(dir); if (parent === dir) throw new Error('Cannot find the component fixtures server'); dir = parent; }"
       ]
+    },
+    "mte-memory": {
+      "type": "local",
+      "command": [
+        "orca",
+        "mte",
+        "memory",
+        "--role",
+        "orchestrator",
+        "--workspace",
+        "/Users/marcos/orca/workspaces/orca/kraken"
+      ]
     }
   }
 }

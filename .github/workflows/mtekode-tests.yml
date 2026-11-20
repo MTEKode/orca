@@ -54,7 +54,5 @@ jobs:
             mobile/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - name: Report shell hook state
-        run: |
-          bash -i -c 'source /etc/profile >/dev/null 2>&1; declare -F | grep -i systemd | head -5; echo PC=$PROMPT_COMMAND' < /dev/null 2>&1 | head -8
-          head -40 /etc/profile.d/80-systemd-osc-context.sh 2>/dev/null || true
+        run: TERM=xterm bash -c 'source /etc/profile >/dev/null 2>&1; declare -F | grep -i systemd | head -5; declare -p PROMPT_COMMAND PS0 2>/dev/null | head -3'
       - run: pnpm test

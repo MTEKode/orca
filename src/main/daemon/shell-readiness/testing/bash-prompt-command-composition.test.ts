@@ -7,19 +7,22 @@ import { getDaemonBashShellReadyRcfileContent } from '../daemon-bash-shell-ready
 
 const hasBash = process.platform !== 'win32' && spawnSync('bash', ['--version']).status === 0
 const itWithBash = hasBash ? it : it.skip
-// GitHub-hosted ubuntu runners ship systemd shell integration (/etc/profile.d/*systemd*.sh)
-// that chains its own OSC emitter into interactive bash; the wrapper rcfiles source /etc/profile,
-// so it reshapes the exact compositions these tests assert. Probe interactively (profile.d
-// scripts no-op otherwise) without depending on the hook's exact function name.
+// GitHub-hosted runners ship systemd's OSC context hook (/etc/profile.d/*systemd*.sh), and the
+// wrapper rcfiles source /etc/profile. With TERM set — as these tests do — the hook's
+// PROMPT_COMMAND/PS0 expansions fire the wrapper's DEBUG trap extra times per command, reshaping
+// the exact compositions asserted here. Probe with TERM set, matching how the tests launch bash.
 const systemdOscHook = hasBash
   ? spawnSync(
       'bash',
       [
-        '-i',
         '-c',
-        'source /etc/profile >/dev/null 2>&1; declare -F | grep -qi systemd && printf present; [[ ${PROMPT_COMMAND:-} =~ systemd|osc ]] && printf present'
+        'source /etc/profile >/dev/null 2>&1; declare -F | grep -qi systemd && printf present'
       ],
-      { input: '', encoding: 'utf8', timeout: 5000 }
+      {
+        encoding: 'utf8',
+        timeout: 5000,
+        env: { ...process.env, TERM: process.env.TERM || 'xterm' }
+      }
     ).stdout.includes('present')
   : false
 const itWithoutSystemdOscHook = systemdOscHook ? it.skip : itWithBash
