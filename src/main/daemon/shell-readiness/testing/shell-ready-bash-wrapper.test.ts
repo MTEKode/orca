@@ -20,17 +20,19 @@ async function importFreshDaemonBashRcfile(): Promise<typeof DaemonBashRcfileMod
 const describePosix = process.platform === 'win32' ? describe.skip : describe
 const hasBash = process.platform !== 'win32' && spawnSync('bash', ['--version']).status === 0
 const itWithBash = hasBash ? it : it.skip
-// GitHub's ubuntu runners ship a systemd hook that chains its own OSC emitter into every
-// interactive bash a login shell spawns, which reshapes the exact compositions these tests
-// assert. Probe it the way these tests launch bash: through a login shell.
+// GitHub-hosted ubuntu runners ship systemd shell integration (/etc/profile.d/*systemd*.sh)
+// that chains its own OSC emitter into interactive bash; the wrapper rcfiles source /etc/profile,
+// so it reshapes the exact compositions these tests assert. Probe interactively (profile.d
+// scripts no-op otherwise) without depending on the hook's exact function name.
 const systemdOscHook = hasBash
   ? spawnSync(
       'bash',
       [
-        '-lc',
-        '"$BASH" --noprofile --rcfile /dev/null -i -c "declare -F __systemd_osc_context_precmdline >/dev/null && printf present"'
+        '-i',
+        '-c',
+        'source /etc/profile >/dev/null 2>&1; declare -F | grep -qi systemd && printf present; [[ ${PROMPT_COMMAND:-} =~ systemd|osc ]] && printf present'
       ],
-      { input: '', encoding: 'utf8', timeout: 5000, env: { ...process.env, TERM: 'xterm' } }
+      { input: '', encoding: 'utf8', timeout: 5000 }
     ).stdout.includes('present')
   : false
 const itWithoutSystemdOscHook = systemdOscHook ? it.skip : itWithBash

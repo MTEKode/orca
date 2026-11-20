@@ -53,11 +53,8 @@ jobs:
             pnpm-lock.yaml
             mobile/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - name: Debug systemd OSC hook (temporary)
+      - name: Report shell hook state
         run: |
-          echo "--- bashrc.d ---"; ls /etc/bash.bashrc.d/ 2>/dev/null || echo none
-          echo "--- profile.d ---"; ls /etc/profile.d/ 2>/dev/null
-          echo "--- grep /etc ---"; grep -rl "__systemd_osc" /etc/ 2>/dev/null | head -5
-          echo "--- login probe ---"
-          bash -lc '"$BASH" --noprofile --rcfile /dev/null -i -c "declare -F | grep -i systemd | head -5; printf PC=<%s> \"$PROMPT_COMMAND\""' < /dev/null 2>&1 | head -10
+          bash -i -c 'source /etc/profile >/dev/null 2>&1; declare -F | grep -i systemd | head -5; echo PC=$PROMPT_COMMAND' < /dev/null 2>&1 | head -8
+          head -40 /etc/profile.d/80-systemd-osc-context.sh 2>/dev/null || true
       - run: pnpm test
